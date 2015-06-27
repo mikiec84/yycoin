@@ -9149,6 +9149,11 @@ public class ParentOutAction extends DispatchAction
 		else if ("6".equals(queryType))
 		{
 			// 可以查询所有
+            //2015/6/27 Filter by product name
+            String productName = request.getParameter("product_name");
+            if (!StringTools.isNullOrNone(productName)){
+                condtion.addCondition(" and exists (select b.id from t_center_base b where b.outId=OutBean.fullId and b.productName like '%"+productName+"%')");
+            }
 		}
 		// 业务员查询自己的销售退库
 		else if ("7".equals(queryType))

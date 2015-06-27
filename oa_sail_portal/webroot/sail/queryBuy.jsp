@@ -594,6 +594,16 @@ function hrefAndSelect(obj)
 						    </select>
 						</td>
 					</tr>
+
+                    <tr class="content1">
+                        <td width="15%" align="center">产品名称</td>
+                        <td align="center"><input type="text" name="product_name">
+                        </td>
+
+                        <td width="15%" align="center"></td>
+                        <td align="center">
+                        </td>
+                    </tr>
 					
 					<tr class="content2">
 						<td colspan="4" align="right"><input type="button" id="query_b"

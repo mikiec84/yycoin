@@ -25,6 +25,11 @@ import java.util.*;
  */
 public class Test {
     public static void main(String[] args) throws Exception{
+        double giftPercentage = ((double)3)/7;
+        int amount = (int)(giftPercentage*9);
+        System.out.println(giftPercentage);
+        System.out.println(giftPercentage*9);
+        System.out.println(amount);
         String outIds = "SO1504161858017551344;SO1504161858017551345;";
         StringTokenizer  st = new  StringTokenizer(outIds,";");
         while(st.hasMoreTokens()) {
