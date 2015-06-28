@@ -536,7 +536,7 @@ public class ParentOutAction extends DispatchAction
 		}
 	}
 
-	/**
+	/** 批量退货
 	 * addBatchBack
 	 * 
 	 * @param mapping

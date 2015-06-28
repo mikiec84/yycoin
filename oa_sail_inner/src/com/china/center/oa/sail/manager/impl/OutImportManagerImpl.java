@@ -2193,10 +2193,12 @@ public class OutImportManagerImpl implements OutImportManager
 	@Transactional(rollbackFor = MYException.class)
 	public boolean batchUpdateConsign(List<ConsignBean> list) throws MYException
 	{
+        _logger.info("batchUpdateConsign with size:"+list.size());
 		JudgeTools.judgeParameterIsNull(list);
 		
 		for (ConsignBean each : list)
 		{
+            _logger.info("each*****************"+each);
 			Set<String> set = new HashSet<String>();
 			
 			// each.getDistId() 改为导入的是 出库单，根据出库单找到销售单
@@ -2232,6 +2234,8 @@ public class OutImportManagerImpl implements OutImportManager
                     oldBean.setSfReceiveDate(each.getSfReceiveDate());
 					
 					consignDAO.updateConsign(oldBean);
+
+
 				} else {
 					List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(s);
 					
@@ -2265,6 +2269,21 @@ public class OutImportManagerImpl implements OutImportManager
 					}
 				}
 			}
+
+            //2015/6/27 把发货单号和发货日期写入CK单
+            if (!StringTools.isNullOrNone(each.getDistId())){
+                PackageBean packageBean = this.packageDAO.find(each.getDistId());
+                if (packageBean!= null){
+                    packageBean.setTransportNo(each.getTransportNo());
+                    packageBean.setSfReceiveDate(each.getSfReceiveDate());
+                    this.packageDAO.updateEntityBean(packageBean);
+                    _logger.info("update packageBean to setSfReceiveDate ***"+packageBean);
+                } else{
+                    _logger.info("Do not find package for:"+each.getDistId());
+                }
+            } else {
+                _logger.warn("can not find package for ConsignBean:"+each);
+            }
 		}
 		
 		return true;

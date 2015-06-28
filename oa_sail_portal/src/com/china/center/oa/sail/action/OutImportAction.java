@@ -3814,9 +3814,9 @@ public class OutImportAction extends DispatchAction
                             .append("<br>");
                         
                 			importError = true;
-            			}
-            			
-            			bean.setTransport(tb.getId());
+            			} else{
+            			    bean.setTransport(tb.getId());
+                        }
             		}
             		else
             		{

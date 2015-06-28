@@ -148,6 +148,11 @@ public class PackageBean implements Serializable
      * 此字段由后台Job生成
      */
     private int insFollowOut = ShipConstant.INVOICE_SHIP_FOLLOW_OUT;
+
+    //2015/6/27 顺丰发货单号
+    private String transportNo = "";
+    //2015/6/27 顺丰收货日期
+    private String sfReceiveDate = "";
 	
 	@Ignore
 	List<PackageItemBean> itemList = null;
@@ -156,7 +161,23 @@ public class PackageBean implements Serializable
 	{
 	}
 
-	public String getId()
+    public String getTransportNo() {
+        return transportNo;
+    }
+
+    public void setTransportNo(String transportNo) {
+        this.transportNo = transportNo;
+    }
+
+    public String getSfReceiveDate() {
+        return sfReceiveDate;
+    }
+
+    public void setSfReceiveDate(String sfReceiveDate) {
+        this.sfReceiveDate = sfReceiveDate;
+    }
+
+    public String getId()
 	{
 		return id;
 	}
@@ -525,6 +546,10 @@ public class PackageBean implements Serializable
                 ", cityId='" + cityId + '\'' +
                 ", emergency=" + emergency +
                 ", sendMailFlag=" + sendMailFlag +
+                ", billsTime='" + billsTime + '\'' +
+                ", insFollowOut=" + insFollowOut +
+                ", transportNo='" + transportNo + '\'' +
+                ", sfReceiveDate='" + sfReceiveDate + '\'' +
                 '}';
     }
 }
