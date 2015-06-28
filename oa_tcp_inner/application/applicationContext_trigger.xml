@@ -21,7 +21,7 @@
     <bean id="ibReportJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="ibReportJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/60 * * * ?" />
     </bean>
 
     <bean
