@@ -3021,20 +3021,20 @@ public class TravelApplyAction extends DispatchAction
                                 customerToIbMap.put(item.getCustomerName(), item.getIbMoney()*item.getAmount());
                             }
 
-                            if (!ListTools.isEmptyOrNull(baseBeans)){
-                               com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
-                                _logger.info("baseBean.getIbMoney():"+baseBean.getIbMoney()+"***item.getIbMoney()***"+item.getIbMoney());
-                                if (Math.abs(baseBean.getIbMoney()*baseBean.getAmount()-item.getAmount()*item.getIbMoney()) > 0.00001){
-                                    builder
-                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("中收金额与系统记录的金额不等")
-                                            .append("</font><br>");
-
-                                    importError = true;
-                                }
-                            }else{
-                                _logger.warn("No BaseBeans found:"+con1.toString());
-                            }
+//                            if (!ListTools.isEmptyOrNull(baseBeans)){
+//                               com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
+//                                _logger.info("baseBean.getIbMoney():"+baseBean.getIbMoney()+"***item.getIbMoney()***"+item.getIbMoney());
+//                                if (Math.abs(baseBean.getIbMoney()*baseBean.getAmount()-item.getAmount()*item.getIbMoney()) > 0.00001){
+//                                    builder
+//                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                            .append("中收金额与系统记录的金额不等")
+//                                            .append("</font><br>");
+//
+//                                    importError = true;
+//                                }
+//                            }else{
+//                                _logger.warn("No BaseBeans found:"+con1.toString());
+//                            }
                         } else if (type == TcpConstanst.MOTIVATION_TYPE){
                             item.setMotivationMoney(MathTools.parseDouble(money));
                             if(customerToMotivationMap.containsKey(item.getCustomerName())){
@@ -3044,18 +3044,18 @@ public class TravelApplyAction extends DispatchAction
                                 customerToMotivationMap.put(item.getCustomerName(),item.getMotivationMoney()*item.getAmount());
                             }
 
-                            if (!ListTools.isEmptyOrNull(baseBeans)){
-                                com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
-                                _logger.info("baseBean.getMotivationMoney():"+baseBean.getMotivationMoney()+"***item.getMotivationMoney()***"+item.getMotivationMoney());
-                                if (Math.abs(baseBean.getMotivationMoney()*baseBean.getAmount()-item.getMotivationMoney()*item.getAmount()) > 0.00001){
-                                    builder
-                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("激励金额与系统记录的金额不等")
-                                            .append("</font><br>");
-
-                                    importError = true;
-                                }
-                            }
+//                            if (!ListTools.isEmptyOrNull(baseBeans)){
+//                                com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
+//                                _logger.info("baseBean.getMotivationMoney():"+baseBean.getMotivationMoney()+"***item.getMotivationMoney()***"+item.getMotivationMoney());
+//                                if (Math.abs(baseBean.getMotivationMoney()*baseBean.getAmount()-item.getMotivationMoney()*item.getAmount()) > 0.00001){
+//                                    builder
+//                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                            .append("激励金额与系统记录的金额不等")
+//                                            .append("</font><br>");
+//
+//                                    importError = true;
+//                                }
+//                            }
                         }
                     } else{
                         builder
@@ -3120,7 +3120,7 @@ public class TravelApplyAction extends DispatchAction
 
                         if (customerToMotivationMap.get(customerName)> ib.getMotivationMoneyTotal()){
                             builder.append("客户[").append(customerName)
-                                    .append("]").append("可申请激励金额不足："+ib.getIbMoneyTotal())
+                                    .append("]").append("可申请激励金额不足："+ib.getMotivationMoneyTotal())
                                     .append("<br>");
                             importError = true;
                         }
