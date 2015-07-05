@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.product.bean.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,21 +55,6 @@ import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.product.bean.CiticVSOAProductBean;
-import com.china.center.oa.product.bean.ComposeFeeBean;
-import com.china.center.oa.product.bean.ComposeFeeDefinedBean;
-import com.china.center.oa.product.bean.ComposeItemBean;
-import com.china.center.oa.product.bean.ComposeProductBean;
-import com.china.center.oa.product.bean.DecomposeProductBean;
-import com.china.center.oa.product.bean.DepotBean;
-import com.china.center.oa.product.bean.DepotpartBean;
-import com.china.center.oa.product.bean.GoldSilverPriceBean;
-import com.china.center.oa.product.bean.PriceChangeBean;
-import com.china.center.oa.product.bean.PriceChangeNewItemBean;
-import com.china.center.oa.product.bean.PriceChangeSrcItemBean;
-import com.china.center.oa.product.bean.PriceConfigBean;
-import com.china.center.oa.product.bean.ProductBean;
-import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.constant.ComposeConstant;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
@@ -2267,7 +2253,6 @@ public class ProductAction extends DispatchAction
      * @param mapping
      * @param form
      * @param request
-     * @param reponse
      * @return
      * @throws ServletException
      */
@@ -2313,7 +2298,6 @@ public class ProductAction extends DispatchAction
      * @param mapping
      * @param form
      * @param request
-     * @param reponse
      * @return
      * @throws ServletException
      */
@@ -2355,7 +2339,6 @@ public class ProductAction extends DispatchAction
      * @param mapping
      * @param form
      * @param request
-     * @param reponse
      * @return
      * @throws ServletException
      */
@@ -3647,6 +3630,25 @@ public class ProductAction extends DispatchAction
 
         return result;
     }
+
+    private String[] fillObj2(String[] obj)
+    {
+        String[] result = new String[8];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
     
     /**
      * queryCiticProduct
@@ -3711,6 +3713,192 @@ public class ProductAction extends DispatchAction
     public String getPicPath()
     {
         return ConfigLoader.getProperty("picPath");
+    }
+
+    /**
+     * 2015/7/4 导入产品品名对照表
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importProductVsBank(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<ProductVSBankBean> importItemList = new ArrayList<ProductVSBankBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importProductVsBank");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importProductVsBank");
+        }
+
+        // 获取上次最后一次导入的时间
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj2((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    ProductVSBankBean bean = new ProductVSBankBean();
+
+                    // 产品编码
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        bean.setCode(obj[0]);
+                    }else{
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("产品编码为空")
+                                .append("<br>");
+                    }
+
+                    // 中信品名
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        bean.setCiticProductName(obj[1]);
+                    }
+
+                    // 招行品名
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setZhProductName(obj[2]);
+                    }
+
+                    // 浦发品名
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        bean.setPufaProductName(obj[3]);
+                    }
+
+                    // 紫金品名
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        bean.setZjProductName(obj[4]);
+                    }
+
+                    // 广州农商品名
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        bean.setGznsProductName(obj[5]);
+                    }
+
+                    // 江南农商品名
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        bean.setJnnsProductName(obj[6]);
+                    }
+
+                    // 交行品名
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        bean.setJtProductName(obj[7]);
+                    }
+
+                    importItemList.add(bean);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足5格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+
+
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importProductVsBank");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importProductVsBank");
+        }
+
+        try
+        {
+            this.productManager.importProductVsBank(user, importItemList);
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+            return mapping.findForward("importProductVsBank");
+        }
+
+        request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+
+        return mapping.findForward("importProductVsBank");
+
     }
 
     /**

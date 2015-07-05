@@ -24,6 +24,7 @@
 			<forward name="queryDecompose" />
 			<forward name="rptQueryComposeProduct" />
 			<forward name="queryCiticProduct" path="/product/queryCiticProduct.jsp"/>
+            <forward name="importProductVsBank" path="/product/importProductVsBank.jsp"/>
 		</action>
 
 		<action path="/provider/provider" parameter="method"

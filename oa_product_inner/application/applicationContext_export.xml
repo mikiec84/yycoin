@@ -88,6 +88,8 @@
 	<osgi:service ref="productSubApplyDAO" interface="com.china.center.oa.product.dao.ProductSubApplyDAO" />	
 	
 	<osgi:service ref="productVSStafferDAO" interface="com.china.center.oa.product.dao.ProductVSStafferDAO" />
+
+    <osgi:service ref="productVSBankDAO" interface="com.china.center.oa.product.dao.ProductVSBankDAO" />
 	
 	<osgi:service ref="priceConfigDAO" interface="com.china.center.oa.product.dao.PriceConfigDAO" />
 	

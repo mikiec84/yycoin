@@ -12,6 +12,9 @@ package com.china.center.oa.product.manager.impl;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.ProductVSBankBean;
+import com.china.center.oa.product.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -26,11 +29,6 @@ import com.china.center.oa.product.bean.CiticVSOAProductBean;
 import com.china.center.oa.product.bean.GoldSilverPriceBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
-import com.china.center.oa.product.dao.CiticVSOAProductDAO;
-import com.china.center.oa.product.dao.GoldSilverPriceDAO;
-import com.china.center.oa.product.dao.ProductCombinationDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.ProductVSLocationDAO;
 import com.china.center.oa.product.listener.ProductListener;
 import com.china.center.oa.product.manager.ProductManager;
 import com.china.center.oa.product.vs.ProductCombinationBean;
@@ -55,6 +53,8 @@ import com.china.center.tools.StringTools;
 @Exceptional
 public class ProductManagerImpl extends AbstractListenerManager<ProductListener> implements ProductManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private final Log operationLog = LogFactory.getLog("opr");
 
     private ProductCombinationDAO productCombinationDAO = null;
@@ -70,6 +70,8 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
     private GoldSilverPriceDAO goldSilverPriceDAO = null;
     
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
+
+    private ProductVSBankDAO productVSBankDAO = null;
     
     /**
      * default constructor
@@ -272,7 +274,6 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
      * executeProductStatusChange
      * 
      * @param user
-     * @param bean
      * @throws MYException
      */
     private void executeProductStatusChange(User user, String productId, int oldStatus,
@@ -426,7 +427,42 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
     	
 		return true;
 	}
-    
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean importProductVsBank(User user, List<ProductVSBankBean> productVSBankBeans) throws MYException {
+        _logger.info("begin to importProductVsBank************"+this.productVSBankDAO);
+        try{
+        if (!ListTools.isEmptyOrNull(productVSBankBeans)){
+            for (ProductVSBankBean bean : productVSBankBeans){
+                ConditionParse con = new ConditionParse();
+                con.addWhereStr();
+                con.addCondition("code", "=", bean.getCode());
+                List<ProductVSBankBean> beans = this.productVSBankDAO.queryEntityBeansByCondition(con);
+                if (ListTools.isEmptyOrNull(beans)){
+                    _logger.info("create new ProductVSBankBean:"+bean);
+                    String id = commonDAO.getSquenceString20("CK");
+                    this.productVSBankDAO.saveEntityBean(bean);
+                } else{
+                    ProductVSBankBean oldBean = beans.get(0);
+                    oldBean.setCiticProductName(bean.getCiticProductName());
+                    oldBean.setZhProductName(bean.getZhProductName());
+                    oldBean.setPufaProductName(bean.getPufaProductName());
+                    oldBean.setZjProductName(bean.getZjProductName());
+                    oldBean.setGznsProductName(bean.getGznsProductName());
+                    oldBean.setJnnsProductName(bean.getJnnsProductName());
+                    oldBean.setJtProductName(bean.getJtProductName());
+                    this.productVSBankDAO.updateEntityBean(oldBean);
+                    _logger.info("update ProductVSBankBean:"+oldBean);
+                }
+            }
+        }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     private String getPicPath()
     {
         return ConfigLoader.getProperty("picPath");
@@ -570,4 +606,12 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
 	{
 		this.citicVSOAProductDAO = citicVSOAProductDAO;
 	}
+
+    public ProductVSBankDAO getProductVSBankDAO() {
+        return productVSBankDAO;
+    }
+
+    public void setProductVSBankDAO(ProductVSBankDAO productVSBankDAO) {
+        this.productVSBankDAO = productVSBankDAO;
+    }
 }

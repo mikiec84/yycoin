@@ -91,6 +91,8 @@
 	<bean id="productSubApplyDAO" class="com.china.center.oa.product.dao.impl.ProductSubApplyDAOImpl" />
 	
 	<bean id="productVSStafferDAO" class="com.china.center.oa.product.dao.impl.ProductVSStafferDAOImpl" />
+
+    <bean id="productVSBankDAO" class="com.china.center.oa.product.dao.impl.ProductVSBankDAOImpl" />
 	
 	<bean id="priceConfigDAO" class="com.china.center.oa.product.dao.impl.PriceConfigDAOImpl" />
 	
