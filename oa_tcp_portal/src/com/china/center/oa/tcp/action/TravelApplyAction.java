@@ -3473,6 +3473,106 @@ public class TravelApplyAction extends DispatchAction
     }
 
 
+    /** 2015/7/6
+     * export 所有客户中收激励明细导出CSV
+     *
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward exportDetail(ActionMapping mapping, ActionForm form,
+                                        HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        OutputStream out = null;
+
+        String filenName = "Export_" + TimeTools.now("MMddHHmmss") + ".csv";
+
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+
+        List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(con);
+
+        if (ListTools.isEmptyOrNull(ibReportList))
+        {
+            return null;
+        }
+
+        response.setContentType("application/x-dbf");
+
+        response.setHeader("Content-Disposition", "attachment; filename="
+                + filenName);
+
+        WriteFile write = null;
+
+        try
+        {
+            out = response.getOutputStream();
+
+            write = WriteFileFactory.getMyTXTWriter();
+
+            write.openFile(out);
+
+            WriteFileBuffer line = new WriteFileBuffer(write);
+            line.writeColumn("客户名");
+            line.writeColumn("订单号");
+            line.writeColumn("商品名");
+            line.writeColumn("商品数量");
+            line.writeColumn("中收金额");
+            line.writeColumn("激励金额");
+
+            line.writeLine();
+
+            for (Iterator<TcpIbReportItemBean> iter = ibReportList.iterator(); iter.hasNext();)
+            {
+                TcpIbReportItemBean ib = iter.next();
+                line.writeColumn(ib.getCustomerName());
+                line.writeColumn(ib.getFullId());
+                line.writeColumn(ib.getProductName());
+                line.writeColumn(ib.getAmount());
+                line.writeColumn(ib.getIbMoney());
+                line.writeColumn(ib.getMotivationMoney());
+
+                line.writeLine();
+
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+            return null;
+        }
+        finally
+        {
+            if (write != null)
+            {
+                try
+                {
+                    write.close();
+                }
+                catch (Exception e1)
+                {
+                }
+            }
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
+
+        return null;
+    }
+
+
     /**
      * export中收激励明细导出CSV
      *

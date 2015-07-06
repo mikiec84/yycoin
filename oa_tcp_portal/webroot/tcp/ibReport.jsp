@@ -13,6 +13,12 @@
             document.location.href = '../tcp/apply.do?method=export';
     }
 
+    function exportsDetail()
+    {
+        if (window.confirm("确定导出订单明细信息?"))
+            document.location.href = '../tcp/apply.do?method=exportDetail';
+    }
+
 </script>
 
 </head>
@@ -113,6 +119,8 @@
         <div align="right">
             <input type="button" class="button_class"
                     value="&nbsp;导出查询结果&nbsp;" onclick="exports()" />&nbsp;&nbsp;
+            <input type="button" class="button_class"
+                   value="&nbsp;导出订单明细&nbsp;" onclick="exportsDetail()" />&nbsp;&nbsp;
 
         </div>
     </td>

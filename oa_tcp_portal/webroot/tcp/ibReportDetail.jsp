@@ -10,7 +10,7 @@
         function exports()
         {
             var ibReportId = '${ibReportId}';
-            console.log("ibReportId:"+ibReportId);
+//            console.log("ibReportId:"+ibReportId);
             if (window.confirm("确定导出当前明细?"))
                 document.location.href = '../tcp/apply.do?method=exportIbDetail&ibReportId='+ibReportId;
         }
