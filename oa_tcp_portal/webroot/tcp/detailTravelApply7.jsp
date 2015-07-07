@@ -23,7 +23,7 @@ function load()
 <input type="hidden" name="departmentId" value="${g_stafferBean.principalshipId}"> 
 
 <p:navigation height="22">
-    <td width="550" class="navigation">中收申请明细</td>
+    <td width="550" class="navigation">中收激励申请明细</td>
     <td width="85"></td>
 </p:navigation> <br>
 
@@ -31,7 +31,7 @@ function load()
 
     <p:title>
         <td class="caption">
-         <strong>中收</strong>
+         <strong>中收激励</strong>
         </td>
     </p:title>
 
@@ -46,22 +46,18 @@ function load()
             ${bean.flowDescription}
             </p:cell>
 
-            <c:if test="${bean.importFlag}">
-                <p:pro field="id"/>
-                <c:if test="${item.ibType ==0}">
-                    <p:cell title="申请类型">
-                        中收
-                    </p:cell>
-                </c:if>
-                <c:if test="${item.ibType ==1}">
-                    <p:cell title="申请类型">
-                        激励
-                    </p:cell>
-                </c:if>
+            <c:if test="${bean.ibType ==0}">
+                <p:cell title="申请类型" width="8" end="true">
+                    中收
+                </p:cell>
             </c:if>
-            <c:if test="${!bean.importFlag}">
-                <p:pro field="id" cell="0"/>
+            <c:if test="${bean.ibType ==1}">
+                <p:cell title="申请类型" width="8" end="true">
+                    激励
+                </p:cell>
             </c:if>
+
+            <p:pro field="id" cell="0"/>
             
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
