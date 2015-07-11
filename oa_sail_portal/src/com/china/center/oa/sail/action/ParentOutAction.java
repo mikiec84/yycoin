@@ -2491,6 +2491,7 @@ public class ParentOutAction extends DispatchAction
             //2015/6/17 导出中收激励金额
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("银行销售日期");
 
 			line.writeColumn("产品类型");
 			line.writeColumn("销售类型");
@@ -2764,6 +2765,7 @@ public class ParentOutAction extends DispatchAction
                     //2015/6/17 导出中收激励金额
                     line.writeColumn(MathTools.formatNum(base.getIbMoney()));
                     line.writeColumn(MathTools.formatNum(base.getMotivationMoney()));
+                    line.writeColumn(element.getPodate());
 
 					String productType = "";
 					String productSailType = "";

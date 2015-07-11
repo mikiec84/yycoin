@@ -3523,6 +3523,8 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("申请人");
+            line.writeColumn("银行销售日期");
 
             line.writeLine();
 
@@ -3536,6 +3538,12 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getIbMoney());
                 line.writeColumn(ib.getMotivationMoney());
 
+                //2015/7/11导出申请人和银行销售日期
+                OutBean outBean = this.outDAO.find(ib.getFullId());
+                if (outBean!= null){
+                    line.writeColumn(outBean.getStafferName());
+                    line.writeColumn(outBean.getPodate());
+                }
                 line.writeLine();
 
             }
@@ -3625,6 +3633,8 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("申请人");
+            line.writeColumn("银行销售日期");
 
             line.writeLine();
 
@@ -3637,6 +3647,13 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getAmount());
                 line.writeColumn(ib.getIbMoney());
                 line.writeColumn(ib.getMotivationMoney());
+
+                //2015/7/11导出申请人和银行销售日期
+                OutBean outBean = this.outDAO.find(ib.getFullId());
+                if (outBean!= null){
+                    line.writeColumn(outBean.getStafferName());
+                    line.writeColumn(outBean.getPodate());
+                }
 
                 line.writeLine();
 
