@@ -971,6 +971,14 @@ function clears()
                         </td>
                     </tr>
 
+                    <tr class="content1">
+                        <td width="15%" align="center">订单时间从</td>
+                        <td align="center" width="35%"><p:plugin name="poDate" type="0" size="20" value="${ppmap.poDate}"/></td>
+                        <td width="15%" align="center">到</td>
+                        <td align="center"><p:plugin name="poDate1" type="0" size="20" value="${ppmap.poDate1}"/>
+                        </td>
+                    </tr>
+
 					<tr class="content2">
 						<td width="15%" align="center">销售单状态</td>
 						<td align="center">

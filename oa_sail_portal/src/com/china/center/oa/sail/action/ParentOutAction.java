@@ -8383,6 +8383,21 @@ public class ParentOutAction extends DispatchAction
 			condtion.addCondition("OutBean.outTime", "<=", outTime1);
 		}
 
+        //2015/7/12 新增查询条件“银行销售日期"
+        String poDate = request.getParameter("poDate");
+
+        String poDate1 = request.getParameter("poDate1");
+
+        if (!StringTools.isNullOrNone(poDate))
+        {
+            condtion.addCondition("OutBean.poDate", ">=", poDate);
+        }
+
+        if (!StringTools.isNullOrNone(poDate1))
+        {
+            condtion.addCondition("OutBean.poDate", "<=", poDate1);
+        }
+
 		String changeTime = request.getParameter("changeTime");
 
 		String changeTime1 = request.getParameter("changeTime1");
