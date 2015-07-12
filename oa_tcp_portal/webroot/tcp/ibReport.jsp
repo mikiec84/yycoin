@@ -9,14 +9,15 @@
 <script language="javascript">
     function exports()
     {
-        if (window.confirm("确定导出当前查询结果?"))
-            document.location.href = '../tcp/apply.do?method=export';
+        if (window.confirm("确定导出当前查询结果?")){
+            document.location.href = '../tcp/apply.do?method=export&customerName='+'${customerName}';
+        }
     }
 
     function exportsDetail()
     {
         if (window.confirm("确定导出订单明细信息?"))
-            document.location.href = '../tcp/apply.do?method=exportDetail';
+            document.location.href = '../tcp/apply.do?method=exportDetail&customerName='+'${customerName}';
     }
 
 </script>
@@ -46,7 +47,7 @@
                         <tr class="content1">
                             <td width="15%" align="center">客户：</td>
                             <td align="center">
-                                <input type="text" name="customerName" maxlength="14">
+                                <input type="text" name="customerName" maxlength="14" value="${customerName}">
                             </td>
                         </tr>
 

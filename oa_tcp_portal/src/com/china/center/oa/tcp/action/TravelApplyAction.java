@@ -3336,6 +3336,7 @@ public class TravelApplyAction extends DispatchAction
             List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
             _logger.info("ibReportList size********"+ibReportList.size());
             request.setAttribute("ibReportList", ibReportList);
+            request.setAttribute("customerName", customerName);
         }catch (Exception e){
             e.printStackTrace();
             _logger.error("Exception:",e);
@@ -3394,6 +3395,7 @@ public class TravelApplyAction extends DispatchAction
         User user = (User) request.getSession().getAttribute("user");
 
         String customerName = request.getParameter("customerName");
+        _logger.info("export ibReport with customer name:"+customerName);
         ConditionParse con = new ConditionParse();
         if (!StringTools.isNullOrNone(customerName)){
             con.addWhereStr();
@@ -3425,7 +3427,6 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
-            //TODO 商品名等
 
             line.writeLine();
 
@@ -3491,6 +3492,9 @@ public class TravelApplyAction extends DispatchAction
 
         String filenName = "Export_" + TimeTools.now("MMddHHmmss") + ".csv";
 
+        String customerName = request.getParameter("customerName");
+        _logger.info("export ibReport detail with customer name:"+customerName);
+
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
 
@@ -3531,20 +3535,25 @@ public class TravelApplyAction extends DispatchAction
             for (Iterator<TcpIbReportItemBean> iter = ibReportList.iterator(); iter.hasNext();)
             {
                 TcpIbReportItemBean ib = iter.next();
-                line.writeColumn(ib.getCustomerName());
-                line.writeColumn(ib.getFullId());
-                line.writeColumn(ib.getProductName());
-                line.writeColumn(ib.getAmount());
-                line.writeColumn(ib.getIbMoney());
-                line.writeColumn(ib.getMotivationMoney());
+                if (ib.getCustomerName().equalsIgnoreCase(customerName))  {
+                    line.writeColumn(ib.getCustomerName());
+                    line.writeColumn(ib.getFullId());
+                    line.writeColumn(ib.getProductName());
+                    line.writeColumn(ib.getAmount());
+                    line.writeColumn(ib.getIbMoney());
+                    line.writeColumn(ib.getMotivationMoney());
 
-                //2015/7/11导出申请人和银行销售日期
-                OutBean outBean = this.outDAO.find(ib.getFullId());
-                if (outBean!= null){
-                    line.writeColumn(outBean.getStafferName());
-                    line.writeColumn(outBean.getPodate());
+                    //2015/7/11导出申请人和银行销售日期
+                    OutBean outBean = this.outDAO.find(ib.getFullId());
+                    if (outBean!= null){
+                        line.writeColumn(outBean.getStafferName());
+                        line.writeColumn(outBean.getPodate());
+                    }
+                    line.writeLine();
+                } else{
+                    _logger.info("ib.getCustomerName() not match:"+ib.getCustomerName());
                 }
-                line.writeLine();
+
 
             }
         }
