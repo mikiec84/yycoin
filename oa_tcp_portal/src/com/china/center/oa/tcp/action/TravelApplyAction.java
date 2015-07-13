@@ -3535,7 +3535,7 @@ public class TravelApplyAction extends DispatchAction
             for (Iterator<TcpIbReportItemBean> iter = ibReportList.iterator(); iter.hasNext();)
             {
                 TcpIbReportItemBean ib = iter.next();
-                if (ib.getCustomerName().equalsIgnoreCase(customerName))  {
+                if (StringTools.isNullOrNone(customerName)|| ib.getCustomerName().contains(customerName))  {
                     line.writeColumn(ib.getCustomerName());
                     line.writeColumn(ib.getFullId());
                     line.writeColumn(ib.getProductName());

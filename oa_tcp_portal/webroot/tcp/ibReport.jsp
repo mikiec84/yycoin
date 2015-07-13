@@ -47,7 +47,7 @@
                         <tr class="content1">
                             <td width="15%" align="center">客户：</td>
                             <td align="center">
-                                <input type="text" name="customerName" maxlength="14" value="${customerName}">
+                                <input type="search" name="customerName" maxlength="120" value="${customerName}">
                             </td>
                         </tr>
 
