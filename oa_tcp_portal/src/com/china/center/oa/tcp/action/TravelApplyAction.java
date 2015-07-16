@@ -3199,7 +3199,13 @@ public class TravelApplyAction extends DispatchAction
         }
 
 
-        return mapping.findForward("addTravelApply7import");
+        if (type  == TcpConstanst.IB_TYPE) {
+            return mapping.findForward("addTravelApply7import");
+        } else if (type == TcpConstanst.MOTIVATION_TYPE) {
+            return mapping.findForward("addTravelApply8import");
+        } else{
+            return mapping.findForward("addTravelApply7import");
+        }
     }
 
     private String listToString(List<String> outIds){
