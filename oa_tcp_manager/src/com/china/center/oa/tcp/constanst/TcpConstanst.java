@@ -148,6 +148,14 @@ public interface TcpConstanst
      */
     @Defined(key = "tcpStatus", value = "出纳审核")
     int TCP_STATUS_FINANCE = 29;
+
+
+    //2015/7/18 新增激励申请流程 “初始--待营销管理审批--待总裁（副总经理）审批--待总经理审批”
+    /**
+     * 营销管理
+     */
+    @Defined(key = "tcpStatus", value = "待营销管理审批")
+    int TCP_STATUS_MARKET_MANAGER = 30;
     
     /**
      * 结束

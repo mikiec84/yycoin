@@ -44,6 +44,11 @@ public interface TcpFlowConstant
     String TRAVELAPPLY_MID = "travel-mid";
 
     /**
+     * 2015/7/18 激励报销
+     */
+    String TRAVELAPPLY_MOTIVATION = "travel-motivation";
+
+    /**
      * 5000以内的报销
      */
     String STOCK_APPLY_0_5000 = "stock-0-5000";
