@@ -397,12 +397,15 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 }
             }
 
-            Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
+            //2015/7/19 只有中收申请才需要生成凭证
+            if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
 
-            for (TcpPayListener tcpPayListener : listenerMapValues)
-            {
-                _logger.info("************tcpPayListener************"+tcpPayListener);
-                tcpPayListener.onSubmitMidTravelApply(user, bean);
+                for (TcpPayListener tcpPayListener : listenerMapValues)
+                {
+                    _logger.info("************tcpPayListener************"+tcpPayListener);
+                    tcpPayListener.onSubmitMidTravelApply(user, bean);
+                }
             }
         }
         
