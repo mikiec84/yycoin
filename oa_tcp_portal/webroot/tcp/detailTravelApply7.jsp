@@ -23,7 +23,14 @@ function load()
 <input type="hidden" name="departmentId" value="${g_stafferBean.principalshipId}"> 
 
 <p:navigation height="22">
-    <td width="550" class="navigation">中收激励申请明细</td>
+    <td width="550" class="navigation">
+        <c:if test="${bean.ibType ==0}">
+            中收申请明细
+        </c:if>
+        <c:if test="${bean.ibType ==1}">
+            激励申请明细
+        </c:if>
+    </td>
     <td width="85"></td>
 </p:navigation> <br>
 
@@ -31,7 +38,14 @@ function load()
 
     <p:title>
         <td class="caption">
-         <strong>中收激励</strong>
+         <strong>
+             <c:if test="${bean.ibType ==0}">
+                     中收申请
+            </c:if>
+             <c:if test="${bean.ibType ==1}">
+                     激励申请
+             </c:if>
+         </strong>
         </td>
     </p:title>
 
@@ -217,7 +231,14 @@ function load()
     <c:if test="${bean.importFlag}">
         <p:title>
             <td class="caption">
-                <strong>中收激励明细</strong>
+                <strong>
+                    <c:if test="${bean.ibType ==0}">
+                        中收明细
+                    </c:if>
+                    <c:if test="${bean.ibType ==1}">
+                        激励明细
+                    </c:if>
+                </strong>
             </td>
         </p:title>
 
