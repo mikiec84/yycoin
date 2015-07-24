@@ -363,7 +363,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
             if (sb == null)
             {
-                throw new MYException("仓区下没有储位,请确认操作");
+                _logger.error("仓区下没有储位,请确认操作:"+bean.getDepotpartId());
+                throw new MYException("仓区[%s]下没有储位,请确认操作",bean.getDepotpartId());
             }
 
             bean.setStorageId(sb.getId());

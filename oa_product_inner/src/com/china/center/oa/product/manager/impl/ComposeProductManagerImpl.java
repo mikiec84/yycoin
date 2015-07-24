@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.china.center.jdbc.util.ConditionParse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -73,6 +74,8 @@ import com.china.center.tools.TimeTools;
 @Exceptional
 public class ComposeProductManagerImpl extends AbstractListenerManager<ComposeProductListener> implements ComposeProductManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private final Log oprLogger = LogFactory.getLog("opr");
 
     private ComposeProductDAO composeProductDAO = null;
@@ -117,7 +120,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         // 校验
         checkCompose(bean);
 
-        saveInner(bean);
+        saveInner(bean, false);
 
         return true;
     }
@@ -204,6 +207,45 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     }
 
     @Transactional(rollbackFor = MYException.class)
+    @Override
+    public boolean preComposeProduct(User user, ComposeProductBean composeProductBean) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, composeProductBean);
+
+        saveInner(composeProductBean, true);
+
+        return true;
+    }
+
+    @Override
+    public void composeProductJob() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        ConditionParse condition = new ConditionParse();
+        condition.addCondition("status", "=", ComposeConstant.STATUS_PRE_SUBMIT);
+        List<ComposeProductBean> beans = this.composeProductDAO.queryEntityBeansByCondition(condition);
+        if (ListTools.isEmptyOrNull(beans)){
+            _logger.info("No pre-ComposeProductBean");
+        } else{
+            for (ComposeProductBean bean : beans){
+                try{
+                    this.checkCompose(bean);
+                    //update status to SUBMIT
+                    ComposeProductBean beanInDb = composeProductDAO.find(bean.getId());
+                    if (beanInDb == null){
+                       _logger.error("ComposeProductBean not found:"+bean);
+                    } else{
+                        beanInDb.setStatus(ComposeConstant.STATUS_SUBMIT);
+                        this.composeProductDAO.updateEntityBean(beanInDb);
+                        _logger.info("ComposeProductBean is submitted:"+bean);
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                    _logger.error("Fail to compose product:"+bean, e);
+                }
+            }
+        }
+    }
+
+    @Transactional(rollbackFor = MYException.class)
     public boolean rollbackComposeProduct(User user, String id)
         throws MYException
     {
@@ -255,7 +297,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         // 校验
         checkCompose(bean);
 
-        saveInner(bean);
+        saveInner(bean, false);
 
         return true;
     }
@@ -342,7 +384,6 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     
     /**
      * 
-     * @param list
      * @param bean
      */
     private List<ComposeProductBean> splitComposeProduct(ComposeProductBean bean) throws MYException
@@ -867,11 +908,15 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         }
     }
 
-    private void saveInner(ComposeProductBean bean)
+    private void saveInner(ComposeProductBean bean, boolean preCompose)
     {
         bean.setId(commonDAO.getSquenceString20());
 
-        bean.setStatus(ComposeConstant.STATUS_SUBMIT);
+        if (preCompose){
+            bean.setStatus(ComposeConstant.STATUS_PRE_SUBMIT);
+        } else{
+            bean.setStatus(ComposeConstant.STATUS_SUBMIT);
+        }
 
         composeProductDAO.saveEntityBean(bean);
 

@@ -1444,6 +1444,48 @@ public class ProductAction extends DispatchAction
     }
 
     /**
+     * 2015/7/24 预合成产品
+     *
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward composeProduct2(ActionMapping mapping, ActionForm form,
+                                        HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        ComposeProductBean bean = new ComposeProductBean();
+
+        BeanUtil.getBean(bean, request);
+
+        try
+        {
+            setCompose(request, bean);
+
+            User user = Helper.getUser(request);
+
+            bean.setStafferId(user.getStafferId());
+
+            bean.setType(ComposeConstant.COMPOSE_TYPE_COMPOSE);
+
+            productFacade.preComposeProduct(user.getId(), bean);
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功预合成产品");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "预合成产品失败:" + e.getMessage());
+        }
+
+        return preForCompose2(mapping, form, request, response);
+    }
+
+    /**
      * queryDecompose
      * @param mapping
      * @param form
@@ -2290,6 +2332,51 @@ public class ProductAction extends DispatchAction
         request.setAttribute("feeList", feeList);
 
         return mapping.findForward("composeProduct");
+    }
+
+    /** 2015/7/24 预合成产品
+     * query depotpart for compose
+     *
+     * @param mapping
+     * @param form
+     * @param request
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward preForCompose2(ActionMapping mapping, ActionForm form,
+                                       HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        List<DepotBean> list = depotDAO.queryCommonDepotBean();
+
+        List<DepotpartBean> depotpartList = new ArrayList<DepotpartBean>();
+
+        for (DepotBean depotBean : list)
+        {
+            // 只查询OK仓区的
+            List<DepotpartBean> depotList = depotpartDAO.queryOkDepotpartInDepot(depotBean.getId());
+
+            for (DepotpartBean depotpartBean : depotList)
+            {
+                depotpartBean.setName(depotBean.getName() + " --> " + depotpartBean.getName());
+            }
+
+            depotpartList.addAll(depotList);
+        }
+
+        request.setAttribute("depotList", list);
+
+        request.setAttribute("depotpartList", depotpartList);
+
+        JSONArray object = new JSONArray(depotpartList, false);
+
+        request.setAttribute("depotpartListStr", object.toString());
+
+        List<ComposeFeeDefinedBean> feeList = composeFeeDefinedDAO.listEntityBeans();
+
+        request.setAttribute("feeList", feeList);
+
+        return mapping.findForward("preComposeProduct");
     }
     
     /**

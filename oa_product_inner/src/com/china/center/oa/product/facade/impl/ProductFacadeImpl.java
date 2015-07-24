@@ -266,7 +266,7 @@ public class ProductFacadeImpl extends AbstarctFacade implements ProductFacade
      * addOrUpdateUserBean
      * 
      * @param userId
-     * @param bean
+     * @param pid
      * @return
      * @throws MYException
      */
@@ -648,6 +648,24 @@ public class ProductFacadeImpl extends AbstarctFacade implements ProductFacade
         if (containAuth(user, AuthConstant.PRODUCT_CD))
         {
             return composeProductManager.addComposeProduct(user, bean);
+        }
+        else
+        {
+            throw noAuth();
+        }
+    }
+
+    @Override
+    public boolean preComposeProduct(String userId, ComposeProductBean composeProductBean) throws MYException {
+        JudgeTools.judgeParameterIsNull(userId, composeProductBean);
+
+        User user = userManager.findUser(userId);
+
+        checkUser(user);
+
+        if (containAuth(user, AuthConstant.PRODUCT_CD))
+        {
+            return composeProductManager.preComposeProduct(user, composeProductBean);
         }
         else
         {

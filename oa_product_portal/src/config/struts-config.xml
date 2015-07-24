@@ -9,6 +9,7 @@
 			<forward name="rptQueryAbsProduct" />
 			<forward name="queryApplyProduct" />
 			<forward name="composeProduct" />
+            <forward name="preComposeProduct" />
 			<forward name="detailCompose" />
 			<forward name="priceChange" />
 			<forward name="queryPriceChange" />

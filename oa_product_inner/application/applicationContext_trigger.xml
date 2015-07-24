@@ -37,6 +37,20 @@
         <property name="jobDetail" ref="checkStorageLogJob" />
         <property name="cronExpression" value="0 50 3 * * ?" />
     </bean>
+
+    <bean id="composeProductJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="composeProductManager" />
+        <property name="targetMethod" value="composeProductJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <!--2015/7/24 预合成提交申请JOB -->
+    <bean id="composeProductTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="composeProductJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
     
     <bean
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -44,6 +58,7 @@
 			<list>
 				<ref bean="exportAllStorageRelationTrigger" />
 				<ref bean="checkStorageLogTrigger" />
+                <ref bean="composeProductTrigger" />
 			</list>
 		</property>
 	</bean>

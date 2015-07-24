@@ -34,6 +34,9 @@ public interface ComposeConstant
     @Defined(key = "composeType", value = "分解")
     int COMPOSE_TYPE_DECOMPOSE = 1;
 
+    @Defined(key = "composeStatus", value = "预合成")
+    int STATUS_PRE_SUBMIT = 0;
+
     @Defined(key = "composeStatus", value = "提交")
     int STATUS_SUBMIT = 0;
 

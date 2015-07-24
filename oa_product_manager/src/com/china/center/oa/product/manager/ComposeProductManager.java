@@ -42,6 +42,22 @@ public interface ComposeProductManager extends ListenerManager<ComposeProductLis
         throws MYException;
 
     /**
+     * 2015/7/24 预合成产品
+     *
+     * @param user
+     * @param bean
+     * @return
+     * @throws MYException
+     */
+    boolean preComposeProduct(User user, ComposeProductBean bean)
+            throws MYException;
+
+    /**
+     * 2015/7/24 后台将预合成产品提交申请
+     */
+    public void composeProductJob() throws MYException;
+
+    /**
      * 回滚合成(分解)
      * 
      * @param user

@@ -127,6 +127,16 @@ public interface ProductFacade
         throws MYException;
 
     /**
+     * 2015/7/24 预合成产品
+     * @param userId
+     * @param bean
+     * @return
+     * @throws MYException
+     */
+    boolean preComposeProduct(String userId, ComposeProductBean bean)
+            throws MYException;
+
+    /**
      * findComposeById
      * 
      * @param id
@@ -159,7 +169,7 @@ public interface ProductFacade
     /**
      * onPriceChange(是否可以change)
      * 
-     * @param user
+     * @param userId
      * @param bean
      * @throws MYException
      */
@@ -178,7 +188,7 @@ public interface ProductFacade
     /**
      * 生产部经理审批
      * 
-     * @param user
+     * @param userId
      * @param id
      * @return
      * @throws MYException
@@ -200,7 +210,7 @@ public interface ProductFacade
     /**
      * 运营总监审批
      * 
-     * @param user
+     * @param userId
      * @param id
      * @return
      * @throws MYException
@@ -211,7 +221,7 @@ public interface ProductFacade
     /**
      * 驳回合成
      * 
-     * @param user
+     * @param userId
      * @param id
      * @return
      * @throws MYException
