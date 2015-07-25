@@ -7,10 +7,20 @@ import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.vo.OutVO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ShipManager
 {
 //	void createPackage();
+
+    /**
+     * 2015/7/25 捡配前检查同一收货人或电话
+     * @param user
+     * @param packageIds
+     * @return
+     * @throws MYException
+     */
+    public Map<String, List<String>> prePickup(User user, String packageIds) throws MYException;
 	
 	boolean addPickup(User user, String packageIds) throws MYException;
 	

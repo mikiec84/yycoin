@@ -159,6 +159,7 @@
             type="org.springframework.web.struts.DelegatingActionProxy"
             validate="false">
             <forward name="queryPickup" path="/transport/queryPickup.jsp" />
+            <forward name="prePickup" path="/transport/prePickup.jsp" />
             <forward name="queryPackage" path="/transport/queryPackage.jsp" />
             <forward name="detailPackage" path="/transport/detailPackage.jsp" />
             <forward name="printPickup" path="/transport/printPickup.jsp" />

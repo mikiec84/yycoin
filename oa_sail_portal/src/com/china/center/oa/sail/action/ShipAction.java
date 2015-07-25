@@ -617,6 +617,32 @@ public class ShipAction extends DispatchAction
         return condtion;
     }
 
+//    /**
+//     * 2015/7/25 捡配前检查是否有同一收货人或电话
+//     * prePickup
+//     * @param mapping
+//     * @param form
+//     * @param request
+//     * @param response
+//     * @return
+//     * @throws ServletException
+//     */
+//    public ActionForward prePickup(ActionMapping mapping, ActionForm form,
+//                                   HttpServletRequest request,
+//                                   HttpServletResponse response)
+//            throws ServletException
+//    {
+//        User user = Helper.getUser(request);
+//
+//        // separate by ~
+//        String packageIds = request.getParameter("packageIds");
+//        request.setAttribute("test", "");
+//
+//        return mapping.findForward("prePickup");
+//
+//    }
+
+
     /**
      * addPickup
      *
@@ -638,9 +664,21 @@ public class ShipAction extends DispatchAction
 
         // separate by ~
         String packageIds = request.getParameter("packageIds");
+        String confirm = request.getParameter("confirm");
 
         try{
-            shipManager.addPickup(user, packageIds);
+            if ("1".equals(confirm)){
+                this.shipManager.addPickup(user, packageIds);
+            } else{
+                Map<String, List<String>> result = this.shipManager.prePickup(user, packageIds);
+                if (result == null) {
+                    shipManager.addPickup(user, packageIds);
+                } else {
+                    request.setAttribute("packageIds", packageIds);
+                    request.setAttribute("map", result);
+                    return mapping.findForward("prePickup");
+                }
+            }
 
             ajax.setSuccess("拣配成功");
         }catch(MYException e)

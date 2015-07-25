@@ -532,7 +532,61 @@ public class ShipManagerImpl implements ShipManager
 
     }
 
-    /**
+	@Override
+	public Map<String, List<String>> prePickup(User user, String packageIds) throws MYException {
+
+		JudgeTools.judgeParameterIsNull(user, packageIds);
+
+		String [] packages = packageIds.split("~");
+
+		if (null != packages)
+		{
+			String pickupId = commonDAO.getSquenceString20("PC");
+
+			int i = 1;
+
+			//2015/7/23 点击拣配时增加检查是否有同一收货人或同一电话的CK单但未被合单，弹屏提示CK单号
+			Map<String, List<String>> receiverToCKMap = new HashMap<String,List<String>>();
+			Map<String, List<String>> mobileToCKMap = new HashMap<String,List<String>>();
+			for (String id : packages)
+			{
+				PackageBean bean = packageDAO.find(id);
+				String receiver = bean.getReceiver();
+				String mobile = bean.getMobile();
+
+				//一个CK单只需要在一个MAP中出现即可
+				if (!StringTools.isNullOrNone(receiver)){
+					if (receiverToCKMap.containsKey(receiver)){
+						List<String> ckList = receiverToCKMap.get(receiver);
+						ckList.add(receiver);
+						_logger.warn("同一收货人的CK单需要合并:"+ receiver);
+						return receiverToCKMap;
+					} else{
+						List<String> ckList = new ArrayList<String>();
+						ckList.add(id);
+						receiverToCKMap.put(receiver, ckList);
+					}
+				}
+
+				if (!StringTools.isNullOrNone(mobile)){
+					if (mobileToCKMap.containsKey(mobile)){
+						List<String> ckList = mobileToCKMap.get(mobile);
+						ckList.add(mobile);
+						_logger.warn("同一收货电话的CK单需要合并:" + mobile);
+						return mobileToCKMap;
+					} else{
+						List<String> ckList = new ArrayList<String>();
+						ckList.add(id);
+						mobileToCKMap.put(mobile, ckList);
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * 拣配包
 	 */
 	@Transactional(rollbackFor = MYException.class)
