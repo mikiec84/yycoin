@@ -383,9 +383,11 @@ public class StockPayAction extends DispatchAction
 
         if (bean == null)
         {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据异常,请重新操作");
-
-            return mapping.findForward("error");
+            //2015/7/25 also check 预付款申请表StockPrePayApplyBean
+            return this.findStockPrePayApply(mapping, form, request, response);
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据异常,请重新操作");
+//
+//            return mapping.findForward("error");
         }
 
         request.setAttribute("bean", bean);
@@ -1494,7 +1496,7 @@ public class StockPayAction extends DispatchAction
      * @param fullId
      * @param user
      * @param reason
-     * @param out
+     * @param stockPayApplyVO
      * @param subject
      */
     private void sendOutRejectMail(String fullId, User user, String reason, StockPayApplyVO stockPayApplyVO,String subject) 
