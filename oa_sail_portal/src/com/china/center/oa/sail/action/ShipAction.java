@@ -22,6 +22,8 @@ import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.product.bean.ProductVSBankBean;
+import com.china.center.oa.product.dao.*;
 import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -54,10 +56,6 @@ import com.china.center.oa.product.bean.ComposeProductBean;
 import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
-import com.china.center.oa.product.dao.ComposeItemDAO;
-import com.china.center.oa.product.dao.ComposeProductDAO;
-import com.china.center.oa.product.dao.DepotDAO;
-import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AuthBean;
@@ -113,6 +111,8 @@ public class ShipAction extends DispatchAction
     private ProvinceDAO provinceDAO = null;
 
     private CityDAO cityDAO = null;
+
+    private ProductVSBankDAO productVSBankDAO = null;
 
     private final static String QUERYPACKAGE = "queryPackage";
 
@@ -617,30 +617,32 @@ public class ShipAction extends DispatchAction
         return condtion;
     }
 
-//    /**
-//     * 2015/7/25 捡配前检查是否有同一收货人或电话
-//     * prePickup
-//     * @param mapping
-//     * @param form
-//     * @param request
-//     * @param response
-//     * @return
-//     * @throws ServletException
-//     */
-//    public ActionForward prePickup(ActionMapping mapping, ActionForm form,
-//                                   HttpServletRequest request,
-//                                   HttpServletResponse response)
-//            throws ServletException
-//    {
-//        User user = Helper.getUser(request);
-//
-//        // separate by ~
-//        String packageIds = request.getParameter("packageIds");
-//        request.setAttribute("test", "");
-//
-//        return mapping.findForward("prePickup");
-//
-//    }
+    /**
+     * 2015/7/25 捡配前检查是否有同一收货人或电话
+     * prePickup
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward prePickup(ActionMapping mapping, ActionForm form,
+                                   HttpServletRequest request,
+                                   HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        // separate by ~
+        String packageIds = request.getParameter("packageIds");
+        String map = request.getParameter("map");
+        request.setAttribute("packageIds", packageIds);
+        request.setAttribute("map", map);
+
+        return mapping.findForward("prePickup");
+
+    }
 
 
     /**
@@ -660,11 +662,14 @@ public class ShipAction extends DispatchAction
     {
         User user = Helper.getUser(request);
 
-        AjaxResult ajax = new AjaxResult();
-
         // separate by ~
         String packageIds = request.getParameter("packageIds");
         String confirm = request.getParameter("confirm");
+
+        String template = "add pickup with package IDs:%s confirm:%s";
+        _logger.info(String.format(template, packageIds, confirm));
+
+        AjaxResult ajax = new AjaxResult();
 
         try{
             if ("1".equals(confirm)){
@@ -673,14 +678,20 @@ public class ShipAction extends DispatchAction
                 Map<String, List<String>> result = this.shipManager.prePickup(user, packageIds);
                 if (result == null) {
                     shipManager.addPickup(user, packageIds);
+                    ajax.setSuccess("拣配成功");
                 } else {
+                    _logger.info("*********redirect prePickup**************"+result);
                     request.setAttribute("packageIds", packageIds);
                     request.setAttribute("map", result);
-                    return mapping.findForward("prePickup");
+                    _logger.info("*********redirect prePickup**************");
+                    ajax.setError("同一收货人或电话的CK单尚未合并:"+ result);
+//                    return mapping.findForward("prePickup");
+
+//                    return mapping.findForward("queryPickup") ;
                 }
             }
 
-            ajax.setSuccess("拣配成功");
+
         }catch(MYException e)
         {
             _logger.warn(e, e);
@@ -689,6 +700,7 @@ public class ShipAction extends DispatchAction
         }
 
         return JSONTools.writeResponse(response, ajax);
+//        return  mapping.findForward("queryPickup") ;
     }
 
     /**
@@ -1452,7 +1464,9 @@ public class ShipAction extends DispatchAction
 
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
-                itemList1.add(each.getValue());
+                PackageItemBean item = each.getValue();
+                this.convertProductName(item, vo.getCustomerName());
+                itemList1.add(item);
             }
 
             vo.setItemList(itemList1);
@@ -1540,6 +1554,8 @@ public class ShipAction extends DispatchAction
                 }
 
                 totalAmount += each.getAmount();
+
+                this.convertProductName(each, vo.getCustomerName());
             }
 
             vo.setItemList(itemList);
@@ -1572,12 +1588,43 @@ public class ShipAction extends DispatchAction
 
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
-                itemList1.add(each.getValue());
+                PackageItemBean item = each.getValue();
+                this.convertProductName(item, vo.getCustomerName());
+                itemList1.add(item);
             }
 
             vo.setItemList(itemList1);
 
             return mapping.findForward("printShipment");
+        }
+    }
+
+    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
+    private void convertProductName(PackageItemBean item, String customerName){
+        ProductBean product = productDAO.find(item.getProductId());
+        if (product!= null) {
+            ConditionParse conditionParse =  new ConditionParse();
+            conditionParse.addCondition("code", "=", product.getCode());
+            List<ProductVSBankBean> beans = this.productVSBankDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(beans)){
+                ProductVSBankBean bean = beans.get(0);
+                String productName = null;
+                if (bean!= null){
+                    if (customerName.indexOf("浦发银行")!= -1){
+                        productName = bean.getPufaProductName();
+                    } else if (customerName.indexOf("中信银行")!= -1) {
+                        productName = bean.getCiticProductName();
+                    } else if (customerName.indexOf("招商银行")!= -1) {
+                        productName = bean.getZhProductName();
+                    }
+                }
+
+                if (!StringTools.isNullOrNone(productName)){
+                    String template = "print receipt convertProductName from:%s to:%s for customer:%s";
+                    _logger.info(String.format(template, item.getProductName(), productName, customerName));
+                    item.setProductName(productName);
+                }
+            }
         }
     }
 
@@ -1769,7 +1816,9 @@ public class ShipAction extends DispatchAction
 
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
-            itemList1.add(each.getValue());
+            PackageItemBean item = each.getValue();
+            this.convertProductName(item, vo.getCustomerName());
+            itemList1.add(item);
             _logger.debug("**********getDescription******"+each.getValue().getDescription());
         }
 
@@ -2574,5 +2623,13 @@ public class ShipAction extends DispatchAction
 
     public void setCityDAO(CityDAO cityDAO) {
         this.cityDAO = cityDAO;
+    }
+
+    public ProductVSBankDAO getProductVSBankDAO() {
+        return productVSBankDAO;
+    }
+
+    public void setProductVSBankDAO(ProductVSBankDAO productVSBankDAO) {
+        this.productVSBankDAO = productVSBankDAO;
     }
 }

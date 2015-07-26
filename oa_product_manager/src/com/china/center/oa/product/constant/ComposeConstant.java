@@ -34,8 +34,8 @@ public interface ComposeConstant
     @Defined(key = "composeType", value = "分解")
     int COMPOSE_TYPE_DECOMPOSE = 1;
 
-    @Defined(key = "composeStatus", value = "预合成")
-    int STATUS_PRE_SUBMIT = 0;
+//    @Defined(key = "composeStatus", value = "预合成")
+//    int STATUS_PRE_SUBMIT = -1;
 
     @Defined(key = "composeStatus", value = "提交")
     int STATUS_SUBMIT = 0;
@@ -51,6 +51,9 @@ public interface ComposeConstant
     
     @Defined(key = "composeStatus", value = "待事业部经理审批")
     int STATUS_INDUSTRY_PASS = 4;
+
+    @Defined(key = "composeStatus", value = "预合成")
+    int STATUS_PRE_COMPOSE = 5;
     
     @Defined(key = "composeStatus", value = "结束")
     int STATUS_OK = 99;

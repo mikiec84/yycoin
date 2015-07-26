@@ -216,23 +216,34 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         return true;
     }
 
+    @Transactional(rollbackFor = MYException.class)
     @Override
     public void composeProductJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
+        _logger.info("************composeProductJob running***********");
         ConditionParse condition = new ConditionParse();
-        condition.addCondition("status", "=", ComposeConstant.STATUS_PRE_SUBMIT);
+//        condition.addCondition("status", "=", ComposeConstant.STATUS_PRE_SUBMIT);
+        condition.addCondition("status", "=", ComposeConstant.STATUS_PRE_COMPOSE);
+//        System.out.println("**************condition********"+condition);
+//        _logger.info("**************condition********"+condition);
         List<ComposeProductBean> beans = this.composeProductDAO.queryEntityBeansByCondition(condition);
         if (ListTools.isEmptyOrNull(beans)){
             _logger.info("No pre-ComposeProductBean");
         } else{
+            _logger.info("composeProductJob with size:"+beans.size());
             for (ComposeProductBean bean : beans){
                 try{
+                    List<ComposeItemBean> items = this.composeItemDAO.queryEntityBeansByFK(bean.getId());
+                    bean.setItemList(items);
+
                     this.checkCompose(bean);
+
                     //update status to SUBMIT
                     ComposeProductBean beanInDb = composeProductDAO.find(bean.getId());
                     if (beanInDb == null){
                        _logger.error("ComposeProductBean not found:"+bean);
                     } else{
+//                        beanInDb.setStatus(ComposeConstant.STATUS_SUBMIT);
                         beanInDb.setStatus(ComposeConstant.STATUS_SUBMIT);
                         this.composeProductDAO.updateEntityBean(beanInDb);
                         _logger.info("ComposeProductBean is submitted:"+bean);
@@ -913,7 +924,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         bean.setId(commonDAO.getSquenceString20());
 
         if (preCompose){
-            bean.setStatus(ComposeConstant.STATUS_PRE_SUBMIT);
+            bean.setStatus(ComposeConstant.STATUS_PRE_COMPOSE);
+//            bean.setStatus(-1);
         } else{
             bean.setStatus(ComposeConstant.STATUS_SUBMIT);
         }

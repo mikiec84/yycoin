@@ -13,7 +13,7 @@
 
 function addBean()
 {
-    submit('确定合成产品?', null, checks);
+    submit('确定预合成产品?', null, checks);
 }
 
 function checks()

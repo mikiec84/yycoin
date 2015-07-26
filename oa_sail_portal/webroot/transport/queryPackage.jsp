@@ -19,6 +19,9 @@ var ukey = 'Package';
 var allDef = window.top.topFrame.allDef;
 var guidMap;
 var thisObj;
+
+var str = '';
+
 function load()
 {
      preload();
@@ -96,7 +99,7 @@ function addBean(opr, grid)
     
     if (clis.length > 0)
     {
-        var str = '';
+//        var str = '';
         for (var i = 0; i < clis.length; i++)
         {
             str += clis[i].value + '~';
@@ -104,9 +107,25 @@ function addBean(opr, grid)
         
         if (window.confirm('确定拣配选中的发货单?'))
         {
-            $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, callBackFun);
+//            $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, callBackFun, error);
+            $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, error);
         }
     }
+}
+
+function error(data)
+{
+//    console.log(data);
+//    console.log(str);
+    if (data.ret == 0){
+        callBackFun(data);
+    } else{
+        var r = confirm(data.msg);
+        if (r == true){
+            $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, callBackFun);
+        }
+    }
+
 }
 
 function undoBean(opr, grid)

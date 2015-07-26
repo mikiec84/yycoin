@@ -81,6 +81,8 @@
 	<osgi:reference id="productDAO" interface="com.china.center.oa.product.dao.ProductDAO" />
 
     <osgi:reference id="productVSGiftDAO" interface="com.china.center.oa.product.dao.ProductVSGiftDAO" />
+
+    <osgi:reference id="productVSBankDAO" interface="com.china.center.oa.product.dao.ProductVSBankDAO" />
 	
 	<osgi:reference id="customerMainDAO" interface="com.china.center.oa.client.dao.CustomerMainDAO" />
 	

@@ -1197,7 +1197,6 @@ function callBackFun(data)
     		// clear pop-query
     		//resetsModal();
     	//}
-    	
         commonQuery();
     }
 }
