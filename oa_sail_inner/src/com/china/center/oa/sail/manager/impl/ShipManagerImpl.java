@@ -538,50 +538,66 @@ public class ShipManagerImpl implements ShipManager
 		JudgeTools.judgeParameterIsNull(user, packageIds);
 
 		String [] packages = packageIds.split("~");
+        Map<String, List<String>> map = new HashMap<String,List<String>>();
+        boolean needMerge = false;
 
-		if (null != packages)
+        if (null != packages)
 		{
             _logger.info("prePickup 2222222222222222222222");
 			//2015/7/23 点击拣配时增加检查是否有同一收货人或同一电话的CK单但未被合单，弹屏提示CK单号
-			Map<String, List<String>> receiverToCKMap = new HashMap<String,List<String>>();
-			Map<String, List<String>> mobileToCKMap = new HashMap<String,List<String>>();
-			for (String id : packages)
+//			Map<String, List<String>> receiverToCKMap = new HashMap<String,List<String>>();
+//			Map<String, List<String>> mobileToCKMap = new HashMap<String,List<String>>();
+            for (String id : packages)
 			{
 				PackageBean bean = packageDAO.find(id);
 				String receiver = bean.getReceiver();
 				String mobile = bean.getMobile();
 
-				//一个CK单只需要在一个MAP中出现即可
 				if (!StringTools.isNullOrNone(receiver)){
-					if (receiverToCKMap.containsKey(receiver)){
-						List<String> ckList = receiverToCKMap.get(receiver);
+					if (map.containsKey(receiver)){
+						List<String> ckList = map.get(receiver);
 						ckList.add(id);
-						_logger.warn("同一收货人的CK单需要合并:"+ receiver);
-						return receiverToCKMap;
+                        String template = "同一收货人:%s的CK单:%s需要合并";
+						_logger.warn(String.format(template, receiver, id));
+                        needMerge = true;
+						continue;
 					} else{
 						List<String> ckList = new ArrayList<String>();
 						ckList.add(id);
-						receiverToCKMap.put(receiver, ckList);
+						map.put(receiver, ckList);
 					}
 				}
 
 				if (!StringTools.isNullOrNone(mobile)){
-					if (mobileToCKMap.containsKey(mobile)){
-						List<String> ckList = mobileToCKMap.get(mobile);
+					if (map.containsKey(mobile)){
+						List<String> ckList = map.get(mobile);
 						ckList.add(id);
-						_logger.warn("同一收货电话的CK单需要合并:" + mobile);
-						return mobileToCKMap;
+						String template = "同一收货电话:%s的CK单:%s需要合并";
+                        needMerge = true;
+                        _logger.warn(String.format(template, mobile, id));
 					} else{
 						List<String> ckList = new ArrayList<String>();
 						ckList.add(id);
-						mobileToCKMap.put(mobile, ckList);
+						map.put(mobile, ckList);
 					}
 				}
 			}
 		}
 
         _logger.info("prePickup 3333333333333333333333");
-		return null;
+        //remove key with single CK
+        for (Iterator<Map.Entry<String, List<String>>> it = map.entrySet().iterator();
+             it.hasNext();)
+        {
+            Map.Entry<String, List<String>> entry = it.next();
+            List<String> ckList = entry.getValue();
+            if(ckList == null || ckList.size() <=1)
+            {
+                it.remove();
+                _logger.info("remove key with single CK:"+entry.getKey());
+            }
+        }
+		return needMerge ? map : null;
 	}
 
 	/**

@@ -108,24 +108,29 @@ function addBean(opr, grid)
         if (window.confirm('确定拣配选中的发货单?'))
         {
 //            $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, callBackFun, error);
-            $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, error);
+            $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, callback);
         }
     }
 }
 
-function error(data)
+function callback(data)
 {
 //    console.log(data);
 //    console.log(str);
     if (data.ret == 0){
-        callBackFun(data);
+        success();
     } else{
         var r = confirm(data.msg);
         if (r == true){
-            $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, callBackFun);
+            $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
         }
     }
+    str = "";
+}
 
+function success(){
+    alert("捡配成功！");
+    document.location.reload(true);
 }
 
 function undoBean(opr, grid)
