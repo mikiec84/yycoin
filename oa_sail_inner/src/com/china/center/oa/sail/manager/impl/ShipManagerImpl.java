@@ -537,19 +537,21 @@ public class ShipManagerImpl implements ShipManager
          _logger.info("prePickup 11111111111111111");
 		JudgeTools.judgeParameterIsNull(user, packageIds);
 
-		String [] packages = packageIds.split("~");
+//		String [] packages = packageIds.split("~");
         Map<String, List<String>> map = new HashMap<String,List<String>>();
         boolean needMerge = false;
 
-        if (null != packages)
+		ConditionParse conditionParse = new ConditionParse();
+		conditionParse.addCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
+		List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(packages))
 		{
-            _logger.info("prePickup 2222222222222222222222");
+            _logger.info("prePickup check initial package size:"+packages.size());
 			//2015/7/23 点击拣配时增加检查是否有同一收货人或同一电话的CK单但未被合单，弹屏提示CK单号
-//			Map<String, List<String>> receiverToCKMap = new HashMap<String,List<String>>();
-//			Map<String, List<String>> mobileToCKMap = new HashMap<String,List<String>>();
-            for (String id : packages)
+			//2015/7/27 检查所有未捡配的CK单
+            for (PackageBean bean : packages)
 			{
-				PackageBean bean = packageDAO.find(id);
+				String id = bean.getId();
 				String receiver = bean.getReceiver();
 				String mobile = bean.getMobile();
 

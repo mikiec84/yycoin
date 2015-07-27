@@ -392,7 +392,6 @@ function load()
                         <td width="30%" align="center">源产品</td>
                         <td width="15%" align="center">使用数量</td>
                         <td width="15%" align="center">可用数量</td>
-                        <td width="15%" align="center">价格</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>
@@ -436,8 +435,8 @@ function load()
                     name="useAmount" value="" oncheck="notNone;isNumber"></td>
          <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
                     name="srcAmount" value="" oncheck="notNone;isNumber"></td>
-         <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
-                    name="srcPrice" value="" oncheck="notNone;isFloat">
+         <%--<td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"--%>
+                    <%--name="srcPrice" value="" oncheck="notNone;isFloat">--%>
          <input type="hidden" 
                     name="srcRelation" value="">
          </td>
