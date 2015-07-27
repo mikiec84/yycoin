@@ -1921,7 +1921,7 @@ public class ProductAction extends DispatchAction
         String[] srcDepotparts = request.getParameterValues("srcDepotpart");
         String[] srcProductIds = request.getParameterValues("srcProductId");
         String[] srcAmounts = request.getParameterValues("useAmount");
-        String[] srcPrices = request.getParameterValues("srcPrice");
+//        String[] srcPrices = request.getParameterValues("srcPrice");
         String[] srcRelations = request.getParameterValues("srcRelation");
         String[] srcInputRates = request.getParameterValues("srcInputRate");
         
@@ -1944,22 +1944,22 @@ public class ProductAction extends DispatchAction
             each.setDeportId(srcDepot);
             each.setDepotpartId(srcDepotparts[i]);
             each.setLogTime(bean.getLogTime());
-            each.setPrice(CommonTools.parseFloat(srcPrices[i]));
+//            each.setPrice(CommonTools.parseFloat(srcPrices[i]));
             each.setProductId(srcProductIds[i]);
             each.setRelationId(srcRelations[i]);
             each.setInputRate(CommonTools.parseFloat(srcInputRates[i]));
 
             itemList.add(each);
 
-            total += each.getPrice() * each.getAmount();
+//            total += each.getPrice() * each.getAmount();
         }
 
         bean.setItemList(itemList);
 
         // 计算新产品的成本价
-        double price = total / bean.getAmount();
-
-        bean.setPrice(price);
+//        double price = total / bean.getAmount();
+//
+//        bean.setPrice(price);
     }
 
     /**

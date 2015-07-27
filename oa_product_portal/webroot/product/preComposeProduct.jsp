@@ -82,6 +82,7 @@ function getEle(eles, name)
 {
 	for (var i = 0; i < eles.length; i++)
 	{
+//        console.log(eles[i].name);
 		if (eles[i].name == name)
 		{
 			return eles[i];
@@ -93,15 +94,19 @@ function getEle(eles, name)
 
 function getProductRelation(oos)
 {
-	var oo = oos[0];
+    var oo = oos[0];
+//    console.log("***haha***"+oo);
 
-	current.value = oo.pname;
+    current.value = oo.pname;
 	
 	var tr = getTrObject(current);
 	
 	var eles = tr.getElementsByTagName('input');
+//    console.log(eles+"***eles***"+eles.length);
     
     var hobj = getEle(eles, "srcProductId");
+//    console.log("***hobj***"+hobj);
+//    console.log("***oo.ppid***"+oo.ppid);
     
     hobj.value = oo.ppid;
 
@@ -109,22 +114,26 @@ function getProductRelation(oos)
     
     hobj1.value = oo.pinputrate;
     
-    var pobj = getEle(eles, "srcPrice");
-    
-    pobj.value = oo.pprice;
-    
+//    var pobj = getEle(eles, "srcPrice");
+
+//    console.log(pobj);
+
+//    if (pobj){
+//        pobj.value = oo.pprice;
+//    }
+//    console.log("2222222222222");
     var aobj = getEle(eles, "srcAmount");
     
     aobj.value = oo.pamount;
-    
+//    console.log("4444444444444444444");
     var reobj = getEle(eles, "srcRelation");
     
     reobj.value = oo.value;
-    
+//    console.log("55555555555555555");
     var srcDe = getEle(tr.getElementsByTagName('select'), "srcDepotpart");
     
     setSelect(srcDe, oo.pdepotpart);
-
+//    console.log("666666666666666666666");
     if (oos.length > 1 ) {
 
     	for(var i = 1; i < oos.length; i++)
@@ -134,7 +143,7 @@ function getProductRelation(oos)
     		setInputValueInTr(trow, 'srcProductId', oos[i].ppid);
     		setInputValueInTr(trow, 'targerName', oos[i].pname);
     		setInputValueInTr(trow, 'srcInputrowate', oos[i].pinputrowate);
-    		setInputValueInTr(trow, 'srcPrice', oos[i].pprice);
+//    		setInputValueInTr(trow, 'srcPrice', oos[i].pprice);
     		setInputValueInTr(trow, 'srcAmount', oos[i].pamount);
     		setInputValueInTr(trow, 'srcRelation', oos[i].value);
     	    
@@ -143,31 +152,32 @@ function getProductRelation(oos)
     	    setSelect(srcDe1, oos[i].pdepotpart);
     	}
     }
+//    console.log("3333333333333");
 }
 
 function selectDepotpartProduct(obj)
 {
     current = obj;
-    
-    var pobj = getDepartmentId(current);
-    
-    if (pobj.value == '')
-    {
-        alert('请选择仓区');
-        return;
-    }
-
-    if ($$("dirTargerName") == '')
-    {
-        alert("请选择合成产品");
-        return;
-    }
+//
+//    var pobj = getDepartmentId(current);
+//
+//    if (pobj.value == '')
+//    {
+//        alert('请选择仓区');
+//        return;
+//    }
+//
+//    if ($$("dirTargerName") == '')
+//    {
+//        alert("请选择合成产品");
+//        return;
+//    }
     
     var tr = getTrObject(obj);
     
     var srcProductCode = getInputInTr(tr, "srcProductCode").value;
     
-   	window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&stafferId=0&selectMode=0&locationId='+ $$('srcDepot') 
+   	window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&stafferId=0&selectMode=0'
 		   + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
 }
 
@@ -418,27 +428,28 @@ function load()
 <table>
     <tr class="content1" id="trCopy" style="display: none;">
          <td width="95%" align="center">
-         <select name="srcDepotpart" class="select_class" style="width: 100%;" onchange="depotpartChange(this)" oncheck="notNone">
-         <option value="">--</option>
-         <c:forEach var="item" items="${depotpartList}">
-             <option value="${item.id}">${item.name}</option>
-         </c:forEach>
-         </select>
+             <select name="srcDepotpart" class="select_class" style="width: 100%;" onchange="depotpartChange(this)" oncheck="notNone">
+             <option value="">--</option>
+             <c:forEach var="item" items="${depotpartList}">
+                 <option value="${item.id}">${item.name}</option>
+             </c:forEach>
+             </select>
          </td>
-         <td width="30%" align="center"><input type="text" 
+         <td width="30%" align="center">
+             <input type="text"
          style="width: 100%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="targerName" onclick="selectDepotpartProduct(this)">
-         <input type="hidden" name="srcProductId" value="">
-         <input type="hidden" name="srcInputRate" value="">
-         <input type="hidden" name="srcProductCode" value="">
+             <input type="hidden" name="srcProductId" value="">
+             <input type="hidden" name="srcInputRate" value="">
+             <input type="hidden" name="srcProductCode" value="">
          </td>
          <td width="15%" align="center"><input type="text" style="width: 100%"
                     name="useAmount" value="" oncheck="notNone;isNumber"></td>
          <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
                     name="srcAmount" value="" oncheck="notNone;isNumber"></td>
-         <%--<td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"--%>
+         <td width="15%" align="center">
+             <%--<input type="text" style="width: 100%" readonly="readonly"--%>
                     <%--name="srcPrice" value="" oncheck="notNone;isFloat">--%>
-         <input type="hidden" 
-                    name="srcRelation" value="">
+         <input type="hidden" name="srcRelation" value="">
          </td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>

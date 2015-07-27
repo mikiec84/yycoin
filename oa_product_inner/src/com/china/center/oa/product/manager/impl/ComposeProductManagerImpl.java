@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.vs.StorageRelationBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -36,12 +38,6 @@ import com.china.center.oa.product.constant.ComposeConstant;
 import com.china.center.oa.product.constant.ProductApplyConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.ComposeFeeDAO;
-import com.china.center.oa.product.dao.ComposeFeeDefinedDAO;
-import com.china.center.oa.product.dao.ComposeItemDAO;
-import com.china.center.oa.product.dao.ComposeProductDAO;
-import com.china.center.oa.product.dao.DecomposeProductDAO;
-import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.listener.ComposeProductListener;
 import com.china.center.oa.product.manager.ComposeProductManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
@@ -97,6 +93,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     private CommonDAO commonDAO = null;
     
     private FlowLogDAO flowLogDAO = null;
+
+    private StorageRelationDAO storageRelationDAO = null;
 
     /**
      * default constructor
@@ -206,6 +204,81 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         }
     }
 
+    /**
+     * 2015/7/27 预合成JOB检查
+     * @param bean
+     * @throws MYException
+     */
+    private void preCheckCompose(ComposeProductBean bean)
+            throws MYException
+    {
+        // 检查合成逻辑
+        String productId = bean.getProductId();
+
+        ProductBean compose = productDAO.find(productId);
+
+        if (compose == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        if (compose.getCtype() != ProductConstant.CTYPE_YES)
+        {
+            throw new MYException("目的产品不是合成产品,请确认操作");
+        }
+
+
+        int counter = 0;
+
+        List<ComposeItemBean> itemList = bean.getItemList();
+
+        for (ComposeItemBean composeItemBean : itemList)
+        {
+            ProductBean each = productDAO.find(composeItemBean.getProductId());
+
+            if (each == null)
+            {
+                throw new MYException("数据错误,请确认操作");
+            }
+
+            //TODO 检查对应库区中是否有符合合成条件的产品及数量
+            ConditionParse con = new ConditionParse();
+
+            con.addWhereStr();
+
+            con.addCondition("StorageRelationBean.depotpartId", "=", bean.getDepotpartId());
+
+            con.addCondition("StorageRelationBean.productId", "=", productId);
+
+            con.addIntCondition("StorageRelationBean.amount", ">=", bean.getAmount());
+
+            List<StorageRelationBean> relationBeanList = this.storageRelationDAO.queryEntityBeansByCondition(con);
+            if (ListTools.isEmptyOrNull(relationBeanList)){
+                String template = "仓区:%s中源产品:%s库存不足无法合成!";
+                String msg = String.format(template, bean.getDepotpartId(), bean.getProductId());
+                _logger.warn(msg);
+                throw new MYException(msg);
+            } else {
+                StorageRelationBean storageRelationBean = relationBeanList.get(0);
+                bean.setPrice(storageRelationBean.getPrice());
+                _logger.info(bean+" set price to:"+storageRelationBean.getPrice());
+            }
+
+            composeItemBean.setMtype(MathTools.parseInt(each.getReserve4()));
+
+            counter += composeItemBean.getMtype();
+        }
+
+        // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
+        if (counter == 0 || counter == itemList.size())
+        {
+            if (bean.getMtype() != itemList.get(0).getMtype())
+            {
+                throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
+            }
+        }
+    }
+
     @Transactional(rollbackFor = MYException.class)
     @Override
     public boolean preComposeProduct(User user, ComposeProductBean composeProductBean) throws MYException {
@@ -236,7 +309,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
                     List<ComposeItemBean> items = this.composeItemDAO.queryEntityBeansByFK(bean.getId());
                     bean.setItemList(items);
 
-                    this.checkCompose(bean);
+                    this.preCheckCompose(bean);
 
                     //update status to SUBMIT
                     ComposeProductBean beanInDb = composeProductDAO.find(bean.getId());
@@ -245,6 +318,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
                     } else{
 //                        beanInDb.setStatus(ComposeConstant.STATUS_SUBMIT);
                         beanInDb.setStatus(ComposeConstant.STATUS_SUBMIT);
+                        beanInDb.setPrice(bean.getPrice());
                         this.composeProductDAO.updateEntityBean(beanInDb);
                         _logger.info("ComposeProductBean is submitted:"+bean);
                     }
@@ -1359,4 +1433,12 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 	{
 		this.flowLogDAO = flowLogDAO;
 	}
+
+    public StorageRelationDAO getStorageRelationDAO() {
+        return storageRelationDAO;
+    }
+
+    public void setStorageRelationDAO(StorageRelationDAO storageRelationDAO) {
+        this.storageRelationDAO = storageRelationDAO;
+    }
 }
