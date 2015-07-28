@@ -680,9 +680,13 @@ public class ShipAction extends DispatchAction
                     shipManager.addPickup(user, packageIds);
                     ajax.setSuccess("拣配成功");
                 } else {
-                    request.setAttribute("packageIds", packageIds);
-                    request.setAttribute("map", result);
-                    ajax.setError("同一收货人或电话的CK单尚未合并:"+ result);
+//                    request.setAttribute("packageIds", packageIds);
+//                    request.setAttribute("map", result);
+//                    request.setAttribute("content", this.toHtml(result));
+//                    ajax.setError("同一收货人或电话的CK单尚未合并:"+ result);
+                    String html = this.toHtml(result);
+                    _logger.info("*****************同一收货人或电话的CK单尚未合并:"+html);
+                    ajax.setError(html);
                 }
             }
         }catch(MYException e)
@@ -693,6 +697,34 @@ public class ShipAction extends DispatchAction
         }
 
         return JSONTools.writeResponse(response, ajax);
+    }
+
+    private String toHtml(Map<String, Set<String>> map) {
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append("<table width='100%' border='0' cellspacing='1'>");
+        buffer.append("<tr align='center' class='content0'>");
+        buffer.append("<td width='40%' align='center'>收货人或电话号码</td>");
+        buffer.append("<td width='60%' align='center'>CK单</td></tr>");
+
+        int index = 0;
+        String cls = null;
+        for (Iterator<Map.Entry<String, Set<String>>> it = map.entrySet().iterator();
+             it.hasNext();)
+        {
+            Map.Entry<String, Set<String>> entry = it.next();
+            Set<String> ckList = entry.getValue();
+            for (String ck : ckList){
+                buffer.append("<tr class='" + cls + "'>");
+                buffer.append("<td width='40%' align='center'>" + entry.getKey() + "</td>");
+                buffer.append("<td width='60%' align='center'>" + ck + "</td></tr>");
+                index++ ;
+            }
+        }
+
+        buffer.append("</table>");
+
+        return StringTools.getLineString(buffer.toString());
     }
 
     /**

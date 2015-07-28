@@ -8,6 +8,8 @@
 <script src="../js/public.js"></script>
 <script src="../js/pop.js"></script>
 <script src="../js/json.js"></script>
+<%--<script src="../js/jquery/jquery.js"></script>--%>
+<script src="../js/plugin/dialog/jquery.dialog.js"></script>
 <script src="../js/plugin/highlight/jquery.highlight.js"></script>
 
 <script type="text/javascript">
@@ -59,6 +61,22 @@ function load()
      };
      
      $("#mainTable").flexigrid(guidMap, thisObj);
+
+    $('#dlg').dialog(
+            {
+                modal:true,
+                closed:true,
+                buttons: {
+                    '继续捡配?': function() {
+                        var packageIds = $O("packageIds").value;
+                        $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + packageIds, success);
+                    },
+                    "取 消": function() {
+                        $('#dlg').dialog({closed:true});
+                    }
+                }});
+
+    $ESC('dlg');
 }
 
 function autoPickup()
@@ -108,6 +126,7 @@ function addBean(opr, grid)
         if (window.confirm('确定拣配选中的发货单?'))
         {
 //            $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, callBackFun, error);
+            $O("packageIds").value = str;
             $ajax('../sail/ship.do?method=addPickup&packageIds=' + str, callback);
         }
     }
@@ -120,10 +139,46 @@ function callback(data)
     if (data.ret == 0){
         success();
     } else{
-        var r = confirm(data.msg);
-        if (r == true){
-            $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
-        }
+//        console.log("show dialog");
+//        var dialog = $('<div id="dlg" title="同一收货人或电话尚有CK单未合并!"></div>');
+//        dialog.attr(‘title’, output.title);
+//        dialog.html(data.msg);
+//        dialog.dialog(
+//                {closed:false,
+//                buttons: {
+//                    '继续捡配?': function() {
+//                        $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
+//                        $(this).dialog('close');
+//                    },
+//                    "取消": function() {
+//                        $(this).dialog('close');
+//                    }
+//                }});
+//        dialog.dialog("open");
+//        console.log("show dialog end**********"+data.msg);
+//        dialog.dialog(‘open’);
+
+        $O('dia_inner').innerHTML = data.msg;
+//        $O('dia_inner').innerHTML = "<table><tr><td>hello world</td></tr></table>";
+//        $("#dlg").html(data.msg);
+//        $('#dlg').dialog(
+//                {closed:false,
+//                buttons: {
+//                    '继续捡配?': function() {
+//                        $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
+//                        $(this).dialog('close');
+//                    },
+//                    "取消": function() {
+//                        $(this).dialog('close');
+//                    }
+//                }});
+        $('#dlg').dialog({closed:false});
+//        $("#dlg").dialog("open");
+//        console.log("fuck *************");
+//        var r = confirm(data.msg);
+//        if (r == true){
+//            $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
+//        }
     }
     str = "";
 }
@@ -162,11 +217,18 @@ function doSearch()
 </script>
 </head>
 <body onload="load()" class="body_class">
+
 <form name="mainForm" method="post">
+    <input type="hidden" name="packageIds" id="packageIds" value="">
 <p:cache></p:cache>
 </form>
 <p:message></p:message>
 <table id="mainTable" style="display: none"></table>
+<div id="dlg" title="同一收货人或电话尚有CK单未合并" style="width:320px;">
+    <div style="padding:20px;height:300px;" id="dia_inner" title="">
+    </div>
+</div>
+
 <p:query/>
 
 <%--<form id="pickupForm" method="post" action="../sail/ship.do?method=autoPickup">--%>
@@ -177,4 +239,11 @@ function doSearch()
         <%--</div>--%>
     <%--</div>--%>
 <%--</form>--%>
+<%--<div id="dlg" title="同一收货人或电话尚有CK单未合并" style="width:320px;">--%>
+<%--</div>--%>
+<%--<div id="dlg" title="同一收货人或电话尚有CK单未合并" style="width:320px;">--%>
+    <%--<div style="padding:20px;height:200px;" id="dia_inner" title="">--%>
+    <%--</div>--%>
+<%--</div>--%>
+
 </body>

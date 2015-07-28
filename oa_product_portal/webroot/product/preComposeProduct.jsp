@@ -110,7 +110,7 @@ function getProductRelation(oos)
     
     hobj.value = oo.ppid;
 
-    var hobj1 = getEle(eles, "srcInputRate");
+    var hobj1 = getEle(eles, "srcInputRate");                       h
     
     hobj1.value = oo.pinputrate;
     
@@ -176,9 +176,14 @@ function selectDepotpartProduct(obj)
     var tr = getTrObject(obj);
     
     var srcProductCode = getInputInTr(tr, "srcProductCode").value;
-    
-   	window.common.modal('../product/product.do?method=rptQueryProduct&load=1&stafferId=0&selectMode=1&status=0&CENTER_COMMON_CENTER_COMMON=1438071795697'
-		   + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
+
+//    window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&abstractType=0&status=0');
+    var managerType = '';
+
+    window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&mtype='+managerType+'&status=0'
+            +"&code="+ srcProductCode);
+//   	window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&status=0'
+//		   + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
 
 //    window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&stafferId=0&selectMode=0'
 //            + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
@@ -192,12 +197,22 @@ function getProduct(oos)
 	
     current.value = oo.pname;
 
+    var tr = getTrObject(current);
+
+    var eles = tr.getElementsByTagName('input');
+    console.log(eles+"oo****"+eles.length);
+
+    var hobj = getEle(eles, "srcProductId");
+    console.log("hobj****"+hobj);
+    hobj.value = oo.value;
+    console.log("hobj****"+hobj.value);
+
     $O("mtype").value = oo.pmtype;
     $O("oldproduct").value = oo.poldproduct;
-    
-    var hobj = getNextInput(current.nextSibling);
-    
-    hobj.value = oo.value;
+//
+//    var hobj = getNextInput(current.nextSibling);
+//
+//    hobj.value = oo.value;
 }
 
 function getNextInput(el)
@@ -448,19 +463,23 @@ function load()
              <input type="hidden" name="srcInputRate" value="">
              <input type="hidden" name="srcProductCode" value="">
          </td>
-         <td width="15%" align="center"><input type="text" style="width: 100%"
-                    name="useAmount" value="" oncheck="notNone;isNumber"></td>
+         <td width="15%" align="center">
+             <input type="text" style="width: 100%"
+                    name="useAmount" value="" oncheck="notNone;isNumber">
+         </td>
          <%--<td width="15%" align="center">--%>
              <%--<input type="text" style="width: 100%" readonly="readonly"--%>
                     <%--name="srcAmount" value="" oncheck="notNone;isNumber">--%>
          <%--</td>--%>
-         <td width="15%" align="center">
-             <%--<input type="text" style="width: 100%" readonly="readonly"--%>
-                    <%--name="srcPrice" value="" oncheck="notNone;isFloat">--%>
-            <input type="hidden" name="srcRelation" value="">
-         </td>
-        <td width="5%" align="center"><input type=button
-            value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
+         <%--<td width="15%" align="center">--%>
+             <%--&lt;%&ndash;<input type="text" style="width: 100%" readonly="readonly"&ndash;%&gt;--%>
+                    <%--&lt;%&ndash;name="srcPrice" value="" oncheck="notNone;isFloat">&ndash;%&gt;--%>
+            <%--<input type="hidden" name="srcRelation" value="">--%>
+         <%--</td>--%>
+        <td width="5%" align="center">
+            <input type=button
+            value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
+        </td>
     </tr>
 </table>
 </body>
