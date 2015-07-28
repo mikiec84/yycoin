@@ -8,6 +8,7 @@ import com.china.center.oa.sail.vo.OutVO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ShipManager
 {
@@ -20,7 +21,7 @@ public interface ShipManager
      * @return
      * @throws MYException
      */
-    public Map<String, List<String>> prePickup(User user, String packageIds) throws MYException;
+    public Map<String, Set<String>> prePickup(User user, String packageIds) throws MYException;
 	
 	boolean addPickup(User user, String packageIds) throws MYException;
 	

@@ -18,6 +18,7 @@ import java.util.Map;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.vs.StorageRelationBean;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -51,12 +52,6 @@ import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.message.MessageConstant;
 import com.china.center.oa.publics.message.PublishMessage;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -230,6 +225,25 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         int counter = 0;
 
+        double total = 0.0d;
+
+        //TODO
+//        List<ComposeFeeBean> feeList = new ArrayList<ComposeFeeBean>();
+//        for (int i = 0; i < feeItems.length; i++ )
+//        {
+//            if ( !MathTools.equal(0.0, CommonTools.parseFloat(feeItems[i])))
+//            {
+//                ComposeFeeBean each = new ComposeFeeBean();
+//                each.setFeeItemId(feeItemIds[i]);
+//                each.setPrice(CommonTools.parseFloat(feeItems[i]));
+//                each.setLogTime(bean.getLogTime());
+//                each.setDescription(idescriptions[i]);
+//                feeList.add(each);
+//
+//                total += each.getPrice();
+//            }
+//        }
+
         List<ComposeItemBean> itemList = bean.getItemList();
 
         for (ComposeItemBean composeItemBean : itemList)
@@ -241,7 +255,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
                 throw new MYException("数据错误,请确认操作");
             }
 
-            //TODO 检查对应库区中是否有符合合成条件的产品及数量
+            //检查对应库区中是否有符合合成条件的产品及数量
             ConditionParse con = new ConditionParse();
 
             con.addWhereStr();
@@ -260,14 +274,17 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
                 throw new MYException(msg);
             } else {
                 StorageRelationBean storageRelationBean = relationBeanList.get(0);
-                bean.setPrice(storageRelationBean.getPrice());
+                composeItemBean.setPrice(storageRelationBean.getPrice());
                 _logger.info(bean+" set price to:"+storageRelationBean.getPrice());
             }
 
             composeItemBean.setMtype(MathTools.parseInt(each.getReserve4()));
 
             counter += composeItemBean.getMtype();
+
+            total += composeItemBean.getPrice() * composeItemBean.getAmount();
         }
+        bean.setPrice(total);
 
         // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
         if (counter == 0 || counter == itemList.size())

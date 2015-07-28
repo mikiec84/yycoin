@@ -533,66 +533,76 @@ public class ShipManagerImpl implements ShipManager
     }
 
 	@Override
-	public Map<String, List<String>> prePickup(User user, String packageIds) throws MYException {
+	public Map<String, Set<String>> prePickup(User user, String packageIds) throws MYException {
          _logger.info("prePickup 11111111111111111");
 		JudgeTools.judgeParameterIsNull(user, packageIds);
 
-//		String [] packages = packageIds.split("~");
-        Map<String, List<String>> map = new HashMap<String,List<String>>();
+		String [] packages = packageIds.split("~");
+		//<key,value> as <receiver or mobile, Set of CK>
+        Map<String, Set<String>> map = new HashMap<String,Set<String>>();
         boolean needMerge = false;
 
+		//Find all packages to be pickup
 		ConditionParse conditionParse = new ConditionParse();
-		conditionParse.addCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
-		List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(conditionParse);
-        if (!ListTools.isEmptyOrNull(packages))
-		{
-            _logger.info("prePickup check initial package size:"+packages.size());
-			//2015/7/23 点击拣配时增加检查是否有同一收货人或同一电话的CK单但未被合单，弹屏提示CK单号
-			//2015/7/27 检查所有未捡配的CK单
-            for (PackageBean bean : packages)
-			{
-				String id = bean.getId();
-				String receiver = bean.getReceiver();
-				String mobile = bean.getMobile();
+		conditionParse.addCondition("status", "=", ShipConstant.SHIP_STATUS_INIT);
+		List<PackageBean> packagesTodo = this.packageDAO.queryEntityBeansByCondition(conditionParse);
+		_logger.info("prePickup check initial package size:"+packagesTodo.size());
 
-				if (!StringTools.isNullOrNone(receiver)){
-					if (map.containsKey(receiver)){
-						List<String> ckList = map.get(receiver);
-						ckList.add(id);
-                        String template = "同一收货人:%s的CK单:%s需要合并";
-						_logger.warn(String.format(template, receiver, id));
-                        needMerge = true;
-						continue;
-					} else{
-						List<String> ckList = new ArrayList<String>();
-						ckList.add(id);
-						map.put(receiver, ckList);
+		for (String packageId: packages){
+			PackageBean bean = packageDAO.find(packageId);
+			String receiver = bean.getReceiver();
+			String mobile = bean.getMobile();
+
+			// 2015/7/28 点击拣配时检查是否有未捡配CK单与当前捡配的单子是相同收货人或电话但未被合单，弹屏提示CK单号
+			if (!ListTools.isEmptyOrNull(packagesTodo)){
+				for (PackageBean packageBean : packagesTodo)
+				{
+					String id = packageBean.getId();
+					String currentReceiver = packageBean.getReceiver();
+					String currentMobile = packageBean.getMobile();
+
+					//收货人一致
+					if (!StringTools.isNullOrNone(currentReceiver) && currentReceiver.equals(receiver)){
+						if (map.containsKey(receiver)){
+							Set<String> ckList = map.get(receiver);
+							ckList.add(id);
+							String template = "同一收货人:%s的CK单:%s需要合并";
+							_logger.warn(String.format(template, receiver, id));
+							needMerge = true;
+							continue;
+						} else{
+							Set<String> ckList = new HashSet<String>();
+							ckList.add(id);
+							map.put(receiver, ckList);
+						}
 					}
-				}
 
-				if (!StringTools.isNullOrNone(mobile)){
-					if (map.containsKey(mobile)){
-						List<String> ckList = map.get(mobile);
-						ckList.add(id);
-						String template = "同一收货电话:%s的CK单:%s需要合并";
-                        needMerge = true;
-                        _logger.warn(String.format(template, mobile, id));
-					} else{
-						List<String> ckList = new ArrayList<String>();
-						ckList.add(id);
-						map.put(mobile, ckList);
+					//电话一致
+					if (!StringTools.isNullOrNone(currentMobile) && currentMobile.equals(mobile)){
+						if (map.containsKey(mobile)){
+							Set<String> ckList = map.get(mobile);
+							ckList.add(id);
+							String template = "同一收货电话:%s的CK单:%s需要合并";
+							needMerge = true;
+							_logger.warn(String.format(template, mobile, id));
+						} else{
+							Set<String> ckList = new HashSet<String>();
+							ckList.add(id);
+							map.put(mobile, ckList);
+						}
 					}
 				}
 			}
 		}
 
+
         _logger.info("prePickup 3333333333333333333333");
         //remove key with single CK
-        for (Iterator<Map.Entry<String, List<String>>> it = map.entrySet().iterator();
+        for (Iterator<Map.Entry<String, Set<String>>> it = map.entrySet().iterator();
              it.hasNext();)
         {
-            Map.Entry<String, List<String>> entry = it.next();
-            List<String> ckList = entry.getValue();
+            Map.Entry<String, Set<String>> entry = it.next();
+            Set<String> ckList = entry.getValue();
             if(ckList == null || ckList.size() <=1)
             {
                 it.remove();

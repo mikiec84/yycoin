@@ -122,9 +122,9 @@ function getProductRelation(oos)
 //        pobj.value = oo.pprice;
 //    }
 //    console.log("2222222222222");
-    var aobj = getEle(eles, "srcAmount");
-    
-    aobj.value = oo.pamount;
+//    var aobj = getEle(eles, "srcAmount");
+//
+//    aobj.value = oo.pamount;
 //    console.log("4444444444444444444");
     var reobj = getEle(eles, "srcRelation");
     
@@ -144,7 +144,7 @@ function getProductRelation(oos)
     		setInputValueInTr(trow, 'targerName', oos[i].pname);
     		setInputValueInTr(trow, 'srcInputrowate', oos[i].pinputrowate);
 //    		setInputValueInTr(trow, 'srcPrice', oos[i].pprice);
-    		setInputValueInTr(trow, 'srcAmount', oos[i].pamount);
+//    		setInputValueInTr(trow, 'srcAmount', oos[i].pamount);
     		setInputValueInTr(trow, 'srcRelation', oos[i].value);
     	    
     	    var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
@@ -177,13 +177,18 @@ function selectDepotpartProduct(obj)
     
     var srcProductCode = getInputInTr(tr, "srcProductCode").value;
     
-   	window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&stafferId=0&selectMode=0'
+   	window.common.modal('../product/product.do?method=rptQueryProduct&load=1&stafferId=0&selectMode=1&status=0&CENTER_COMMON_CENTER_COMMON=1438071795697'
 		   + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
+
+//    window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&stafferId=0&selectMode=0'
+//            + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
 }
+
 
 function getProduct(oos)
 {
 	var oo = oos[0];
+    console.log("oo****"+oo);
 	
     current.value = oo.pname;
 
@@ -401,9 +406,10 @@ function load()
                         <td width="30%" align="center">源仓区</td>
                         <td width="30%" align="center">源产品</td>
                         <td width="15%" align="center">使用数量</td>
-                        <td width="15%" align="center">可用数量</td>
-                        <td width="5%" align="left"><input type="button" accesskey="A"
-                            value="增加" class="button_class" onclick="addTr()"></td>
+                        <td width="5%" align="left">
+                            <input type="button" accesskey="A"
+                            value="增加" class="button_class" onclick="addTr()">
+                        </td>
                     </tr>
                 </table>
                 </td>
@@ -444,12 +450,14 @@ function load()
          </td>
          <td width="15%" align="center"><input type="text" style="width: 100%"
                     name="useAmount" value="" oncheck="notNone;isNumber"></td>
-         <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
-                    name="srcAmount" value="" oncheck="notNone;isNumber"></td>
+         <%--<td width="15%" align="center">--%>
+             <%--<input type="text" style="width: 100%" readonly="readonly"--%>
+                    <%--name="srcAmount" value="" oncheck="notNone;isNumber">--%>
+         <%--</td>--%>
          <td width="15%" align="center">
              <%--<input type="text" style="width: 100%" readonly="readonly"--%>
                     <%--name="srcPrice" value="" oncheck="notNone;isFloat">--%>
-         <input type="hidden" name="srcRelation" value="">
+            <input type="hidden" name="srcRelation" value="">
          </td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>

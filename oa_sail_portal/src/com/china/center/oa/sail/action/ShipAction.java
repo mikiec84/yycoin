@@ -675,23 +675,16 @@ public class ShipAction extends DispatchAction
             if ("1".equals(confirm)){
                 this.shipManager.addPickup(user, packageIds);
             } else{
-                Map<String, List<String>> result = this.shipManager.prePickup(user, packageIds);
+                Map<String, Set<String>> result = this.shipManager.prePickup(user, packageIds);
                 if (result == null) {
                     shipManager.addPickup(user, packageIds);
                     ajax.setSuccess("拣配成功");
                 } else {
-                    _logger.info("*********redirect prePickup**************"+result);
                     request.setAttribute("packageIds", packageIds);
                     request.setAttribute("map", result);
-                    _logger.info("*********redirect prePickup**************");
                     ajax.setError("同一收货人或电话的CK单尚未合并:"+ result);
-//                    return mapping.findForward("prePickup");
-
-//                    return mapping.findForward("queryPickup") ;
                 }
             }
-
-
         }catch(MYException e)
         {
             _logger.warn(e, e);
@@ -700,7 +693,6 @@ public class ShipAction extends DispatchAction
         }
 
         return JSONTools.writeResponse(response, ajax);
-//        return  mapping.findForward("queryPickup") ;
     }
 
     /**
