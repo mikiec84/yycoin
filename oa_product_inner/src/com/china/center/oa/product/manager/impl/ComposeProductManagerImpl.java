@@ -260,16 +260,17 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
             con.addWhereStr();
 
-            con.addCondition("StorageRelationBean.depotpartId", "=", bean.getDepotpartId());
+            con.addCondition("StorageRelationBean.depotpartId", "=", composeItemBean.getDepotpartId());
 
-            con.addCondition("StorageRelationBean.productId", "=", productId);
+            con.addCondition("StorageRelationBean.productId", "=", composeItemBean.getProductId());
 
-            con.addIntCondition("StorageRelationBean.amount", ">=", bean.getAmount());
+            con.addIntCondition("StorageRelationBean.amount", ">=", composeItemBean.getAmount());
 
             List<StorageRelationBean> relationBeanList = this.storageRelationDAO.queryEntityBeansByCondition(con);
             if (ListTools.isEmptyOrNull(relationBeanList)){
-                String template = "仓区:%s中源产品:%s库存不足无法合成!";
-                String msg = String.format(template, bean.getDepotpartId(), bean.getProductId());
+                String template = "仓区:%s中源产品:%s库存%d不足无法合成!";
+                String msg = String.format(template, composeItemBean.getDepotpartId(), composeItemBean.getProductId(),
+                        composeItemBean.getAmount());
                 _logger.warn(msg);
                 throw new MYException(msg);
             } else {

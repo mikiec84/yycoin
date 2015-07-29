@@ -19,15 +19,16 @@ function addBean()
 function checks()
 {
 	var srs = document.getElementsByName('srcRelation');
-	
-	var ret = $duplicate(srs);
-	
-	if (ret)
-	{
-		alert('相同产品不能在同一个储位');
-	}
-	
-    return !ret;
+
+//	var ret = $duplicate(srs);
+//
+//	if (ret)
+//	{
+//		alert('相同产品不能在同一个储位');
+//	}
+//
+//    return !ret;
+    return true;
 }
 
 var current;
@@ -158,58 +159,36 @@ function getProductRelation(oos)
 function selectDepotpartProduct(obj)
 {
     current = obj;
-//
-//    var pobj = getDepartmentId(current);
-//
-//    if (pobj.value == '')
-//    {
-//        alert('请选择仓区');
-//        return;
-//    }
-//
-//    if ($$("dirTargerName") == '')
-//    {
-//        alert("请选择合成产品");
-//        return;
-//    }
     
     var tr = getTrObject(obj);
     
     var srcProductCode = getInputInTr(tr, "srcProductCode").value;
-
-//    window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&abstractType=0&status=0');
     var managerType = '';
 
     window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&mtype='+managerType+'&status=0'
             +"&code="+ srcProductCode);
-//   	window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&status=0'
-//		   + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
-
-//    window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&stafferId=0&selectMode=0'
-//            + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
 }
 
 
 function getProduct(oos)
 {
 	var oo = oos[0];
-    console.log("oo****"+oo+"current:"+current.name);
+//    console.log("oo****"+oo+"current:"+current.name);
 
     if (current.name == "dirTargerName"){
         getProductForCompose(oos)
     } else{
         current.value = oo.pname;
-        console.log(current.value);
+//        console.log(current.value);
 
         var tr = getTrObject(current);
 
         var eles = tr.getElementsByTagName('input');
-        console.log(eles+"oo****"+eles.length);
+//        console.log(eles+"oo****"+eles.length);
 
         var hobj = getEle(eles, "srcProductId");
-        console.log("hobj****"+hobj);
         hobj.value = oo.value;
-        console.log("hobj****"+hobj.value);
+//        console.log("hobj****"+hobj.value);
 
         $O("mtype").value = oo.pmtype;
         $O("oldproduct").value = oo.poldproduct;
