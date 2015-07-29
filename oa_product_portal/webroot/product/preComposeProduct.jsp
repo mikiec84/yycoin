@@ -193,26 +193,41 @@ function selectDepotpartProduct(obj)
 function getProduct(oos)
 {
 	var oo = oos[0];
-    console.log("oo****"+oo);
-	
+    console.log("oo****"+oo+"current:"+current.name);
+
+    if (current.name == "dirTargerName"){
+        getProductForCompose(oos)
+    } else{
+        current.value = oo.pname;
+        console.log(current.value);
+
+        var tr = getTrObject(current);
+
+        var eles = tr.getElementsByTagName('input');
+        console.log(eles+"oo****"+eles.length);
+
+        var hobj = getEle(eles, "srcProductId");
+        console.log("hobj****"+hobj);
+        hobj.value = oo.value;
+        console.log("hobj****"+hobj.value);
+
+        $O("mtype").value = oo.pmtype;
+        $O("oldproduct").value = oo.poldproduct;
+    }
+}
+
+function getProductForCompose(oos)
+{
+    var oo = oos[0];
+
     current.value = oo.pname;
-
-    var tr = getTrObject(current);
-
-    var eles = tr.getElementsByTagName('input');
-    console.log(eles+"oo****"+eles.length);
-
-    var hobj = getEle(eles, "srcProductId");
-    console.log("hobj****"+hobj);
-    hobj.value = oo.value;
-    console.log("hobj****"+hobj.value);
 
     $O("mtype").value = oo.pmtype;
     $O("oldproduct").value = oo.poldproduct;
-//
-//    var hobj = getNextInput(current.nextSibling);
-//
-//    hobj.value = oo.value;
+
+    var hobj = getNextInput(current.nextSibling);
+
+    hobj.value = oo.value;
 }
 
 function getNextInput(el)
@@ -466,6 +481,7 @@ function load()
          <td width="15%" align="center">
              <input type="text" style="width: 100%"
                     name="useAmount" value="" oncheck="notNone;isNumber">
+             <input type="hidden" name="srcRelation" value="">
          </td>
          <%--<td width="15%" align="center">--%>
              <%--<input type="text" style="width: 100%" readonly="readonly"--%>
@@ -474,7 +490,7 @@ function load()
          <%--<td width="15%" align="center">--%>
              <%--&lt;%&ndash;<input type="text" style="width: 100%" readonly="readonly"&ndash;%&gt;--%>
                     <%--&lt;%&ndash;name="srcPrice" value="" oncheck="notNone;isFloat">&ndash;%&gt;--%>
-            <%--<input type="hidden" name="srcRelation" value="">--%>
+
          <%--</td>--%>
         <td width="5%" align="center">
             <input type=button
