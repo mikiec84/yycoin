@@ -366,7 +366,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             throw new MYException("只能操作自己的单据,请确认操作");
         }
 
-        if (bean.getType() != ComposeConstant.COMPOSE_TYPE_COMPOSE)
+        if (bean.getType() != ComposeConstant.COMPOSE_TYPE_COMPOSE
+                && bean.getType() != ComposeConstant.COMPOSE_TYPE_PRE_COMPOSE)
         {
             throw new MYException("数据错误,请确认操作");
         }
@@ -441,7 +442,9 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         composeProductDAO.updateEntityBean(bean);
 
         // 修改库存(合成)
-        if (bean.getType() == ComposeConstant.COMPOSE_TYPE_COMPOSE)
+        if (bean.getType() == ComposeConstant.COMPOSE_TYPE_COMPOSE
+                //2015/8/3 预合成类型
+                || bean.getType() == ComposeConstant.COMPOSE_TYPE_PRE_COMPOSE)
         {
             processCompose(user, bean);
         }

@@ -98,7 +98,8 @@ public class ComposeProductListenerTaxGlueImpl implements ComposeProductListener
         throws MYException
     {
         // 修改库存(合成)
-        if (bean.getType() == ComposeConstant.COMPOSE_TYPE_COMPOSE)
+        if (bean.getType() == ComposeConstant.COMPOSE_TYPE_COMPOSE
+                || bean.getType() == ComposeConstant.COMPOSE_TYPE_PRE_COMPOSE)
         {
             FinanceBean financeBean = new FinanceBean();
 

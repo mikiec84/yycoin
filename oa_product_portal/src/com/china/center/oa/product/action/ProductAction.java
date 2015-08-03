@@ -1469,7 +1469,7 @@ public class ProductAction extends DispatchAction
 
             bean.setStafferId(user.getStafferId());
 
-            bean.setType(ComposeConstant.COMPOSE_TYPE_COMPOSE);
+            bean.setType(ComposeConstant.COMPOSE_TYPE_PRE_COMPOSE);
 
             productFacade.preComposeProduct(user.getId(), bean);
 

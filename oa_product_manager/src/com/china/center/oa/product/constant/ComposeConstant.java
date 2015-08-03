@@ -34,6 +34,12 @@ public interface ComposeConstant
     @Defined(key = "composeType", value = "分解")
     int COMPOSE_TYPE_DECOMPOSE = 1;
 
+    /**
+     * 2015/8/3 预合成
+     */
+    @Defined(key = "composeType", value = "预合成")
+    int COMPOSE_TYPE_PRE_COMPOSE = 2;
+
 //    @Defined(key = "composeStatus", value = "预合成")
 //    int STATUS_PRE_SUBMIT = -1;
 
