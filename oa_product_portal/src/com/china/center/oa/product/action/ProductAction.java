@@ -1990,8 +1990,6 @@ public class ProductAction extends DispatchAction
 
         List<ComposeFeeBean> feeList = new ArrayList<ComposeFeeBean>();
 
-        double total = 0.0d;
-
         for (int i = 0; i < feeItems.length; i++ )
         {
             if ( !MathTools.equal(0.0, CommonTools.parseFloat(feeItems[i])))
@@ -2002,8 +2000,6 @@ public class ProductAction extends DispatchAction
                 each.setLogTime(bean.getLogTime());
                 each.setDescription(idescriptions[i]);
                 feeList.add(each);
-
-                total += each.getPrice();
             }
         }
 

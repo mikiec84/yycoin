@@ -45,11 +45,11 @@
         <property name="concurrent" value="false" />
     </bean>
 
-    <!--2015/7/24 预合成提交申请JOB -->
+    <!--2015/7/24 预合成提交申请JOB：一小时运行一次 -->
     <bean id="composeProductTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="composeProductJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/60 * * * ?" />
     </bean>
     
     <bean

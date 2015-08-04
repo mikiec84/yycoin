@@ -339,6 +339,14 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
                         beanInDb.setPrice(bean.getPrice());
                         this.composeProductDAO.updateEntityBean(beanInDb);
                         _logger.info("ComposeProductBean is submitted:"+bean);
+
+                        //update ComposeItemBean price
+                        if (!ListTools.isEmptyOrNull(items)){
+                            for (ComposeItemBean composeItemBean : items){
+                                this.composeItemDAO.updateEntityBean(composeItemBean);
+                                _logger.info("ComposeItemBean update price:" + composeItemBean);
+                            }
+                        }
                     }
                 }catch(Exception e){
                     e.printStackTrace();
