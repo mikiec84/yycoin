@@ -1,0 +1,1 @@
+alter table t_center_out add column remoteAllocate int(11) DEFAULT 0

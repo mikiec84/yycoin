@@ -458,6 +458,9 @@ public class OutBean implements Serializable
 
     //0: 未申请 1：已申请
     private int motivationFlag = 0;
+
+    //2015/8/5 异地调拨标志: 1-需异地调拨 0-否
+    private int remoteAllocate = 0;
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -541,6 +544,14 @@ public class OutBean implements Serializable
      */
     public OutBean()
     {
+    }
+
+    public int getRemoteAllocate() {
+        return remoteAllocate;
+    }
+
+    public void setRemoteAllocate(int remoteAllocate) {
+        this.remoteAllocate = remoteAllocate;
     }
 
     /**
@@ -981,7 +992,7 @@ public class OutBean implements Serializable
     }
 
     /**
-     * @param 对arriveDate进行赋值
+     * @param arriveDate
      */
     public void setArriveDate(String arriveDate)
     {
@@ -997,7 +1008,7 @@ public class OutBean implements Serializable
     }
 
     /**
-     * @param 对location进行赋值
+     * @param location
      */
     public void setLocation(String location)
     {

@@ -14,7 +14,130 @@
 <script language="JavaScript" src="../js/json.js"></script>
 <script language="JavaScript" src="../sail_js/addBuy.js"></script>
 <script language="javascript">
-<%@include file="../sail_js/buy.jsp"%>
+<%@include file="../sail_js/buy_stock_in.jsp"%>
+var provinceMap = {};
+<c:forEach items="${cityList}" var="item">
+var cities = provinceMap['${item.parentId}'];
+//        console.log(cities);
+if (typeof cities === "undefined"){
+	provinceMap['${item.parentId}'] = []
+	provinceMap['${item.parentId}'].push({'id':'${item.id}','name':'${item.name}'})
+} else{
+	cities.push({'id':'${item.id}','name':'${item.name}'})
+}
+</c:forEach>
+
+function change_city(obj)
+{
+	removeAllItem($O('cityId'));
+	setOption($O('cityId'), "", "--");
+	if ($$('provinceId') == "")
+	{
+		return;
+	}
+	var cityList = provinceMap[$$('provinceId')];
+//        console.log(cityList);
+	for (var i = 0; i < cityList.length; i++)
+	{
+		setOption($O('cityId'), cityList[i].id, cityList[i].name);
+	}
+}
+function radio_click(obj)
+{
+	if (obj.value == '2')
+	{
+		$O('transport1').disabled = false;
+		removeAllItem($O('transport1'));
+		setOption($O('transport1'), "", "--");
+		<c:forEach items="${expressList}" var="item">
+		if ("${item.type}" == 0 || "${item.type}" == 99)
+		{
+			setOption($O('transport1'), "${item.id}", "${item.name}");
+		}
+		</c:forEach>
+		removeAllItem($O('transport2'));
+		setOption($O('transport2'), "", "--");
+		$O('transport2').disabled = true;
+		var expressPay = $O('expressPay');
+		var transportPay = $O('transportPay');
+		removeAllItem(expressPay);
+		setOption(expressPay, '1', '业务员支付');
+		setOption(expressPay, '2', '公司支付');
+		setOption(expressPay, '3', '客户支付');
+		removeAllItem(transportPay);
+		setOption(transportPay, '', '--');
+	}
+	else if (obj.value == '3')
+	{
+		$O('transport2').disabled = false;
+		removeAllItem($O('transport2'));
+		setOption($O('transport2'), "", "--");
+		<c:forEach items="${expressList}" var="item">
+		if ("${item.type}" == 1 || "${item.type}" == 99)
+		{
+			setOption($O('transport2'), "${item.id}", "${item.name}");
+		}
+		</c:forEach>
+		removeAllItem($O('transport1'));
+		setOption($O('transport1'), "", "--");
+		$O('transport1').disabled = true;
+		var expressPay = $O('expressPay');
+		var transportPay = $O('transportPay');
+		removeAllItem(expressPay);
+		setOption(expressPay, '', '--');
+		removeAllItem(transportPay);
+		setOption(transportPay, '1', '业务员支付');
+		setOption(transportPay, '2', '公司支付');
+		setOption(transportPay, '3', '客户支付');
+	}
+	else if (obj.value == '4')
+	{
+		$O('transport1').disabled = false;
+		$O('transport2').disabled = false;
+		removeAllItem($O('transport1'));
+		setOption($O('transport1'), "", "--");
+		removeAllItem($O('transport2'));
+		setOption($O('transport2'), "", "--");
+		<c:forEach items="${expressList}" var="item">
+		if ("${item.type}" == 0 || "${item.type}" == 99)
+		{
+			setOption($O('transport1'), "${item.id}", "${item.name}");
+		}
+		</c:forEach>
+		<c:forEach items="${expressList}" var="item">
+		if ("${item.type}" == 1 || "${item.type}" == 99)
+		{
+			setOption($O('transport2'), "${item.id}", "${item.name}");
+		}
+		</c:forEach>
+		var expressPay = $O('expressPay');
+		var transportPay = $O('transportPay');
+		removeAllItem(expressPay);
+		setOption(expressPay, '1', '业务员支付');
+		setOption(expressPay, '2', '公司支付');
+		setOption(expressPay, '3', '客户支付');
+		removeAllItem(transportPay);
+		setOption(transportPay, '1', '业务员支付');
+		setOption(transportPay, '2', '公司支付');
+		setOption(transportPay, '3', '客户支付');
+	}
+	else
+	{
+		$O('transport1').disabled = true;
+		$O('transport2').disabled = true;
+		removeAllItem($O('transport1'));
+		setOption($O('transport1'), "", "--");
+		removeAllItem($O('transport2'));
+		setOption($O('transport2'), "", "--");
+		var expressPay = $O('expressPay');
+		var transportPay = $O('transportPay');
+		removeAllItem(expressPay);
+		setOption(expressPay, '', '--');
+		removeAllItem(transportPay);
+		setOption(transportPay, '', '--');
+	}
+}
+
 
 var duesMap = {};
 var duesTypeMap = {};
@@ -87,13 +210,16 @@ function forward()
 </script>
 </head>
 <body class="body_class" onload="load()">
-<form name="outForm" method=post action="../sail/out.do"><input
-	type=hidden name="method" value="addOut" /><input type=hidden
-	name="nameList" /> <input type=hidden name="idsList" /> <input
-	type=hidden name="unitList" /> <input type=hidden name="amontList" />
-<input type=hidden name="priceList" /> <input type=hidden
-	name="totalList" /> <input type=hidden name="totalss" /> <input
-	type=hidden name="customerId" /> 
+<form name="outForm" method=post action="../sail/out.do">
+	<input type=hidden name="method" value="addOut" />
+	<input type=hidden name="nameList" />
+	<input type=hidden name="idsList" />
+	<input type=hidden name="unitList" />
+	<input type=hidden name="amontList" />
+	<input type=hidden name="priceList" />
+	<input type=hidden name="totalList" />
+	<input type=hidden name="totalss" />
+	<input type=hidden name="customerId" />
 <input type="hidden" name="reserve9" value=""/>	
 <input type=hidden name="type" value='1' /> 
 <input type=hidden name="saves" value="" />
@@ -244,6 +370,78 @@ function forward()
                                 </select>
 						<font color="#FF0000">*</font></td>
 					</tr>
+
+					<div id="distribution">
+						<tr class="content1">
+							<td align="right">是否异地调拨：</td>
+							<td colspan="3">
+								<label><input type="radio" name="remoteAllocate" value="1">是</label>
+								<label><input type="radio" name="remoteAllocate" value="0">否</label>
+							</td>
+						</tr>
+						<tr class="content1">
+							<td align="right">发货方式：</td>
+							<td colspan="3">
+								<label><input type="radio" name="shipping" value="0" onClick="radio_click(this)">自提</label>
+								<label><input type="radio" name="shipping" value="1" onClick="radio_click(this)">公司</label>
+								<label><input type="radio" name="shipping" value="2" onClick="radio_click(this)">第三方快递</label>
+								<label><input type="radio" name="shipping" value="3" onClick="radio_click(this)">第三方货运</label>
+								<label><input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运</label>
+							</td>
+						</tr>
+						<tr class="content1">
+							<td align="right">运输方式：</td>
+							<td colspan="3">
+								<select name="transport1" id="transport1" quick=true class="select_class" style="width:20%" >
+								</select>&nbsp;&nbsp;
+								<select name="transport2" id="transport2" quick=true class="select_class" style="width:20%" >
+								</select>
+							</td>
+						</tr>
+						<tr class="content1">
+							<td align="right">运费支付方式：</td>
+							<td colspan="3">
+								<select name="expressPay" quick=true class="select_class" style="width:20%">
+									<p:option type="deliverPay" empty="true"></p:option>
+								</select>&nbsp;&nbsp;
+								<select name="transportPay" quick=true class="select_class" style="width:20%">
+									<p:option type="deliverPay" empty="true"></p:option>
+								</select>
+							</td>
+						</tr>
+						<tr class="content1">
+							<td align="right">送货地址：</td>
+							<td colspan="3">
+								<select name="provinceId" quick=true onchange="change_city(this)" class="select_class" >
+									<option>-</option>
+									<c:forEach items="${provinceList}" var="province">
+										<option value="${province.id}">${province.name}</option>
+									</c:forEach>
+									</select>&nbsp;&nbsp;
+								<select name="cityId" quick=true class="select_class" >
+									<option>-</option>
+								</select>&nbsp;&nbsp;
+							</td>
+						</tr>
+						<tr class="content2">
+							<td width="15%" align="right">地址：</td>
+
+							<td width="35%">
+								<input type="text" name="address" id="address" maxlength="12" required="required"><font color="#FF0000">*</font>
+							</td>
+
+							<td width="15%" align="right">入库类型：</td>
+							<td width="35%">
+								<input type="text" name="receiver" id="receiver" maxlength="12" required="required"><font color="#FF0000">*</font>
+							</td>
+						</tr>
+						<tr class="content1">
+							<td align="right">电话：</td>
+							<td colspan="3">
+								<input type="text" name='phone' id ='phone' maxlength="13" required="required"/>
+							</td>
+						</tr>
+					</div>
 					
 					<tr class="content2" id="pro_tr">
                         <td align="right" id="outd">供应商：</td>

@@ -510,6 +510,17 @@ public class ParentOutAction extends DispatchAction
 
 			request.setAttribute("dutyList", dutyList);
 
+			//2015/8/5 针对“调拨”类型增加地址栏位
+			//运输方式
+			List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
+			request.setAttribute("expressList", expressList);
+
+			//省市
+			List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+			request.setAttribute("provinceList", provinceList);
+			List<CityBean> cityList = this.cityDAO.listEntityBeans();
+			request.setAttribute("cityList", cityList);
+
 			return mapping.findForward("addBuy");
 		}
 
