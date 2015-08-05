@@ -327,6 +327,12 @@ function managerChange()
     if ($$('outType') == 2 || $$('outType') == 3 || $$('outType') == 6 )
     {
         showTr('dir_tr', false);
+        showTr('allocate', false);
+        showTr('distribution1', false);
+        showTr('distribution2', false);
+        showTr('distribution3', false);
+        showTr('distribution4', false);
+        showTr('distribution5', false);
         showTr('forceBuy_tr', false);
         showTr('refOutFullId_tr', false);
         showTr('staffer_tr', false);
@@ -336,6 +342,12 @@ function managerChange()
     if ($$('outType') == 1)
     {
         showTr('dir_tr', true);
+        showTr('allocate', true);
+        showTr('distribution1', false);
+        showTr('distribution2', false);
+        showTr('distribution3', false);
+        showTr('distribution4', false);
+        showTr('distribution5', false);
         showTr('forceBuy_tr', false);
         showTr('refOutFullId_tr', false);
         showTr('staffer_tr', false);
@@ -393,6 +405,12 @@ function managerChange()
 	   	showTr('forceBuy_tr',true);
 	   	showTr('refOutFullId_tr',true);
 	   	showTr('dir_tr',false);
+        showTr('allocate', false);
+        showTr('distribution1', false);
+        showTr('distribution2', false);
+        showTr('distribution3', false);
+        showTr('distribution4', false);
+        showTr('distribution5', false);
         showTr('invoice_tr', false);
         showTr('staffer_tr',false);
         showTr('customer_tr',false);

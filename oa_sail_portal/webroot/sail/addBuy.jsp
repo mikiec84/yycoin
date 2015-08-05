@@ -138,6 +138,27 @@ function radio_click(obj)
 	}
 }
 
+function radio2_click(obj)
+{
+    console.log(obj.value);
+    if (obj.value == '1')
+    {
+        showTr('distribution1', true);
+        showTr('distribution2', true);
+        showTr('distribution3', true);
+        showTr('distribution4', true);
+        showTr('distribution5', true);
+    }
+    else if (obj.value == '0')
+    {
+        showTr('distribution1', false);
+        showTr('distribution2', false);
+        showTr('distribution3', false);
+        showTr('distribution4', false);
+        showTr('distribution5', false);
+    }
+}
+
 
 var duesMap = {};
 var duesTypeMap = {};
@@ -371,15 +392,16 @@ function forward()
 						<font color="#FF0000">*</font></td>
 					</tr>
 
-					<div id="distribution">
-						<tr class="content1">
+					<div>
+						<tr class="content1" id="allocate">
 							<td align="right">是否异地调拨：</td>
 							<td colspan="3">
-								<label><input type="radio" name="remoteAllocate" value="1">是</label>
-								<label><input type="radio" name="remoteAllocate" value="0">否</label>
+								<label><input type="radio" name="remoteAllocate" value="1" onClick="radio2_click(this)">是</label>
+								<label><input type="radio" name="remoteAllocate" value="0" onClick="radio2_click(this)">否</label>
 							</td>
 						</tr>
-						<tr class="content1">
+
+						<tr class="content1" id="distribution1">
 							<td align="right">发货方式：</td>
 							<td colspan="3">
 								<label><input type="radio" name="shipping" value="0" onClick="radio_click(this)">自提</label>
@@ -389,7 +411,7 @@ function forward()
 								<label><input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运</label>
 							</td>
 						</tr>
-						<tr class="content1">
+						<tr class="content1" id="distribution2">
 							<td align="right">运输方式：</td>
 							<td colspan="3">
 								<select name="transport1" id="transport1" quick=true class="select_class" style="width:20%" >
@@ -398,20 +420,20 @@ function forward()
 								</select>
 							</td>
 						</tr>
-						<tr class="content1">
+						<tr class="content1" id="distribution3">
 							<td align="right">运费支付方式：</td>
 							<td colspan="3">
 								<select name="expressPay" quick=true class="select_class" style="width:20%">
-									<p:option type="deliverPay" empty="true"></p:option>
+									<p:option type="deliverPay"></p:option>
 								</select>&nbsp;&nbsp;
 								<select name="transportPay" quick=true class="select_class" style="width:20%">
-									<p:option type="deliverPay" empty="true"></p:option>
+									<p:option type="deliverPay"></p:option>
 								</select>
 							</td>
 						</tr>
-						<tr class="content1">
-							<td align="right">送货地址：</td>
-							<td colspan="3">
+						<tr class="content1" id="distribution4">
+							<td width="15%" align="right">送货地址：</td>
+							<td width="35%">
 								<select name="provinceId" quick=true onchange="change_city(this)" class="select_class" >
 									<option>-</option>
 									<c:forEach items="${provinceList}" var="province">
@@ -422,25 +444,24 @@ function forward()
 									<option>-</option>
 								</select>&nbsp;&nbsp;
 							</td>
+                            <td width="15%" align="right">收货人：</td>
+                            <td width="35%">
+                                <input type="text" name='receiver' id ='receiver' maxlength="60" required="required"/>
+                            </td>
 						</tr>
-						<tr class="content2">
+						<tr class="content2" id="distribution5">
 							<td width="15%" align="right">地址：</td>
 
 							<td width="35%">
 								<input type="text" name="address" id="address" maxlength="12" required="required"><font color="#FF0000">*</font>
 							</td>
 
-							<td width="15%" align="right">入库类型：</td>
+							<td width="15%" align="right">电话：</td>
 							<td width="35%">
-								<input type="text" name="receiver" id="receiver" maxlength="12" required="required"><font color="#FF0000">*</font>
+                                <input type="text" name='phone' id ='phone' maxlength="13" required="required"/>
 							</td>
 						</tr>
-						<tr class="content1">
-							<td align="right">电话：</td>
-							<td colspan="3">
-								<input type="text" name='phone' id ='phone' maxlength="13" required="required"/>
-							</td>
-						</tr>
+
 					</div>
 					
 					<tr class="content2" id="pro_tr">
