@@ -180,7 +180,7 @@ public class PackageManagerImpl implements PackageManager {
                         triggerLog.info("======is PreInvoiceApplyBean======" + each.getOutId());
                         this.createPreInsPackage(each, applyBean);
                     } else{
-                        triggerLog.info("======is other, direct delete, handle nothing======");
+                        triggerLog.warn("======is other, direct delete, handle nothing======"+each.getOutId());
                         preConsignDAO.deleteEntityBean(each.getId());
 
                         continue;

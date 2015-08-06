@@ -5520,6 +5520,11 @@ public class ParentOutAction extends DispatchAction
 			// 入库单的处理
 			try
 			{
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                {
+                    this.fillDistributionForRemoteAllocate(request, outBean);
+                }
+
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
                 _logger.info("addOut 88888888888888888888*********"+id);
 				if ("提交".equals(saves))
@@ -6083,6 +6088,24 @@ public class ParentOutAction extends DispatchAction
 			}
 		}
 	}
+
+    /**
+     * 2015/8/6 入库调拨生成配送单
+     * @param rds
+     * @param out
+     */
+    private void fillDistributionForRemoteAllocate(HttpServletRequest rds, OutBean out)
+    {
+        DistributionBean distributionBean = new DistributionBean();
+
+        distributionBean.setOutId(out.getFullId());
+
+        out.setDistributeBean(distributionBean);
+
+        BeanUtil.getBean(distributionBean, rds);
+        _logger.info(out+" fillDistributionForRemoteAllocate*****"+distributionBean);
+
+    }
 
 	/**
 	 * 处理销售单的逻辑

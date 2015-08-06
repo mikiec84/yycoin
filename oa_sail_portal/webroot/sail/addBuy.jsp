@@ -397,7 +397,7 @@ function forward()
 							<td align="right">是否异地调拨：</td>
 							<td colspan="3">
 								<label><input type="radio" name="remoteAllocate" value="1" onClick="radio2_click(this)">是</label>
-								<label><input type="radio" name="remoteAllocate" value="0" onClick="radio2_click(this)">否</label>
+								<label><input type="radio" name="remoteAllocate" value="0" checked="checked" onClick="radio2_click(this)">否</label>
 							</td>
 						</tr>
 
@@ -458,7 +458,7 @@ function forward()
 
 							<td width="15%" align="right">电话：</td>
 							<td width="35%">
-                                <input type="text" name='phone' id ='phone' maxlength="13" required="required"/>
+                                <input type="text" name="mobile" id ="mobile" maxlength="13" required="required"/>
 							</td>
 						</tr>
 

@@ -8106,7 +8106,31 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         	outBean.setLocation("");
         
         outDAO.saveEntityBean(outBean);
+
+        this.saveDistributionForRemoteAllocate(outBean);
+
         _logger.info("*****finish saveOutInner*****"+outBean.getFullId());
+    }
+
+    private void saveDistributionForRemoteAllocate(OutBean outBean){
+        //2015/8/6 入库调拨需生成配送单及CK单
+        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT )
+        {
+            DistributionBean distributionBean = outBean.getDistributeBean();
+
+            if (distributionBean!= null){
+                String id = commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX);
+                distributionBean.setId(id);
+                distributionBean.setOutId(outBean.getFullId());
+                distributionDAO.saveEntityBean(distributionBean);
+                _logger.info(distributionBean+" distributionBean created for out:"+outBean.getFullId());
+
+                this.createPackage(outBean);
+            }else{
+                _logger.warn("distributionBean not created for out:"+outBean.getFullId());
+            }
+        }
     }
     
     /**
