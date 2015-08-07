@@ -7563,6 +7563,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 			distBean.setOutId(newOutBean.getFullId());
                 			
                 			saveDistributionInner(distBean, newBaseList);
+
+                            //2015/8/7 入库调拨生成CK单
+                            if (newOutBean.getType() == OutConstant.OUT_TYPE_INBILL
+                                    && newOutBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT )
+                            {
+                                createPackage(newOutBean);
+
+                            }
                 		}
                 		
                 		idss[i] = newOutId;
@@ -8124,9 +8132,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 distributionBean.setId(id);
                 distributionBean.setOutId(outBean.getFullId());
                 distributionDAO.saveEntityBean(distributionBean);
-                _logger.info(distributionBean+" distributionBean created for out:"+outBean.getFullId());
-
-                this.createPackage(outBean);
+                _logger.info(distributionBean + " distributionBean created for out:" + outBean.getFullId());
             }else{
                 _logger.warn("distributionBean not created for out:"+outBean.getFullId());
             }

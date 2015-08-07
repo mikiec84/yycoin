@@ -318,6 +318,16 @@ function recives()
                        </td>
                     </tr>
 
+					<tr class="content1">
+						<td align="right">配送单号：</td>
+						<td colspan="3">
+							<c:forEach items="${distBeanList}" var="item">
+								<a href="../sail/out.do?method=findDistribution&id=${item.id}">${item.id}</a>
+								&nbsp;
+							</c:forEach>
+						</td>
+					</tr>
+
 				</table>
 				</td>
 			</tr>
