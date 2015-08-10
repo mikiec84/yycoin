@@ -2935,7 +2935,11 @@ public class TravelApplyAction extends DispatchAction
                                             .append("</font><br>");
 
                                     importError = true;
-                                } else if(type == TcpConstanst.MOTIVATION_TYPE){
+                                }
+                            }
+
+                            if (out.getMotivationFlag() == 1){
+                                if(type == TcpConstanst.MOTIVATION_TYPE){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
                                             .append("订单号不能重复提交激励报销申")
@@ -2943,7 +2947,6 @@ public class TravelApplyAction extends DispatchAction
 
                                     importError = true;
                                 }
-
                             }
 
                             //检查订单的付款状态
