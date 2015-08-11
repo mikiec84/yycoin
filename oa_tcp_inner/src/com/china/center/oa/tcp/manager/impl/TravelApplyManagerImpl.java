@@ -2894,8 +2894,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         con.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
         //销售出库
         con.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_OUT_COMMON);
+
+        //2015/8/11 把中收激励统计中，把关于订单出库状态的校验去掉
         // “已出库”、“已发货”状态的订单
-        con.addCondition("and OutBean.status in (3,4)");
+//        con.addCondition("and OutBean.status in (3,4)");
+
         con.addCondition("outTime",">","2015-04-01");
         List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(outList)){
