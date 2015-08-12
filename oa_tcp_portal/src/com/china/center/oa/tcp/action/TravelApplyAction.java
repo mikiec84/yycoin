@@ -2926,23 +2926,24 @@ public class TravelApplyAction extends DispatchAction
                         }else{
                             item.setFullId(outId);
 
-                            //同一个订单不能重复提交中收激励报销申请
+                            //同一个订单不能重复提交中收报销申请
                             if (out.getIbFlag() == 1){
                                 if (type == TcpConstanst.IB_TYPE){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交中收报销申")
+                                            .append("订单号不能重复提交中收报销申请")
                                             .append("</font><br>");
 
                                     importError = true;
                                 }
                             }
 
+                            //同一个订单不能重复提交激励报销申请
                             if (out.getMotivationFlag() == 1){
                                 if(type == TcpConstanst.MOTIVATION_TYPE){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交激励报销申")
+                                            .append("订单号不能重复提交激励报销申请")
                                             .append("</font><br>");
 
                                     importError = true;
@@ -2959,6 +2960,18 @@ public class TravelApplyAction extends DispatchAction
                                 importError = true;
                             }
 
+                            //2015/8/12 激励申请时，检查订单为已出库或已发货
+                            if(type == TcpConstanst.MOTIVATION_TYPE){
+                                if (out.getStatus() != OutConstant.STATUS_PASS &&
+                                        out.getStatus() != OutConstant.STATUS_SEC_PASS){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("激励申请时订单状态必须为已出库或已发货")
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                }
+                            }
 
                             if (customerToOutMap.containsKey(item.getCustomerName())){
                                 List<String> oudIds = customerToOutMap.get(item.getCustomerName());
@@ -3536,6 +3549,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("订单状态");
             line.writeColumn("申请人");
             line.writeColumn("银行销售日期");
 
@@ -3555,6 +3569,7 @@ public class TravelApplyAction extends DispatchAction
                     //2015/7/11导出申请人和银行销售日期
                     OutBean outBean = this.outDAO.find(ib.getFullId());
                     if (outBean!= null){
+                        line.writeColumn(OutHelper.getOutStatus(outBean));
                         line.writeColumn(outBean.getStafferName());
                         line.writeColumn(outBean.getPodate());
                     }
@@ -3651,6 +3666,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("订单状态");
             line.writeColumn("申请人");
             line.writeColumn("银行销售日期");
 
@@ -3669,6 +3685,7 @@ public class TravelApplyAction extends DispatchAction
                 //2015/7/11导出申请人和银行销售日期
                 OutBean outBean = this.outDAO.find(ib.getFullId());
                 if (outBean!= null){
+                    line.writeColumn(OutHelper.getOutStatus(outBean));
                     line.writeColumn(outBean.getStafferName());
                     line.writeColumn(outBean.getPodate());
                 }
