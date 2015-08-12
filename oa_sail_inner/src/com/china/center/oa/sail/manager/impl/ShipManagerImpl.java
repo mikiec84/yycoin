@@ -119,8 +119,18 @@ public class ShipManagerImpl implements ShipManager
 			item.setBaseId(base.getId());
 			item.setProductId(base.getProductId());
 			item.setProductName(base.getProductName());
-			item.setAmount(base.getAmount());
-			item.setPrice(base.getPrice());
+
+			//2015/8/12 调拨单产生的CK单的数量应该取绝对值，因为调拨出库是负的数量
+			if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+					&& outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT )
+			{
+				item.setAmount(Math.abs(base.getAmount()));
+				item.setPrice(Math.abs(base.getPrice()));
+			} else {
+				item.setAmount(base.getAmount());
+				item.setPrice(base.getPrice());
+			}
+
 			item.setValue(base.getValue());
 			item.setOutTime(outBean.getOutTime());
 			item.setDescription(outBean.getDescription());

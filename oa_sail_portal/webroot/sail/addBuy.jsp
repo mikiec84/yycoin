@@ -446,19 +446,19 @@ function forward()
 							</td>
                             <td width="15%" align="right">收货人：</td>
                             <td width="35%">
-                                <input type="text" name='receiver' id ='receiver' maxlength="60" required="required"/>
+                                <input type="text" name='receiver' id ='receiver' maxlength="10" required="required"/><font color="#FF0000">*</font>
                             </td>
 						</tr>
 						<tr class="content2" id="distribution5">
 							<td width="15%" align="right">地址：</td>
 
 							<td width="35%">
-								<input type="text" name="address" id="address" maxlength="12" required="required"><font color="#FF0000">*</font>
+								<input type="text" name="address" id="address" maxlength="60" required="required"><font color="#FF0000">*</font>
 							</td>
 
 							<td width="15%" align="right">电话：</td>
 							<td width="35%">
-                                <input type="text" name="mobile" id ="mobile" maxlength="13" required="required"/>
+                                <input type="text" name="mobile" id ="mobile" maxlength="13" required="required"/><font color="#FF0000">*</font>
 							</td>
 						</tr>
 
