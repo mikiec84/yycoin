@@ -140,7 +140,7 @@ function radio_click(obj)
 
 function radio2_click(obj)
 {
-    console.log(obj.value);
+    //console.log(obj.value);
     if (obj.value == '1')
     {
         showTr('distribution1', true);
