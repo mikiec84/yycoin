@@ -13,9 +13,10 @@ public interface ProductApplyConstant {
     
     @Defined(key = "productApplyStatus", value = "驳回")
     int STATUS_REJECT = 2;
-    
-    @Defined(key = "productApplyStatus", value = "待部门审批")
-    int STATUS_DEPARTMENTAPPLY = 3;
+
+    //2015/8/15 新产品申请去掉产品管理部审批环节
+/*   @Defined(key = "productApplyStatus", value = "待部门审批")
+    int STATUS_DEPARTMENTAPPLY = 3;*/
     
     @Defined(key = "productApplyStatus", value = "待产品管理中心审批")
     int STATUS_PRODUCTAPPLY = 4;

@@ -79,7 +79,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         int oldStatus = bean.getStatus();
 
         if (oldStatus == ProductApplyConstant.STATUS_SUBMIT) {
-            bean.setStatus(ProductApplyConstant.STATUS_DEPARTMENTAPPLY);
+            //2015/8/15 新产品申请去掉产品管理部审批环节
+            bean.setStatus(ProductApplyConstant.STATUS_PRODUCTAPPLY);
         }
 
         checkUnique(bean);
@@ -116,7 +117,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
             bean.setStatus(oldStatus);
 
             addLog(id, user, bean, "提交", ProductApplyConstant.OPRMODE_SUBMIT,
-                    ProductApplyConstant.STATUS_DEPARTMENTAPPLY);
+                    //2015/8/15 新产品申请去掉产品管理部审批环节
+                    ProductApplyConstant.STATUS_PRODUCTAPPLY);
         }
 
         return true;
@@ -192,7 +194,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         }
         
         if (bean.getStatus() == ProductApplyConstant.STATUS_SUBMIT) {
-            bean.setStatus(ProductApplyConstant.STATUS_DEPARTMENTAPPLY);
+            //2015/8/15 新产品申请去掉产品管理部审批环节
+            bean.setStatus(ProductApplyConstant.STATUS_PRODUCTAPPLY);
         }
         
         productApplyDAO.updateEntityBean(bean);
@@ -229,7 +232,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
             bean.setStatus(bean.getStatus());
 
             addLog(id, user, bean, "提交", ProductApplyConstant.OPRMODE_SUBMIT,
-                    ProductApplyConstant.STATUS_DEPARTMENTAPPLY);
+                    //2015/8/15 新产品申请去掉产品管理部审批环节
+                    ProductApplyConstant.STATUS_PRODUCTAPPLY);
         }
 
         operationLog.info("updateProductBean productApplyBean new :" + bean);
@@ -283,7 +287,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
         int status = bean.getStatus();
 
-        if (status != ProductApplyConstant.STATUS_DEPARTMENTAPPLY) {
+        if (status != ProductApplyConstant.STATUS_PRODUCTAPPLY) {
+            //2015/8/15 新产品申请去掉产品管理部审批环节
             throw new MYException("当前状态不是待部门审批状态,请联系管理员");
         }
 

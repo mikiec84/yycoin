@@ -114,7 +114,7 @@ public class ProductApplyAction extends DispatchAction {
         // 1 部门审批
         if (forward.equals("1")) {
 
-            condition.addCondition("ProductApplyBean.status", "=", ProductApplyConstant.STATUS_DEPARTMENTAPPLY);
+            condition.addCondition("ProductApplyBean.status", "=", ProductApplyConstant.STATUS_PRODUCTAPPLY);
             
         } else if (forward.equals("2")) {
 
