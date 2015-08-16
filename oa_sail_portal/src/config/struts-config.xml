@@ -199,6 +199,7 @@
             <forward name="cjqrdPrint" path="/sailImport/cjqrdPrint.jsp" />
             <forward name="rptQueryZJRCProduct" path="/sailImport/rptQueryZJRCProduct.jsp" />
             <forward name="queryZJRCProduct" path="/sailImport/queryZJRCProduct.jsp" />
+            <forward name="batchUpdateZJRCProduct" path="/sailImport/batchUpdateZJRCProduct.jsp" />
             <forward name="addZJRCProduct" path="/sailImport/addZJRCProduct.jsp" />
             <forward name="updateZJRCProduct" path="/sailImport/updateZJRCProduct.jsp" />
             <forward name="detailZJRCProduct" path="/sailImport/detailZJRCProduct.jsp" />

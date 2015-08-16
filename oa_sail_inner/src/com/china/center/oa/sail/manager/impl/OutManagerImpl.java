@@ -7566,7 +7566,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                             //2015/8/7 入库调拨生成CK单
                             if (newOutBean.getType() == OutConstant.OUT_TYPE_INBILL
-                                    && newOutBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT )
+                                    && newOutBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT
+                                    //2015/8/15 异地调拨才生成CK单
+                                    && newOutBean.getRemoteAllocate() == 1)
                             {
                                 createPackage(newOutBean);
 

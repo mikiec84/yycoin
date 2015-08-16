@@ -5,7 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.constant.DepotConstant;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -58,12 +60,6 @@ import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.dao.OutImportDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.manager.SailConfigManager;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.ParamterMap;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 public class ZJRCManagerImpl implements ZJRCManager
 {
@@ -172,6 +168,29 @@ public class ZJRCManagerImpl implements ZJRCManager
         zjrcProductDAO.updateEntityBean(bean);
 
         return true;
+    }
+
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public boolean batchUpdateZJRCProduct(List<ZJRCProductBean> zjrcProductBeans) throws MYException {
+        for (ZJRCProductBean bean : zjrcProductBeans){
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("zjrProductName","=", bean.getZjrProductName());
+            List<ZJRCProductBean> beans = this.zjrcProductDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(beans)){
+                ZJRCProductBean oldBean = beans.get(0);
+                oldBean.setProductId(bean.getProductId());
+                oldBean.setPrice(bean.getPrice());
+                oldBean.setCostPrice(bean.getCostPrice());
+                oldBean.setMidRevenue(bean.getMidRevenue());
+                oldBean.setLogTime(TimeTools.now());
+                this.zjrcProductDAO.updateEntityBean(oldBean);
+                _logger.info("batchUpdateZJRCProduct ****"+oldBean);
+            }
+
+        }
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Transactional(rollbackFor = MYException.class)

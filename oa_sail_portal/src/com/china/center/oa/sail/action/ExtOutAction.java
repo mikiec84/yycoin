@@ -1,14 +1,20 @@
 package com.china.center.oa.sail.action;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.io.IOException;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -42,14 +48,6 @@ import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.ParamterMap;
-import com.china.center.tools.RequestTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 public class ExtOutAction extends DispatchAction
 {
@@ -180,6 +178,243 @@ public class ExtOutAction extends DispatchAction
 
         return mapping.findForward("queryZJRCProduct");
     }
+
+    /**
+     * 2015/8/15 批量更新产品配置
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchUpdateZJRCProduct(ActionMapping mapping, ActionForm form,
+                                             HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        _logger.info("**********batchUpdateZJRCProduct*************");
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<ZJRCProductBean> importItemList = new ArrayList<ZJRCProductBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("uploadDistAddress");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("uploadDistAddress");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    ZJRCProductBean bean = new ZJRCProductBean();
+
+
+                    // 开单品名
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String zjrProductName = obj[0].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("zjrProductName","=", zjrProductName);
+                        List<ZJRCProductBean> zjrcProductBeans = this.zjrcProductDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(zjrcProductBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("开单品名不存在")
+                                    .append("<br>");
+                            importError = true;
+                        } else{
+                            bean.setZjrProductName(zjrProductName);
+                        }
+
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("开单品名不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // OA产品名
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String productName = obj[1].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=",productName);
+                        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(productBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("OA品名不存在")
+                                    .append("<br>");
+                            importError = true;
+                        } else{
+                            bean.setProductId(productBeans.get(0).getId());
+                        }
+
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("OA品名不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 销售价
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setPrice(MathTools.parseDouble(obj[2].trim()));
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售价不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 供货价
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        bean.setCostPrice(MathTools.parseDouble(obj[3].trim()));
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("供货价不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 中收价
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        bean.setMidRevenue(MathTools.parseDouble(obj[4].trim()));
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("中收价不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    importItemList.add(bean);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足32格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("batchUpdateZJRCProduct");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("batchUpdateZJRCProduct");
+        }
+
+        try
+        {
+            this.zjrcManager.batchUpdateZJRCProduct(importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+        }
+        catch(Exception e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量更新出错:");
+        }
+
+        return mapping.findForward("batchUpdateZJRCProduct");
+    }
+
+    private String[] fillObj(String[] obj)
+    {
+        String[] result = new String[50];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
 	
 	/**
 	 * deleteZJRCProduct
@@ -262,6 +497,8 @@ public class ExtOutAction extends DispatchAction
 
         return mapping.findForward("detailZJRCProduct");
     }
+
+
 	
 	/**
 	 * rptQueryZJRCProduct

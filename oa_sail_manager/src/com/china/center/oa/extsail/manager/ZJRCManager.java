@@ -1,5 +1,6 @@
 package com.china.center.oa.extsail.manager;
 
+import java.util.List;
 import java.util.Map;
 
 import com.center.china.osgi.publics.User;
@@ -12,6 +13,8 @@ public interface ZJRCManager
 	boolean addZJRCProduct(User user, ZJRCProductBean bean) throws MYException;
 	
 	boolean updateZJRCProduct(User user, ZJRCProductBean bean) throws MYException;
+
+    boolean batchUpdateZJRCProduct(List<ZJRCProductBean> beans) throws MYException;
 	
 	boolean deleteZJRCProduct(User user, String id) throws MYException;
 	
