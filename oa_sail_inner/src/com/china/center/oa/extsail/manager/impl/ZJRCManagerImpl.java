@@ -173,24 +173,31 @@ public class ZJRCManagerImpl implements ZJRCManager
     @Transactional(rollbackFor = MYException.class)
     @Override
     public boolean batchUpdateZJRCProduct(List<ZJRCProductBean> zjrcProductBeans) throws MYException {
-        for (ZJRCProductBean bean : zjrcProductBeans){
-            ConditionParse conditionParse = new ConditionParse();
-            conditionParse.addWhereStr();
-            conditionParse.addCondition("zjrProductName","=", bean.getZjrProductName());
-            List<ZJRCProductBean> beans = this.zjrcProductDAO.queryEntityBeansByCondition(conditionParse);
-            if (!ListTools.isEmptyOrNull(beans)){
-                ZJRCProductBean oldBean = beans.get(0);
-                oldBean.setProductId(bean.getProductId());
-                oldBean.setPrice(bean.getPrice());
-                oldBean.setCostPrice(bean.getCostPrice());
-                oldBean.setMidRevenue(bean.getMidRevenue());
-                oldBean.setLogTime(TimeTools.now());
-                this.zjrcProductDAO.updateEntityBean(oldBean);
-                _logger.info("batchUpdateZJRCProduct ****"+oldBean);
-            }
+        if (ListTools.isEmptyOrNull(zjrcProductBeans)){
+            throw new MYException("数据错误,请确认操作");
+        } else{
+            _logger.info("batchUpdateZJRCProduct size:"+zjrcProductBeans.size());
+            for (ZJRCProductBean bean : zjrcProductBeans){
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("zjrProductName","=", bean.getZjrProductName());
+                List<ZJRCProductBean> beans = this.zjrcProductDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(beans)){
+                    ZJRCProductBean oldBean = beans.get(0);
+                    oldBean.setProductId(bean.getProductId());
+                    oldBean.setPrice(bean.getPrice());
+                    oldBean.setCostPrice(bean.getCostPrice());
+                    oldBean.setMidRevenue(bean.getMidRevenue());
+                    oldBean.setLogTime(TimeTools.now());
+                    this.zjrcProductDAO.updateEntityBean(oldBean);
+                    _logger.info("batchUpdateZJRCProduct ****"+oldBean);
+                } else{
+                    _logger.warn("No ZJRCProductBean found:"+bean.getZjrProductName());
+                }
 
+            }
+            return true;  //To change body of implemented methods use File | Settings | File Templates.
         }
-        return true;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Transactional(rollbackFor = MYException.class)

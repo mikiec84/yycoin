@@ -211,14 +211,14 @@ public class ExtOutAction extends DispatchAction
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("uploadDistAddress");
+            return mapping.findForward("batchUpdateZJRCProduct");
         }
 
         if ( !rds.haveStream())
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("uploadDistAddress");
+            return mapping.findForward("batchUpdateZJRCProduct");
         }
 
         ReaderFile reader = ReadeFileFactory.getXLSReader();
@@ -227,7 +227,7 @@ public class ExtOutAction extends DispatchAction
         {
             reader.readFile(rds.getUniqueInputStream());
 
-            while (reader.hasNext())
+           while (reader.hasNext())
             {
                 String[] obj = fillObj((String[])reader.next());
 
@@ -243,11 +243,9 @@ public class ExtOutAction extends DispatchAction
                 }
 
                 int currentNumber = reader.getCurrentLineNumber();
-
                 if (obj.length >= 2 )
                 {
-                    ZJRCProductBean bean = new ZJRCProductBean();
-
+                   ZJRCProductBean bean = new ZJRCProductBean();
 
                     // 开单品名
                     if ( !StringTools.isNullOrNone(obj[0]))
@@ -328,6 +326,7 @@ public class ExtOutAction extends DispatchAction
 
                         importError = true;
                     }
+
 
                     // 中收价
                     if ( !StringTools.isNullOrNone(obj[4]))
