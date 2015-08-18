@@ -180,19 +180,29 @@ public class ZJRCManagerImpl implements ZJRCManager
             for (ZJRCProductBean bean : zjrcProductBeans){
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addWhereStr();
-                conditionParse.addCondition("zjrProductName","=", bean.getZjrProductName());
+                conditionParse.addCondition("productId","=", bean.getProductId());
                 List<ZJRCProductBean> beans = this.zjrcProductDAO.queryEntityBeansByCondition(conditionParse);
-                if (!ListTools.isEmptyOrNull(beans)){
+                if (ListTools.isEmptyOrNull(beans)){
+                    //2015/8/18 如果不存在就新增
+                    ZJRCProductBean newBean = new ZJRCProductBean();
+                    newBean.setId(commonDAO.getSquenceString20());
+                    newBean.setZjrProductName(bean.getZjrProductName());
+                    newBean.setProductId(bean.getProductId());
+                    newBean.setPrice(bean.getPrice());
+                    newBean.setCostPrice(bean.getCostPrice());
+                    newBean.setMidRevenue(bean.getMidRevenue());
+                    newBean.setLogTime(TimeTools.now());
+                    this.zjrcProductDAO.saveEntityBean(newBean);
+                    _logger.info("batchUpdateZJRCProduct create ZJRCProductBean****"+newBean);
+                } else{
                     ZJRCProductBean oldBean = beans.get(0);
-                    oldBean.setProductId(bean.getProductId());
+                    oldBean.setZjrProductName(bean.getZjrProductName());
                     oldBean.setPrice(bean.getPrice());
                     oldBean.setCostPrice(bean.getCostPrice());
                     oldBean.setMidRevenue(bean.getMidRevenue());
                     oldBean.setLogTime(TimeTools.now());
                     this.zjrcProductDAO.updateEntityBean(oldBean);
-                    _logger.info("batchUpdateZJRCProduct ****"+oldBean);
-                } else{
-                    _logger.warn("No ZJRCProductBean found:"+bean.getZjrProductName());
+                    _logger.info("batchUpdateZJRCProduct update ****"+oldBean);
                 }
 
             }

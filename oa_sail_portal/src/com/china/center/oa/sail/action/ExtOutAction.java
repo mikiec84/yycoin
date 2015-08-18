@@ -225,53 +225,43 @@ public class ExtOutAction extends DispatchAction
 
         try
         {
+            _logger.info("**********batchUpdateZJRCProduct*************1111111111111");
             reader.readFile(rds.getUniqueInputStream());
 
            while (reader.hasNext())
             {
                 String[] obj = fillObj((String[])reader.next());
-
+                _logger.info("**********batchUpdateZJRCProduct*************222222222222222222**"+obj.length);
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
                 {
+                    _logger.info("**********batchUpdateZJRCProduct*************222222222222222222aaaaaaaa**"+obj[0]);
                     continue;
                 }
 
                 if (StringTools.isNullOrNone(obj[0]))
                 {
+                    _logger.info("**********batchUpdateZJRCProduct*************222222222222222222bbbbbbbbb**");
                     continue;
                 }
-
+                _logger.info("**********batchUpdateZJRCProduct*************33333333333333333");
                 int currentNumber = reader.getCurrentLineNumber();
                 if (obj.length >= 2 )
                 {
                    ZJRCProductBean bean = new ZJRCProductBean();
-
+                    _logger.info("**********batchUpdateZJRCProduct*************444444444444444444");
                     // 开单品名
-                    if ( !StringTools.isNullOrNone(obj[0]))
+                    if ( StringTools.isNullOrNone(obj[0]))
                     {
-                        String zjrProductName = obj[0].trim();
-                        ConditionParse conditionParse = new ConditionParse();
-                        conditionParse.addWhereStr();
-                        conditionParse.addCondition("zjrProductName","=", zjrProductName);
-                        List<ZJRCProductBean> zjrcProductBeans = this.zjrcProductDAO.queryEntityBeansByCondition(conditionParse);
-                        if (ListTools.isEmptyOrNull(zjrcProductBeans)){
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("开单品名不存在")
-                                    .append("<br>");
-                            importError = true;
-                        } else{
-                            bean.setZjrProductName(zjrProductName);
-                        }
-
-                    }else{
                         builder
                                 .append("第[" + currentNumber + "]错误:")
                                 .append("开单品名不能为空")
                                 .append("<br>");
 
                         importError = true;
+                    }else{
+                        String zjrProductName = obj[0].trim();
+                        bean.setZjrProductName(zjrProductName);
                     }
 
                     // OA产品名
@@ -340,7 +330,7 @@ public class ExtOutAction extends DispatchAction
 
                         importError = true;
                     }
-
+                    _logger.info("**********batchUpdateZJRCProduct*************555555555555555");
                     importItemList.add(bean);
                 }
                 else
@@ -383,14 +373,14 @@ public class ExtOutAction extends DispatchAction
         }
 
         try
-        {
+        {_logger.info("**********batchUpdateZJRCProduct*************66666666666");
             this.zjrcManager.batchUpdateZJRCProduct(importItemList);
 
             request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
         }
-        catch(Exception e)
+        catch(MYException e)
         {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量更新出错:");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量更新出错:"+e.getErrorContent());
         }
 
         return mapping.findForward("batchUpdateZJRCProduct");
