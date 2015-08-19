@@ -194,6 +194,7 @@ public class ExtOutAction extends DispatchAction
     {
         _logger.info("**********batchUpdateZJRCProduct*************");
         RequestDataStream rds = new RequestDataStream(request);
+        User user = Helper.getUser(request);
 
         boolean importError = false;
 
@@ -225,31 +226,31 @@ public class ExtOutAction extends DispatchAction
 
         try
         {
-            _logger.info("**********batchUpdateZJRCProduct*************1111111111111");
+//            _logger.info("**********batchUpdateZJRCProduct*************1111111111111");
             reader.readFile(rds.getUniqueInputStream());
 
            while (reader.hasNext())
             {
                 String[] obj = fillObj((String[])reader.next());
-                _logger.info("**********batchUpdateZJRCProduct*************222222222222222222**"+obj.length);
+//                _logger.info("**********batchUpdateZJRCProduct*************222222222222222222**"+obj.length);
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
                 {
-                    _logger.info("**********batchUpdateZJRCProduct*************222222222222222222aaaaaaaa**"+obj[0]);
+//                    _logger.info("**********batchUpdateZJRCProduct*************222222222222222222aaaaaaaa**"+obj[0]);
                     continue;
                 }
 
                 if (StringTools.isNullOrNone(obj[0]))
                 {
-                    _logger.info("**********batchUpdateZJRCProduct*************222222222222222222bbbbbbbbb**");
+//                    _logger.info("**********batchUpdateZJRCProduct*************222222222222222222bbbbbbbbb**");
                     continue;
                 }
-                _logger.info("**********batchUpdateZJRCProduct*************33333333333333333");
+//                _logger.info("**********batchUpdateZJRCProduct*************33333333333333333");
                 int currentNumber = reader.getCurrentLineNumber();
                 if (obj.length >= 2 )
                 {
                    ZJRCProductBean bean = new ZJRCProductBean();
-                    _logger.info("**********batchUpdateZJRCProduct*************444444444444444444");
+//                    _logger.info("**********batchUpdateZJRCProduct*************444444444444444444");
                     // 开单品名
                     if ( StringTools.isNullOrNone(obj[0]))
                     {
@@ -330,7 +331,7 @@ public class ExtOutAction extends DispatchAction
 
                         importError = true;
                     }
-                    _logger.info("**********batchUpdateZJRCProduct*************555555555555555");
+//                    _logger.info("**********batchUpdateZJRCProduct*************555555555555555");
                     importItemList.add(bean);
                 }
                 else
@@ -373,8 +374,9 @@ public class ExtOutAction extends DispatchAction
         }
 
         try
-        {_logger.info("**********batchUpdateZJRCProduct*************66666666666");
-            this.zjrcManager.batchUpdateZJRCProduct(importItemList);
+        {
+//            _logger.info("**********batchUpdateZJRCProduct*************66666666666");
+            this.zjrcManager.batchUpdateZJRCProduct(user, importItemList);
 
             request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
         }

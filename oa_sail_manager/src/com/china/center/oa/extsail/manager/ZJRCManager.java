@@ -14,7 +14,7 @@ public interface ZJRCManager
 	
 	boolean updateZJRCProduct(User user, ZJRCProductBean bean) throws MYException;
 
-    boolean batchUpdateZJRCProduct(List<ZJRCProductBean> beans) throws MYException;
+    boolean batchUpdateZJRCProduct(User user,List<ZJRCProductBean> beans) throws MYException;
 	
 	boolean deleteZJRCProduct(User user, String id) throws MYException;
 	

@@ -223,4 +223,20 @@ public class ZJRCProductBean implements Serializable
     public void setMotivationMoney(double motivationMoney) {
         this.motivationMoney = motivationMoney;
     }
+
+    @Override
+    public String toString() {
+        return "ZJRCProductBean{" +
+                "id='" + id + '\'' +
+                ", productId='" + productId + '\'' +
+                ", zjrProductName='" + zjrProductName + '\'' +
+                ", price=" + price +
+                ", costPrice=" + costPrice +
+                ", midRevenue=" + midRevenue +
+                ", motivationMoney=" + motivationMoney +
+                ", stafferId='" + stafferId + '\'' +
+                ", stafferName='" + stafferName + '\'' +
+                ", logTime='" + logTime + '\'' +
+                '}';
+    }
 }

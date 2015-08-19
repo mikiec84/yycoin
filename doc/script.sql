@@ -7,4 +7,4 @@ alter table T_CENTER_ZJRCBASE add column motivationMoney double DEFAULT '0'
 delete from t_center_oamenuitem where menuitemname ='新产品-产品管理部审批' and id='1021'
 
 --2015/8/16 批量更新中信产品配置
-insert into t_center_oamenuitem values(9035,'批量更新产品配置','../sailImport/batchUpdateZJRCProduct.jsp',90,1,9031,99,'批量更新产品配置')
+insert into t_center_oamenuitem values(9035,'批量更新产品配置','../sailImport/batchUpdateZJRCProduct.jsp',90,1,9030,99,'批量更新产品配置')

@@ -172,11 +172,11 @@ public class ZJRCManagerImpl implements ZJRCManager
 
     @Transactional(rollbackFor = MYException.class)
     @Override
-    public boolean batchUpdateZJRCProduct(List<ZJRCProductBean> zjrcProductBeans) throws MYException {
+    public boolean batchUpdateZJRCProduct(User user,List<ZJRCProductBean> zjrcProductBeans) throws MYException {
         if (ListTools.isEmptyOrNull(zjrcProductBeans)){
             throw new MYException("数据错误,请确认操作");
         } else{
-            _logger.info("batchUpdateZJRCProduct size:"+zjrcProductBeans.size());
+            _logger.info(user+" batchUpdateZJRCProduct size:"+zjrcProductBeans.size());
             for (ZJRCProductBean bean : zjrcProductBeans){
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addWhereStr();
@@ -186,6 +186,8 @@ public class ZJRCManagerImpl implements ZJRCManager
                     //2015/8/18 如果不存在就新增
                     ZJRCProductBean newBean = new ZJRCProductBean();
                     newBean.setId(commonDAO.getSquenceString20());
+                    newBean.setStafferId(user.getStafferId());
+                    newBean.setStafferName(user.getStafferName());
                     newBean.setZjrProductName(bean.getZjrProductName());
                     newBean.setProductId(bean.getProductId());
                     newBean.setPrice(bean.getPrice());
@@ -196,6 +198,8 @@ public class ZJRCManagerImpl implements ZJRCManager
                     _logger.info("batchUpdateZJRCProduct create ZJRCProductBean****"+newBean);
                 } else{
                     ZJRCProductBean oldBean = beans.get(0);
+                    oldBean.setStafferId(user.getStafferId());
+                    oldBean.setStafferName(user.getStafferName());
                     oldBean.setZjrProductName(bean.getZjrProductName());
                     oldBean.setPrice(bean.getPrice());
                     oldBean.setCostPrice(bean.getCostPrice());
