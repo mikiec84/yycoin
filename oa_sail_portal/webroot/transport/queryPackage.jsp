@@ -139,53 +139,35 @@ function callback(data)
     if (data.ret == 0){
         success();
     } else{
-//        console.log("show dialog");
-//        var dialog = $('<div id="dlg" title="同一收货人或电话尚有CK单未合并!"></div>');
-//        dialog.attr(‘title’, output.title);
-//        dialog.html(data.msg);
-//        dialog.dialog(
-//                {closed:false,
-//                buttons: {
-//                    '继续捡配?': function() {
-//                        $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
-//                        $(this).dialog('close');
-//                    },
-//                    "取消": function() {
-//                        $(this).dialog('close');
-//                    }
-//                }});
-//        dialog.dialog("open");
-//        console.log("show dialog end**********"+data.msg);
-//        dialog.dialog(‘open’);
-
         $O('dia_inner').innerHTML = data.msg;
-//        $O('dia_inner').innerHTML = "<table><tr><td>hello world</td></tr></table>";
-//        $("#dlg").html(data.msg);
-//        $('#dlg').dialog(
-//                {closed:false,
-//                buttons: {
-//                    '继续捡配?': function() {
-//                        $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
-//                        $(this).dialog('close');
-//                    },
-//                    "取消": function() {
-//                        $(this).dialog('close');
-//                    }
-//                }});
         $('#dlg').dialog({closed:false});
-//        $("#dlg").dialog("open");
-//        console.log("fuck *************");
-//        var r = confirm(data.msg);
-//        if (r == true){
-//            $ajax('../sail/ship.do?method=addPickup&confirm=1&packageIds=' + str, success);
-//        }
     }
     str = "";
 }
 
+function isEmpty(str) {
+    return (!str || 0 === str.length);
+}
+
 function success(){
     alert("捡配成功！");
-    document.location.reload(true);
+//    document.location.reload(true);
+    //remove current row from table
+//    console.log($O('mainTable').innerHTML)
+    var packageIds = $O("packageIds").value;
+//    console.log(packageIds);
+    var packageList = packageIds.split("~");
+    for (var i = 0; i < packageList.length; i++) {
+        if (!isEmpty(packageList[i])){
+            var selector = 'td[title='+packageList[i]+']';
+//            console.log(selector);
+//            console.log($(selector).parent());
+            $(selector).parent().remove();
+        }
+    }
+//    $('#dlg').dialog({closed:false});
+//    $('td[title="CK201505171017648495"]').parent().remove();
+//    console.log("ok!")
 }
 
 function undoBean(opr, grid)
