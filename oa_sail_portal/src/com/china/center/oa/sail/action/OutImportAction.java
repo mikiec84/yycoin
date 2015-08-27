@@ -2727,6 +2727,203 @@ public class OutImportAction extends DispatchAction
         
         return mapping.findForward("importRedate");
 	}
+
+    /**
+     * 2015/8/27 批量发票转移
+     *
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchTransferInvoiceins(ActionMapping mapping, ActionForm form,
+                                           HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        _logger.info("***batchTransferInvoiceins begin***");
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        //TODO
+        List<OutBean> importItemList = new ArrayList<OutBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("batchTransferInvoiceins");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("batchTransferInvoiceins");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    OutBean bean = new OutBean();
+
+                    // 单号
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String outId = obj[0].trim();
+
+                        OutBean out = outDAO.find(outId);
+
+                        if (null == out){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("销售单不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        }else{
+                            if (out.getType() != 0){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("单号不是销售单")
+                                        .append("<br>");
+
+                                importError = true;
+                            }else{
+//            					if (out.getStatus() == 3 || out.getStatus() == 4){
+//                        			builder
+//                                    .append("第[" + currentNumber + "]错误:")
+//                                    .append("销售单已是发货态不能批量更新")
+//                                    .append("<br>");
+//
+//                        			importError = true;
+//            					}else{
+                                bean.setFullId(outId);
+//            					}
+                            }
+                        }
+
+
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售单号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 延期天数
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        int reday = MathTools.parseInt(obj[1].trim());
+
+                        if (reday <= 0)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("延期天数须为数字")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+
+                        bean.setReday(reday);
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("延期天数不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    importItemList.add(bean);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足32格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importRedate");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importRedate");
+        }
+
+        try
+        {
+            outImportManager.batchUpdateRedate(importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量更新出错:"+ e.getErrorContent());
+        }
+
+        return mapping.findForward("importRedate");
+    }
     
     /**
      * 
