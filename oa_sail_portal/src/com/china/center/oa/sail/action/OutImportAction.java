@@ -2747,8 +2747,7 @@ public class OutImportAction extends DispatchAction
 
         boolean importError = false;
 
-        //TODO
-        List<OutBean> importItemList = new ArrayList<OutBean>();
+        List<OutTransferBean> importItemList = new ArrayList<OutTransferBean>();
 
         StringBuilder builder = new StringBuilder();
 
@@ -2797,74 +2796,107 @@ public class OutImportAction extends DispatchAction
 
                 if (obj.length >= 2 )
                 {
-                    OutBean bean = new OutBean();
+                    OutTransferBean bean = new OutTransferBean();
+                    OutBean srcOut = null;
+                    OutBean destOut = null;
 
-                    // 单号
+                    // 原销售单号
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
                         String outId = obj[0].trim();
 
-                        OutBean out = outDAO.find(outId);
+                        srcOut = outDAO.find(outId);
 
-                        if (null == out){
+                        if (null == srcOut){
                             builder
                                     .append("第[" + currentNumber + "]错误:")
-                                    .append("销售单不存在")
+                                    .append("原销售单不存在")
                                     .append("<br>");
 
                             importError = true;
                         }else{
-                            if (out.getType() != 0){
+                            //原销售单必须为全部开票状态
+                            if (srcOut.getInvoiceStatus() == OutConstant.INVOICESTATUS_END) {
+                                bean.setSrcFullId(outId);
+                            } else{
                                 builder
                                         .append("第[" + currentNumber + "]错误:")
-                                        .append("单号不是销售单")
+                                        .append("原销售单必须为全部开票状态")
                                         .append("<br>");
 
                                 importError = true;
-                            }else{
-//            					if (out.getStatus() == 3 || out.getStatus() == 4){
-//                        			builder
-//                                    .append("第[" + currentNumber + "]错误:")
-//                                    .append("销售单已是发货态不能批量更新")
-//                                    .append("<br>");
-//
-//                        			importError = true;
-//            					}else{
-                                bean.setFullId(outId);
-//            					}
                             }
                         }
-
-
                     }else{
                         builder
                                 .append("第[" + currentNumber + "]错误:")
-                                .append("销售单号不能为空")
+                                .append("原销售单号不能为空")
                                 .append("<br>");
 
                         importError = true;
                     }
 
-                    // 延期天数
+                    // 新销售单号
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
-                        int reday = MathTools.parseInt(obj[1].trim());
+                        String outId = obj[1].trim();
 
-                        if (reday <= 0)
-                        {
+                        destOut = outDAO.find(outId);
+
+                        if (null == destOut){
                             builder
                                     .append("第[" + currentNumber + "]错误:")
-                                    .append("延期天数须为数字")
+                                    .append("新销售单不存在")
                                     .append("<br>");
 
                             importError = true;
-                        }
+                        }else{
+                            // 新销售单必须为未开票状态
+                            if (destOut.getInvoiceStatus() == OutConstant.INVOICESTATUS_INIT) {
+                                bean.setDestFullId(outId);
+                            } else{
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("新销售单必须为未开票状态")
+                                        .append("<br>");
 
-                        bean.setReday(reday);
+                                importError = true;
+                            }
+
+                            //原销售单与新销售单的客户、商品、金额必须一致
+                            if (!srcOut.getStafferId().equals(destOut.getStafferId())){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("原销售单与新销售单的客户必须一致")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+
+                            if (!Double.valueOf(srcOut.getTotal()).equals(Double.valueOf(destOut.getTotal()))){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("原销售单与新销售单的金额必须一致")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+
+                            List<BaseBean> srcBaseList = baseDAO.queryEntityBeansByFK(srcOut.getFullId());
+                            List<BaseBean> destBaseList = baseDAO.queryEntityBeansByFK(srcOut.getFullId());
+                            if (!srcBaseList.equals(destBaseList)){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("原销售单与新销售单的商品必须一致")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
                     }else{
                         builder
                                 .append("第[" + currentNumber + "]错误:")
-                                .append("延期天数不能为空")
+                                .append("新销售单号不能为空")
                                 .append("<br>");
 
                         importError = true;
@@ -2888,7 +2920,7 @@ public class OutImportAction extends DispatchAction
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
 
-            return mapping.findForward("importRedate");
+            return mapping.findForward("batchTransferInvoiceins");
         }
         finally
         {
@@ -2908,12 +2940,12 @@ public class OutImportAction extends DispatchAction
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
-            return mapping.findForward("importRedate");
+            return mapping.findForward("batchTransferInvoiceins");
         }
 
         try
         {
-            outImportManager.batchUpdateRedate(importItemList);
+            outImportManager.batchTransferInvoiceins(importItemList);
 
             request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
         }
@@ -2922,7 +2954,7 @@ public class OutImportAction extends DispatchAction
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量更新出错:"+ e.getErrorContent());
         }
 
-        return mapping.findForward("importRedate");
+        return mapping.findForward("batchTransferInvoiceins");
     }
     
     /**

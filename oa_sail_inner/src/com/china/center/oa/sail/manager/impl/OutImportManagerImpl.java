@@ -12,6 +12,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.finance.bean.InvoiceinsItemBean;
+import com.china.center.oa.finance.dao.InsVSOutDAO;
+import com.china.center.oa.finance.dao.InvoiceinsDAO;
+import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
+import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.PackageVO;
@@ -154,6 +160,12 @@ public class OutImportManagerImpl implements OutImportManager
 	private BankSailDAO bankSailDAO = null;
 	
 	private EstimateProfitDAO estimateProfitDAO = null;
+
+    private InvoiceinsDAO invoiceinsDAO = null;
+
+    protected InsVSOutDAO insVSOutDAO = null;
+
+    private InvoiceinsItemDAO invoiceinsItemDAO = null;
 	
 	private final static String SPLIT = "_";
 	
@@ -2408,8 +2420,55 @@ public class OutImportManagerImpl implements OutImportManager
 		
 		return true;
 	}
-	
-	/***
+
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public boolean batchTransferInvoiceins(List<OutTransferBean> outTransferBeans) throws MYException {
+        if (!ListTools.isEmptyOrNull(outTransferBeans)){
+             for(OutTransferBean bean : outTransferBeans){
+                 List<InsVSOutBean> insList = insVSOutDAO.queryEntityBeansByFK(bean.getSrcFullId());
+                 //将原销售单关联的开票单号移到新销售单上
+                 if (!ListTools.isEmptyOrNull(insList)){
+                      for (InsVSOutBean insVSOutBean: insList){
+                          insVSOutBean.setOutId(bean.getDestFullId());
+                          this.insVSOutDAO.updateEntityBean(insVSOutBean);
+                          String template = "transfer InsVSOutBean %s:%s from source %s to destination %s";
+                          _logger.info(String.format(template, insVSOutBean.getId(), insVSOutBean.getInsId(),
+                                  bean.getSrcFullId(), bean.getDestFullId()));
+
+                          //开票单上的关联销售单由原销售单转为新销售单
+                          InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(insVSOutBean.getInsId());
+                          if (invoiceinsBean!= null){
+                              invoiceinsBean.setRefIds(invoiceinsBean.getRefIds().replace(bean.getSrcFullId(), bean.getDestFullId()));
+                              this.invoiceinsDAO.updateEntityBean(invoiceinsBean);
+                              String template2 = "transfer InvoiceinsBean %s from source %s to destination %s";
+                              _logger.info(String.format(template2, invoiceinsBean.getId(),
+                                      bean.getSrcFullId(), bean.getDestFullId()));
+                          }
+                      }
+                 }
+
+                 List<InvoiceinsItemBean> insItemList = invoiceinsItemDAO.queryEntityBeansByCondition("where InvoiceinsItemBean.outId = ?", bean.getSrcFullId());
+
+                 if (!ListTools.isEmptyOrNull(insItemList)) {
+                     for (InvoiceinsItemBean invoiceinsItemBean:insItemList){
+                         invoiceinsItemBean.setOutId(bean.getDestFullId());
+                         this.invoiceinsItemDAO.updateEntityBean(invoiceinsItemBean);
+                         String template = "transfer InvoiceinsItemBean %s:%s from source %s to destination %s";
+                         _logger.info(String.format(template, invoiceinsItemBean.getId(), invoiceinsItemBean.getParentId(),
+                                 bean.getSrcFullId(), bean.getDestFullId()));
+                     }
+                 }
+             }
+
+            return true;
+        }
+
+
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /***
 	 * 批量更新销售单的 仓库、仓区
 	 */
 	@Transactional(rollbackFor = MYException.class)
@@ -3164,5 +3223,21 @@ public class OutImportManagerImpl implements OutImportManager
      */
     public void setPackageDAO(PackageDAO packageDAO) {
         this.packageDAO = packageDAO;
+    }
+
+    public InvoiceinsDAO getInvoiceinsDAO() {
+        return invoiceinsDAO;
+    }
+
+    public void setInvoiceinsDAO(InvoiceinsDAO invoiceinsDAO) {
+        this.invoiceinsDAO = invoiceinsDAO;
+    }
+
+    public InsVSOutDAO getInsVSOutDAO() {
+        return insVSOutDAO;
+    }
+
+    public void setInsVSOutDAO(InsVSOutDAO insVSOutDAO) {
+        this.insVSOutDAO = insVSOutDAO;
     }
 }

@@ -13,6 +13,7 @@ import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -25,20 +26,26 @@ import java.util.*;
  */
 public class Test {
     public static void main(String[] args) throws Exception{
-        double giftPercentage = ((double)3)/7;
-        int amount = (int)(giftPercentage*9);
-        System.out.println(giftPercentage);
-        System.out.println(giftPercentage*9);
-        System.out.println(amount);
-        String outIds = "SO1504161858017551344;SO1504161858017551345;";
-        StringTokenizer  st = new  StringTokenizer(outIds,";");
-        while(st.hasMoreTokens()) {
-            String outId = st.nextToken();
-            System.out.println(outId);
-        }
+//        double giftPercentage = ((double)3)/7;
+//        int amount = (int)(giftPercentage*9);
+//        System.out.println(giftPercentage);
+//        System.out.println(giftPercentage*9);
+//        System.out.println(amount);
+//        String outIds = "SO1504161858017551344;SO1504161858017551345;";
+//        StringTokenizer  st = new  StringTokenizer(outIds,";");
+//        while(st.hasMoreTokens()) {
+//            String outId = st.nextToken();
+//            System.out.println(outId);
+//        }
+        System.out.println("SO1503162214017510324;".replace("SO1503162214017510324", "SO201508026"));
         double d1 = 2.3;
         double d2 = 2.3;
         System.out.println(d1==d2);
+        double value2 = 0.585;
+        System.out.println(new BigDecimal(value2));
+        System.out.println(BigDecimal.valueOf(value2));
+        System.out.println(Double.valueOf(d1).equals(Double.valueOf(d2)));
+        System.out.println(Double.valueOf(d1)==(Double.valueOf(d2)));
         String endDate ="2015-03-19 23:59:59";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date end = sdf.parse(endDate);

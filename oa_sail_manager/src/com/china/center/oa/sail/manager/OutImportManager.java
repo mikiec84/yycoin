@@ -4,16 +4,7 @@ import java.util.List;
 
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
-import com.china.center.oa.sail.bean.BankSailBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.BatchApproveBean;
-import com.china.center.oa.sail.bean.BatchSwatchBean;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.EstimateProfitBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutImportBean;
-import com.china.center.oa.sail.bean.ReplenishmentBean;
+import com.china.center.oa.sail.bean.*;
 
 public interface OutImportManager
 {
@@ -51,6 +42,14 @@ public interface OutImportManager
 	
 	boolean batchUpdateEmergency(List<ConsignBean> list)
 			throws MYException;
+
+    /**
+     * 2015/8/28 批量发票转移
+     * @param list
+     * @return
+     * @throws MYException
+     */
+    boolean batchTransferInvoiceins(List<OutTransferBean> list) throws MYException;
 	
 	List<OutImportBean> preUseAmountCheck(String batchId);
 	
