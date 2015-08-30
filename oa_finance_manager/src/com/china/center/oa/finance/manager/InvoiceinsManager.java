@@ -20,6 +20,7 @@ import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.finance.bean.InvoiceinsImportBean;
 import com.china.center.oa.finance.listener.InvoiceinsListener;
 import com.china.center.oa.finance.vo.InvoiceinsVO;
+import com.china.center.oa.sail.bean.OutTransferBean;
 
 
 /**
@@ -98,4 +99,12 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
 
     //2015/4/8 设置发票号A开头对应的CK单为紧急
     public boolean updateEmergency(User user, String fullId) throws MYException;
+
+    /**
+     * 2015/8/28 批量发票转移
+     * @param list
+     * @return
+     * @throws MYException
+     */
+    boolean batchTransferInvoiceins(List<OutTransferBean> list) throws MYException;
 }

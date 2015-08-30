@@ -24,6 +24,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.finance.manager.*;
+import com.china.center.oa.sail.dao.BaseDAO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -66,10 +68,6 @@ import com.china.center.oa.finance.dao.PaymentDAO;
 import com.china.center.oa.finance.dao.PaymentVSOutDAO;
 import com.china.center.oa.finance.dao.StatBankDAO;
 import com.china.center.oa.finance.facade.FinanceFacade;
-import com.china.center.oa.finance.manager.BankManager;
-import com.china.center.oa.finance.manager.BillManager;
-import com.china.center.oa.finance.manager.PaymentManager;
-import com.china.center.oa.finance.manager.StatBankManager;
 import com.china.center.oa.finance.vo.BankVO;
 import com.china.center.oa.finance.vo.BatchSplitInBillWrap;
 import com.china.center.oa.finance.vo.InBillVO;
@@ -131,6 +129,8 @@ public class FinanceAction extends DispatchAction {
 
 	private OutDAO outDAO = null;
 
+    private BaseDAO baseDAO = null;
+
 	private FinanceDAO financeDAO = null;
 
 	private OutBalanceDAO outBalanceDAO = null;
@@ -170,7 +170,7 @@ public class FinanceAction extends DispatchAction {
 	private InvoiceDAO invoiceDAO = null;
 	
 	private RoleAuthDAO roleAuthDAO = null;
-	
+
 	private static final String QUERYBANK = "queryBank";
 
 	private static final String RPTQUERYBANK = "rptQueryBank";
@@ -2084,7 +2084,6 @@ public class FinanceAction extends DispatchAction {
 	 * 付款申请
 	 * 
 	 * @param request
-	 * @param id
 	 * @param customerId
 	 * @param user
 	 * @throws MYException
@@ -2187,8 +2186,7 @@ public class FinanceAction extends DispatchAction {
 	 * 预收转费用
 	 * 
 	 * @param request
-	 * @param id
-	 * @param customerId
+	 * @param billId
 	 * @param user
 	 * @throws MYException
 	 */
@@ -3515,6 +3513,9 @@ public class FinanceAction extends DispatchAction {
         
         return mapping.findForward("querySelfCustomerInBill");
 	}
+
+
+
     
 	/**
 	 * @return the financeFacade
@@ -3874,4 +3875,13 @@ public class FinanceAction extends DispatchAction {
 	{
 		this.roleAuthDAO = roleAuthDAO;
 	}
+
+    public BaseDAO getBaseDAO() {
+        return baseDAO;
+    }
+
+    public void setBaseDAO(BaseDAO baseDAO) {
+        this.baseDAO = baseDAO;
+    }
+
 }

@@ -29,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.sail.bean.*;
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
@@ -106,13 +107,6 @@ import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.StafferManager;
 import com.china.center.oa.publics.vs.DutyVSInvoiceBean;
 import com.china.center.oa.publics.vs.RoleAuthBean;
-import com.china.center.oa.sail.bean.BaseBalanceBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.ExpressBean;
-import com.china.center.oa.sail.bean.OutBalanceBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.UnitViewBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.dao.BaseBalanceDAO;
@@ -223,6 +217,236 @@ public class InvoiceinsAction extends DispatchAction
      */
     public InvoiceinsAction()
     {
+    }
+
+    /**
+     * 2015/8/27 批量发票转移
+     *
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchTransferInvoiceins(ActionMapping mapping, ActionForm form,
+                                                 HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        _logger.info("***batchTransferInvoiceins begin***");
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<OutTransferBean> importItemList = new ArrayList<OutTransferBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("batchTransferInvoiceins");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("batchTransferInvoiceins");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    OutTransferBean bean = new OutTransferBean();
+                    OutBean srcOut = null;
+                    OutBean destOut = null;
+
+                    // 原销售单号
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String outId = obj[0].trim();
+
+                        srcOut = outDAO.find(outId);
+
+                        if (null == srcOut){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("原销售单不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        }else{
+                            //原销售单必须为全部开票状态
+                            if (srcOut.getInvoiceStatus() == OutConstant.INVOICESTATUS_END) {
+                                bean.setSrcFullId(outId);
+                            } else{
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("原销售单必须为全部开票状态")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("原销售单号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 新销售单号
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String outId = obj[1].trim();
+
+                        destOut = outDAO.find(outId);
+
+                        if (null == destOut){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("新销售单不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        }else{
+                            // 新销售单必须为未开票状态
+                            if (destOut.getInvoiceStatus() == OutConstant.INVOICESTATUS_INIT) {
+                                bean.setDestFullId(outId);
+                            } else{
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("新销售单必须为未开票状态")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+
+                            //原销售单与新销售单的客户、商品、金额必须一致
+                            if (!srcOut.getStafferId().equals(destOut.getStafferId())){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("原销售单与新销售单的客户必须一致")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+
+                            if (!Double.valueOf(srcOut.getTotal()).equals(Double.valueOf(destOut.getTotal()))){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("原销售单与新销售单的金额必须一致")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+
+                            List<BaseBean> srcBaseList = baseDAO.queryEntityBeansByFK(srcOut.getFullId());
+                            List<BaseBean> destBaseList = baseDAO.queryEntityBeansByFK(destOut.getFullId());
+                            if (!srcBaseList.equals(destBaseList)){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("原销售单与新销售单的商品必须一致")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+                    }else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("新销售单号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    importItemList.add(bean);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足32格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("batchTransferInvoiceins");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("batchTransferInvoiceins");
+        }
+
+        try
+        {
+
+            this.invoiceinsManager.batchTransferInvoiceins(importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量更新出错:"+ e.getErrorContent());
+        }
+
+        return mapping.findForward("batchTransferInvoiceins");
     }
 
     /**

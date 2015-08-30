@@ -41,7 +41,7 @@ function load()
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../sail/outImport.do?method=batchTransferInvoiceins" enctype="multipart/form-data" method="post">
+<form name="formEntry" action="../finance/invoiceins.do?method=batchTransferInvoiceins" enctype="multipart/form-data" method="post">
     <p:navigation height="22">
 	<td width="550" class="navigation"><span>导入发票转移明细</span></td>
 	<td width="85"></td>

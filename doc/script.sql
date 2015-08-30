@@ -10,4 +10,4 @@ delete from t_center_oamenuitem where menuitemname ='新产品-产品管理部审批' and 
 insert into t_center_oamenuitem values(9035,'批量更新产品配置','../sailImport/batchUpdateZJRCProduct.jsp',90,1,9030,99,'批量更新产品配置')
 
 --2015/8/27 批量更新发票转移
-insert into t_center_oamenuitem values(1492,'发票转移','../sailImport/batchTransferInvoiceins.jsp',14,1,1402,99,'发票转移')
+insert into t_center_oamenuitem values(1492,'发票转移','../invoiceins/batchTransferInvoiceins.jsp',14,1,1402,99,'发票转移')

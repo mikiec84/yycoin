@@ -469,7 +469,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
 	/**
 	 * processPayInvoice
-	 * @param vsList
+	 * @param outId
 	 * @param dutyList
 	 * @throws MYException
 	 */
@@ -1071,21 +1071,22 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     public boolean passPaymentApply(User user, String id, String reason,String description)
         throws MYException
     {
+        _logger.info("*************passPaymentApply step1********");
         JudgeTools.judgeParameterIsNull(user, id);
-
+        _logger.info("*************passPaymentApply step2********");
         PaymentApplyBean apply = checkPass(id);
         apply.setStatus(FinanceConstant.PAYAPPLY_STATUS_PASS);
 
         paymentApplyDAO.updateEntityBean(apply);
-
+        _logger.info("*************passPaymentApply step3********");
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
-        
+        _logger.info("*************passPaymentApply step4********");
         // CORE 生成收款单,更新销售单和委托清单付款状态/或者转成费用
         createInbill(user, apply, payment, reason,description);
-        
+        _logger.info("*************passPaymentApply step5********");
         // 更新回款单的状态和使用金额
         updatePayment(apply);
-        
+        _logger.info("*************passPaymentApply step6********");
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
@@ -1093,7 +1094,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         {
             listener.onPassBean(user, apply);
         }
-        
+        _logger.info("*************passPaymentApply step7********");
         savePassLog(user, FinanceConstant.PAYAPPLY_STATUS_INIT, apply, reason);
         
         return true;
@@ -1581,49 +1582,50 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     private void updatePayment(PaymentApplyBean apply)
     {
+        _logger.info("updatePayment step1*****");
         if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
         {
             return;
         }
-
+        _logger.info("updatePayment step2*****");
         if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
         {
             return;
         }
-
+        _logger.info("updatePayment step3*****");
         if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
         {
             return;
         }
-        
+        _logger.info("updatePayment step4*****");
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
-
+        _logger.info("updatePayment step5*****");
         double hasUsed = inBillDAO.sumByPaymentId(apply.getPaymentId());
-
+        _logger.info("updatePayment step6*****");
         payment.setUseMoney(hasUsed);
-
+        _logger.info("updatePayment step7*****");
         if (MathTools.compare(hasUsed, payment.getMoney()) >= 0)
-        {
+        {    _logger.info("updatePayment step8*****");
             payment.setUseall(FinanceConstant.PAYMENT_USEALL_END);
             payment.setUpdateTime(TimeTools.now());
         }
         else
-        {
+        {   _logger.info("updatePayment step9*****");
             payment.setUseall(FinanceConstant.PAYMENT_USEALL_INIT);
         }
 
         paymentDAO.updateEntityBean(payment);
-        
+        _logger.info("updatePayment step10*****");
         // 认领通过时,增加回款来源信息记录
         String fromer = payment.getFromer();
         String fromerNo = payment.getFromerNo();
         
         if (!StringTools.isNullOrNone(fromer) && !StringTools.isNullOrNone(fromerNo))
-        {
+        {    _logger.info(fromer+" updatePayment step11*****"+fromerNo);
         	CustomerBankBean custBank = customerBankDAO.findByUnique(fromer, fromerNo);
             
             if (null == custBank)
-            {
+            {    _logger.info("updatePayment step12*****");
             	CustomerBankBean cbBean = new CustomerBankBean();
             	
             	cbBean.setCustomerId(payment.getCustomerId());
@@ -1633,8 +1635,9 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             	customerBankDAO.saveEntityBean(cbBean);
             	
             }else{
+                _logger.info("updatePayment step13*****"+custBank.getCustomerId()+"***"+payment.getCustomerId());
             	if (!custBank.getCustomerId().equals(payment.getCustomerId()))
-            	{
+            	{   _logger.info("updatePayment step14*****");
             		custBank.setCustomerId(payment.getCustomerId());
             		
             		customerBankDAO.updateEntityBean(custBank);
@@ -2944,7 +2947,6 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     /**
      * 2014/12/22 add for job
-     * @param user
      * @param apply
      * @param payment
      * @param item
