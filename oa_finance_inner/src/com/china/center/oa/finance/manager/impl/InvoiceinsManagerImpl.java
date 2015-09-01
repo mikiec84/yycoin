@@ -2760,6 +2760,24 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 bean.getSrcFullId(), bean.getDestFullId()));
                     }
                 }
+
+				//原销售单把 out 表里的 invoicestatus置为0，invoicemoneyl置为0
+				//base表的invoicemoneyl置为0
+				//原数值拷贝到新销售单对应字段上去
+				OutBean oldOut = this.outDAO.find(bean.getSrcFullId());
+				OutBean newOut = this.outDAO.find(bean.getDestFullId());
+
+				if (oldOut == null || newOut == null){
+					throw new MYException("OutBean does not exist:"+bean.getSrcFullId()+":"+bean.getDestFullId());
+				} else{
+					//TODO copy base value
+					List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(bean.getSrcFullId());
+
+					newOut.setInvoiceStatus(oldOut.getInvoiceStatus());
+					newOut.setInvoiceMoney(oldOut.getInvoiceMoney());
+					this.outDAO.updateEntityBean(newOut);
+					_logger.info("update Out invoice status:"+newOut);
+				}
             }
 
             return true;
