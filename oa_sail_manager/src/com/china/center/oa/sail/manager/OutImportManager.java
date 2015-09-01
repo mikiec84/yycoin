@@ -43,14 +43,6 @@ public interface OutImportManager
 	boolean batchUpdateEmergency(List<ConsignBean> list)
 			throws MYException;
 
-    /**
-     * 2015/8/28 批量发票转移
-     * @param list
-     * @return
-     * @throws MYException
-     */
-    boolean batchTransferInvoiceins(List<OutTransferBean> list) throws MYException;
-	
 	List<OutImportBean> preUseAmountCheck(String batchId);
 	
 	void processSplitOut(String batchId);

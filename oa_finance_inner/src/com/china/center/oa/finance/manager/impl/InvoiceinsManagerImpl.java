@@ -2770,13 +2770,22 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				if (oldOut == null || newOut == null){
 					throw new MYException("OutBean does not exist:"+bean.getSrcFullId()+":"+bean.getDestFullId());
 				} else{
-					//TODO copy base value
-					List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(bean.getSrcFullId());
+					//copy base value
+					List<BaseBean> oldBaseList = baseDAO.queryEntityBeansByFK(bean.getSrcFullId());
+                    List<BaseBean> newBaseList = baseDAO.queryEntityBeansByFK(bean.getDestFullId());
+                    for (BaseBean baseBean: newBaseList){
+                        this.copyInvoiceMoney(baseBean, oldBaseList);
+                    }
 
 					newOut.setInvoiceStatus(oldOut.getInvoiceStatus());
 					newOut.setInvoiceMoney(oldOut.getInvoiceMoney());
 					this.outDAO.updateEntityBean(newOut);
 					_logger.info("update Out invoice status:"+newOut);
+
+                    oldOut.setInvoiceStatus(0);
+                    oldOut.setInvoiceMoney(0);
+                    this.outDAO.updateEntityBean(oldOut);
+                    _logger.info("Reset Out invoice status:"+oldOut);
 				}
             }
 
@@ -2785,6 +2794,21 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 
         return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    private void copyInvoiceMoney(BaseBean baseBean , List<BaseBean> srcList){
+        for (BaseBean base: srcList){
+            if (base.equals(baseBean)){
+                baseBean.setInvoiceMoney(base.getInvoiceMoney());
+                this.baseDAO.updateEntityBean(baseBean);
+                _logger.info("Update BaseBean invoice money:"+baseBean);
+
+                base.setInvoiceMoney(0);
+                this.baseDAO.updateEntityBean(base);
+                _logger.info("Reset BaseBean invoice money:"+base);
+                break;
+            }
+        }
     }
     /**
      * @return the commonDAO
