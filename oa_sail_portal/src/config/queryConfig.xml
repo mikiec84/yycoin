@@ -316,6 +316,10 @@
             <type>select</type>
             <option>$adminindustryList</option>
         </condtion>
+        <condtion name="expressCompany" filed="name" caption="运输公司" pfix="e1">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
         <condtion name="status" caption="状态">
             <opr>=</opr>
             <datatype>1</datatype>
