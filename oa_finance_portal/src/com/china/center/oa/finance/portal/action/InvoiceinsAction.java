@@ -437,9 +437,12 @@ public class InvoiceinsAction extends DispatchAction
         try
         {
 
-            this.invoiceinsManager.batchTransferInvoiceins(importItemList);
-
-            request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+            boolean result = this.invoiceinsManager.batchTransferInvoiceins(importItemList);
+            if (result){
+                request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+            } else{
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量更新出错:无数据导入！");
+            }
         }
         catch(MYException e)
         {
