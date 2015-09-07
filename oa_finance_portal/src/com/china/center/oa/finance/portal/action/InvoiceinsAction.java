@@ -16,12 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -375,7 +370,49 @@ public class InvoiceinsAction extends DispatchAction
 
                             List<BaseBean> srcBaseList = baseDAO.queryEntityBeansByFK(srcOut.getFullId());
                             List<BaseBean> destBaseList = baseDAO.queryEntityBeansByFK(destOut.getFullId());
-                            if (!srcBaseList.equals(destBaseList)){
+//                            if (!srcBaseList.equals(destBaseList)){
+//                                builder
+//                                        .append("第[" + currentNumber + "]错误:")
+//                                        .append("原销售单与新销售单的商品必须一致")
+//                                        .append("<br>");
+//
+//                                importError = true;
+//                            }
+
+                            //2015/9/7 根据productId和数量来判断是否一致
+                            //先根据productId排序
+                            Collections.sort(srcBaseList, new Comparator<BaseBean>() {
+                                @Override
+                                public int compare(BaseBean o1, BaseBean o2) {
+                                    return o1.getProductId().compareTo(o2.getProductId());
+                                }
+                            });
+
+                            Collections.sort(destBaseList, new Comparator<BaseBean>() {
+                                @Override
+                                public int compare(BaseBean o1, BaseBean o2) {
+                                    return o1.getProductId().compareTo(o2.getProductId());
+                                }
+                            });
+
+                            if (srcBaseList.size() == destBaseList.size()){
+                                for (int i=0;i<srcBaseList.size();i++){
+                                    BaseBean srcBaseBean = srcBaseList.get(i);
+                                    BaseBean destBaseBean = destBaseList.get(i);
+                                    if (srcBaseBean.getProductId().equals(destBaseBean.getProductId()) &&
+                                            srcBaseBean.getAmount() == destBaseBean.getAmount()){
+                                        continue;
+                                    } else{
+                                        builder
+                                                .append("第[" + currentNumber + "]错误:")
+                                                .append("原销售单与新销售单的商品必须一致")
+                                                .append("<br>");
+
+                                        importError = true;
+                                        break;
+                                    }
+                                }
+                            } else{
                                 builder
                                         .append("第[" + currentNumber + "]错误:")
                                         .append("原销售单与新销售单的商品必须一致")
