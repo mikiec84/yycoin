@@ -192,6 +192,13 @@ public class AutoPayManagerImpl extends AbstractListenerManager<AutoPayListener>
         {
         	return;
         }
+
+		//2015/9/8 多加个判断T_CENTER_CUSTOMER_MAIN表中name字段应该等于T_CENTER_PAYMENT表的fromer字段
+		if (!customer.getName().equals(payment.getFromer())){
+			String template = "Customer name %s not match fromer filed %s";
+			triggerLog.warn(String.format(template, customer.getName(), payment.getFromer()));
+			return;
+		}
 		
 		StafferVSCustomerBean vs = stafferVSCustomerDAO.findByUnique(customerId);
 		
@@ -895,7 +902,7 @@ public class AutoPayManagerImpl extends AbstractListenerManager<AutoPayListener>
 	/**
 	 * CORE
 	 * 处理自动勾款单元(委托代销结算单）
-	 * @param out
+	 * @param outBalance
 	 * @throws MYException
 	 */
 	private void refInbillToSailSettle(final OutBalanceBean outBalance, final List<InBillBean> billList, final double needPay) throws MYException
