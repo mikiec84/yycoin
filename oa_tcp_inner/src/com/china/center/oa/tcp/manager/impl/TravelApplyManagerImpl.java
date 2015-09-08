@@ -9,18 +9,25 @@
 package com.china.center.oa.tcp.manager.impl;
 
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.center.china.osgi.publics.file.writer.WriteFile;
+import com.center.china.osgi.publics.file.writer.WriteFileFactory;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -71,12 +78,6 @@ import com.china.center.oa.tcp.vo.TcpShareVO;
 import com.china.center.oa.tcp.vo.TravelApplyItemVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
-import com.china.center.tools.FileTools;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -3043,6 +3044,100 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         }
         _logger.info("************finish ibReport job*************");
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void ibReportJobMonthly() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        String ibReportMonthly = ConfigLoader.getProperty("ibReportMonthly");
+        String filenName = ibReportMonthly+"/IB_Monthly_Report_" + TimeTools.now("MMddHHmmss") + ".csv";
+
+        _logger.info("ibReportJobMonthly export ibReport now***"+filenName);
+
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+
+        List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(con);
+
+        if (ListTools.isEmptyOrNull(ibReportList))
+        {
+            return ;
+        }
+
+        WriteFile write = null;
+        OutputStream out = null;
+
+        try
+        {
+            out = new FileOutputStream(filenName);
+            write = WriteFileFactory.getMyTXTWriter();
+
+            write.openFile(out);
+
+            WriteFileBuffer line = new WriteFileBuffer(write);
+            line.writeColumn("客户名");
+            line.writeColumn("订单号");
+            line.writeColumn("商品名");
+            line.writeColumn("商品数量");
+            line.writeColumn("中收金额");
+            line.writeColumn("激励金额");
+            line.writeColumn("订单状态");
+            line.writeColumn("申请人");
+            line.writeColumn("银行销售日期");
+
+            line.writeLine();
+
+            for (Iterator<TcpIbReportItemBean> iter = ibReportList.iterator(); iter.hasNext();)
+            {
+                TcpIbReportItemBean ib = iter.next();
+
+                line.writeColumn(ib.getCustomerName());
+                line.writeColumn(ib.getFullId());
+                line.writeColumn(ib.getProductName());
+                line.writeColumn(ib.getAmount());
+                line.writeColumn(ib.getIbMoney());
+                line.writeColumn(ib.getMotivationMoney());
+
+                //2015/7/11导出申请人和银行销售日期
+                OutBean outBean = this.outDAO.find(ib.getFullId());
+                if (outBean!= null){
+                    line.writeColumn(OutHelper.getOutStatus(outBean));
+                    line.writeColumn(outBean.getStafferName());
+                    line.writeColumn(outBean.getPodate());
+                }
+                line.writeLine();
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+            return;
+        }
+        finally
+        {
+            if (write != null)
+            {
+                try
+                {
+                    write.close();
+                }
+                catch (Exception e1)
+                {
+                }
+            }
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
     }
 
     /**

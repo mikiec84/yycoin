@@ -153,4 +153,10 @@ public interface TravelApplyManager extends ListenerManager<TcpPayListener>
      * @throws MYException
      */
     public void ibReportJob() throws MYException;
+
+    /**
+     * 2015/9/8 中收激励每月统计，自动导出明细表
+     * @throws MYException
+     */
+    public void ibReportJobMonthly() throws MYException;
 }
