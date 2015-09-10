@@ -118,6 +118,21 @@
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
+    <!-- 2015/9/10 凌晨一点执行，更新客户表reserve2字段-->
+    <!--<bean id="updateCustomerReserve2Job"-->
+          <!--class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">-->
+        <!--<property name="targetObject" ref="outManager" />-->
+        <!--<property name="targetMethod" value="updateCustomerReserve2Job" />-->
+        <!--<property name="concurrent" value="false" />-->
+    <!--</bean>-->
+
+    <!--<bean id="updateCustomerReserve2JobTrigger"-->
+          <!--class="org.springframework.scheduling.quartz.CronTriggerBean">-->
+        <!--<property name="jobDetail" ref="updateCustomerReserve2Job" />-->
+        <!--&lt;!&ndash;<property name="cronExpression" value="0 36 16 * * ?" />&ndash;&gt;-->
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+    <!--</bean>-->
+
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -130,6 +145,7 @@
                 <ref bean="createOAOrderFromAppTrigger"/>
                 <ref bean="sendMailForShippingTrigger"/>
                 <ref bean="sortPackagesTrigger"/>
+                <!--<ref bean="updateCustomerReserve2JobTrigger"/>-->
             </list>
         </property>
     </bean>

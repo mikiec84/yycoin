@@ -459,9 +459,8 @@ public interface OutManager extends ListenerManager<OutListener>
     /**
      * 更新客户信用分及业务员信用额度 
      * 
-     * @param user
-     * @param outList
-     * @param staffer
+     * @param out
+     * @param out
      * @return
      * @throws MYException
      */
@@ -677,4 +676,10 @@ public interface OutManager extends ListenerManager<OutListener>
      * @throws MYException
      */
     public  boolean updateZjrcOutStatus(final String fullId) throws MYException;
+
+    /**
+     * 2015/9/10
+     * 每天凌晨一点执行一次，更新客户表reserve2字段
+     */
+    public void updateCustomerReserve2Job();
 }
