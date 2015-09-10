@@ -100,6 +100,8 @@ import com.china.center.tools.TimeTools;
 
 public class ClientManagerImpl extends AbstractListenerManager<ClientListener> implements ClientManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
 	private final Log triggerLog = LogFactory.getLog("trigger");
 	
 	private LocationVSCityDAO locationVSCityDAO = null;
@@ -909,7 +911,6 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
      * 处理增加从apply到正式表
      * 
      * @param user
-     * @param cid
      * @param bean
      * @throws MYException
      */
@@ -1062,7 +1063,6 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
     
     /**
      * @param user
-     * @param cid
      * @param bean
      * @throws MYException
      */
@@ -1428,7 +1428,6 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
     }
     
     /**
-     * @param cid
      * @param bean
      */
     private void handleDelete(CustomerApproveBean bean)
@@ -1733,7 +1732,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
      * 通过分配申请
      * 
      * @param user
-     * @param bean
+     * @param cid
      * @return
      * @throws MYException
      */
@@ -1811,7 +1810,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
      * 驳回分配申请(就是删除)
      * 
      * @param user
-     * @param bean
+     * @param cid
      * @return
      * @throws MYException
      */
@@ -1845,7 +1844,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
      * 回收分配客户
      * 
      * @param user
-     * @param bean
+     * @param cid
      * @return
      * @throws MYException
      */
@@ -2166,10 +2165,12 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
     {
         JudgeTools.judgeParameterIsNull(user, type);
 
+        _logger.info("batchTransCustomer*333333333333333333333**********"+user.getStafferId());
         List<DestStafferVSCustomerBean> destVSList = destStafferVSCustomerDAO.queryEntityBeansByFK(user.getStafferId(), AnoConstant.FK_SECOND);
-        
+
         if (!ListTools.isEmptyOrNull(destVSList))
         {
+            _logger.info("batchTransCustomer*4444444444444444444**********"+destVSList.size());
         	for (DestStafferVSCustomerBean each : destVSList)
         	{
         		// 确认接收
@@ -2182,15 +2183,17 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 
                     CustomerBean cus = checkOprAssign(apply, false);
 
+                    _logger.info("batchTransCustomer*55555555555555**********"+cus.getStatus());
                     if (cus.getStatus() == CustomerConstant.REAL_STATUS_USED)
                     {
                     	destStafferVSCustomerDAO.deleteEntityBean(each.getId());
                     	
                     	continue;
                     }
-                    
-                    checkAtt(apply, cus);
 
+                    _logger.info("batchTransCustomer*666666666666666666**********");
+                    checkAtt(apply, cus);
+                    _logger.info("batchTransCustomer*7777777777777777777**********");
                     StafferVSCustomerBean vs = new StafferVSCustomerBean();
 
                     vs.setStafferId(apply.getStafferId());
@@ -2199,20 +2202,21 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 
                     // 保存对应关系
                     addStafferVSCustomer(vs);
-
+                    _logger.info("batchTransCustomer*8888888888888888**********");
                     // 修改客户状态
                     cus.setStatus(CustomerConstant.REAL_STATUS_USED);
 
                     customerMainDAO.updateEntityBean(cus);
 
                     Collection<ClientListener> listenerMapValues = this.listenerMapValues();
-
+                    _logger.info("batchTransCustomer*99999999999999**********");
                     for (ClientListener customerListener : listenerMapValues)
                     {
                         customerListener.onChangeCustomerRelation(user, apply, cus);
                     }
-                    
+                    _logger.info("batchTransCustomer*aaaaaaaaaaaaaaaaaa**********");
                     destStafferVSCustomerDAO.deleteEntityBean(each.getId());
+                    _logger.info("batchTransCustomer*bbbbbbbbbbbbbbbbbbbbb**********");
         		}
         		// 驳回，不接收
         		else

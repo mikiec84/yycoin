@@ -24,7 +24,6 @@ import com.china.center.oa.client.wrap.CustomerAssignWrap;
  * 
  * @author ZHUZHU
  * @version 2010-10-6
- * @see #com.china.center.oa.client.dao.CustomerMainDAO#
  * @since 1.0
  */
 public interface CustomerMainDAO extends DAO<CustomerBean, CustomerVO>
@@ -56,6 +55,16 @@ public interface CustomerMainDAO extends DAO<CustomerBean, CustomerVO>
     boolean updateCustomerHasNewToOld(String id);
 
     boolean updateCustomerLocationByCity(String cityId, String dirLocationId);
+
+    /**
+     * 2015/9/10 更新客户表reserve2
+     * @param reserve2
+     * @param name
+     * @return
+     */
+    boolean updateCustomerReserve2(String reserve2, String name );
+
+    public void updateCustomerReserve2Job();
 
     boolean initCustomerLocation();
 

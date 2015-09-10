@@ -32,18 +32,23 @@ import com.china.center.oa.customer.constant.CustomerConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.tools.StringTools;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * CustomerApplyDAOImpl
  * 
  * @author ZHUZHU
  * @version 2010-10-6
- * @see #com.china.center.oa.client.dao.impl.CustomerMainDAOImpl#
  * @since 1.0
  */
 public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> implements CustomerMainDAO
 {
     private IbatisDaoSupport ibatisDaoSupport = null;
+
+    private PlatformTransactionManager transactionManager = null;
     
     private final Log _logger = LogFactory.getLog(getClass());
 
@@ -103,6 +108,48 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
             srcLocationId);
 
         return true;
+    }
+
+    @Override
+    @Deprecated //newver used
+    public boolean updateCustomerReserve2(String reserve2, String name) {
+        _logger.info(reserve2+"***updateCustomerReserve2 now****"+name);
+        int count  = this.jdbcOperation.update("set reserve2 = ? where name like ? and reserve2=''", claz, reserve2,
+                name);
+        String template = "***updateCustomerReserve2 with reserve2:%s and name:%s count:%d***";
+        _logger.info(String.format(reserve2, name, count));
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void updateCustomerReserve2Job() {
+        System.out.println("************updateCustomerReserve2Job running******************");
+        _logger.info("***updateCustomerReserve2Job running****");
+
+        //You must run job in transaction to let database update work!
+        TransactionTemplate tran = new TransactionTemplate(transactionManager);
+        try
+        {
+            tran.execute(new TransactionCallback()
+            {
+                public Object doInTransaction(TransactionStatus arg0)
+                {
+                    jdbcOperation.update("set reserve2='线上' where name like'%（银行）' and reserve2=''", claz);
+                    jdbcOperation.update("set reserve2='线下' where name like'%-零售' and reserve2=''", claz);
+
+                    return Boolean.TRUE;
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+        }
+        //To change body of implemented methods use File | Settings | File Templates.
+
+//        this.updateCustomerReserve2("线上", "%（银行）");
+//        this.updateCustomerReserve2("线下", "%-零售");
+
     }
 
     /**
@@ -179,7 +226,6 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
      * 修改客户的新老属性(变成老客户)
      * 
      * @param id
-     * @param newType
      * @return
      */
     @Deprecated
@@ -209,7 +255,7 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
     /**
      * 根据地市更新区域属性
      * 
-     * @param srcLocationId
+     * @param cityId
      * @param dirLocationId
      * @return
      */
@@ -423,7 +469,6 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
      * 删除职员客户的对应关系
      * 
      * @param stafferId
-     * @param status
      * @param flag
      * @return
      */
@@ -597,5 +642,13 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
     public void setIbatisDaoSupport(IbatisDaoSupport ibatisDaoSupport)
     {
         this.ibatisDaoSupport = ibatisDaoSupport;
+    }
+
+    public PlatformTransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 }

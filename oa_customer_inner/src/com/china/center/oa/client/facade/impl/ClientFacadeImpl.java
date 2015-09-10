@@ -23,9 +23,13 @@ import com.china.center.oa.customer.manager.CustomerCheckManager;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.facade.AbstarctFacade;
 import com.china.center.tools.JudgeTools;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
 	private ClientManager clientManager = null;
 	
 	private CustomerCreditManager customerCreditManager = null;
@@ -210,7 +214,7 @@ public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
      * passAssignApply(申请客户和职员的对于关系)
      * 
      * @param userId
-     * @param bean
+     * @param cid
      * @return
      * @throws MYException
      */
@@ -237,7 +241,7 @@ public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
      * passAssignApply
      * 
      * @param userId
-     * @param bean
+     * @param cid
      * @return
      * @throws MYException
      */
@@ -264,7 +268,7 @@ public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
      * passAssignApply
      * 
      * @param userId
-     * @param bean
+     * @param cid
      * @return
      * @throws MYException
      */
@@ -455,7 +459,7 @@ public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
      * deleteCreditItemThr
      * 
      * @param userId
-     * @param bean
+     * @param id
      * @return
      * @throws MYException
      */
@@ -617,7 +621,7 @@ public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
      * passCheckBean(客户核对)
      * 
      * @param userId
-     * @param bean
+     * @param id
      * @return
      * @throws MYException
      */
@@ -723,6 +727,7 @@ public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
     
     public boolean batchTransCustomer(String userId, int type) throws MYException
     {
+        _logger.info("*************batchTransCustomer***********"+userId+":"+type);
         JudgeTools.judgeParameterIsNull(userId, type);
 
         User user = userManager.findUser(userId);
@@ -731,10 +736,12 @@ public class ClientFacadeImpl extends AbstarctFacade implements ClientFacade
 
         if (containAuth(user, AuthConstant.CUSTOMER_APPLY_ASSIGN))
         {
+            _logger.info("*************batchTransCustomer22222222222222222***********");
             return clientManager.batchTransCustomer(user, type);
         }
         else
         {
+            _logger.info("*************batchTransCustomer 33333333333333333***********");
             throw noAuth();
         }
     }
