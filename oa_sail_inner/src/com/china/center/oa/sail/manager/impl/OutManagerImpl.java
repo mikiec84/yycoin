@@ -11247,13 +11247,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return true;
     }
 
-    @Override
-    @Transactional(rollbackFor = {MYException.class})
-    public void updateCustomerReserve2Job() {
-        _logger.info("***updateCustomerReserve2Job running****");
-//        this.customerMainDAO
-    }
-
     /**
      * @return the mailAttchmentPath
      */
