@@ -46,6 +46,12 @@ public interface OutImportManager
 	List<OutImportBean> preUseAmountCheck(String batchId);
 	
 	void processSplitOut(String batchId);
+
+	/**
+	 * 2015/9/18 ÅúÁ¿Ô¤Õ¼
+	 * @param list
+	 */
+	void batchProcessSplitOut(List<OutBean> list);
 	
 	boolean batchUpdateRedate(List<OutBean> list)
 	throws MYException;

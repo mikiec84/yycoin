@@ -2675,7 +2675,63 @@ public class OutImportManagerImpl implements OutImportManager
 		}
 		
 	}
-	
+
+	@Override
+	public void batchProcessSplitOut(List<OutBean> list) {
+		for (OutBean each : list)
+		{
+			final OutBean out = outDAO.find(each.getFullId());
+
+			if (null == out)
+			{
+				continue;
+			}
+
+			if (out.getStatus() != OutConstant.STATUS_SUBMIT)
+			{
+				continue;
+			}
+
+			final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
+
+			if (baseList.get(0).getCostPrice() != 0)
+			{
+				continue;
+			}
+
+			TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+			try
+			{
+				tran.execute(new TransactionCallback()
+				{
+					public Object doInTransaction(TransactionStatus arg0)
+					{
+						List<BaseBean> newBaseList = null;
+						try
+						{
+							newBaseList = outManager.splitBase(baseList);
+						}
+						catch (MYException e)
+						{
+							throw new RuntimeException(e.getErrorContent(), e);
+						}
+
+						baseDAO.deleteEntityBeansByFK(out.getFullId());
+
+						baseDAO.saveAllEntityBeans(newBaseList);
+
+						return Boolean.TRUE;
+					}
+				});
+			}
+			catch (Exception e)
+			{
+				operationLog.error(e, e);
+			}
+		}
+	}
+
 	@Transactional(rollbackFor = MYException.class)
 	public String addBankSail(User user, List<BankSailBean> list) throws MYException
 	{

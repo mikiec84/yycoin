@@ -147,6 +147,7 @@
             <forward name="importOutDepot" path="/sailImport/importOutDepot.jsp" />
             <forward name="uploadDistAddress" path="/sailImport/uploadDistAddress.jsp" />
             <forward name="querySplitOut" path="/sailImport/querySplitOut.jsp" />
+            <forward name="batchProcessSplitOut" path="/sailImport/batchProcessSplitOut.jsp" />
             <forward name="importRedate" path="/sailImport/importRedate.jsp" />
             <forward name="importBankSail" path="/sailImport/importBankSail.jsp" />
             <forward name="queryBankSail" path="/sailImport/queryBankSail.jsp" />
