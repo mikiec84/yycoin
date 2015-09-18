@@ -26,6 +26,11 @@ import java.util.*;
  */
 public class Test {
     public static void main(String[] args) throws Exception{
+        double v2 = 3*3.3;
+        System.out.println(v2);
+        BigDecimal bd = new BigDecimal(v2);
+        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        System.out.println(v1);
 //        double giftPercentage = ((double)3)/7;
 //        int amount = (int)(giftPercentage*9);
 //        System.out.println(giftPercentage);

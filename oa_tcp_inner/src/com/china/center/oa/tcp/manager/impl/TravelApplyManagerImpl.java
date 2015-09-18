@@ -12,6 +12,7 @@ package com.china.center.oa.tcp.manager.impl;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -298,7 +299,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         // 获取flowKey
         //TCPHelper.setFlowKey(bean);
-        _logger.info(bean.getId()+" set to EXTRA_WORK_AND_LEAVE_CEO**********");
+        _logger.info(bean.getId() + " set to EXTRA_WORK_AND_LEAVE_CEO**********");
         bean.setFlowKey(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO);
         
 //         合法性校验
@@ -676,7 +677,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	        throw new MYException("数据错误,请确认操作");
 	    }
 
-        _logger.info("**************token.getNextPlugin "+token.getNextPlugin());
+        _logger.info("**************token.getNextPlugin " + token.getNextPlugin());
 	    // 群组模式
 	    if (token.getNextPlugin().startsWith("group"))
 	    {
@@ -2565,7 +2566,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 //        if (!bean.getFlowKey().equals(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO))
 //        	TCPHelper.setFlowKey(bean);
 
-        _logger.info(bean.getId()+" change to EXTRA_WORK_AND_LEAVE_CEO from "+old.getFlowKey());
+        _logger.info(bean.getId() + " change to EXTRA_WORK_AND_LEAVE_CEO from " + old.getFlowKey());
 //        bean.setFlowKey(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO);
         //2015/3/28 不能设置为TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO，退回重新提交后都变成请假流程了
         if (StringTools.isNullOrNone(old.getFlowKey())){
@@ -2836,10 +2837,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         // 流程描述
         List<TcpFlowBean> flowList = tcpFlowDAO.queryEntityBeansByFK(bean.getFlowKey());
 
-        Collections.sort(flowList, new Comparator<TcpFlowBean>()
-        {
-            public int compare(TcpFlowBean o1, TcpFlowBean o2)
-            {
+        Collections.sort(flowList, new Comparator<TcpFlowBean>() {
+            public int compare(TcpFlowBean o1, TcpFlowBean o2) {
                 return Integer.parseInt(o1.getId()) - Integer.parseInt(o2.getId());
             }
         });
@@ -2900,7 +2899,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         // “已出库”、“已发货”状态的订单
 //        con.addCondition("and OutBean.status in (3,4)");
 
-        con.addCondition("outTime",">","2015-04-01");
+        con.addCondition("outTime", ">", "2015-04-01");
         List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(outList)){
             _logger.info("ibReport outList1 size:"+outList.size());
@@ -2922,10 +2921,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //退库订单的状态均为“待核对”状态
         ConditionParse con1 = new ConditionParse();
         //入库单
-        con1.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_INBILL);
+        con1.addCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
         //add begin time
         //销售退库
-        con1.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_IN_OUTBACK);
+        con1.addCondition("OutBean.outType", "=", OutConstant.OUTTYPE_IN_OUTBACK);
         //“待核对”状态
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
         con1.addCondition("outTime",">","2015-04-01");
@@ -2969,7 +2968,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             item.setAmount(base.getAmount());
                             //销售退库
                             if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK) {
-                                item.setIbMoney(-base.getAmount()*base.getIbMoney());
+                               item.setIbMoney(-base.getAmount()*base.getIbMoney());
                                 ibTotal -= base.getAmount()*base.getIbMoney();
                                 item.setMotivationMoney(-base.getAmount()*base.getMotivationMoney());
                                 moTotal -= base.getAmount()*base.getMotivationMoney();
@@ -3013,8 +3012,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         _logger.error("****no BaseBean list found:"+out.getId());
                     }
                 }
-                ibReport.setIbMoneyTotal(ibTotal);
-                ibReport.setMotivationMoneyTotal(moTotal);
+                ibReport.setIbMoneyTotal(this.roundDouble(ibTotal));
+                ibReport.setMotivationMoneyTotal(this.roundDouble((moTotal)));
             }
             //first remove by customerId
             ConditionParse con2 = new ConditionParse();
@@ -3044,6 +3043,17 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         }
         _logger.info("************finish ibReport job*************");
+    }
+
+    /**
+     * 2015/9/18 保留2位小数四舍五入
+     * @param value
+     * @return
+     */
+    private double roundDouble(double value){
+        BigDecimal bd = new BigDecimal(value);
+        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return v1;
     }
 
     @Override
