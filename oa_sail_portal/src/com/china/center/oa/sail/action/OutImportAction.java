@@ -4663,7 +4663,7 @@ public class OutImportAction extends DispatchAction
 	}
 
 	/**
-	 * 2015/9/18 批量预占导入
+	 * 2015/9/18 批量预占导入  batchProcessSplitOut
 	 * @param mapping
 	 * @param form
 	 * @param request
@@ -4675,6 +4675,7 @@ public class OutImportAction extends DispatchAction
 										 HttpServletRequest request, HttpServletResponse response)
 			throws ServletException
 	{
+        _logger.info("*************batchProcessSplitOut*************");
 
 		RequestDataStream rds = new RequestDataStream(request);
 
@@ -4736,7 +4737,6 @@ public class OutImportAction extends DispatchAction
 					{
 						String outId = obj[0].trim();
 
-						// 须为销售领样单
 						OutBean out = outDAO.find(outId);
 
 						if (null == out)
@@ -4805,7 +4805,7 @@ public class OutImportAction extends DispatchAction
 		{
 			outImportManager.batchProcessSplitOut(importItemList);
 
-			request.setAttribute(KeyConstant.MESSAGE, "批量预占成功");
+			request.setAttribute(KeyConstant.MESSAGE, "批量预占库存成功");
 		}
 		catch(Exception e)
 		{
@@ -4813,8 +4813,6 @@ public class OutImportAction extends DispatchAction
 
 			return mapping.findForward("batchProcessSplitOut");
 		}
-
-		request.setAttribute(KeyConstant.MESSAGE, "预占操作完成，结果可以在导入数据中查看");
 
 		return mapping.findForward("batchProcessSplitOut");
 	}

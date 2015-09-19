@@ -11,3 +11,6 @@ insert into t_center_oamenuitem values(9035,'批量更新产品配置','../sailImport/ba
 
 --2015/8/27 批量更新发票转移
 insert into t_center_oamenuitem values(1492,'发票转移','../invoiceins/batchTransferInvoiceins.jsp',14,1,1402,99,'发票转移')
+
+--2015/9/18 中信数据处理查询-〉批量预占功能
+insert into t_center_oamenuitem values(9036,'批量预占库存','../sailImport/batchProcessSplitOut.jsp',90,1,9003,99,'批量预占库存')

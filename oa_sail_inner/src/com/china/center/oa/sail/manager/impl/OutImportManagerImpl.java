@@ -2678,58 +2678,63 @@ public class OutImportManagerImpl implements OutImportManager
 
 	@Override
 	public void batchProcessSplitOut(List<OutBean> list) {
-		for (OutBean each : list)
-		{
-			final OutBean out = outDAO.find(each.getFullId());
+        if (ListTools.isEmptyOrNull(list)){
+            _logger.info("batchProcessSplitOut no list!");
+        } else{
+            _logger.info("batchProcessSplitOut with list size:"+list.size());
+            for (OutBean each : list)
+            {
+                final OutBean out = outDAO.find(each.getFullId());
 
-			if (null == out)
-			{
-				continue;
-			}
+                if (null == out)
+                {
+                    continue;
+                }
 
-			if (out.getStatus() != OutConstant.STATUS_SUBMIT)
-			{
-				continue;
-			}
+                if (out.getStatus() != OutConstant.STATUS_SUBMIT)
+                {
+                    continue;
+                }
 
-			final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
+                final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
 
-			if (baseList.get(0).getCostPrice() != 0)
-			{
-				continue;
-			}
+                if (baseList.get(0).getCostPrice() != 0)
+                {
+                    continue;
+                }
 
-			TransactionTemplate tran = new TransactionTemplate(transactionManager);
+                TransactionTemplate tran = new TransactionTemplate(transactionManager);
 
-			try
-			{
-				tran.execute(new TransactionCallback()
-				{
-					public Object doInTransaction(TransactionStatus arg0)
-					{
-						List<BaseBean> newBaseList = null;
-						try
-						{
-							newBaseList = outManager.splitBase(baseList);
-						}
-						catch (MYException e)
-						{
-							throw new RuntimeException(e.getErrorContent(), e);
-						}
+                try
+                {
+                    tran.execute(new TransactionCallback()
+                    {
+                        public Object doInTransaction(TransactionStatus arg0)
+                        {
+                            List<BaseBean> newBaseList = null;
+                            try
+                            {
+                                newBaseList = outManager.splitBase(baseList);
+                            }
+                            catch (MYException e)
+                            {
+                                throw new RuntimeException(e.getErrorContent(), e);
+                            }
 
-						baseDAO.deleteEntityBeansByFK(out.getFullId());
+                            baseDAO.deleteEntityBeansByFK(out.getFullId());
 
-						baseDAO.saveAllEntityBeans(newBaseList);
+                            baseDAO.saveAllEntityBeans(newBaseList);
 
-						return Boolean.TRUE;
-					}
-				});
-			}
-			catch (Exception e)
-			{
-				operationLog.error(e, e);
-			}
-		}
+                            return Boolean.TRUE;
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    operationLog.error(e, e);
+                }
+            }
+        }
 	}
 
 	@Transactional(rollbackFor = MYException.class)

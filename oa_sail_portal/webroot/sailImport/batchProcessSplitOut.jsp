@@ -41,7 +41,7 @@ function load()
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../sail/outimport.do?method=batchProcessSplitOut" enctype="multipart/form-data" method="post">
+<form name="formEntry" action="../sail/outImport.do?method=batchProcessSplitOut" enctype="multipart/form-data" method="post">
     <p:navigation height="22">
 	<td width="550" class="navigation"><span>导入批量预占明细</span></td>
 	<td width="85"></td>

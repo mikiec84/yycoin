@@ -48,7 +48,7 @@ public interface OutImportManager
 	void processSplitOut(String batchId);
 
 	/**
-	 * 2015/9/18 ÅúÁ¿Ô¤Õ¼
+	 * 2015/9/18 batch import split out
 	 * @param list
 	 */
 	void batchProcessSplitOut(List<OutBean> list);
