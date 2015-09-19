@@ -2968,9 +2968,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             item.setAmount(base.getAmount());
                             //销售退库
                             if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK) {
-                               item.setIbMoney(-base.getAmount()*base.getIbMoney());
+                               item.setIbMoney(this.roundDouble(-base.getAmount()*base.getIbMoney()));
                                 ibTotal -= base.getAmount()*base.getIbMoney();
-                                item.setMotivationMoney(-base.getAmount()*base.getMotivationMoney());
+                                item.setMotivationMoney(this.roundDouble(-base.getAmount()*base.getMotivationMoney()));
                                 moTotal -= base.getAmount()*base.getMotivationMoney();
 
 //                                //已经结算过的中收需要退款
@@ -2990,13 +2990,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 //出库
                                 if (out.getIbFlag() == 0){
                                     item.setType(TcpConstanst.IB_TYPE);
-                                    item.setIbMoney(base.getAmount()*base.getIbMoney());
+                                    item.setIbMoney(this.roundDouble(base.getAmount()*base.getIbMoney()));
                                     ibTotal += base.getAmount()*base.getIbMoney();
                                 }
 
                                 if (out.getMotivationFlag() ==0){
                                     item.setType(TcpConstanst.MOTIVATION_TYPE);
-                                    item.setMotivationMoney(base.getAmount()*base.getMotivationMoney());
+                                    item.setMotivationMoney(this.roundDouble(base.getAmount()*base.getMotivationMoney()));
                                     moTotal += base.getAmount()*base.getMotivationMoney();
                                 }
                             }

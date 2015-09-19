@@ -26,7 +26,7 @@ import java.util.*;
  */
 public class Test {
     public static void main(String[] args) throws Exception{
-        double v2 = 3*3.3;
+        double v2 = -3*3.3;
         System.out.println(v2);
         BigDecimal bd = new BigDecimal(v2);
         double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();

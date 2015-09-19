@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -3167,7 +3168,7 @@ public class TravelApplyAction extends DispatchAction
                 for (String name : customerToIbMap.keySet()){
                     TcpIbBean bean = new TcpIbBean();
                     bean.setCustomerName(name);
-                    bean.setIbMoney(customerToIbMap.get(name));
+                    bean.setIbMoney(this.roundDouble(customerToIbMap.get(name)));
                     bean.setType(type);
                     bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
@@ -3176,7 +3177,7 @@ public class TravelApplyAction extends DispatchAction
                 for (String name : customerToMotivationMap.keySet()){
                     TcpIbBean bean = new TcpIbBean();
                     bean.setCustomerName(name);
-                    bean.setMotivationMoney(customerToMotivationMap.get(name));
+                    bean.setMotivationMoney(this.roundDouble(customerToMotivationMap.get(name)));
                     bean.setType(type);
                     bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
@@ -3222,6 +3223,17 @@ public class TravelApplyAction extends DispatchAction
         } else{
             return mapping.findForward("addTravelApply7import");
         }
+    }
+
+    /**
+     * 2015/9/18 保留2位小数四舍五入
+     * @param value
+     * @return
+     */
+    private double roundDouble(double value){
+        BigDecimal bd = new BigDecimal(value);
+        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return v1;
     }
 
     private String listToString(List<String> outIds){
