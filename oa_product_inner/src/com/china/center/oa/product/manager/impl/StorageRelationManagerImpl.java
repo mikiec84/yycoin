@@ -168,6 +168,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         int zaitu = sumPreassignByStorageRelation(relation);
 
+        String template = "depotpartID:%s productId:%s priceKey:%s staffer:%s with storage:%d zaitu:%d";
+        _logger.info(String.format(template, bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId(), relation.getAmount(), zaitu));
         relation.setAmount(relation.getAmount() - zaitu);
 
         if (relation.getAmount() < 0)
