@@ -18,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import com.china.center.common.MYException;
@@ -48,6 +50,8 @@ import com.china.center.tools.TimeTools;
  */
 public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private IbatisDaoSupport ibatisDaoSupport = null;
 
     /**
@@ -572,9 +576,12 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         paramterMap.put("depotpartId", depotpartId);
         paramterMap.put("costPriceKey", priceKey);
         paramterMap.put("owner", ower);
-        paramterMap.put("beginDate", TimeTools.getDateShortString( -180));
-        paramterMap.put("endDate", TimeTools.now_short());
+        String beginDate = TimeTools.getDateShortString(-180);
+        paramterMap.put("beginDate", beginDate);
+        String endDate = TimeTools.now_short();
+        paramterMap.put("endDate", endDate);
 
+        _logger.info("****sumNotEndProductInOutByStorageRelation with beginDate:"+beginDate+" endDate:"+endDate);
         Object count = getIbatisDaoSupport().queryForObject(
             "OutDAO.sumNotEndProductInOutByStorageRelation", paramterMap);
 

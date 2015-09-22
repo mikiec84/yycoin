@@ -298,6 +298,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 	    for (StorageRelationBean relation : relationList)
 	    {
 	    	int zaitur = sumPreassignByStorageRelation(relation);
+            String template = "***************stock count:%d zaitu count:%d*********";
+            _logger.info(String.format(template, relation.getAmount(), zaitur));
 	    	
 	    	relation.setAmount(relation.getAmount() - zaitur);
 	    }

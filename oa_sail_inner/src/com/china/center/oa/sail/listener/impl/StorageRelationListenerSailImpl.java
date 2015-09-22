@@ -18,6 +18,8 @@ import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.tools.TimeTools;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -30,6 +32,8 @@ import com.china.center.tools.TimeTools;
  */
 public class StorageRelationListenerSailImpl implements StorageRelationListener
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private OutDAO outDAO = null;
 
     /**
@@ -53,6 +57,9 @@ public class StorageRelationListenerSailImpl implements StorageRelationListener
         // 出库单提交后也是预占库存的(因为正数需要踢出,防止开单抵消单据)
         int sumInIn = outDAO.sumNotEndProductInInByStorageRelation(bean.getProductId(), bean
             .getDepotpartId(), bean.getPriceKey(), bean.getStafferId());
+
+        String template = "***onFindPreassignByStorageRelation with sumInOut:%d sumInIn:%d for bean:%s";
+        _logger.info(String.format(template, sumInOut, sumInIn, bean));
 
         // 返回一定大于0
         int result = sumInOut + sumInIn;
