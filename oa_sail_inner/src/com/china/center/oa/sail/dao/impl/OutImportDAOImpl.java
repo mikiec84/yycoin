@@ -1,5 +1,6 @@
 package com.china.center.oa.sail.dao.impl;
 
+import com.china.center.jdbc.annosql.tools.BeanTools;
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.oa.sail.bean.OutImportBean;
 import com.china.center.oa.sail.dao.OutImportDAO;
@@ -14,5 +15,14 @@ public class OutImportDAOImpl extends BaseDAO<OutImportBean, OutImportVO> implem
 
         return true;
     }
-	
+
+    @Override
+    public boolean updatePreUseByFullId(String fullId, int preUse) {
+        String sql = BeanTools.getUpdateHead(this.claz)
+                + "set preUse = ? where OANo = ?";
+
+        this.jdbcOperation.update(sql, preUse, fullId);
+
+        return true;
+    }
 }

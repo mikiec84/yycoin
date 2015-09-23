@@ -2724,6 +2724,11 @@ public class OutImportManagerImpl implements OutImportManager
                             baseDAO.deleteEntityBeansByFK(out.getFullId());
 
                             baseDAO.saveAllEntityBeans(newBaseList);
+                            _logger.info("update new base List:"+newBaseList);
+
+                            // 更新状态
+                            outImportDAO.updatePreUseByFullId(out.getFullId(), OutImportConstant.PREUSE_YES);
+                            _logger.info(newBaseList+" update new base List; import bean status:"+out.getFullId());
 
                             return Boolean.TRUE;
                         }

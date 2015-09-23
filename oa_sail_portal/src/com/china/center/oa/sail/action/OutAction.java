@@ -1722,6 +1722,16 @@ public class OutAction extends ParentOutAction
                                 _logger.warn("**************check price not found************");
                             }
 
+
+                            //TODO 2015/9/23 商务审批通过时，要增加校验逻辑，实际库存必须大于等于预占库存，否则就不能通过
+//                            try
+//                            {
+//                                this.outManager.checkCoreStorage(out, true);
+//                            }
+//                            catch (MYException e)
+//                            {
+//                                throw new RuntimeException(e.getErrorContent(), e);
+//                            }
                         }
 
                         _logger.info("****************库管审批111111111111*************"+statuss);
