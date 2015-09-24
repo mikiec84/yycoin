@@ -3113,9 +3113,11 @@ public class TravelApplyAction extends DispatchAction
                         importError = true;
                     } else {
                         TcpIbReportBean ib = ibReportList.get(0);
-                        if (customerToIbMap.get(customerName)>ib.getIbMoneyTotal()){
+                        double currentIb = customerToIbMap.get(customerName);
+                        double currentIb2 = this.roundDouble(currentIb);
+                        if (currentIb2>ib.getIbMoneyTotal()){
                             builder.append("客户[").append(customerName)
-                                    .append("]").append("可申请中收金额不足："+ib.getIbMoneyTotal())
+                                    .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收金额：" + ib.getIbMoneyTotal())
                                     .append("<br>");
                             importError = true;
                         }
@@ -3134,10 +3136,11 @@ public class TravelApplyAction extends DispatchAction
                         importError = true;
                     } else {
                         TcpIbReportBean ib = ibReportList.get(0);
-
-                        if (customerToMotivationMap.get(customerName)> ib.getMotivationMoneyTotal()){
+                        double currentMot = customerToMotivationMap.get(customerName);
+                        double currentMot2 = this.roundDouble(currentMot);
+                        if (currentMot2> ib.getMotivationMoneyTotal()){
                             builder.append("客户[").append(customerName)
-                                    .append("]").append("可申请激励金额不足："+ib.getMotivationMoneyTotal())
+                                    .append("]").append("当前申请金额："+currentMot2+"大于可申请激励金额："+ib.getMotivationMoneyTotal())
                                     .append("<br>");
                             importError = true;
                         }
