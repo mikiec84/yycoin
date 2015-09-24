@@ -2779,11 +2779,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private List<BaseBean> checkCoreStorage(final OutBean outBean, boolean includeSelf)
         throws MYException
     {
+        //2015/9/24 库存检查去掉此限制
     	// 针对中信银行的库单不作处理
-    	if (outBean.getFlowId().equals(OutImportConstant.CITIC))
-    	{
-    		return null;
-    	}
+//    	if (outBean.getFlowId().equals(OutImportConstant.CITIC))
+//    	{
+//    		return null;
+//    	}
     	
         final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
 
