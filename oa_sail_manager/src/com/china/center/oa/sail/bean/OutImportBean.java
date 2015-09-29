@@ -34,6 +34,11 @@ public class OutImportBean implements Serializable
 	private int type = 0;
 	
 	private String customerId = "";
+
+    /**
+     * 2015/9/29 导入时新增"客户姓名"
+     */
+    private String customerName = "";
 	
 	/**
 	 * 分行
@@ -808,5 +813,13 @@ public class OutImportBean implements Serializable
 
     public void setMotivationMoney(double motivationMoney) {
         this.motivationMoney = motivationMoney;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 }

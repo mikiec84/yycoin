@@ -1197,7 +1197,11 @@ public class OutImportManagerImpl implements OutImportManager
 
             newOutBean.setOutType(OutConstant.OUTTYPE_OUT_PRESENT);
 
-            newOutBean.setDescription("自动生成赠品订单，关联销售单：" + out.getFullId());
+            String fullId = out.getFullId();
+            newOutBean.setDescription("自动生成赠品订单，关联销售单：" + fullId);
+
+            //2015/9/29 自动导入生成赠品订单时关联refOutFullId
+            newOutBean.setRefOutFullId(fullId);
 
             outDAO.saveEntityBean(newOutBean);
 

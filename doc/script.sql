@@ -14,3 +14,6 @@ insert into t_center_oamenuitem values(1492,'发票转移','../invoiceins/batchTrans
 
 --2015/9/18 中信数据处理查询-〉批量预占功能
 insert into t_center_oamenuitem values(9036,'批量预占库存','../sailImport/batchProcessSplitOut.jsp',90,1,9003,99,'批量预占库存')
+
+--2015/9/29 中信导入增加客户姓名栏位
+alter table t_center_out_import add column customerName varchar(200) DEFAULT ''

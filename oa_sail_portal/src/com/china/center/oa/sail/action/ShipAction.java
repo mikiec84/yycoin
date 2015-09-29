@@ -1500,7 +1500,7 @@ public class ShipAction extends DispatchAction
             return mapping.findForward("printPostReceipt");
         }else if (vo.getCustomerName().indexOf("中信银行") != -1 || vo.getCustomerName().indexOf("招商银行") != -1)
         {
-            request.setAttribute("packageId", vo.getId());
+             request.setAttribute("packageId", vo.getId());
 
             request.setAttribute("title", "永银文化创意产业发展有限责任公司产品发货清单");
 
@@ -1614,6 +1614,7 @@ public class ShipAction extends DispatchAction
             {
                 PackageItemBean item = each.getValue();
                 this.convertProductName(item, vo.getCustomerName());
+
                 itemList1.add(item);
             }
 
@@ -1650,6 +1651,35 @@ public class ShipAction extends DispatchAction
                 }
             }
         }
+    }
+
+    //2015/9/29 打印银行回执单时增加客户姓名栏位
+    private void getCustomerName(PackageItemBean item){
+        String outId = item.getOutId();
+        if (StringTools.isNullOrNone(outId)){
+            _logger.warn("****Empty OutId***********"+outId);
+        }else if (outId.startsWith("SO")){
+            item.setCustomerName(this.getCustomerNameFromOutImport(outId));
+        } else if(outId.startsWith("ZS")){
+            OutBean out = outDAO.find(outId);
+            if (out!= null){
+                String sourceOutId = out.getRefOutFullId();
+                if (!StringTools.isNullOrNone(sourceOutId)){
+                    item.setCustomerName(this.getCustomerNameFromOutImport(sourceOutId));
+                }
+            }
+        }
+    }
+
+    private String getCustomerNameFromOutImport(String outId){
+        String customerName = "";
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            customerName = importBeans.get(0).getCustomerName();
+        }
+        return customerName;
     }
 
     private String[] getStafferNameAndPhone(String outId){
@@ -1842,6 +1872,9 @@ public class ShipAction extends DispatchAction
         {
             PackageItemBean item = each.getValue();
             this.convertProductName(item, vo.getCustomerName());
+
+            //TODO 2015/9/29 增加客户姓名栏位
+            this.getCustomerName(item);
             itemList1.add(item);
             _logger.debug("**********getDescription******"+each.getValue().getDescription());
         }

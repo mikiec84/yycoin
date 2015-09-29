@@ -1187,6 +1187,13 @@ public class OutImportAction extends DispatchAction
         {
             bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
         }
+
+
+        // 2015/09/29 客户姓名
+        if ( !StringTools.isNullOrNone(obj[43]))
+        {
+            bean.setCustomerName(obj[43].trim());
+        }
 		
 		return importError;
 	}

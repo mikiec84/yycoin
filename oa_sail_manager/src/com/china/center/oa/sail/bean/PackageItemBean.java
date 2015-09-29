@@ -40,6 +40,11 @@ public class PackageItemBean implements Serializable
 	private String description = "";
 	
 	private String customerId = "";
+
+    /**
+     * 2015/9/29 打印回执单增加客户姓名
+     */
+    private String customerName = "";
 	
 	/**
 	 * 发票配送时 针对 银行 客户 记录  发票对应的商品明细，客户，销售单对应的银行订单号
@@ -64,7 +69,15 @@ public class PackageItemBean implements Serializable
 	{
 	}
 
-	public String getId()
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getId()
 	{
 		return id;
 	}

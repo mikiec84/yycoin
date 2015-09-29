@@ -139,10 +139,11 @@ function callBackPrintFun()
 				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
 					<tr class="content2">
 						<td width="20%"><table class="border1"><tr><td align="center">产品</td></tr></table></td>
-						<td width="30%"><table class="border1"><tr><td align="center">配件名称</td></tr></table></td>
+						<td width="20%"><table class="border1"><tr><td align="center">配件名称</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
 						<td width="11%"><table class="border1"><tr><td align="center">单据标识</td></tr></table></td>
 						<td width="10%"><table class="border1"><tr><td align="center">银行单号</td></tr></table></td>
+                        <td width="10%"><table class="border1"><tr><td align="center">客户姓名</td></tr></table></td>
 						<td width="16%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
 					</tr>
 					
@@ -153,6 +154,7 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.outId}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>
+                        <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
 					</tr>
 					</c:forEach>
