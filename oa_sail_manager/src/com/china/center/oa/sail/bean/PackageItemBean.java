@@ -43,7 +43,9 @@ public class PackageItemBean implements Serializable
 
     /**
      * 2015/9/29 打印回执单增加客户姓名
+	 * not save in DB
      */
+	@Ignore
     private String customerName = "";
 	
 	/**
