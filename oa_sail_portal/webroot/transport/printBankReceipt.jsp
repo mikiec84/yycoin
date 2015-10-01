@@ -167,6 +167,7 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 					<tr class="content2">
@@ -175,9 +176,12 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center">-</td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="6"><table class="border1"><tr><td align="center">注："此收货回执单仅做为收货确认所用"</td></tr></table></td>
+						<td colspan="7">
+                            <table class="border1"><tr><td align="center">注："此收货回执单仅做为收货确认所用"</td></tr></table>
+                        </td>
 					</tr>
 				</table>
 				</td>
