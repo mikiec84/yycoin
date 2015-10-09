@@ -31,6 +31,7 @@ import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
+import com.china.center.oa.sail.vo.*;
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
@@ -164,10 +165,6 @@ import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailManager;
-import com.china.center.oa.sail.vo.BaseVO;
-import com.china.center.oa.sail.vo.OutBalanceVO;
-import com.china.center.oa.sail.vo.OutVO;
-import com.china.center.oa.sail.vo.SailConfigVO;
 import com.china.center.oa.sail.wrap.BatchBackWrap;
 import com.china.center.oa.sail.wrap.PromotionWrap;
 import com.china.center.oa.tax.dao.FinanceDAO;
@@ -2579,6 +2576,8 @@ public class ParentOutAction extends DispatchAction
 
 				OutBean refOut = null;
 
+                DistributionVO distributionVO = null;
+
 				try
 				{
 					baseList = baseDAO
@@ -2598,6 +2597,11 @@ public class ParentOutAction extends DispatchAction
 						transportBean = consignDAO
 								.findTransportById(consignBean.getTransport());
 					}
+
+                    List<DistributionBean> distributionBeanList = distributionDAO.queryEntityBeansByFK(element.getFullId());
+                    if (!ListTools.isEmptyOrNull(distributionBeanList)){
+                        distributionVO = this.distributionDAO.findVO(distributionBeanList.get(0).getId());
+                    }
 				}
 				catch (Exception e)
 				{
@@ -2822,14 +2826,34 @@ public class ParentOutAction extends DispatchAction
 						}
 						else
 						{
-							line.writeColumn("");
+                            if (distributionVO == null){
+                                line.writeColumn("");
+                            } else{
+                                if (!StringTools.isNullOrNone(distributionVO.getTransportName1())){
+                                    line.writeColumn(distributionVO.getTransportName1());
+                                } else if (!StringTools.isNullOrNone(distributionVO.getTransportName2())){
+                                    line.writeColumn(distributionVO.getTransportName2());
+                                } else{
+                                    line.writeColumn("");
+                                }
+                            }
 						}
 					}
 					else
 					{
 						line.writeColumn("");
-						line.writeColumn("");
-					}
+                        if (distributionVO == null){
+                            line.writeColumn("");
+                        } else{
+                            if (!StringTools.isNullOrNone(distributionVO.getTransportName1())){
+                                line.writeColumn(distributionVO.getTransportName1());
+                            } else if (!StringTools.isNullOrNone(distributionVO.getTransportName2())){
+                                line.writeColumn(distributionVO.getTransportName2());
+                            } else{
+                                line.writeColumn("");
+                            }
+                        }
+                    }
 
 					line.writeColumn(element.getDescription());
 
