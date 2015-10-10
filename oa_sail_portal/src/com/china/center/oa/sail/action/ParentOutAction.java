@@ -2834,7 +2834,7 @@ public class ParentOutAction extends DispatchAction
                                 } else if (!StringTools.isNullOrNone(distributionVO.getTransportName2())){
                                     line.writeColumn(distributionVO.getTransportName2());
                                 } else{
-                                    line.writeColumn("");
+                                    line.writeColumn(OutHelper.getShippingName(distributionVO.getShipping()));
                                 }
                             }
 						}
@@ -2850,7 +2850,7 @@ public class ParentOutAction extends DispatchAction
                             } else if (!StringTools.isNullOrNone(distributionVO.getTransportName2())){
                                 line.writeColumn(distributionVO.getTransportName2());
                             } else{
-                                line.writeColumn("");
+								line.writeColumn(OutHelper.getShippingName(distributionVO.getShipping()));
                             }
                         }
                     }

@@ -522,26 +522,29 @@ public abstract class OutHelper
      */
     public static String getShippingName(int shipping)
     {
-    	if (shipping == 0)
+    	if (shipping == OutConstant.OUT_SHIPPING_SELFSERVICE)
     	{
     		return "自提";
     	}
-    	else if (shipping == 1)
+    	else if (shipping == OutConstant.OUT_SHIPPING_COMPANY)
     	{
     		return "公司";
     	}
-    	else if (shipping == 2)
+    	else if (shipping == OutConstant.OUT_SHIPPING_3PL)
     	{
     		return "第三方快递";
     	}
-    	else if (shipping == 3)
+    	else if (shipping == OutConstant.OUT_SHIPPING_TRANSPORT)
     	{
     		return "第三方货运";
     	}
-    	else if (shipping == 4)
+    	else if (shipping == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT)
     	{
     		return "第三方快递+货运";
     	}
+        else if (shipping == OutConstant.OUT_SHIPPING_NOTSHIPPING){
+            return "空发";
+        }
     	else
     	{
     		return "其它";
