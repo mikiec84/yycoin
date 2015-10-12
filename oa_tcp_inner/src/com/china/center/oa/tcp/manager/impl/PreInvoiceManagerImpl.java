@@ -131,7 +131,8 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         // 获取flowKey
         bean.setFlowKey(TcpFlowConstant.PREINVOICE_APPLY);
 
-        checkApply(user, bean);
+        //2015/10/12 会检查申请人名下是否有未结束的预开票申请，帮我把这条规则屏蔽掉
+//        checkApply(user, bean);
         
         preInvoiceApplyDAO.saveEntityBean(bean);
         
@@ -246,7 +247,8 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
         bean.setStatus(TcpConstanst.TCP_STATUS_INIT);
 
-        checkApply(user, bean);
+        //2015/10/12 会检查申请人名下是否有未结束的预开票申请，帮我把这条规则屏蔽掉
+//        checkApply(user, bean);
         
         // 获取flowKey
         bean.setFlowKey(TcpFlowConstant.PREINVOICE_APPLY);
