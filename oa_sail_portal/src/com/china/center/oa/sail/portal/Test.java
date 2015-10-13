@@ -44,11 +44,24 @@ public class Test {
 //        }
         return name;
     }
+
+    public String getRefOutId(String description){
+        String refOutId = "";
+        if (!StringTools.isNullOrNone(description) && description.indexOf("自动生成赠品订单")!= -1){
+            String[] words = description.split("：");
+            if (words.length ==2){
+                refOutId = words[1].trim();
+            }
+        }
+
+        return refOutId;
+    }
     public static void main(String[] args) throws Exception{
         String n1 = "YG0021100 2015年1盎司熊猫银币含包装（普17）(17556733)";
         String n2 = "YG0021100 2015年1盎司熊猫银币含包装（普17）";
         String n3 = "YH092 2014年熊猫金银币套装1/20盎司金+1盎司银（普0）(13361456)";
         String n4 = "YH2012003四季平安金条100克(永银）";
+        String desc2 = "自动生成赠品订单，关联销售单：SO1509061033238507733";
 
         Test t = new Test();
         String name = null;
@@ -63,6 +76,8 @@ public class Test {
 
         name = t.getProductName(n4);
         System.out.println("n4:"+name);
+
+        System.out.println("refOutID:"+t.getRefOutId(desc2));
 
         double v2 = -3*3.3;
         System.out.println(v2);

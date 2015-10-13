@@ -1997,18 +1997,42 @@ public class ShipAction extends DispatchAction
                         if (!ListTools.isEmptyOrNull(list2))
                         {
                             refId = list2.get(0).getCiticNo();
-                            _logger.info("**************redId5*****"+refId);
+                            _logger.info("**************refId for A*****"+refId);
                         }
                     }
                 }
             }
         } else if(outId.startsWith("ZS") && out!= null){
             String sourceOutId = out.getRefOutFullId();
+            //自动生成赠品订单可从备注中获取关联单号
+            if (StringTools.isNullOrNone(sourceOutId)){
+                String description = out.getDescription();
+                sourceOutId = this.getRefOutId(description);
+            }
+
             if (!StringTools.isNullOrNone(sourceOutId)){
-                refId = sourceOutId;
+                List<OutImportBean> list2 = outImportDAO.queryEntityBeansByFK(sourceOutId, AnoConstant.FK_FIRST);
+
+                if (!ListTools.isEmptyOrNull(list2))
+                {
+                    refId = list2.get(0).getCiticNo();
+                    _logger.info("**************refId for ZS*****"+refId);
+                }
             }
         }
         return refId;
+    }
+
+    public String getRefOutId(String description){
+        String refOutId = "";
+        if (!StringTools.isNullOrNone(description)){
+            String[] words = description.split("：");
+            if (words.length ==2){
+                refOutId = words[1].trim();
+            }
+        }
+
+        return refOutId;
     }
 
     /**
