@@ -25,7 +25,45 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class Test {
+    public String getProductName(String original){
+        String name = "";
+        String[] l1 = original.split(" ");
+        if (l1.length == 1){
+            name = original;
+        } else{
+            String word = l1[1];
+            String[] l2 = word.split("（");
+            if (l2.length == 1){
+                name = word;
+            } else{
+                name = l2[0];
+            }
+        }
+//        for (String s:l1){
+//            System.out.println(s);
+//        }
+        return name;
+    }
     public static void main(String[] args) throws Exception{
+        String n1 = "YG0021100 2015年1盎司熊猫银币含包装（普17）(17556733)";
+        String n2 = "YG0021100 2015年1盎司熊猫银币含包装（普17）";
+        String n3 = "YH092 2014年熊猫金银币套装1/20盎司金+1盎司银（普0）(13361456)";
+        String n4 = "YH2012003四季平安金条100克(永银）";
+
+        Test t = new Test();
+        String name = null;
+        name = t.getProductName(n2);
+        System.out.println("n2:"+name);
+
+        name = t.getProductName(n1);
+        System.out.println("n1:"+name);
+
+        name = t.getProductName(n3);
+        System.out.println("n3:"+name);
+
+        name = t.getProductName(n4);
+        System.out.println("n4:"+name);
+
         double v2 = -3*3.3;
         System.out.println(v2);
         BigDecimal bd = new BigDecimal(v2);

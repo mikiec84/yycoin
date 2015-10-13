@@ -22,7 +22,7 @@ import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
-import com.china.center.oa.product.bean.ProductVSBankBean;
+import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
@@ -52,9 +52,6 @@ import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.product.bean.ComposeProductBean;
-import com.china.center.oa.product.bean.DepotBean;
-import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.publics.Helper;
@@ -113,6 +110,8 @@ public class ShipAction extends DispatchAction
     private CityDAO cityDAO = null;
 
     private ProductVSBankDAO productVSBankDAO = null;
+
+    private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
     private final static String QUERYPACKAGE = "queryPackage";
 
@@ -757,7 +756,7 @@ public class ShipAction extends DispatchAction
         {
             _logger.warn(e, e);
 
-            ajax.setError("撤销出错:"+ e.getErrorContent());
+            ajax.setError("撤销出错:" + e.getErrorContent());
         }
 
         return JSONTools.writeResponse(response, ajax);
@@ -801,11 +800,11 @@ public class ShipAction extends DispatchAction
         }catch(MYException e)
         {
             _logger.error(e, e);
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "撤销出错:"+e.getErrorContent());
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "撤销出错:" + e.getErrorContent());
         }
 
 //        return mapping.findForward("queryPickup");
-        return this.queryPickup(mapping,form,request,response);
+        return this.queryPickup(mapping, form, request, response);
     }
 
     /**
@@ -1624,7 +1623,7 @@ public class ShipAction extends DispatchAction
         }
     }
 
-    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
+//    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
     private void convertProductName(PackageItemBean item, String customerName){
         ProductBean product = productDAO.find(item.getProductId());
         if (product!= null) {
@@ -1651,6 +1650,60 @@ public class ShipAction extends DispatchAction
                 }
             }
         }
+    }
+
+
+    //2015/10/13 此规则只针对银行类回执单
+    // 产品名称取订单对应的导入表中的订单明细行中的productid取对应的CiticProduct表中的CITICNAME字段值，如无对应订单或对应商品则仍取OA品名
+    //如果产品在CiticProduct中无对应产品，取其名称的10位以后（字符之前的中间字符
+    //YG0021100 2015年1盎司熊猫银币含包装（普17） 这个产品找不到对应的银行品名，则回执单上的名称取 2015年1盎司熊猫银币含包装
+    private void convertProductName(PackageItemBean item){
+        ProductBean product = productDAO.find(item.getProductId());
+        String productName = null;
+        String productCode = "";
+
+        if (product!= null) {
+            productCode = product.getCode();
+            ConditionParse conditionParse =  new ConditionParse();
+            conditionParse.addCondition("productCode", "=", productCode);
+            List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(beans)){
+                CiticVSOAProductBean bean = beans.get(0);
+                if (bean!= null){
+                    productName = bean.getCiticProductName();
+                }
+            } else{
+                productName = this.getProductName(item.getProductName());
+            }
+        }
+
+        if (!StringTools.isNullOrNone(productName)){
+            String template = "print receipt convertProductName from:%s to:%s with productCode:%s";
+            _logger.info(String.format(template, item.getProductName(), productName, productCode));
+            item.setProductName(productName);
+        }
+    }
+
+    public String getProductName(String original){
+        String name = "";
+        try {
+            String[] l1 = original.split(" ");
+            if (l1.length == 1) {
+                name = original;
+            } else {
+                String word = l1[1];
+                String[] l2 = word.split("（");
+                if (l2.length == 1) {
+                    name = word;
+                } else {
+                    name = l2[0];
+                }
+            }
+        }catch(Exception e){
+            name = original;
+        }
+
+        return name;
     }
 
     //2015/9/29 打印银行回执单时增加客户姓名栏位
@@ -1687,7 +1740,7 @@ public class ShipAction extends DispatchAction
         String stafferName = "永银商务部";
         String phone = "4006518859";
         OutBean out = outDAO.find(outId);
-        _logger.info("*****getStafferNameAndPhone out*****"+out);
+        _logger.info("*****getStafferNameAndPhone out*****" + out);
         if (out!= null){
             String stafferId = out.getStafferId();
             _logger.info("*****getStafferNameAndPhone stafferId*****"+stafferId);
@@ -1781,6 +1834,30 @@ public class ShipAction extends DispatchAction
 
             OutBean out = outDAO.find(outId);
 
+            //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
+            if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
+                if (out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){
+                    each.setItemType("销售");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+                        || out.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH
+                        || out.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH){
+                    each.setItemType("领样");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SHOW){
+                    each.setItemType("铺货");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT){
+                    each.setItemType("赠品");
+                }
+            }
+
+            if (StringTools.isNullOrNone(each.getItemType()) && outId.startsWith("A")){
+                each.setItemType("发票");
+            }
+
+            //2015/10/13 销售时间取out表中的podate
+            if (out!= null){
+                each.setPoDate(out.getPodate());
+            }
+
             if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
             {
                 _logger.info("******赠品类型*****"+each.getOutId());
@@ -1815,7 +1892,7 @@ public class ShipAction extends DispatchAction
             {
                 checkCompose(each, each, compose);
 
-                String refId = this.getRefId(each.getOutId());
+                String refId = this.getRefId(out, each.getOutId());
                 if (!StringTools.isNullOrNone(refId)){
                     each.setRefId(refId);
                 }
@@ -1833,7 +1910,7 @@ public class ShipAction extends DispatchAction
 
                 if (!StringTools.isNullOrNone(itemBean.getRefId()))
                 {
-                    String refId = this.getRefId(each.getOutId());
+                    String refId = this.getRefId(out, each.getOutId());
                     if (!StringTools.isNullOrNone(refId))
                     {
                         String refId3 = itemBean.getRefId() + "<br>" + refId;
@@ -1871,9 +1948,9 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            this.convertProductName(item, vo.getCustomerName());
+            this.convertProductName(item);
 
-            //TODO 2015/9/29 增加客户姓名栏位
+            //2015/9/29 增加客户姓名栏位
             this.getCustomerName(item);
             itemList1.add(item);
             _logger.debug("**********getDescription******"+each.getValue().getDescription());
@@ -1884,7 +1961,14 @@ public class ShipAction extends DispatchAction
         request.setAttribute("total", totalAmount);
     }
 
-    private String getRefId(String outId){
+    /**
+     * 获取银行单号
+     * 2015/10/13 赠送订单与发票都取关联的SO销售单号至 outimport表中取对应的CITINO字段值
+     * @param out
+     * @param outId
+     * @return
+     */
+    private String getRefId(OutBean out, String outId){
         String refId = "";
         List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
@@ -1892,6 +1976,37 @@ public class ShipAction extends DispatchAction
         {
             refId = outiList.get(0).getCiticNo();
             _logger.info("**************redId2*****"+refId);
+        } else if (outId.startsWith("A")){
+            InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
+            if (bean!= null){
+                String refIds = bean.getRefIds();
+                _logger.info(outId+"*****refIds found********"+refIds);
+                if (!StringTools.isNullOrNone(refIds)){
+                    String[] temp = refIds.split(";");
+                    String refOutId = null;
+                    for (String id: temp){
+                        if (id.startsWith("SO")){
+                            refOutId = id;
+                            break;
+                        }
+                    }
+
+                    if (!StringTools.isNullOrNone(refOutId)){
+                        List<OutImportBean> list2 = outImportDAO.queryEntityBeansByFK(refOutId, AnoConstant.FK_FIRST);
+
+                        if (!ListTools.isEmptyOrNull(list2))
+                        {
+                            refId = list2.get(0).getCiticNo();
+                            _logger.info("**************redId5*****"+refId);
+                        }
+                    }
+                }
+            }
+        } else if(outId.startsWith("ZS") && out!= null){
+            String sourceOutId = out.getRefOutFullId();
+            if (!StringTools.isNullOrNone(sourceOutId)){
+                refId = sourceOutId;
+            }
         }
         return refId;
     }
@@ -2688,5 +2803,13 @@ public class ShipAction extends DispatchAction
 
     public void setProductVSBankDAO(ProductVSBankDAO productVSBankDAO) {
         this.productVSBankDAO = productVSBankDAO;
+    }
+
+    public CiticVSOAProductDAO getCiticVSOAProductDAO() {
+        return citicVSOAProductDAO;
+    }
+
+    public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO) {
+        this.citicVSOAProductDAO = citicVSOAProductDAO;
     }
 }
