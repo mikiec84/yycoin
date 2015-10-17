@@ -5751,6 +5751,385 @@ public class ParentOutAction extends DispatchAction
 		request.setAttribute("canProm", canProm);
 	}
 
+
+    /**
+     * 2015/10/17入库-商品调换
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward addBuyExchange(ActionMapping mapping, ActionForm form,
+                                HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        // 是否锁定库存
+        if (storageRelationManager.isStorageRelationLock())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "库存被锁定,不能开单");
+
+            return mapping.findForward("error");
+        }
+
+        _logger.info("addBuyExchange 111111111111111");
+        CommonTools.saveParamers(request);
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        String locationId = Helper.getCurrentLocationId(request);
+
+        String location = request.getParameter("location");
+
+        String locationShadow = request.getParameter("locationShadow");
+
+        String saves = request.getParameter("saves");
+
+        String step = request.getParameter("step");
+
+        String hasProm = request.getParameter("hasProm");
+
+        String oprType = request.getParameter("oprType");
+
+        if (StringTools.isNullOrNone(oprType)) oprType = "";
+
+        // 客户信用级别
+        String customercreditlevel = request
+                .getParameter("customercreditlevel");
+
+        String fullId = request.getParameter("fullId");
+
+        String update = request.getParameter("update");
+
+        if ("save".equals(saves))
+        {
+            saves = "保存";
+        }
+        else
+        {
+            saves = "提交";
+        }
+        _logger.info("addBuyExchange 22222222222222222222222");
+        ParamterMap map = new ParamterMap(request);
+
+        ActionForward action = null;
+
+        OutBean outBean = null;
+
+        // 第一销售页面
+        outBean = new OutBean();
+
+        outBean.setLocationId(locationId);
+
+        // 增加职员的ID
+        outBean.setStafferId(user.getStafferId());
+        outBean.setStafferName(user.getStafferName());
+
+        BeanUtil.getBean(outBean, request);
+
+        outBean.setLocation(location);
+
+        if (StringTools.isNullOrNone(outBean.getLocation())
+                && !oprType.equals("0"))
+        {
+            outBean.setLocation(locationShadow);
+
+            // for monitor
+            _logger.info("Debug Location ...." + location + ", fullid="
+                    + fullId);
+            _logger.info("Debug LocationShadow ...." + locationShadow);
+        }
+        _logger.info("addBuyExchange 33333333333333333333333");
+        outBean.setLogTime(TimeTools.now());
+
+        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+        {
+            if (StringTools.isNullOrNone(outBean.getDestinationId()))
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                        "调拨没有目的仓库属性,请重新操作");
+
+                return mapping.findForward("error");
+            }
+
+            outBean.setReserve1(OutConstant.MOVEOUT_OUT);
+        }
+
+        if (StringTools.isNullOrNone(outBean.getLocation())
+                && !oprType.equals("0"))
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "没有库存属性,请重新操作");
+
+            return mapping.findForward("error");
+        }
+
+        // 商务 - begin
+        ActionForward error = checkAuthForEcommerce(request, user, mapping);
+
+        if (null != error)
+        {
+            return error;
+        }
+
+        User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
+
+        String elogin = (String) request.getSession().getAttribute("g_elogin");
+
+        String g_loginType = (String) request.getSession().getAttribute(
+                "g_loginType");
+
+        if (!StringTools.isNullOrNone(elogin) && null == g_srcUser)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "登陆异常,请重新登陆");
+
+            return mapping.findForward("error");
+        }
+        _logger.info("addBuyExchange 44444444444444444444444");
+        // 当前切换用户登陆的且为商务登陆的，记录经办人
+        if (!StringTools.isNullOrNone(elogin) && null != g_srcUser
+                && g_loginType.equals("1"))
+        {
+            outBean.setOperator(g_srcUser.getStafferId());
+            outBean.setOperatorName(g_srcUser.getStafferName());
+        }
+        else
+        {
+            outBean.setOperator(user.getStafferId());
+            outBean.setOperatorName(user.getStafferName());
+        }
+        // 商务 - end
+        _logger.info("addBuyExchange 5555555555555555555");
+        // 入库单
+
+        if (outBean.getOutType() != OutConstant.OUTTYPE_IN_OTHER
+                && outBean.getOutType() != OutConstant.OUTTYPE_IN_OUTBACK)
+        {
+            outBean.setRefOutFullId("");
+
+            if (outBean.getOutType() != OutConstant.OUTTYPE_IN_DROP)
+            {
+                outBean.setForceBuyType(-1);
+                outBean.setReserve9("");
+            }
+        }
+
+        // 其它入库，领样对冲单不经过这儿
+        if (outBean.getOutType() == OutConstant.OUTTYPE_IN_OTHER)
+        {
+            if (outBean.getForceBuyType() == -1)
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                        "其它入库没有选择事由");
+
+                return mapping.findForward("error");
+            }
+
+            String customerName1 = request.getParameter("customerName1");
+            if (!StringTools.isNullOrNone(customerName1))
+            {
+                outBean.setCustomerName(customerName1);
+            }
+        }
+
+        // 默认很多属性
+        outBean.setStafferId(user.getStafferId());
+        outBean.setStafferName(user.getStafferName());
+
+        if (StringTools.isNullOrNone(outBean.getCustomerId()))
+        {
+            outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+            outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+        }
+
+        outBean.setDepartment("公共部门");
+        outBean.setArriveDate(TimeTools.now_short(10));
+        _logger.info("addBuyExchange 77777777777777777777");
+        // 入库单的处理
+        try
+        {
+            if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+            {
+                this.fillDistributionForRemoteAllocate(request, outBean);
+            }
+
+            String id = outManager.addOut(outBean, map.getParameterMap(), user);
+            _logger.info("addBuyExchange 88888888888888888888*********"+id);
+            if ("提交".equals(saves))
+            {
+                int ttype = StorageConstant.OPR_STORAGE_INOTHER;
+
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                {
+                    ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
+                }
+
+                // if id start with 'TM', then split SO, and then submit each
+                if (id.startsWith("TM"))
+                {
+                    // split out, then delete original out in the same
+                    // transaction
+                    String[] ids = outManager.splitOut(id);
+
+                    for (String eachId : ids)
+                    {
+                        _logger.info("入库拆单(共拆成" + ids.length + "张)：原单" + id
+                                + ", 新单：" + eachId);
+                        _logger.info("addBuyExchange 999999999999999999999999*********"+eachId);
+                        outManager.submit(eachId, user, ttype);
+                    }
+                }else {
+                    _logger.info("addBuyExchange aaaaaaaaaaaaaaaa*********");
+                    outManager.submit(id, user, ttype);
+                }
+            }
+        }
+        catch (MYException e)
+        {
+            e.printStackTrace();
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                    "处理错误:" + e.getErrorContent());
+
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
+
+            return mapping.findForward("error");
+        }
+
+        if (action != null)
+        {
+            return action;
+        }
+
+        CommonTools.removeParamers(request);
+
+        // 第一步做完转到第二步页面
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                && step.equals("1"))
+        {
+            DistributionBean distributionBean = null;
+
+            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
+
+            if (!ListTools.isEmptyOrNull(distList))
+            {
+                distributionBean = distList.get(0);
+            }
+
+            List<BaseVO> baseList = baseDAO.queryEntityVOsByFK(outBean.getFullId());
+
+            // 按仓库排序
+            Collections.sort(baseList, new Comparator<BaseVO>()
+            {
+                public int compare(BaseVO o1, BaseVO o2)
+                {
+                    return Integer.parseInt(o1.getLocationId().substring(11))
+                            - Integer
+                            .parseInt(o2.getLocationId().substring(11));
+                }
+            });
+
+            judgeCanPromotion(request, baseList);
+
+            request.setAttribute("distributionBean", distributionBean);
+
+            List<AttachmentBean> attachmentList = attachmentDAO
+                    .queryEntityBeansByFK(outBean.getFullId());
+
+            String attacmentIds = "";
+
+            for (AttachmentBean attachmentBean : attachmentList)
+            {
+                attacmentIds = attacmentIds + attachmentBean.getId() + ";";
+            }
+
+            request.setAttribute("attacmentIds", attacmentIds);
+
+            request.setAttribute("hasProm", hasProm);
+
+            OutVO outVO = outDAO.findVO(outBean.getFullId());
+
+            if (outVO == null)
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+
+                return mapping.findForward("error");
+            }
+
+            outVO.setAttachmentList(attachmentList);
+
+            request.setAttribute("outBean", outVO);
+
+            request.setAttribute("baseList", baseList);
+
+            String desc = outVO.getDescription();
+
+            int idx = desc.indexOf("&&");
+
+            String logDesc = "";
+
+            if (idx != -1)
+            {
+                logDesc = desc.substring(idx + 2, desc.length());
+            }
+
+            String swatchLog = outManager.processSwatchCheck(outVO);
+
+            request.setAttribute("logDesc", swatchLog);
+
+            List<ExpressBean> expressList = expressDAO
+                    .listEntityBeansByOrder("order by id");
+
+            request.setAttribute("expressList", expressList);
+
+            // 地址区
+
+
+            request.setAttribute("update", update);
+
+            return mapping.findForward("addOut51");
+        }
+
+        //OutBean checkOut = outDAO.find(outBean.getFullId());
+
+//		request.getSession().setAttribute(
+//				KeyConstant.MESSAGE,
+//				"此库单的单号是:" + outBean.getFullId() + ".下一步是:"
+//						+ OutHelper.getStatus(checkOut.getStatus()));
+
+        request.getSession().setAttribute(
+                KeyConstant.MESSAGE,
+                "库单提交成功");
+
+        CommonTools.removeParamers(request);
+
+        RequestTools.actionInitQuery(request);
+
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+        {
+            if (!outBean.getStafferId().equals(outBean.getOperator()))
+            {
+                outManager.sendOutMail(outBean, "商务开单确认.");
+            }
+
+            return querySelfOut(mapping, form, request, reponse);
+        }
+        else
+        {
+            return querySelfBuy(mapping, form, request, reponse);
+        }
+    }
+
+
 	/**
 	 * 增加(保存修改)修改库单(包括销售单和入库单)
 	 * 

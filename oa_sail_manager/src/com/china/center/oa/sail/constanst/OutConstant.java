@@ -269,6 +269,12 @@ public interface OutConstant
      */
     @Defined(key = "outType_in", value = "赠品退货")
     int OUTTYPE_IN_PRESENT = 7;
+
+    /** 2015/10/17 换货
+     * 商品调换
+     */
+    @Defined(key = "outType_in", value = "商品调换")
+    int OUTTYPE_IN_EXCHANGE = 8;
     
     /**
      * 其他入库
