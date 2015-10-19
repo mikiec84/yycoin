@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
+import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,12 +36,6 @@ import com.china.center.oa.product.dao.DepotDAO;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.vo.StafferVO;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.OutImportBean;
-import com.china.center.oa.sail.bean.PackageBean;
-import com.china.center.oa.sail.bean.PackageItemBean;
-import com.china.center.oa.sail.bean.PackageVSCustomerBean;
-import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.DistributionDAO;
@@ -109,7 +104,92 @@ public class PackageManagerImpl implements PackageManager {
 	public PackageManagerImpl()
 	{
 	}
-	
+
+	@Override
+	public void checkOrderWithoutCKJob() {
+
+		String msg = "*******************checkOrderWithoutCKJob running***********************";
+		_logger.info(msg);
+
+		long statsStar = System.currentTimeMillis();
+
+		TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+		try
+		{
+			tran.execute(new TransactionCallback()
+			{
+				public Object doInTransaction(TransactionStatus arg0)
+				{
+					try{
+						processZsOrderWithoutCK();
+					}catch(MYException e)
+					{
+						e.printStackTrace();
+						_logger.error(e);
+						throw new RuntimeException(e);
+					}
+
+					return Boolean.TRUE;
+				}
+			});
+		}
+		catch (Exception e)
+		{
+			triggerLog.error(e, e);
+		}
+
+		_logger.info("checkOrderWithoutCKJob 统计结束... ,共耗时：" + (System.currentTimeMillis() - statsStar));
+
+		return;
+	}
+
+	private void processZsOrderWithoutCK() throws MYException{
+		ConditionParse conditionParse = new ConditionParse();
+		conditionParse.addWhereStr();
+		//销售单
+		conditionParse.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
+		//只针对出问题的赠送单
+		conditionParse.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_OUT_PRESENT);
+		//状态为 “已出库”
+		conditionParse.addCondition("OutBean.status", "=", OutConstant.STATUS_PASS);
+		conditionParse.addCondition("OutBean.outTime", ">", "2015-09-01");
+		//没有生成CK单的订单
+		conditionParse.addCondition("and not exists(select p.id from T_CENTER_PACKAGE_ITEM p where p.outId = OutBean.fullId)");
+
+		List<OutVO> outBeans = this.outDAO.queryEntityVOsByCondition(conditionParse);
+		if (!ListTools.isEmptyOrNull(outBeans)){
+			_logger.info("processZsOrderWithoutCK with out size:"+outBeans.size());
+			for (OutVO out: outBeans){
+				//发货方式不是“空发”
+				List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(out.getFullId());
+
+				if (ListTools.isEmptyOrNull(distList) ||
+						distList.get(0).getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
+				{
+					_logger.info("no distribution bean or 99:"+out.getFullId());
+					continue;
+				} else{
+					//check duplicate preconsign
+					ConditionParse con = new ConditionParse();
+					con.addWhereStr();
+					con.addCondition("outId","=",out.getFullId());
+					List<PreConsignBean> preConsignBeans = this.preConsignDAO.queryEntityBeansByCondition(con);
+					if (ListTools.isEmptyOrNull(preConsignBeans)){
+						PreConsignBean preConsign = new PreConsignBean();
+
+						preConsign.setOutId(out.getFullId());
+
+						preConsignDAO.saveEntityBean(preConsign);
+						_logger.info(preConsign.getId()+" preconsign created processZsOrderWithoutCK for out:"+out.getFullId());
+					}
+				}
+			}
+		} else{
+			_logger.info("processZsOrderWithoutCK with out size 0!");
+		}
+	}
+
 	/**
 	 * 生成发货单 (根据收货打包)
 	 */

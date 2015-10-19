@@ -134,6 +134,20 @@
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
+    <!--2015/10/19 十分钟检查下状态为 “已出库”且发货方式不是“空发”的但没有生成CK单的订单，列入preconsign表 -->
+    <bean id="checkOrderWithoutCKJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="packageManager" />
+        <property name="targetMethod" value="checkOrderWithoutCKJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="checkOrderWithoutCKJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="checkOrderWithoutCKJob" />
+        <property name="cronExpression" value="0 0/10 * * * ?" />
+    </bean>
+
     <bean
             class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -147,6 +161,7 @@
                 <ref bean="passPaymentApplyJobTrigger"/>
                 <ref bean="passPaymentApply2JobTrigger"/>
                 <ref bean="insFollowOutJobTrigger"/>
+                <ref bean="checkOrderWithoutCKJobTrigger"/>
             </list>
         </property>
     </bean>
