@@ -19,4 +19,4 @@ insert into t_center_oamenuitem values(9036,'批量预占库存','../sailImport/batchP
 alter table t_center_out_import add column customerName varchar(200) DEFAULT ''
 
 --2015/10/17 入库-换货功能
-insert into t_center_oamenuitem values(1518,'入库-商品调换','../sail/addBuyExchange.jsp',15,1,1501,14,'商品调换')
+insert into t_center_oamenuitem values(1518,'入库-商品调换','../sail/out.do?method=preForAddBuyExchange&flag=1',15,1,1501,14,'商品调换')

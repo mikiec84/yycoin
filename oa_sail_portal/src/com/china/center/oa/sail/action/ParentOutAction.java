@@ -5753,6 +5753,66 @@ public class ParentOutAction extends DispatchAction
 
 
     /**
+     * 2015/10/19 入库-换货
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward preForAddBuyExchange(ActionMapping mapping, ActionForm form,
+                                     HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        _logger.info("*****preForAddBuyExchange************");
+        // 增加黑名单-停止销售类型判断
+        User user = Helper.getUser(request);
+
+        // 商务模式下权限检查
+        ActionForward error = checkAuthForEcommerce(request, user, mapping);
+
+        if (null != error)
+        {
+            return error;
+        }
+
+        // 是否锁定库存
+        if (storageRelationManager.isStorageRelationLock())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "库存被锁定,不能开单");
+
+            return mapping.findForward("error");
+        }
+
+        // 入库单
+        try
+        {
+            innerForPrepare(request, true, true);
+        }
+        catch (MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                    e.getErrorContent());
+
+            return mapping.findForward("error");
+        }
+
+        //运输方式
+        List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
+        request.setAttribute("expressList", expressList);
+
+        //省市
+        List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+        request.setAttribute("provinceList", provinceList);
+        List<CityBean> cityList = this.cityDAO.listEntityBeans();
+        request.setAttribute("cityList", cityList);
+
+        return mapping.findForward("addBuyExchange");
+    }
+
+
+    /**
      * 2015/10/17入库-商品调换
      * @param mapping
      * @param form
@@ -5793,10 +5853,6 @@ public class ParentOutAction extends DispatchAction
         String oprType = request.getParameter("oprType");
 
         if (StringTools.isNullOrNone(oprType)) oprType = "";
-
-        // 客户信用级别
-        String customercreditlevel = request
-                .getParameter("customercreditlevel");
 
         String fullId = request.getParameter("fullId");
 
