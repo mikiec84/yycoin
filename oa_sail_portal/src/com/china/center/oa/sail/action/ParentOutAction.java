@@ -6005,10 +6005,8 @@ public class ParentOutAction extends DispatchAction
         // 入库单的处理
         try
         {
-            if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
-            {
-                this.fillDistributionForRemoteAllocate(request, outBean);
-            }
+             this.fillDistributionForRemoteAllocate(request, outBean);
+
 
             String id = outManager.addOut(outBean, map.getParameterMap(), user);
             _logger.info("addBuyExchange 88888888888888888888*********"+id);
@@ -6550,6 +6548,7 @@ public class ParentOutAction extends DispatchAction
 
     /**
      * 2015/8/6 入库调拨生成配送单
+	 * 2015/10/20 入库换货也需要生成配送单
      * @param rds
      * @param out
      */

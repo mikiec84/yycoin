@@ -10,23 +10,23 @@ var messk = '';
 
 var showJSON = JSON.parse('${showJSON}');
 
-function total()
-{
-    var obj = document.getElementsByName("value");
+<%--function total()--%>
+<%--{--%>
+    <%--var obj = document.getElementsByName("value");--%>
 
-    var total = 0;
-    for (var i = 1; i < obj.length; i++)
-    {
-        if (obj[i].value != '')
-        {
-            total = add(total, parseFloat(obj[i].value));
-        }
-    }
+    <%--var total = 0;--%>
+    <%--for (var i = 1; i < obj.length; i++)--%>
+    <%--{--%>
+        <%--if (obj[i].value != '')--%>
+        <%--{--%>
+            <%--total = add(total, parseFloat(obj[i].value));--%>
+        <%--}--%>
+    <%--}--%>
 
-    var ss =  document.getElementById("total");
-    tsts = formatNum(total, 2);
-    ss.innerHTML = '(总计:' + tsts + ')';
-}
+    <%--var ss =  document.getElementById("total");--%>
+    <%--tsts = formatNum(total, 2);--%>
+    <%--ss.innerHTML = '(总计:' + tsts + ')';--%>
+<%--}--%>
 
 function titleChange()
 {
@@ -49,7 +49,7 @@ function load()
     
     managerChange();
     
-    forceBuyTypeChange();
+    <%--forceBuyTypeChange();--%>
 }
 
 function check()
@@ -59,21 +59,21 @@ function check()
         return false;
     }
     
-    if ($$('outType') == 1 && $$('destinationId') == $$('location'))
-    {
-        alert('源仓库和目的仓库不能相同');
-        return false;
-    }
-    
-    //只能选择永银和经纬 90201008080000000001/A1201112260004531364
-    if ($$('outType') == 1 || true)
-    {
-        if ($$('dutyId') != '90201008080000000001' && $$('dutyId') != 'A1201112260004531364')
-        {
-            alert('入库单的时候纳税实体只能选择永银收藏品或者经纬公司');
-            return false;
-        }
-    }
+    <%--if ($$('outType') == 1 && $$('destinationId') == $$('location'))--%>
+    <%--{--%>
+        <%--alert('源仓库和目的仓库不能相同');--%>
+        <%--return false;--%>
+    <%--}--%>
+    <%----%>
+    <%--//只能选择永银和经纬 90201008080000000001/A1201112260004531364--%>
+    <%--if ($$('outType') == 1 || true)--%>
+    <%--{--%>
+        <%--if ($$('dutyId') != '90201008080000000001' && $$('dutyId') != 'A1201112260004531364')--%>
+        <%--{--%>
+            <%--alert('入库单的时候纳税实体只能选择永银收藏品或者经纬公司');--%>
+            <%--return false;--%>
+        <%--}--%>
+    <%--}--%>
 
     ids = '';
     amous = '';
@@ -87,27 +87,27 @@ function check()
     $O('showNameList').value = '';
     $O('desList').value = '';
     
-    if (trim($O('outTime').value) == '')
-    {
-        alert('请选择销售日期');
-        return false;
-    }
+    <%--if (trim($O('outTime').value) == '')--%>
+    <%--{--%>
+        <%--alert('请选择销售日期');--%>
+        <%--return false;--%>
+    <%--}--%>
 
-    if ($$('outType') == '')
-    {
-        alert('请选择库单类型');
-        return false;
-    }
+    <%--if ($$('outType') == '')--%>
+    <%--{--%>
+        <%--alert('请选择库单类型');--%>
+        <%--return false;--%>
+    <%--}--%>
     
-    //调拨的时候只能选择永银和乐丰 90201008080000000001/A1201112260004531364
-    if ($$('outType') == 1)
-    {
-        if ($$('dutyId') != '90201008080000000001' && $$('dutyId') != 'A1201112260004531364')
-        {
-            alert('调拨的时候纳税实体只能选择永银收藏品或者经纬公司');
-            return false;
-        }
-    }
+    <%--//调拨的时候只能选择永银和乐丰 90201008080000000001/A1201112260004531364--%>
+    <%--if ($$('outType') == 1)--%>
+    <%--{--%>
+        <%--if ($$('dutyId') != '90201008080000000001' && $$('dutyId') != 'A1201112260004531364')--%>
+        <%--{--%>
+            <%--alert('调拨的时候纳税实体只能选择永银收藏品或者经纬公司');--%>
+            <%--return false;--%>
+        <%--}--%>
+    <%--}--%>
 
     var proNames = document.getElementsByName('productName');
     var units = document.getElementsByName('unit');
@@ -185,63 +185,63 @@ function check()
         $O('showNameList').value =  $O('showNameList').value + getOptionText(outProductNames[i]) + '~';
     }
 
-    for (var i = 1; i < prices.length; i++)
-    {
-        if (trim(prices[i].value) == '')
-        {
-            alert('数据不完整,请填写产品价格!');
-            prices[i].focus();
-            return false;
-        }
-        
-        if (!isFloat(prices[i].value))
-        {
-            alert('数据错误,产品数量只能是浮点数!');
-            prices[i].focus();
-            return false;
-        }
+    <%--for (var i = 1; i < prices.length; i++)--%>
+    <%--{--%>
+        <%--if (trim(prices[i].value) == '')--%>
+        <%--{--%>
+            <%--alert('数据不完整,请填写产品价格!');--%>
+            <%--prices[i].focus();--%>
+            <%--return false;--%>
+        <%--}--%>
+        <%----%>
+        <%--if (!isFloat(prices[i].value))--%>
+        <%--{--%>
+            <%--alert('数据错误,产品数量只能是浮点数!');--%>
+            <%--prices[i].focus();--%>
+            <%--return false;--%>
+        <%--}--%>
 
-        $O('priceList').value = $O('priceList').value + prices[i].value + '~';
-    }
+        <%--$O('priceList').value = $O('priceList').value + prices[i].value + '~';--%>
+    <%--}--%>
 
     var desList = document.getElementsByName('desciprt');
     
-    for (var i = 1; i < desList.length; i++)
-    {
-        if (trim(desList[i].value) == '')
-        {
-            alert('成本是必填!');
-            desList[i].focus();
-            return false;
-        }
-        
-        if (!isFloat(desList[i].value))
-        {
-            alert('格式错误,成本只能是浮点数!');
-            desList[i].focus();
-            return false;
-        }
-        
-        if ($$('outType') != 1 && parseFloat(trim(desList[i].value)) == 0)
-        {
-            alert('入库成本价格不能为0!');
-            desList[i].focus();
-            return false;
-        }
-    }
+    <%--for (var i = 1; i < desList.length; i++)--%>
+    <%--{--%>
+        <%--if (trim(desList[i].value) == '')--%>
+        <%--{--%>
+            <%--alert('成本是必填!');--%>
+            <%--desList[i].focus();--%>
+            <%--return false;--%>
+        <%--}--%>
+        <%----%>
+        <%--if (!isFloat(desList[i].value))--%>
+        <%--{--%>
+            <%--alert('格式错误,成本只能是浮点数!');--%>
+            <%--desList[i].focus();--%>
+            <%--return false;--%>
+        <%--}--%>
+        <%----%>
+        <%--if ($$('outType') != 1 && parseFloat(trim(desList[i].value)) == 0)--%>
+        <%--{--%>
+            <%--alert('入库成本价格不能为0!');--%>
+            <%--desList[i].focus();--%>
+            <%--return false;--%>
+        <%--}--%>
+    <%--}--%>
     
-    for (var i = 1; i < values.length; i++)
-    {
-        $O('totalList').value = $O('totalList').value + values[i].value + '~';
-        $O('desList').value = $O('desList').value + desList[i].value + '~';
-    }
+    <%--for (var i = 1; i < values.length; i++)--%>
+    <%--{--%>
+        <%--$O('totalList').value = $O('totalList').value + values[i].value + '~';--%>
+        <%--$O('desList').value = $O('desList').value + desList[i].value + '~';--%>
+    <%--}--%>
 
-    for (var i = 1; i < units.length; i++)
-    {
-        $O('unitList').value = $O('unitList').value + units[i].value + '~';
-    }
+    <%--for (var i = 1; i < units.length; i++)--%>
+    <%--{--%>
+        <%--$O('unitList').value = $O('unitList').value + units[i].value + '~';--%>
+    <%--}--%>
 
-    $O('totalss').value = tsts;
+    <%--$O('totalss').value = tsts;--%>
 
     return true;
 }
@@ -270,7 +270,7 @@ function checkTotal()
 
     if ($O('saves').value == 'save')
     {
-         if (window.confirm("入库单所有类型都是正数增加库存，负数减少库存，您确认填写的调出符合实际情形,确定保存入库单?" + messk))
+         if (window.confirm("入库单所有类型都是正数增加库存，负数减少库存，您确认填写的换货入库符合实际情形,确定保存入库单?" + messk))
          {
             disableAllButton();
             outForm.submit();
@@ -525,7 +525,7 @@ function forceBuyTypeChange()
 	{
 	 if ($$('forceBuyType') == 0 || $$('forceBuyType') == 1 || $$('forceBuyType') == 3 )
 	    {		
-	    	showTr('table_tr', false);
+	    	<%--showTr('table_tr', false);--%>
 	        showTr('button_tr', false);
 	    
 	        showTr('refOutFullId_tr', true);

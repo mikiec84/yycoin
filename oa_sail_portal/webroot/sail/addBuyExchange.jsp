@@ -12,7 +12,7 @@
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/compatible.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
-<script language="JavaScript" src="../sail_js/addBuy.js"></script>
+<script language="JavaScript" src="../sail_js/addBuyExchange.js"></script>
 <script language="javascript">
 <%@include file="../sail_js/exchange_stock_in.jsp"%>
 var provinceMap = {};
@@ -174,6 +174,8 @@ function opens(obj)
         return false
     }
 
+    //You MUST define oo here, which will be used later!
+    oo = obj;
     window.common.modal(RPT_PRODUCT + '&ctype=1');
 }
 
@@ -181,29 +183,37 @@ function opens(obj)
 </head>
 <body class="body_class" onload="load()">
 <form name="outForm" method=post action="../sail/out.do">
-<input type=hidden name="method" value="addOut" />
-<input type=hidden name="nameList" />
-<input type=hidden name="idsList" />
-<input type=hidden name="unitList" />
-<input type=hidden name="amontList" />
-<input type=hidden name="priceList" />
-<input type=hidden name="totalList" />
-<input type=hidden name="totalss" />
-<input type=hidden name="customerId" />
-<input type="hidden" name="reserve9" value=""/>
-<input type=hidden name="type" value='1' />
-<input type=hidden name="outType" value='8' />
-<input type=hidden name="saves" value="" />
-<input type=hidden name="desList" value="" />
-<input type=hidden name="otherList" value="" />
+<input type=hidden name="method" value="addBuyExchange" />
+    <input type=hidden name="nameList" />
+    <input type=hidden name="idsList" />
+    <input type=hidden name="unitList" />
+    <input type=hidden name="amontList" />
+    <input type=hidden name="priceList" />
+    <input type=hidden name="totalList" />
+    <input type=hidden name="totalss" />
+    <input type=hidden name="customerId" />
+    <input type="hidden" name="reserve9" value=""/>
+    <input type=hidden name="type" value='1' />
+    <input type=hidden name="saves" value="" />
+    <input type=hidden name="desList" value="" />
+    <input type=hidden name="otherList" value="" />
 
-<input type=hidden name="depotList" value="" />
-<input type=hidden name="mtypeList" value="" />
+    <input type=hidden name="depotList" value="" />
+    <input type=hidden name="mtypeList" value="" />
+    <input type=hidden name="oldGoodsList" value="" />
+    <input type=hidden name="taxList" value="" />
+    <input type=hidden name="taxrateList" value="" />
+    <input type=hidden name="inputRateList" value="" />
 
-<input type=hidden name="showIdList" value="" />
-<input type=hidden name="showNameList" value="" />
-<input type=hidden name="id" value="" />
-<input type=hidden name="oprType" value="0">
+    <input type=hidden name="showIdList" value="" />
+    <input type=hidden name="showNameList" value="" />
+    <input type=hidden name="customercreditlevel" value="" />
+    <input type=hidden name="inputPriceList" value="" />
+    <input type=hidden name="id" value="" />
+    <input type=hidden name="showCostList" value="" />
+
+    <input type=hidden name="oprType" value="0">
+<input type=hidden name="customerName" value='1' />
 <p:navigation
         height="22">
     <td width="550" class="navigation">库单管理 &gt;&gt; 填写入库单-商品调换(入库单都是正数增加库存,负数减少库存)</td>
@@ -353,7 +363,8 @@ function opens(obj)
                         <tr class="content2">
                             <td align="right">入库单备注：</td>
                             <td colspan="3">
-                                <textarea rows="3" cols="55" oncheck="notNone;" name="description"/>
+                                <textarea rows="3" cols="55" oncheck="notNone;" name="description">
+                                </textarea>
                                 <font color="#FF0000">*</font>
                             </td>
                         </tr>
@@ -408,15 +419,18 @@ function opens(obj)
                                        style="width: 100%; cursor: hand">
                             </td>
 
-                            <td align="center"><input type="text"
+                            <td align="center">
+                                <input type="text"
                                                       style="width: 100%" maxlength="8" onkeyup="cc(this)"
-                                                      name="amount"></td>
+                                                      name="amount">
+                            </td>
 
                             <td align="center"></td>
                         </tr>
 
                         <tr class="content2">
-                            <td><input type="text" name="productName" id="unProductName"
+                            <td>
+                                <input type="text" name="productName" id="unProductName"
                                        onclick="opens(this)"
                                        productid=""
                                        productcode=""
@@ -424,8 +438,12 @@ function opens(obj)
                                        stafferid=""
                                        depotpartid=""
                                        readonly="readonly"
-                                       style="width: 100%; cursor: pointer"></td>
+                                       style="width: 100%; cursor: pointer">
+                            </td>
 
+                            <td align="center"><input type="text" style="width: 100%" id="unAmount"
+                                                      maxlength="8" onkeyup="cc(this)" name="amount">
+                            </td>
 
                             <td align="left"><input type=button value="清空"  class="button_class" onclick="clears()"></td>
                         </tr>
