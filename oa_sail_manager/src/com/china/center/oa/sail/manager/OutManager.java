@@ -82,6 +82,30 @@ public interface OutManager extends ListenerManager<OutListener>
     
     int submitDiaoBo(final String fullId, final User user, final int storageType)
     throws MYException;
+
+    /**
+     * 2015/10/20 入库-换货
+     * @param outBean
+     * @param dataMap
+     * @param user
+     * @param proid
+     * @param amount
+     * @return
+     * @throws MYException
+     */
+    String exchange(final OutBean outBean, final Map dataMap, final User user,String proid[],String amount[])
+            throws MYException;
+
+    /**
+     * 2015/10/20 入库-换货提交
+     * @param fullId
+     * @param user
+     * @param storageType
+     * @return
+     * @throws MYException
+     */
+    int submitExchange(final String fullId, final User user, final int storageType)
+            throws MYException;
     
     int pass1(final String fullId, final User user, final int nextStatus,
             final String reason, final String depotpartId)

@@ -447,7 +447,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
         for (int i = 0; i < nameList.length; i++ )
         {
-            ttatol += (Double.parseDouble(priceList[i]) * Integer.parseInt(amontList[i]));
+            try{
+                ttatol += (Double.parseDouble(priceList[i]) * Integer.parseInt(amontList[i]));
+            }catch(Exception e){}
         }
 
         outBean.setTotal(ttatol);
@@ -9514,7 +9516,845 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return outBean.getStatus();
 
     }
-    
+
+    @Override
+    public String exchange(final OutBean outBean, final Map dataMap, final User user, String[] strings, String[] strings2) throws MYException {
+
+        ParamterMap request = new ParamterMap(dataMap);
+
+        String fullId = request.getParameter("fullId");
+
+        String dutyId = request.getParameter("dutyId");
+
+        dataMap.put("tmdutyId", dutyId);
+        if (StringTools.isNullOrNone(fullId))
+        {
+            // 先保存
+            String id = getAll(commonDAO.getSquence());
+            LocationBean location = locationDAO.find(outBean.getLocationId());
+
+            if (location == null)
+            {
+                _logger.error("区域不存在:" + outBean.getLocationId());
+
+                throw new MYException("区域不存在:" + outBean.getLocationId());
+            }
+            //String flag = location.getCode();
+            String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+
+            String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+
+            fullId = flag + time + id;
+
+            outBean.setId(getOutId(id));
+
+            outBean.setFullId(fullId);
+            dataMap.put("modify", false);
+        }
+        else
+        {
+            dataMap.put("modify", true);
+        }
+        final String totalss = request.getParameter("totalss");
+
+        outBean.setTotal(MathTools.parseDouble(totalss));
+
+        outBean.setStatus(OutConstant.STATUS_SAVE);
+
+        outBean.setPay(OutConstant.PAY_NOT);
+
+        outBean.setInway(OutConstant.IN_WAY_NO);
+        // 获得baseList
+        final String[] nameList = request.getParameter("nameList").split("~");
+        final String[] idsList = request.getParameter("idsList").split("~");
+//        final String[] showIdList = request.getParameter("showIdList").split("~");
+//        final String[] showNameList = request.getParameter("showNameList").split("~");
+//        final String[] unitList = request.getParameter("unitList").split("~");
+        final String[] amontList = request.getParameter("amontList").split("~");
+        // 含税价
+        final String[] priceList = request.getParameter("priceList").split("~");
+
+        // 输入价格
+        final String[] inputPriceList = request.getParameter("inputPriceList").split("~");
+
+        // 显示成本(只有V5有)
+        final String[] showCostList = request.getParameter("showCostList").split("~");
+        // 成本
+        final String[] desList = request.getParameter("desList").split("~");
+
+        final String[] otherList = request.getParameter("otherList").split("~");
+
+        _logger.info(fullId + "/nameList/" + request.getParameter("nameList"));
+
+        _logger.info(fullId + "/idsList/" + request.getParameter("idsList"));
+
+        _logger.info(fullId + "/totalList/" + request.getParameter("totalList"));
+
+//        _logger.info(fullId + "/price/" + request.getParameter("priceList"));
+
+        _logger.info(fullId + "/inputPriceList/" + request.getParameter("inputPriceList"));
+
+        _logger.info(fullId + "/showCostList/" + request.getParameter("showCostList"));
+
+        _logger.info(fullId + "/desList/" + request.getParameter("desList"));
+
+        _logger.info(fullId + "/otherList/" + request.getParameter("otherList"));
+
+        // 组织BaseBean
+        double ttatol = 0.0d;
+        for (int i = 0; i < nameList.length; i++ )
+        {
+            ttatol += (Double.parseDouble(priceList[i]) * Integer.parseInt(amontList[i]));
+        }
+        outBean.setTotal(ttatol);
+
+        outBean.setCurcredit(0.0d);
+
+        outBean.setStaffcredit(0.0d);
+
+        if (StringTools.isNullOrNone(outBean.getCustomerId())
+                || CustomerConstant.PUBLIC_CUSTOMER_ID.equals(outBean.getCustomerId()))
+        {
+            outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+
+            outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+        }
+
+        if (StringTools.isNullOrNone(outBean.getInvoiceId()))
+        {
+            outBean.setHasInvoice(OutConstant.HASINVOICE_NO);
+        }
+        else
+        {
+            outBean.setHasInvoice(OutConstant.HASINVOICE_YES);
+        }
+
+        // 赠送的价格为0
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
+        {
+            outBean.setTotal(0.0d);
+        }
+
+        // 行业属性
+        setInvoiceId(outBean);
+
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+        {
+            String eventId = request.getParameter("eventId");
+
+            if (StringTools.isNullOrNone(eventId))
+                eventId = "";
+
+            PromotionBean promBean = promotionDAO.find(eventId);
+
+            if (outBean.getPromValue() > 0 || (promBean==null?false:promBean.getRebateType()==2))//此处折扣类型为增加信用分也绑定活动单号
+
+                outBean.setPromStatus(0);
+            else{
+
+                outBean.setEventId("");
+                outBean.setRefBindOutId("");
+                outBean.setPromStatus(-1);
+            }
+        }
+
+        final StafferBean stafferBean = stafferDAO.find(user.getStafferId());
+
+        // 增加管理员操作在数据库事务中完成
+        TransactionTemplate tran = new TransactionTemplate(transactionManager);
+        try
+        {
+            tran.execute(new TransactionCallback()
+            {
+                public Object doInTransaction(TransactionStatus arg0)
+                {
+                    if ((Boolean)dataMap.get("modify"))
+                    {
+                        // 在删除前检查单据状态是否为保存或驳回
+                        OutBean coutBean = outDAO.find(outBean.getFullId());
+
+                        if (coutBean.getStatus() != OutConstant.STATUS_SAVE && coutBean.getStatus() != OutConstant.STATUS_REJECT)
+                        {
+                            throw new RuntimeException("销售单"+outBean.getFullId()+"已不是保存或驳回状态，当前状态是："+OutHelper.getStatus(coutBean.getStatus())+",不可修改");
+                        }
+
+                        outDAO.deleteEntityBean(outBean.getFullId());
+
+                        baseDAO.deleteEntityBeansByFK(outBean.getFullId());
+
+//                        distributionDAO.deleteEntityBeansByFK(outBean.getFullId());
+                    }
+
+                    // 组织BaseBean
+                    boolean addSub = false;
+
+                    boolean hasZero = false;
+
+                    double total = 0.0d;
+
+                    List<BaseBean> baseList = new ArrayList();
+
+                    boolean sailJiuBi = false;
+                    List<ProductBean> tempProductList = new ArrayList<ProductBean>();
+
+                    int accountPeroid = 0;
+
+//                    boolean isManagerPass = false;
+                    StringBuffer messsb = new StringBuffer();
+
+                    // 处理每个base
+                    for (int i = 0; i < nameList.length; i++ )
+                    {
+                        BaseBean base = new BaseBean();
+
+                        base.setId(commonDAO.getSquenceString());
+
+                        // 允许存在
+                        base.setAmount(MathTools.parseInt(amontList[i]));
+
+                        if (base.getAmount() == 0)
+                        {
+                            continue;
+                        }
+
+                        base.setOutId(outBean.getFullId());
+
+                        base.setProductId(idsList[i]);
+
+                        if (StringTools.isNullOrNone(base.getProductId()))
+                        {
+                            throw new RuntimeException("产品ID为空,数据不完备");
+                        }
+
+                        ProductBean product = productDAO.find(base.getProductId());
+
+                        if (product == null)
+                        {
+                            throw new RuntimeException("产品为空,数据不完备");
+                        }
+
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                && !nameList[i].trim().equals(product.getName().trim()))
+                        {
+                            throw new RuntimeException("产品名不匹配,请重新操作.申请:" + nameList[i].trim()
+                                    + ".实际:" + product.getName());
+                        }
+
+                        // 旧币的产品必须单独销售，不允许和其他的产品类型一起销售
+                        if (product.getConsumeInDay() == ProductConstant.PRODUCT_OLDGOOD)
+                        {
+                            sailJiuBi = true;
+                        }
+
+                        tempProductList.add(product);
+
+                        // 产品名称来源于数据库
+                        base.setProductName(product.getName());
+
+                        base.setUnit("套");
+
+                        // 赠送的价格为0
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                && outBean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
+                        {
+                            base.setPrice(0.0d);
+                        }
+                        else
+                        {
+                            base.setPrice(MathTools.parseDouble(priceList[i]));
+                        }
+
+                        if (base.getPrice() == 0)
+                        {
+                            hasZero = true;
+                        }
+
+                        // 销售价格动态获取的
+                        base.setValue(base.getAmount() * base.getPrice());
+
+                        total += base.getValue();
+
+                        // 入库单是没有showId的 - 作废
+//                        if (showNameList != null && showNameList.length >= (i + 1))
+//                        {
+//                            base.setShowId(showIdList[i]);
+//                            base.setShowName(showNameList[i]);
+//                        }
+
+                        // 这里需要处理99的其他入库,因为其他入库是没有完成的otherList
+                        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                                && outBean.getOutType() == OutConstant.OUTTYPE_IN_OTHER)
+                        {
+                            base.setCostPrice(MathTools.parseDouble(desList[i]));
+                            base.setCostPriceKey(StorageRelationHelper.getPriceKey(base
+                                    .getCostPrice()));
+
+                            base.setOwner("0");
+
+                            // 默认仓区
+                            DepotpartBean defaultOKDepotpart = depotpartDAO
+                                    .findDefaultOKDepotpart(outBean.getLocation());
+
+                            if (defaultOKDepotpart == null)
+                            {
+                                throw new RuntimeException("没有默认的良品仓,请确认操作");
+                            }
+
+                            base.setDepotpartId(defaultOKDepotpart.getId());
+                        }
+                        else
+                        {
+                            // ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid
+                            String[] coreList = otherList[i].split("-");
+
+                            if (coreList.length != 4)
+                            {
+                                throw new RuntimeException("数据不完备");
+                            }
+
+                            // 寻找具体的产品价格位置
+                            base.setCostPrice(MathTools.parseDouble(coreList[1]));
+
+                            base.setCostPriceKey(StorageRelationHelper.getPriceKey(base
+                                    .getCostPrice()));
+
+                            base.setOwner(coreList[2]);
+
+                            base.setDepotpartId(coreList[3]);
+                        }
+
+                        // 这里需要核对价格 调拨
+                        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                                && (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT || outBean
+                                .getOutType() == OutConstant.OUTTYPE_IN_DROP))
+                        {
+                            if ( !MathTools.equal(base.getPrice(), base.getCostPrice()))
+                            {
+                                throw new RuntimeException("调拨/报废的时候价格必须相等");
+                            }
+                        }
+
+                        if (StringTools.isNullOrNone(base.getOwner()))
+                        {
+                            base.setOwner("0");
+                        }
+
+                        if ("0".equals(base.getOwner()))
+                        {
+                            base.setOwnerName("公共");
+                        }
+                        else
+                        {
+                            StafferBean sb = stafferDAO.find(base.getOwner());
+
+                            if (sb == null)
+                            {
+                                throw new RuntimeException("所属职员不存在,请确认操作");
+                            }
+
+                            base.setOwnerName(sb.getName());
+                        }
+
+                        DepotpartBean deport = depotpartDAO.find(base.getDepotpartId());
+
+                        if (deport == null)
+                        {
+                            throw new RuntimeException("仓区不存在,请确认操作");
+                        }
+
+                        base.setDepotpartName(deport.getName());
+
+                        // 销售单的时候仓库必须一致
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                && !deport.getLocationId().equals(outBean.getLocation()))
+                        {
+                            throw new RuntimeException("销售必须在一个仓库下面");
+                        }
+
+                        // 调拨的时候有bug啊
+                        base.setLocationId(outBean.getLocation());
+
+                        // 其实也是成本
+                        base.setDescription(desList[i].trim());
+
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                        {
+                            // 显示成本(V5新功能)
+                            base.setInputPrice(MathTools.parseDouble(showCostList[i]));
+                        }
+                        else
+                        {
+                            // 入库单
+                            if (inputPriceList != null && inputPriceList.length > i)
+                            {
+                                // 兼容
+                                base.setInputPrice(MathTools.parseDouble(inputPriceList[i]));
+                            }
+                        }
+
+                        double sailPrice = 0.0d;
+
+                        double minPrice = 0.0d;
+
+                        sailPrice = product.getSailPrice();
+
+                        minPrice = sailPrice;
+
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                        {
+                            // 毛利，毛利率（针对业务员的）
+                            double profit = 0.0d;
+
+                            double profitRatio = 0.0d;
+
+                            if (base.getValue() != 0)
+                            {
+                                profit = base.getAmount() * (base.getPrice() - base.getInputPrice());
+
+                                profitRatio = profit / base.getValue();
+                            }
+
+                            base.setProfit(profit);
+                            base.setProfitRatio(profitRatio);
+
+                            PriceConfigBean priceConfigBean = priceConfigManager
+                                    .getPriceConfigBean(product.getId(), outBean.getIndustryId(), outBean.getStafferId());
+
+                            //operationLog.info("销售单号： "+outBean.getFullId() + ", priceConfigBean:" + priceConfigBean);
+
+                            if (null != priceConfigBean)
+                            {
+                                sailPrice = priceConfigBean.getPrice();
+
+                                minPrice = priceConfigBean.getMinPrice();
+                            }
+
+                            // 检查到款天数（销售账期）及销售价是否低于规定的售价
+                            AuditRuleItemBean auditRuleItemBean = auditRuleManager
+                                    .getAuditRuleItem(product.getId(), outBean.getIndustryId(),
+                                            outBean.getOutType(), outBean.getReserve3());
+
+                            //operationLog.info("销售单号： "+outBean.getFullId() + ", auditRuleItemBean:" + auditRuleItemBean);
+
+                            if (null != auditRuleItemBean)
+                            {
+                                int peroid1 = auditRuleItemBean.getAccountPeriod();
+                                int peroid2 = auditRuleItemBean.getProductPeriod();
+                                int peroid3 = auditRuleItemBean.getProfitPeriod();
+
+                                int minPeroid = OutHelper.compare3IntMin(peroid1, peroid2, peroid3);
+
+                                if (accountPeroid == 0)
+                                {
+                                    accountPeroid = minPeroid;
+                                }
+                                else
+                                {
+                                    accountPeroid = Math.min(accountPeroid, minPeroid);
+                                }
+
+                                // 检查价格,成交价小于最低售价
+                                if (base.getPrice()<minPrice)
+                                {
+                                    if (outBean.getOutType() != OutConstant.OUTTYPE_OUT_PRESENT)
+                                    {
+                                        if (auditRuleItemBean.getLtSailPrice() == AuditRuleConstant.LESSTHANSAILPRICE_NO)
+                                        {
+                                            throw new RuntimeException("售价不能低于最低售价，最低售价为："+ MathTools.round2(minPrice)+" ,不允许销售.");
+                                        }
+                                        else
+                                        {
+                                            double cha = minPrice - base.getPrice();
+
+                                            if (cha > minPrice * auditRuleItemBean.getDiffRatio())
+                                            {
+                                                operationLog.info("销售单号： "+outBean.getFullId() + ", 售价低于最低售价时，差异值大于差异比例规定的范围");
+
+                                                messsb.append("售价低于最低售价时，差异值大于差异比例规定的范围;");
+                                            }
+                                        }
+                                    }
+                                }
+                                else // 成交价大于最低售价，则判断毛利率
+                                {
+                                    double ratioUp = auditRuleItemBean.getRatioUp()/100d;
+
+                                    double ratioDown = auditRuleItemBean.getRatioDown()/100d;
+
+                                    if (ratioUp > 0)
+                                    {
+                                        if (ratioDown > profitRatio)
+                                        {
+                                            operationLog.info("销售单号： "+outBean.getFullId() + ", 商品的毛利率小于规则中规定的毛利率的下限");
+
+                                            messsb.append("商品的毛利率小于规则中规定的毛利率的下限;");
+                                        }
+                                    }
+
+                                    if (auditRuleItemBean.getMinRatio() > 0)
+                                    {
+                                        if (profitRatio < auditRuleItemBean.getMinRatio())
+                                        {
+                                            operationLog.info("销售单号： "+outBean.getFullId() + ", 商品的毛利率小于规则中规定的最小毛利率.");
+
+                                            messsb.append("商品的毛利率小于规则中规定的最小毛利率;");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 公卖
+                        if ("0".equals(base.getOwner()))
+                        {
+                            // 获取销售配置
+                            SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                                    product);
+
+                            // 总部结算价(产品结算价 * (1 + 总部结算率))
+                            base.setPprice(sailPrice
+                                    * (1 + sailConf.getPratio() / 1000.0d));
+
+                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                            base.setIprice(sailPrice
+                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                    .getPratio() / 1000.0d));
+
+                            // 业务员结算价就是事业部结算价
+                            base.setInputPrice(base.getIprice());
+
+                            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                            {
+                                // 发现一些异常,这里保护一下
+                                if (base.getInputPrice() == 0)
+                                {
+                                    throw new RuntimeException("业务员结算价不能为0");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // 私卖
+                            base.setPprice(base.getInputPrice());
+                            base.setIprice(base.getInputPrice());
+                        }
+
+                        baseList.add(base);
+
+                        base.setMtype(outBean.getMtype());
+
+                        // 增加单个产品到base表
+                        baseDAO.saveEntityBean(base);
+
+                        addSub = true;
+                    }
+
+                    // 旧币的产品必须单独销售(或者都是旧币)，不允许和其他的产品类型一起销售
+                    if (sailJiuBi&&false)
+                    {
+                        for (ProductBean each : tempProductList)
+                        {
+                            if (each.getConsumeInDay() != ProductConstant.PRODUCT_OLDGOOD)
+                            {
+                                throw new RuntimeException("旧货的产品必须单独销售(或者都是旧货)，不允许和其他的产品类型一起销售:"
+                                        + each.getName());
+                            }
+                        }
+                    }
+
+                    // 自卖的东西必须先卖掉
+                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                    {
+                        for (BaseBean base : baseList)
+                        {
+                            if ("0".equals(base.getOwner()))
+                            {
+                                ConditionParse con = new ConditionParse();
+                                con.addWhereStr();
+                                con.addCondition("stafferId", "=", user.getStafferId());
+                                con.addCondition("productId", "=", base.getProductId());
+
+                                List<StorageRelationBean> selfRelation = storageRelationDAO
+                                        .queryEntityBeansByCondition(con);
+
+                                if (ListTools.isEmptyOrNull(selfRelation))
+                                {
+                                    continue;
+                                }
+
+                                int samont = 0;
+
+                                for (StorageRelationBean seach : selfRelation)
+                                {
+                                    samont += seach.getAmount();
+                                }
+
+                                // 看看是否都在里面出售
+                                int amount = 0;
+
+                                for (BaseBean each : baseList)
+                                {
+                                    if (user.getStafferId().equals(each.getOwner())
+                                            && base.getProductId().equals(each.getProductId()))
+                                    {
+                                        amount += each.getAmount();
+                                    }
+                                }
+
+                                if (samont != amount)
+                                {
+                                    throw new RuntimeException("必须先销售自己名下的产品["
+                                            + base.getProductName() + "]");
+                                }
+                            }
+                        }
+                    }
+
+                    // 销售单强制设置为赠送
+                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && hasZero)
+                    {
+                        outBean.setOutType(OutConstant.OUTTYPE_OUT_PRESENT);
+                    }
+
+                    // 检查账期
+                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                    {
+                        // 黑名单（款到发货）回款天数为0
+                        if (outBean.getReserve3() == 1)
+                        {
+                            if (outBean.getReday() > 0)
+                            {
+                                //messsb.append("款到发货时，回款天数大于0;");
+                            }
+                        }
+                        else
+                        {
+                            if (outBean.getReday() > accountPeroid)
+                            {
+                                //messsb.append("回款天数大于规则中指定的账期;");
+                            }
+                        }
+
+                        // 下一审批流为结算中心（稽核）
+//                    	if (isManagerPass)
+//                    	{
+                        outBean.setFlowId(OutConstant.FLOW_MANAGER);
+//                    	}
+
+                        outBean.setDescription(outBean.getDescription() + "&&" + messsb.toString());
+                    }
+
+                    // 重新计算价格
+                    outBean.setTotal(total);
+
+                    // 促销金额不能大于本单总金额
+                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                    {
+                        if (outBean.getPromValue() > outBean.getTotal())
+                        {
+                            throw new RuntimeException("促销折扣金额不能大于本单总金额");
+                        }
+                    }
+
+                    outBean.setBaseList(baseList);
+
+                    // 保存入库单
+                    try
+                    {
+                        outBean.setOutType(OutConstant.OUTTYPE_OUT_APPLY);
+                        outBean.setInway(OutConstant.IN_WAY);
+                        saveOutInner(outBean);
+                    }
+                    catch (MYException e1)
+                    {
+                        throw new RuntimeException(e1.toString());
+                    }
+
+                    if ( !addSub)
+                    {
+                        throw new RuntimeException("没有产品数量");
+                    }
+
+                    // 防止溢出
+                    if (isSwatchToSail(outBean.getFullId()))
+                    {
+                        try
+                        {
+                            checkSwithToSail(outBean.getRefOutFullId());
+                        }
+                        catch (MYException e)
+                        {
+                            throw new RuntimeException(e.getErrorContent(), e);
+                        }
+                    }
+
+                    return Boolean.TRUE;
+                }
+            });
+        }
+        catch (TransactionException e)
+        {
+            _logger.error("增加库单错误：", e);
+            throw new MYException("数据库内部错误");
+        }
+        catch (DataAccessException e)
+        {
+            _logger.error("增加库单错误：", e);
+            throw new MYException(e.getCause().toString());
+        }
+        catch (Exception e)
+        {
+            _logger.error("增加库单错误：", e);
+            throw new MYException("系统错误，请联系管理员:" + e);
+        }
+
+        _logger.info(user.getStafferName() + "/" + user.getName() + "/ADD:" + outBean);
+
+        return fullId;
+    }
+
+    @Override
+    public int submitExchange(final String fullId, final User user, final int storageType) throws MYException {
+
+        // LOCK 库存提交(当是入库单的时候是变动库存的)
+        synchronized (PublicLock.PRODUCT_CORE)
+        {
+            Integer result = 0;
+
+            try
+            {
+                // 增加管理员操作在数据库事务中完成
+                TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+                result = (Integer)tran.execute(new TransactionCallback()
+                {
+                    public Object doInTransaction(TransactionStatus arg0)
+                    {
+                        try
+                        {
+                            return submitWithOutAffair3(fullId, user, storageType);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.error(e, e);
+
+                            throw new RuntimeException(e.getErrorContent(), e);
+                        }
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.error(e, e);
+
+                throw new MYException(e.getMessage());
+            }
+
+            return result;
+        }
+    }
+
+    private int submitWithOutAffair3(final String fullId, final User user, int type)
+            throws MYException
+    {
+        final OutBean outBean = outDAO.find(fullId);
+        if (outBean == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+        // 检查日志核对
+        int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
+        if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
+                && outStatusInLog != outBean.getStatus())
+        {
+            String msg = "严重错误,当前单据的状态应该是:" + OutHelper.getStatus(outStatusInLog) + ",而不是"
+                    + OutHelper.getStatus(outBean.getStatus()) + ".请联系管理员确认此单的正确状态!";
+
+            loggerError(outBean.getFullId() + ":" + msg);
+
+            throw new MYException(msg);
+        }
+
+        final List<BaseBean> baseList = checkSubmit(fullId, outBean);
+
+        // 这里是入库单的直接库存变动(部分)
+        processBuyBaseList(user, outBean, baseList, type);
+
+        //add 针对促销订单绑定历史订单，更新被绑定订单的相关信息
+        processPromBindOutId(user, outBean);
+
+        // CORE 修改库单(销售/入库)的状态(信用额度处理)
+        int status = processOutStutus1(fullId, user, outBean);
+
+        try
+        {
+            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+            {
+                outDAO.modifyOutStatus(fullId, status);
+            }
+            else
+            {
+                if (outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY )
+                {
+                    outDAO.modifyOutStatus(fullId, OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK);
+
+                    status = OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            throw new MYException(e);
+        }
+
+
+        // 处理在途(销售无关)/调入接受时
+        int result = processBuyOutInWay(user, fullId, outBean);
+
+        // 在途改变状态
+        if (result != -1)
+        {
+            status = result;
+        }
+
+        String desc = outBean.getDescription();
+
+        int idx = desc.indexOf("&&");
+
+        if (idx == -1)
+        {
+            // 增加数据库日志
+            addOutLog(fullId, user, outBean, "提交", SailConstant.OPR_OUT_PASS, status);
+        }
+        else
+        {
+            String newDesc = desc.substring(0, idx);
+
+            String logDesc = desc.substring(idx + 2, desc.length());
+
+//        	outBean.setDescription(newDesc);
+
+            outDAO.updateDescription(fullId, newDesc);
+
+            if (StringTools.isNullOrNone(logDesc))
+            {
+                logDesc = "提交";
+            }
+            // 增加数据库日志
+            addOutLog(fullId, user, outBean, logDesc, SailConstant.OPR_OUT_PASS, status);
+        }
+
+        outBean.setStatus(status);
+
+        notifyOut(outBean, user, 0);
+
+        return status;
+    }
+
     @Exceptional
     @Transactional(rollbackFor = {MYException.class})   
     public String diaoBo(final OutBean outBean, final Map dataMap, final User user,String proid[],String amount[])

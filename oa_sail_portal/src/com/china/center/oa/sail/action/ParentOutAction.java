@@ -6007,8 +6007,8 @@ public class ParentOutAction extends DispatchAction
         {
              this.fillDistributionForRemoteAllocate(request, outBean);
 
-
-            String id = outManager.addOut(outBean, map.getParameterMap(), user);
+            //TODO
+            String id = outManager.exchange(outBean, map.getParameterMap(), user, null, null);
             _logger.info("addBuyExchange 88888888888888888888*********"+id);
             if ("提交".equals(saves))
             {
@@ -6031,11 +6031,11 @@ public class ParentOutAction extends DispatchAction
                         _logger.info("入库拆单(共拆成" + ids.length + "张)：原单" + id
                                 + ", 新单：" + eachId);
                         _logger.info("addBuyExchange 999999999999999999999999*********"+eachId);
-                        outManager.submit(eachId, user, ttype);
+                        outManager.submitExchange(eachId, user, ttype);
                     }
                 }else {
                     _logger.info("addBuyExchange aaaaaaaaaaaaaaaa*********");
-                    outManager.submit(id, user, ttype);
+                    outManager.submitExchange(id, user, ttype);
                 }
             }
         }
