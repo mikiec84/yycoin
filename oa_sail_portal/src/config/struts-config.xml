@@ -33,6 +33,7 @@
 			<forward name="detailOutBalance" path="/sail/detailOutBalance.jsp" />
 			<forward name="addBuy" path="/sail/addBuy.jsp" />
             <forward name="addBuyExchange" path="/sail/addBuyExchange.jsp" />
+             <forward name="updateBuyExchange" path="/sail/updateBuyExchange.jsp" />
 			<forward name="addDiaoBo" path="/sail/addDiaoBo.jsp" />
 			
 			<forward name="querySelfBuy" path="/sail/querySelfBuy.jsp" />

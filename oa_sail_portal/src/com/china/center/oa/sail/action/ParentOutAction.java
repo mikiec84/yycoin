@@ -5846,17 +5846,11 @@ public class ParentOutAction extends DispatchAction
 
         String saves = request.getParameter("saves");
 
-        String step = request.getParameter("step");
-
-        String hasProm = request.getParameter("hasProm");
-
         String oprType = request.getParameter("oprType");
 
         if (StringTools.isNullOrNone(oprType)) oprType = "";
 
         String fullId = request.getParameter("fullId");
-
-        String update = request.getParameter("update");
 
         if ("save".equals(saves))
         {
@@ -5871,10 +5865,10 @@ public class ParentOutAction extends DispatchAction
 
         ActionForward action = null;
 
-        OutBean outBean = null;
+        OutBean outBean = new OutBean();
 
-        // 第一销售页面
-        outBean = new OutBean();
+        outBean.setOutTime(TimeTools.now_short());
+        outBean.setOutType(OutConstant.OUTTYPE_IN_EXCHANGE);
 
         outBean.setLocationId(locationId);
 
@@ -5884,7 +5878,8 @@ public class ParentOutAction extends DispatchAction
 
         BeanUtil.getBean(outBean, request);
 
-        outBean.setLocation(location);
+        //TODO location设置为与destination一致，否则查询有问题
+        outBean.setLocation(outBean.getDestinationId());
 
         if (StringTools.isNullOrNone(outBean.getLocation())
                 && !oprType.equals("0"))
@@ -5898,20 +5893,6 @@ public class ParentOutAction extends DispatchAction
         }
         _logger.info("addBuyExchange 33333333333333333333333");
         outBean.setLogTime(TimeTools.now());
-
-        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-                && outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
-        {
-            if (StringTools.isNullOrNone(outBean.getDestinationId()))
-            {
-                request.setAttribute(KeyConstant.ERROR_MESSAGE,
-                        "调拨没有目的仓库属性,请重新操作");
-
-                return mapping.findForward("error");
-            }
-
-            outBean.setReserve1(OutConstant.MOVEOUT_OUT);
-        }
 
         if (StringTools.isNullOrNone(outBean.getLocation())
                 && !oprType.equals("0"))
@@ -5971,24 +5952,6 @@ public class ParentOutAction extends DispatchAction
             }
         }
 
-        // 其它入库，领样对冲单不经过这儿
-        if (outBean.getOutType() == OutConstant.OUTTYPE_IN_OTHER)
-        {
-            if (outBean.getForceBuyType() == -1)
-            {
-                request.setAttribute(KeyConstant.ERROR_MESSAGE,
-                        "其它入库没有选择事由");
-
-                return mapping.findForward("error");
-            }
-
-            String customerName1 = request.getParameter("customerName1");
-            if (!StringTools.isNullOrNone(customerName1))
-            {
-                outBean.setCustomerName(customerName1);
-            }
-        }
-
         // 默认很多属性
         outBean.setStafferId(user.getStafferId());
         outBean.setStafferName(user.getStafferName());
@@ -6013,11 +5976,6 @@ public class ParentOutAction extends DispatchAction
             if ("提交".equals(saves))
             {
                 int ttype = StorageConstant.OPR_STORAGE_INOTHER;
-
-                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
-                {
-                    ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
-                }
 
                 // if id start with 'TM', then split SO, and then submit each
                 if (id.startsWith("TM"))
@@ -6066,100 +6024,6 @@ public class ParentOutAction extends DispatchAction
 
         CommonTools.removeParamers(request);
 
-        // 第一步做完转到第二步页面
-        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-                && step.equals("1"))
-        {
-            DistributionBean distributionBean = null;
-
-            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
-
-            if (!ListTools.isEmptyOrNull(distList))
-            {
-                distributionBean = distList.get(0);
-            }
-
-            List<BaseVO> baseList = baseDAO.queryEntityVOsByFK(outBean.getFullId());
-
-            // 按仓库排序
-            Collections.sort(baseList, new Comparator<BaseVO>()
-            {
-                public int compare(BaseVO o1, BaseVO o2)
-                {
-                    return Integer.parseInt(o1.getLocationId().substring(11))
-                            - Integer
-                            .parseInt(o2.getLocationId().substring(11));
-                }
-            });
-
-            judgeCanPromotion(request, baseList);
-
-            request.setAttribute("distributionBean", distributionBean);
-
-            List<AttachmentBean> attachmentList = attachmentDAO
-                    .queryEntityBeansByFK(outBean.getFullId());
-
-            String attacmentIds = "";
-
-            for (AttachmentBean attachmentBean : attachmentList)
-            {
-                attacmentIds = attacmentIds + attachmentBean.getId() + ";";
-            }
-
-            request.setAttribute("attacmentIds", attacmentIds);
-
-            request.setAttribute("hasProm", hasProm);
-
-            OutVO outVO = outDAO.findVO(outBean.getFullId());
-
-            if (outVO == null)
-            {
-                request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
-
-                return mapping.findForward("error");
-            }
-
-            outVO.setAttachmentList(attachmentList);
-
-            request.setAttribute("outBean", outVO);
-
-            request.setAttribute("baseList", baseList);
-
-            String desc = outVO.getDescription();
-
-            int idx = desc.indexOf("&&");
-
-            String logDesc = "";
-
-            if (idx != -1)
-            {
-                logDesc = desc.substring(idx + 2, desc.length());
-            }
-
-            String swatchLog = outManager.processSwatchCheck(outVO);
-
-            request.setAttribute("logDesc", swatchLog);
-
-            List<ExpressBean> expressList = expressDAO
-                    .listEntityBeansByOrder("order by id");
-
-            request.setAttribute("expressList", expressList);
-
-            // 地址区
-
-
-            request.setAttribute("update", update);
-
-            return mapping.findForward("addOut51");
-        }
-
-        //OutBean checkOut = outDAO.find(outBean.getFullId());
-
-//		request.getSession().setAttribute(
-//				KeyConstant.MESSAGE,
-//				"此库单的单号是:" + outBean.getFullId() + ".下一步是:"
-//						+ OutHelper.getStatus(checkOut.getStatus()));
-
         request.getSession().setAttribute(
                 KeyConstant.MESSAGE,
                 "库单提交成功");
@@ -6168,19 +6032,7 @@ public class ParentOutAction extends DispatchAction
 
         RequestTools.actionInitQuery(request);
 
-        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-        {
-            if (!outBean.getStafferId().equals(outBean.getOperator()))
-            {
-                outManager.sendOutMail(outBean, "商务开单确认.");
-            }
-
-            return querySelfOut(mapping, form, request, reponse);
-        }
-        else
-        {
-            return querySelfBuy(mapping, form, request, reponse);
-        }
+        return querySelfBuy(mapping, form, request, reponse);
     }
 
 
@@ -7033,6 +6885,64 @@ public class ParentOutAction extends DispatchAction
 			return queryBuy(mapping, form, request, reponse);
 		}
 	}
+
+    /**
+     * 2015/10/23 入库换货库管通过
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward submitOutForExchange(ActionMapping mapping, ActionForm form,
+                                   HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        synchronized (S_LOCK)
+        {
+            String fullId = request.getParameter("outId");
+
+            OutBean out = outDAO.find(fullId);
+
+            User user = (User) request.getSession().getAttribute("user");
+
+            if (out == null)
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+
+                return mapping.findForward("error");
+            }
+
+            try
+            {
+                int type = OutConstant.OUTTYPE_IN_EXCHANGE;
+
+                outManager.submit3(fullId, user, type, null);
+            }
+            catch (MYException e)
+            {
+                _logger.warn(e, e);
+
+                request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                        "处理错误:" + e.getErrorContent());
+
+                return mapping.findForward("error");
+            }
+
+            CommonTools.saveParamers(request);
+
+            RequestTools.menuInitQuery(request);
+
+            request.setAttribute("queryType", "5");
+
+            request.setAttribute("holdCondition", "1");
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功确认单据:" + fullId);
+
+            return queryBuy(mapping, form, request, reponse);
+        }
+    }
 
     /**2014/12/28
      * 领样销售退库
@@ -8047,12 +7957,15 @@ public class ParentOutAction extends DispatchAction
 		}
 		ConditionParse condtion = new ConditionParse();
 		condtion.addWhereStr();
-		condtion.addIntCondition("OutBean.outType", "=",
-				OutConstant.OUTTYPE_OUT_APPLY);
+//		condtion.addIntCondition("OutBean.outType", "=",
+//				OutConstant.OUTTYPE_OUT_APPLY);
+        //2015/10/23 增加入库换货查询
+        condtion.addCondition("and OutBean.outType in (8,25)");
 		condtion.addIntCondition("OutBean.type", "=",
 				OutConstant.OUT_TYPE_INBILL);
-		condtion.addIntCondition("OutBean.status", "=",
-				OutConstant.STATUS_LOCATION_MANAGER_CHECK);
+//		condtion.addIntCondition("OutBean.status", "=",
+//				OutConstant.STATUS_LOCATION_MANAGER_CHECK);
+        condtion.addCondition("and OutBean.status in (7,8)");
 
 		String outTime = request.getParameter("outTime");
 
@@ -8109,6 +8022,7 @@ public class ParentOutAction extends DispatchAction
 				PublicConstant.PAGE_SIZE - 5);
 
 		list1 = outDAO.queryEntityVOsByCondition(condtion, page);
+        _logger.info("**********queryBuy list size:"+list1.size());
 
 		StafferBean sb = this.stafferDAO.find(user.getStafferId());
 		String postid = sb.getPostId();
@@ -8127,9 +8041,16 @@ public class ParentOutAction extends DispatchAction
 					{
 						list.add(vo);
 					}
-				}
+                    //TODO 2015/10/23
+                    else if (vo.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE){
+                        list.add(vo);
+                    }
+				}else if (vo.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE){
+                    list.add(vo);
+                }
 			}
 		}
+        _logger.info("**********queryBuy listOut1 size*********:"+list.size());
 		request.setAttribute("listOut1", list);
 		getDivs(request, list);
 
@@ -9637,6 +9558,7 @@ public class ParentOutAction extends DispatchAction
 			setDepotCondotionInBuy(user, condtion);
 		}
 		// 领样退库/销售退库
+        //2015/10/2 入库-换货也走此流程
 		else if ("5".equals(queryType))
 		{
 			if (OldPageSeparateTools.isMenuLoad(request))
@@ -9650,7 +9572,8 @@ public class ParentOutAction extends DispatchAction
 						String.valueOf(OutConstant.BUY_STATUS_SUBMIT));
 
 				// 领样退库/销售退库
-				condtion.addCondition("and OutBean.outType in (4, 5, 7)");
+                //2015/10/22 入库换货
+				condtion.addCondition("and OutBean.outType in (4, 5, 7, 8)");
 			}
 
 			setLocalDepotConditionInBuy(user, condtion);
@@ -9725,6 +9648,7 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		request.getSession().setAttribute("ppmap", queryOutCondtionMap);
+        _logger.info("**********condition*********"+condtion.toString());
 
 		return condtion;
 	}

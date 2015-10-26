@@ -2498,7 +2498,9 @@ public class OutAction extends ParentOutAction
             	if (bean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY)
             	{
             		 return mapping.findForward("updateDiaoBo");
-            	}
+            	} else if (bean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE){
+                    return  mapping.findForward("updateBuyExchange");
+                }
             	else
             	{
             		 return mapping.findForward("updateBuy");

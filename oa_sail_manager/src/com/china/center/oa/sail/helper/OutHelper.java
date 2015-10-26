@@ -587,8 +587,7 @@ public abstract class OutHelper
     			head = "SO";
     		}
     	}
-    	
-    	if (type == OutConstant.OUT_TYPE_INBILL)
+    	else if (type == OutConstant.OUT_TYPE_INBILL)
     	{
     		if (outType == OutConstant.OUTTYPE_IN_MOVEOUT || outType == OutConstant.OUTTYPE_OUT_APPLY)
     		{
@@ -621,6 +620,10 @@ public abstract class OutHelper
     		else if (outType == OutConstant.OUTTYPE_IN_PRESENT) {
     			head = "ZT";
     		}
+            else if (outType == OutConstant.OUTTYPE_IN_EXCHANGE){
+                //2015/10/22 新增入库换货
+                head = "TH";
+            }
     		else
     		{
     			head = "SO";

@@ -1610,6 +1610,45 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 
+    @Override
+    public int submit3(final String fullId, final User user, final int storageType, final List<BaseBean> baseBeans) throws MYException {
+        synchronized (PublicLock.PRODUCT_CORE)
+        {
+            Integer result = 0;
+
+            try
+            {
+                // 增加管理员操作在数据库事务中完成
+                TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+                result = (Integer)tran.execute(new TransactionCallback()
+                {
+                    public Object doInTransaction(TransactionStatus arg0)
+                    {
+                        try
+                        {
+                            return submitWithOutAffair3(fullId, user, storageType, baseBeans);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.error(e, e);
+
+                            throw new RuntimeException(e.getErrorContent(), e);
+                        }
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.error(e, e);
+
+                throw new MYException(e.getMessage());
+            }
+
+            return result;
+        }
+    }
+
     /**
      * 暂时没有对外开放
      */
@@ -1823,6 +1862,109 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 desc = OutConstant.SWATCH_COMMENT + desc;
             }
         }
+
+        int idx = desc.indexOf("&&");
+
+        if (idx == -1)
+        {
+            if (!desc.equals(outBean.getDescription())){
+                outDAO.updateDescription(fullId, desc);
+            }
+
+            // 增加数据库日志
+            addOutLog(fullId, user, outBean, "提交", SailConstant.OPR_OUT_PASS, status);
+        }
+        else
+        {
+            String newDesc = desc.substring(0, idx);
+
+            String logDesc = desc.substring(idx + 2, desc.length());
+
+//        	outBean.setDescription(newDesc);
+
+            outDAO.updateDescription(fullId, newDesc);
+
+            if (StringTools.isNullOrNone(logDesc))
+            {
+                logDesc = "提交";
+            }
+            // 增加数据库日志
+            addOutLog(fullId, user, outBean, logDesc, SailConstant.OPR_OUT_PASS, status);
+        }
+
+        outBean.setStatus(status);
+
+        notifyOut(outBean, user, 0);
+
+        return status;
+    }
+
+
+    /**2015/10/23
+     * 入库换货
+     * @param fullId
+     * @param user
+     * @param type
+     * @param baseList
+     * @return
+     * @throws MYException
+     */
+    private int submitWithOutAffair3(final String fullId, final User user, int type, List<BaseBean> baseList)
+            throws MYException
+    {
+        final OutBean outBean = outDAO.find(fullId);
+
+        if (outBean == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 检查日志核对
+        int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
+        _logger.info("*****************submitWithOutAffair2******************");
+        if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
+                && outStatusInLog != outBean.getStatus())
+        {
+            String msg = "严重错误,当前单据的状态应该是:" + OutHelper.getStatus(outStatusInLog) + ",而不是"
+                    + OutHelper.getStatus(outBean.getStatus()) + ".请联系管理员确认此单的正确状态!";
+
+            loggerError(outBean.getFullId() + ":" + msg);
+
+            throw new MYException(msg);
+        }
+
+        _logger.info("submitWithOutAffair2*****************222222222222222222222222******************");
+        // CORE 修改库单(销售/入库)的状态(信用额度处理)
+        int status = processOutStutus(fullId, user, outBean);
+        _logger.info("submitWithOutAffair2*****************55555555555555555555555******************");
+
+        // 处理APP 订单关联关系
+        if (outBean.getFlowId().startsWith("AP"))
+        {
+            AppOutVSOutBean appOut = appOutVSOutDAO.findByUnique(outBean.getFullId());
+
+            if (null == appOut)
+            {
+                AppOutVSOutBean appOutBean = new AppOutVSOutBean();
+
+                appOutBean.setOutId(outBean.getFullId());
+                appOutBean.setAppOutId(outBean.getFlowId());
+
+                appOutVSOutDAO.saveEntityBean(appOutBean);
+            }
+        }
+
+        // 处理在途(销售无关)/调入接受时
+        int result = processBuyOutInWay(user, fullId, outBean);
+
+        // 在途改变状态
+        if (result != -1)
+        {
+            status = result;
+        }
+
+        String desc = outBean.getDescription();
+
 
         int idx = desc.indexOf("&&");
 
@@ -2098,6 +2240,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             {
                 nextStatus = OutConstant.BUY_STATUS_PASS;
             }
+            // 2015/10/23 换货直接通过
+            else if (outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE)
+            {
+                nextStatus = OutConstant.BUY_STATUS_SEC_PASS;
+            }
             // 其他入库
             else if (outBean.getOutType() == OutConstant.OUTTYPE_IN_OTHER)
             {
@@ -2114,6 +2261,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 outDAO.modifyOutStatus(fullId, nextStatus);
 
                 result = nextStatus;
+
+                //2015/10/23 入库换货，库管通过后生成CK单
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE){
+                    this.createPackage(outBean);
+                }
             }
             catch (Exception e)
             {
@@ -8039,13 +8191,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private void saveOutInner(final OutBean outBean)
         throws MYException
     {
-        _logger.info("*****saveOutInner*****"+outBean.getFullId());
         configOutBean(outBean);
-        _logger.info("*****saveOutInner1*****"+outBean.getFullId());
+        _logger.info("*****saveOutInner*****"+outBean);
         List<BaseBean> baseList = outBean.getBaseList();
 
         // MANAGER 管理类型的库单处理
-        if (OATools.getManagerFlag() && !outBean.getLocation().equals("0"))
+        if (OATools.getManagerFlag() && !"0".equals(outBean.getLocation()))
         {
             if (OATools.isCommon(outBean.getMtype()))
             {
@@ -8068,7 +8219,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
 
                 outBean.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
-                _logger.info("*****saveOutInner2*****"+outBean.getFullId());
             }
             else
             {
@@ -8127,8 +8277,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     private void saveDistributionForRemoteAllocate(OutBean outBean){
         //2015/8/6 入库调拨需生成配送单及CK单
+        //2015/10/22 入库换货单也需要生成CK单
+        int outType = outBean.getOutType();
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-                && outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT )
+                && (outType == OutConstant.OUTTYPE_IN_MOVEOUT || outType == OutConstant.OUTTYPE_IN_EXCHANGE))
         {
             DistributionBean distributionBean = outBean.getDistributeBean();
 
@@ -9425,6 +9577,30 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         return result;
     }
+
+    private int processOutStutus3(final String fullId, final User user, final OutBean outBean)
+            throws MYException
+    {
+        int result = 0;
+
+        int nextStatus = OutConstant.BUY_STATUS_SUBMIT;
+        try
+        {
+            outDAO.modifyOutStatus(fullId, nextStatus);
+
+            result = nextStatus;
+        }
+        catch (Exception e)
+        {
+            throw new MYException(e.toString());
+        }
+
+        // 入库直接通过
+        importLog.info(fullId + ":" + user.getStafferName() + ":" + nextStatus
+                + ":redrectFrom:" + outBean.getStatus());
+
+        return result;
+    }
     
     /**
      * CORE 审核通过(这里只有销售单/入库单才有此操作)分公司经理审核/结算中心/物流审批/库管发货
@@ -9519,6 +9695,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     public String exchange(final OutBean outBean, final Map dataMap, final User user, String[] strings, String[] strings2) throws MYException {
+        _logger.info("***********exchange out bean*****"+outBean);
 
         ParamterMap request = new ParamterMap(dataMap);
 
@@ -9555,9 +9732,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         {
             dataMap.put("modify", true);
         }
-        final String totalss = request.getParameter("totalss");
-
-        outBean.setTotal(MathTools.parseDouble(totalss));
+//        final String totalss = request.getParameter("totalss");
+//
+//        outBean.setTotal(MathTools.parseDouble(totalss));
 
         outBean.setStatus(OutConstant.STATUS_SAVE);
 
@@ -9601,12 +9778,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(fullId + "/otherList/" + request.getParameter("otherList"));
 
         // 组织BaseBean
-        double ttatol = 0.0d;
-        for (int i = 0; i < nameList.length; i++ )
-        {
-            ttatol += (Double.parseDouble(priceList[i]) * Integer.parseInt(amontList[i]));
-        }
-        outBean.setTotal(ttatol);
+//        double ttatol = 0.0d;
+//        for (int i = 0; i < nameList.length; i++ )
+//        {
+//            try{
+//            ttatol += (Double.parseDouble(priceList[i]) * Integer.parseInt(amontList[i]));
+//
+//        }
+//        outBean.setTotal(ttatol);
 
         outBean.setCurcredit(0.0d);
 
@@ -9629,36 +9808,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             outBean.setHasInvoice(OutConstant.HASINVOICE_YES);
         }
 
-        // 赠送的价格为0
-        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-                && outBean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
-        {
-            outBean.setTotal(0.0d);
-        }
-
         // 行业属性
         setInvoiceId(outBean);
-
-        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-                && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
-        {
-            String eventId = request.getParameter("eventId");
-
-            if (StringTools.isNullOrNone(eventId))
-                eventId = "";
-
-            PromotionBean promBean = promotionDAO.find(eventId);
-
-            if (outBean.getPromValue() > 0 || (promBean==null?false:promBean.getRebateType()==2))//此处折扣类型为增加信用分也绑定活动单号
-
-                outBean.setPromStatus(0);
-            else{
-
-                outBean.setEventId("");
-                outBean.setRefBindOutId("");
-                outBean.setPromStatus(-1);
-            }
-        }
 
         final StafferBean stafferBean = stafferDAO.find(user.getStafferId());
 
@@ -9672,6 +9823,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 {
                     if ((Boolean)dataMap.get("modify"))
                     {
+                        _logger.info("***********exchange out bean1111111111111111*****");
                         // 在删除前检查单据状态是否为保存或驳回
                         OutBean coutBean = outDAO.find(outBean.getFullId());
 
@@ -9704,6 +9856,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 //                    boolean isManagerPass = false;
                     StringBuffer messsb = new StringBuffer();
 
+                    _logger.info("***********exchange out 33333333333333333333*****");
                     // 处理每个base
                     for (int i = 0; i < nameList.length; i++ )
                     {
@@ -9787,6 +9940,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
                                 && outBean.getOutType() == OutConstant.OUTTYPE_IN_OTHER)
                         {
+                            _logger.info("***********exchange out 444444444444444444*****");
                             base.setCostPrice(MathTools.parseDouble(desList[i]));
                             base.setCostPriceKey(StorageRelationHelper.getPriceKey(base
                                     .getCostPrice()));
@@ -9806,35 +9960,28 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
                         else
                         {
+                            _logger.info("***********exchange out 5555555555555*****");
                             // ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid
-                            String[] coreList = otherList[i].split("-");
-
-                            if (coreList.length != 4)
-                            {
-                                throw new RuntimeException("数据不完备");
-                            }
-
-                            // 寻找具体的产品价格位置
-                            base.setCostPrice(MathTools.parseDouble(coreList[1]));
-
-                            base.setCostPriceKey(StorageRelationHelper.getPriceKey(base
-                                    .getCostPrice()));
-
-                            base.setOwner(coreList[2]);
-
-                            base.setDepotpartId(coreList[3]);
+//                            String[] coreList = otherList[i].split("-");
+//
+//                            if (coreList.length != 4)
+//                            {
+//                                throw new RuntimeException("数据不完备");
+//                            }
+//
+//                            // 寻找具体的产品价格位置
+//                            try{
+//                                base.setCostPrice(MathTools.parseDouble(coreList[1]));
+//                            }catch(Exception e){e.printStackTrace();}
+//
+//                            base.setCostPriceKey(StorageRelationHelper.getPriceKey(base
+//                                    .getCostPrice()));
+//
+//                            base.setOwner(coreList[2]);
+//
+//                            base.setDepotpartId(coreList[3]);
                         }
 
-                        // 这里需要核对价格 调拨
-                        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-                                && (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT || outBean
-                                .getOutType() == OutConstant.OUTTYPE_IN_DROP))
-                        {
-                            if ( !MathTools.equal(base.getPrice(), base.getCostPrice()))
-                            {
-                                throw new RuntimeException("调拨/报废的时候价格必须相等");
-                            }
-                        }
 
                         if (StringTools.isNullOrNone(base.getOwner()))
                         {
@@ -9857,189 +10004,42 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setOwnerName(sb.getName());
                         }
 
-                        DepotpartBean deport = depotpartDAO.find(base.getDepotpartId());
-
-                        if (deport == null)
-                        {
-                            throw new RuntimeException("仓区不存在,请确认操作");
-                        }
-
-                        base.setDepotpartName(deport.getName());
-
-                        // 销售单的时候仓库必须一致
-                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-                                && !deport.getLocationId().equals(outBean.getLocation()))
-                        {
-                            throw new RuntimeException("销售必须在一个仓库下面");
-                        }
+                        //TODO
+//                        DepotpartBean deport = depotpartDAO.find(base.getDepotpartId());
+//
+//                        if (deport == null)
+//                        {
+//                            throw new RuntimeException("仓区不存在,请确认操作");
+//                        }
+//
+//                        base.setDepotpartName(deport.getName());
 
                         // 调拨的时候有bug啊
                         base.setLocationId(outBean.getLocation());
 
                         // 其实也是成本
-                        base.setDescription(desList[i].trim());
+//                        base.setDescription(desList[i].trim());
 
-                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                        {
-                            // 显示成本(V5新功能)
-                            base.setInputPrice(MathTools.parseDouble(showCostList[i]));
-                        }
-                        else
-                        {
-                            // 入库单
-                            if (inputPriceList != null && inputPriceList.length > i)
-                            {
-                                // 兼容
-                                base.setInputPrice(MathTools.parseDouble(inputPriceList[i]));
-                            }
-                        }
+//                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+//                        {
+//                            // 显示成本(V5新功能)
+//                            base.setInputPrice(MathTools.parseDouble(showCostList[i]));
+//                        }
+//                        else
+//                        {
+//                            // 入库单
+//                            if (inputPriceList != null && inputPriceList.length > i)
+//                            {
+//                                // 兼容
+//                                base.setInputPrice(MathTools.parseDouble(inputPriceList[i]));
+//                            }
+//                        }
+//
+//                        double sailPrice = 0.0d;
+//
+//                        sailPrice = product.getSailPrice();
 
-                        double sailPrice = 0.0d;
 
-                        double minPrice = 0.0d;
-
-                        sailPrice = product.getSailPrice();
-
-                        minPrice = sailPrice;
-
-                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                        {
-                            // 毛利，毛利率（针对业务员的）
-                            double profit = 0.0d;
-
-                            double profitRatio = 0.0d;
-
-                            if (base.getValue() != 0)
-                            {
-                                profit = base.getAmount() * (base.getPrice() - base.getInputPrice());
-
-                                profitRatio = profit / base.getValue();
-                            }
-
-                            base.setProfit(profit);
-                            base.setProfitRatio(profitRatio);
-
-                            PriceConfigBean priceConfigBean = priceConfigManager
-                                    .getPriceConfigBean(product.getId(), outBean.getIndustryId(), outBean.getStafferId());
-
-                            //operationLog.info("销售单号： "+outBean.getFullId() + ", priceConfigBean:" + priceConfigBean);
-
-                            if (null != priceConfigBean)
-                            {
-                                sailPrice = priceConfigBean.getPrice();
-
-                                minPrice = priceConfigBean.getMinPrice();
-                            }
-
-                            // 检查到款天数（销售账期）及销售价是否低于规定的售价
-                            AuditRuleItemBean auditRuleItemBean = auditRuleManager
-                                    .getAuditRuleItem(product.getId(), outBean.getIndustryId(),
-                                            outBean.getOutType(), outBean.getReserve3());
-
-                            //operationLog.info("销售单号： "+outBean.getFullId() + ", auditRuleItemBean:" + auditRuleItemBean);
-
-                            if (null != auditRuleItemBean)
-                            {
-                                int peroid1 = auditRuleItemBean.getAccountPeriod();
-                                int peroid2 = auditRuleItemBean.getProductPeriod();
-                                int peroid3 = auditRuleItemBean.getProfitPeriod();
-
-                                int minPeroid = OutHelper.compare3IntMin(peroid1, peroid2, peroid3);
-
-                                if (accountPeroid == 0)
-                                {
-                                    accountPeroid = minPeroid;
-                                }
-                                else
-                                {
-                                    accountPeroid = Math.min(accountPeroid, minPeroid);
-                                }
-
-                                // 检查价格,成交价小于最低售价
-                                if (base.getPrice()<minPrice)
-                                {
-                                    if (outBean.getOutType() != OutConstant.OUTTYPE_OUT_PRESENT)
-                                    {
-                                        if (auditRuleItemBean.getLtSailPrice() == AuditRuleConstant.LESSTHANSAILPRICE_NO)
-                                        {
-                                            throw new RuntimeException("售价不能低于最低售价，最低售价为："+ MathTools.round2(minPrice)+" ,不允许销售.");
-                                        }
-                                        else
-                                        {
-                                            double cha = minPrice - base.getPrice();
-
-                                            if (cha > minPrice * auditRuleItemBean.getDiffRatio())
-                                            {
-                                                operationLog.info("销售单号： "+outBean.getFullId() + ", 售价低于最低售价时，差异值大于差异比例规定的范围");
-
-                                                messsb.append("售价低于最低售价时，差异值大于差异比例规定的范围;");
-                                            }
-                                        }
-                                    }
-                                }
-                                else // 成交价大于最低售价，则判断毛利率
-                                {
-                                    double ratioUp = auditRuleItemBean.getRatioUp()/100d;
-
-                                    double ratioDown = auditRuleItemBean.getRatioDown()/100d;
-
-                                    if (ratioUp > 0)
-                                    {
-                                        if (ratioDown > profitRatio)
-                                        {
-                                            operationLog.info("销售单号： "+outBean.getFullId() + ", 商品的毛利率小于规则中规定的毛利率的下限");
-
-                                            messsb.append("商品的毛利率小于规则中规定的毛利率的下限;");
-                                        }
-                                    }
-
-                                    if (auditRuleItemBean.getMinRatio() > 0)
-                                    {
-                                        if (profitRatio < auditRuleItemBean.getMinRatio())
-                                        {
-                                            operationLog.info("销售单号： "+outBean.getFullId() + ", 商品的毛利率小于规则中规定的最小毛利率.");
-
-                                            messsb.append("商品的毛利率小于规则中规定的最小毛利率;");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // 公卖
-                        if ("0".equals(base.getOwner()))
-                        {
-                            // 获取销售配置
-                            SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-                                    product);
-
-                            // 总部结算价(产品结算价 * (1 + 总部结算率))
-                            base.setPprice(sailPrice
-                                    * (1 + sailConf.getPratio() / 1000.0d));
-
-                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                            base.setIprice(sailPrice
-                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                    .getPratio() / 1000.0d));
-
-                            // 业务员结算价就是事业部结算价
-                            base.setInputPrice(base.getIprice());
-
-                            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                            {
-                                // 发现一些异常,这里保护一下
-                                if (base.getInputPrice() == 0)
-                                {
-                                    throw new RuntimeException("业务员结算价不能为0");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // 私卖
-                            base.setPprice(base.getInputPrice());
-                            base.setIprice(base.getInputPrice());
-                        }
 
                         baseList.add(base);
 
@@ -10051,119 +10051,17 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         addSub = true;
                     }
 
-                    // 旧币的产品必须单独销售(或者都是旧币)，不允许和其他的产品类型一起销售
-                    if (sailJiuBi&&false)
-                    {
-                        for (ProductBean each : tempProductList)
-                        {
-                            if (each.getConsumeInDay() != ProductConstant.PRODUCT_OLDGOOD)
-                            {
-                                throw new RuntimeException("旧货的产品必须单独销售(或者都是旧货)，不允许和其他的产品类型一起销售:"
-                                        + each.getName());
-                            }
-                        }
-                    }
-
-                    // 自卖的东西必须先卖掉
-                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                    {
-                        for (BaseBean base : baseList)
-                        {
-                            if ("0".equals(base.getOwner()))
-                            {
-                                ConditionParse con = new ConditionParse();
-                                con.addWhereStr();
-                                con.addCondition("stafferId", "=", user.getStafferId());
-                                con.addCondition("productId", "=", base.getProductId());
-
-                                List<StorageRelationBean> selfRelation = storageRelationDAO
-                                        .queryEntityBeansByCondition(con);
-
-                                if (ListTools.isEmptyOrNull(selfRelation))
-                                {
-                                    continue;
-                                }
-
-                                int samont = 0;
-
-                                for (StorageRelationBean seach : selfRelation)
-                                {
-                                    samont += seach.getAmount();
-                                }
-
-                                // 看看是否都在里面出售
-                                int amount = 0;
-
-                                for (BaseBean each : baseList)
-                                {
-                                    if (user.getStafferId().equals(each.getOwner())
-                                            && base.getProductId().equals(each.getProductId()))
-                                    {
-                                        amount += each.getAmount();
-                                    }
-                                }
-
-                                if (samont != amount)
-                                {
-                                    throw new RuntimeException("必须先销售自己名下的产品["
-                                            + base.getProductName() + "]");
-                                }
-                            }
-                        }
-                    }
-
-                    // 销售单强制设置为赠送
-                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && hasZero)
-                    {
-                        outBean.setOutType(OutConstant.OUTTYPE_OUT_PRESENT);
-                    }
-
-                    // 检查账期
-                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                    {
-                        // 黑名单（款到发货）回款天数为0
-                        if (outBean.getReserve3() == 1)
-                        {
-                            if (outBean.getReday() > 0)
-                            {
-                                //messsb.append("款到发货时，回款天数大于0;");
-                            }
-                        }
-                        else
-                        {
-                            if (outBean.getReday() > accountPeroid)
-                            {
-                                //messsb.append("回款天数大于规则中指定的账期;");
-                            }
-                        }
-
-                        // 下一审批流为结算中心（稽核）
-//                    	if (isManagerPass)
-//                    	{
-                        outBean.setFlowId(OutConstant.FLOW_MANAGER);
-//                    	}
-
-                        outBean.setDescription(outBean.getDescription() + "&&" + messsb.toString());
-                    }
 
                     // 重新计算价格
                     outBean.setTotal(total);
-
-                    // 促销金额不能大于本单总金额
-                    if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                    {
-                        if (outBean.getPromValue() > outBean.getTotal())
-                        {
-                            throw new RuntimeException("促销折扣金额不能大于本单总金额");
-                        }
-                    }
 
                     outBean.setBaseList(baseList);
 
                     // 保存入库单
                     try
                     {
-                        outBean.setOutType(OutConstant.OUTTYPE_OUT_APPLY);
+                        _logger.info("***********exchange out bean ****22222222");
+                        outBean.setOutType(OutConstant.OUTTYPE_IN_EXCHANGE);
                         outBean.setInway(OutConstant.IN_WAY);
                         saveOutInner(outBean);
                     }
@@ -10177,18 +10075,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         throw new RuntimeException("没有产品数量");
                     }
 
-                    // 防止溢出
-                    if (isSwatchToSail(outBean.getFullId()))
-                    {
-                        try
-                        {
-                            checkSwithToSail(outBean.getRefOutFullId());
-                        }
-                        catch (MYException e)
-                        {
-                            throw new RuntimeException(e.getErrorContent(), e);
-                        }
-                    }
 
                     return Boolean.TRUE;
                 }
@@ -10277,39 +10163,25 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             throw new MYException(msg);
         }
 
-        final List<BaseBean> baseList = checkSubmit(fullId, outBean);
-
-        // 这里是入库单的直接库存变动(部分)
-        processBuyBaseList(user, outBean, baseList, type);
-
-        //add 针对促销订单绑定历史订单，更新被绑定订单的相关信息
-        processPromBindOutId(user, outBean);
-
         // CORE 修改库单(销售/入库)的状态(信用额度处理)
-        int status = processOutStutus1(fullId, user, outBean);
+        int status = processOutStutus3(fullId, user, outBean);
 
-        try
-        {
-            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-            {
-                outDAO.modifyOutStatus(fullId, status);
-            }
-            else
-            {
-                if (outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY )
-                {
-                    outDAO.modifyOutStatus(fullId, OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK);
-
-                    status = OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK;
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.error(e, e);
-
-            throw new MYException(e);
-        }
+//        try
+//        {
+//            if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+//                    && outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE )
+//            {
+//                outDAO.modifyOutStatus(fullId, OutConstant.BUY_STATUS_SUBMIT);
+//
+//                status = OutConstant.BUY_STATUS_SUBMIT;
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            _logger.error(e, e);
+//
+//            throw new MYException(e);
+//        }
 
 
         // 处理在途(销售无关)/调入接受时
