@@ -483,10 +483,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         {
             for (StockItemBean stockItemBean : itemList)
             {
-                if (stockItemBean.getStatus() != StockConstant.STOCK_ITEM_STATUS_ASK)
-                {
-                    throw new MYException("采购单下存在没有询价的产品,不能通过");
-                }
+                //2015/10/24 不再检查询价状态
+//                if (stockItemBean.getStatus() != StockConstant.STOCK_ITEM_STATUS_ASK)
+//                {
+//                    throw new MYException("采购单下存在没有询价的产品,不能通过");
+//                }
 
                 total += stockItemBean.getTotal();
             }
@@ -539,12 +540,14 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             else
             {
                 // 直接生成询价单(每个采购项一个)
+                //2015/10/24 采购提交后不再生成询价单
                 for (StockItemBean stockItemBean : itemList)
                 {
                     PriceAskBean autoAskBean = setAutoAskBean(sb, stockItemBean, user);
 
                     priceAskManager.addPriceAskBeanWithoutTransactional(user, autoAskBean);
                 }
+                _logger.info("Do not create PriceAskBean now!");
             }
         }
 
@@ -556,13 +559,14 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         if (sb.getStatus() == StockConstant.STOCK_STATUS_PRICEPASS)
         {
             // 检查是否询价
-            for (StockItemBean stockItemBean : itemList)
-            {
-                if (stockItemBean.getStatus() != StockConstant.STOCK_ITEM_STATUS_ASK)
-                {
-                    throw new MYException("采购单下存在没有询价的产品,不能通过");
-                }
-            }
+            //2015/10/24 取消检查询价
+//            for (StockItemBean stockItemBean : itemList)
+//            {
+//                if (stockItemBean.getStatus() != StockConstant.STOCK_ITEM_STATUS_ASK)
+//                {
+//                    throw new MYException("采购单下存在没有询价的产品,不能通过");
+//                }
+//            }
 
 //            if ( !checkMin(itemList))
 //            {

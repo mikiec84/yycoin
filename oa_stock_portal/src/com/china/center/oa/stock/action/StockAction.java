@@ -814,6 +814,12 @@ public class StockAction extends DispatchAction
 
                 bean.setStatus(StockConstant.STOCK_ITEM_STATUS_INIT);
 
+                //2015/10/24 增加供应商和发票类型
+                bean.setProviderId(request.getParameter("providerId_"+indexs[i]));
+                bean.setInvoiceType(request.getParameter("invoiceType_"+indexs[i]));
+                bean.setDutyId(request.getParameter("dutyId_"+indexs[i]));
+
+
                 item.add(bean);
             }
         }
@@ -1090,13 +1096,14 @@ public class StockAction extends DispatchAction
                 // 如果没有询价不能配置
                 List<StockItemVO> itemVO = vo.getItemVO();
 
-                for (StockItemVO stockItemVO : itemVO)
-                {
-                    if (stockItemVO.getStatus() == StockConstant.STOCK_ITEM_STATUS_INIT)
-                    {
-                        return ActionTools.toError("还没有全部询价,不能配置税务属性", mapping, request);
-                    }
-                }
+                //2015/10/24 取消询价
+//                for (StockItemVO stockItemVO : itemVO)
+//                {
+//                    if (stockItemVO.getStatus() == StockConstant.STOCK_ITEM_STATUS_INIT)
+//                    {
+//                        return ActionTools.toError("还没有全部询价,不能配置税务属性", mapping, request);
+//                    }
+//                }
 
                 // 过滤管理
                 if (OATools.getManagerFlag())
@@ -1291,6 +1298,43 @@ public class StockAction extends DispatchAction
         }
     	
         prepare(request);
+
+//        // 过滤管理
+        if (OATools.getManagerFlag())
+        {
+            List<DutyBean> dutyList = dutyDAO.listEntityBeans();
+
+
+            for (Iterator<DutyBean> iterator = dutyList.iterator(); iterator.hasNext();)
+            {
+                DutyBean dbean = iterator.next();
+
+                // 去掉管理
+//                if (dbean.getMtype() == 0)
+//                {
+//                    iterator.remove();
+//
+//                    continue;
+//                }
+
+                if (dbean.getName().contains("停用"))
+                {
+                    iterator.remove();
+                }
+            }
+
+//            if (vo.getMtype() == StockConstant.MANAGER_TYPE_MANAGER)
+//            {
+//                dutyList.clear();
+//
+//                DutyBean manager = dutyDAO.find(PublicConstant.MANAGER_DUTY_ID);
+//
+//                dutyList.add(manager);
+//            }
+
+
+            request.setAttribute("dutyList", dutyList);
+        }
 
         String type = request.getParameter("type");
 

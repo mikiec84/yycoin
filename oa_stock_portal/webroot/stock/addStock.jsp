@@ -193,6 +193,21 @@ function selectProduct(index)
 	}
 }
 
+function selectProvider(index)
+{
+    cindex = index;
+    window.common.modal("../provider/provider.do?method=rptQueryProvider&load=1&productTypeId=${product.type}&productId=${product.id}&areaId=${bean.areaId}");
+}
+
+function getProvider(id, name)
+{
+    if (cindex != -1)
+    {
+        $O("providerName_" + cindex).value = name;
+        $O("providerId_" + cindex).value = id;
+    }
+}
+
 function getProduct(oos)
 {
 	var oo = oos[0];
@@ -492,17 +507,39 @@ function checkCurrentUser()
 				 <c:forEach begin="0" end="19" var="item">
 					<tr>
 						<td>
-							<input type="checkbox" name="check_init" id="check_init_${item}" value="${item}" onclick="init()">产品${item + 1}：<input type="button"
+							<input type="checkbox" name="check_init" id="check_init_${item}" value="${item}" onclick="init()">产品${item + 1}：
+                            <input type="button"
 								value="&nbsp;选 择&nbsp;" name="qout_${item}" class="button_class"
 								onclick="selectProduct(${item})">&nbsp;
-							产品:<input
-							type="text" name="productName_${item}" value="" size="20" readonly="readonly">
+							产品:
+                            <input type="text" name="productName_${item}" value="" size="20" readonly="readonly">
 							<input type="hidden" name="productId_${item}" value="">&nbsp;
-							参考价格:<input
+                            <input type="button" value="&nbsp;选 择供应商&nbsp;" name="btn_provider_${item}" class="button_class"
+                                   onclick="selectProvider(${item})">&nbsp;
+                            供应商:
+                            <input type="text" name="providerName_${item}" value="" size="20" readonly="readonly">
+                            <input type="hidden" name="providerId_${item}" value="">&nbsp;
+							参考价格:
+                            <input
 							type="text" name="price_${item}" id="price_${item}" value="" size="6" oncheck="notNone;isFloat;">&nbsp;
-							数量:<input
+							数量:
+                            <input
 							type="text" name="amount_${item}" id="amount_${item}" value="" size="6" oncheck="notNone;isNumber;">&nbsp;
-							<input type="button" value="&nbsp;清 空&nbsp;" 
+                            发票类型:
+                            <select name="invoiceType_${item}">
+                                <option value="">--</option>
+                                <c:forEach items="${invoiceList}" var="invoiceItem">
+                                    <option value="${invoiceItem.id}">${invoiceItem.name}</option>
+                                </c:forEach>
+                            </select>
+                            纳税实体:
+                            <select name="dutyId_${item}">
+                                <option value="">--</option>
+                                <c:forEach items="${dutyList}" var="dutyItem">
+                                    <option value="${dutyItem.id}">${dutyItem.name}</option>
+                                </c:forEach>
+                            </select>
+							<input type="button" value="&nbsp;清 空&nbsp;"
                     			class="button_class" onclick="sclearValues(${item})">
 							</td>
 					</tr>
