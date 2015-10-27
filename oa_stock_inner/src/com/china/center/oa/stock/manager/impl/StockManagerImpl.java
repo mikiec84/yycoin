@@ -1148,7 +1148,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         return true;
     }
 
-    /**
+    /** Deprecated!!!! Use fetchProduct instead!!!
      * fechProduct
      * 
      * @param itemId
@@ -1194,11 +1194,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         // 更新item
         stockItemDAO.updateEntityBean(item);
 
-        // 采购入库
+        // 生成采购入库单
         Collection<StockListener> listenerMapValues = this.listenerMapValues();
         for (StockListener stockListener : listenerMapValues)
         {
-            System.out.println("*************stockListener***********"+stockListener);
             stockListener.onEndStockItem(user, stock, item);
         }
         List<StockItemBean> items = stockItemDAO.queryEntityBeansByFK(item.getStockId());
@@ -1237,15 +1236,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     public boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
         _logger.info("fetchProduct with user:"+user+";itemId:"+itemId+";depotpartId:"+depotpartId+";warehouseNum:"+warehouseNum+";toBeWarehouse:"+toBeWarehouse);
 //        JudgeTools.judgeParameterIsNull(itemId, user, depotpartId, warehouseNum);
-            try{
                 StockItemBean item = stockItemDAO.find(itemId);
 
                 if (item == null)
                 {
                     throw new MYException("系统错误");
-                }
-
-                if (item.getExtraStatus() == 0)
+                } else if (item.getExtraStatus() == 0)
                 {
                     throw new MYException("需进行采购入库预确认.");
                 }
@@ -1268,6 +1264,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     _logger.info(itemId+" set to STOCK_ITEM_FECH_YES****");
                 }
 
+        try{
                 item.setDepotpartId(depotpartId);
 
                 // 更新item
@@ -1279,7 +1276,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 Collection<StockListener> listenerMapValues = this.listenerMapValues();
                 for (StockListener stockListener : listenerMapValues)
                 {
-                    _logger.info(stockListener+"*************stockListener***********"+item.getWarehouseNum());
+                    _logger.info("*************create stock in bean***********"+item);
                     stockListener.onEndStockItem(user, stock, item);
                 }
                 String stockId = item.getStockId();
@@ -1319,7 +1316,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         }catch(Exception e){
             e.printStackTrace();
             _logger.error("Exception when fetchProduct:",e);
-            return false;
+            throw new MYException("系统错误,请确认操作:"+e.getMessage());
         }
 
         return true;

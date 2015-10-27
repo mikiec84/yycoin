@@ -512,7 +512,7 @@ function checkCurrentUser()
 								value="&nbsp;选 择&nbsp;" name="qout_${item}" class="button_class"
 								onclick="selectProduct(${item})">&nbsp;
 							产品:
-                            <input type="text" name="productName_${item}" value="" size="20" readonly="readonly">
+                            <input type="text" name="productName_${item}" value="" size="20" readonly="readonly" >
 							<input type="hidden" name="productId_${item}" value="">&nbsp;
                             <input type="button" value="&nbsp;选 择供应商&nbsp;" name="btn_provider_${item}" class="button_class"
                                    onclick="selectProvider(${item})">&nbsp;

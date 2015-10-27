@@ -493,8 +493,6 @@ function exports()
 						</c:if>
 
 						<c:if test="${ltype == '3'}">
-							<a title="采购单询价" href="javascript:ask('${item.id}')"> <img id="ask_img_${vs.index}"
-								src="../images/opr/change.gif" border="0" height="15" width="15"></a>
 
 							<a title="审批通过采购单" href="javascript:passTo('${item.id}', '${ltype}', '${item.stype}')"> <img
 								src="../images/opr/realse.gif" border="0" height="15" width="15"></a>
@@ -504,11 +502,6 @@ function exports()
 						</c:if>
 						
 						<c:if test="${ltype == '2'}">
-						    <a title="采购税务配置" href="javascript:update2('${item.id}')"> <img
-                                src="../images/opr/edit.gif" border="0" height="15" width="15"></a>
-                                  
-                            <a title="采购单询价" href="javascript:ask('${item.id}')"> <img id="ask_img_${vs.index}"
-                                src="../images/opr/change.gif" border="0" height="15" width="15"></a>
                                 
                             <a title="审批通过采购单" href="javascript:passTo('${item.id}', '${ltype}', '${item.stype}')"> <img
 								src="../images/opr/realse.gif" border="0" height="15" width="15"></a>
@@ -518,10 +511,6 @@ function exports()
                         </c:if>
 						
 						<c:if test="${ltype == '4'}">
-							<c:if test="${item.stype != 1}">
-							<a title="询价变动" href="javascript:askChange('${item.id}')"> <img
-								src="../images/opr/change.gif" border="0" height="15" width="15"></a>
-							</c:if>
 							<c:if test="${item.status == 7}">
 								<a title="采购结束" href="javascript:end('${item.id}')"> <img id="end_img_${vs.index}"
 									src="../images/opr/end.gif" border="0" height="15" width="15"></a>

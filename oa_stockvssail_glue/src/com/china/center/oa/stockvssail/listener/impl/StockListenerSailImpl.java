@@ -87,9 +87,8 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
      * 根据采购单生成自动入库单，每个采购单体生成一个入库单
      * 
      * @param user
-     * @param id
      * @param bean
-     * @param out
+     * @param each
      * @throws MYException
      */
     private void autoToOut(final User user, StockBean bean, final StockItemBean each)
@@ -170,7 +169,7 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             baseBean.setLocationId(out.getLocation());
 
             //2014/12/14 入库单根据实际入库数量分批次生成
-            System.out.println("*************getWarehouseNum************"+each.getWarehouseNum());
+            _logger.info("*************autoToOut getWarehouseNum************"+each.getWarehouseNum());
             baseBean.setAmount(each.getWarehouseNum());
 //            baseBean.setAmount(item.getAmount());
 

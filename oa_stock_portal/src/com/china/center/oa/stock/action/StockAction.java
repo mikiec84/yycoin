@@ -694,26 +694,29 @@ public class StockAction extends DispatchAction
             if (StringTools.isNullOrNone(warehouseNum)){
                 _logger.info("warehouseNum is empty and will use default to_be_warehouse value");
                 warehouseNumber = Integer.valueOf(to_be_warehouse);
+            } else{
+                warehouseNumber = Integer.valueOf(warehouseNum);
             }
 
             boolean result = true;
+            String msg = "成功拿货,且自动生成入库单";
             try
             {
                 User user = Helper.getUser(request);
 
                 result = stockManager.fetchProduct(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
 
-                request.setAttribute(KeyConstant.MESSAGE, "成功拿货,且自动生成入库单");
+                request.setAttribute(KeyConstant.MESSAGE, msg);
             }
             catch (MYException e)
             {
                 e.printStackTrace();
                 _logger.warn(e, e);
+                msg = e.getErrorContent();
                 result = false;
-//                request.setAttribute(KeyConstant.ERROR_MESSAGE, "拿货失败:" + e.getMessage());
             } finally{
                 if (!result){
-                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "拿货失败");
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "拿货失败:"+msg);
                 }
             }
 
