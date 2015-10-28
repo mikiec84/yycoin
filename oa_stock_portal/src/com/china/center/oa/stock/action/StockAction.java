@@ -1343,10 +1343,12 @@ public class StockAction extends DispatchAction
 
         if ("0".equals(type))
         {
+            //销售采购
             return mapping.findForward("addStock");
         }
         else
         {
+            //生产采购
             return mapping.findForward("addStock1");
         }
     }
