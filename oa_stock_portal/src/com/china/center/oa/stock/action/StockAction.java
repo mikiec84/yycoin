@@ -807,6 +807,9 @@ public class StockAction extends DispatchAction
 
                 bean.setPrePrice(Float.parseFloat(request.getParameter("price_" + indexs[i])));
 
+                //2015/10/28 实际价格==参考价格
+                bean.setPrice(bean.getPrePrice());
+
                 bean.setShowId(request.getParameter("showId_" + indexs[i]));
 
                 bean.setAmount(CommonTools.parseInt(request.getParameter("amount_" + indexs[i])));
