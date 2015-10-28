@@ -3645,8 +3645,9 @@ public class OutImportAction extends DispatchAction
             		{
             			map.put(bean.getOutId() + "~" + bean.getProductName(), bean.getOutId() + "~" + bean.getProductName());
             		}
-            		
-            		bean.setDescription(obj[5].trim());
+
+					//2015/10/28 个人或银行领样批量退单备注写错栏位
+            		bean.setDescription(obj[6].trim());
             		
                     importItemList.add(bean);
                     
