@@ -6433,7 +6433,7 @@ public class ParentOutAction extends DispatchAction
 			HttpServletResponse reponse, User user, String saves,
 			String fullId, OutBean outBean, ParamterMap map, String step)
 	{
-        _logger.info("processCommonOut:**************step***"+step);
+        _logger.info("processCommonOut:**************step***" + step);
 		// 增加库单
 		if (!StringTools.isNullOrNone(fullId))
 		{
@@ -7960,7 +7960,14 @@ public class ParentOutAction extends DispatchAction
 //		condtion.addIntCondition("OutBean.outType", "=",
 //				OutConstant.OUTTYPE_OUT_APPLY);
         //2015/10/23 增加入库换货查询
-        condtion.addCondition("and OutBean.outType in (8,25)");
+		String queryType = request.getParameter("queryType");
+		//入库-调拨查询
+		if ("4".equals(queryType)){
+				condtion.addIntCondition("OutBean.outType", "=",
+				OutConstant.OUTTYPE_OUT_APPLY);
+		}else{
+			condtion.addCondition("and OutBean.outType in (8,25)");
+		}
 		condtion.addIntCondition("OutBean.type", "=",
 				OutConstant.OUT_TYPE_INBILL);
 //		condtion.addIntCondition("OutBean.status", "=",
@@ -8022,7 +8029,7 @@ public class ParentOutAction extends DispatchAction
 				PublicConstant.PAGE_SIZE - 5);
 
 		list1 = outDAO.queryEntityVOsByCondition(condtion, page);
-        _logger.info("**********queryBuy list size:"+list1.size());
+        _logger.info(condtion+"**********queryBuy list size:"+list1.size());
 
 		StafferBean sb = this.stafferDAO.find(user.getStafferId());
 		String postid = sb.getPostId();
@@ -9545,6 +9552,8 @@ public class ParentOutAction extends DispatchAction
 			if (OldPageSeparateTools.isMenuLoad(request))
 			{
 				condtion.addCondition("and OutBean.status in (3, 4)");
+				//2015/10/28 过滤掉入库换货
+				condtion.addCondition("and OutBean.outType!="+OutConstant.OUTTYPE_IN_EXCHANGE);
 
 				condtion.addIntCondition("OutBean.inway", "=",
 						OutConstant.IN_WAY);
