@@ -185,6 +185,21 @@ function selectProduct(index)
     }
 }
 
+function selectProvider(index)
+{
+	cindex = index;
+	window.common.modal("../provider/provider.do?method=rptQueryProvider&load=1&productTypeId=${product.type}&productId=${product.id}&areaId=${bean.areaId}");
+}
+
+function getProvider(id, name)
+{
+	if (cindex != -1)
+	{
+		$O("providerName_" + cindex).value = name;
+		$O("providerId_" + cindex).value = id;
+	}
+}
+
 function getProduct(oos)
 {
 	var oo = oos[0];
