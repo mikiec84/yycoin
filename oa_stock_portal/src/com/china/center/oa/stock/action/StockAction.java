@@ -813,6 +813,9 @@ public class StockAction extends DispatchAction
                 bean.setShowId(request.getParameter("showId_" + indexs[i]));
 
                 bean.setAmount(CommonTools.parseInt(request.getParameter("amount_" + indexs[i])));
+                //2015/10/29 直接设置total
+                bean.setTotal(bean.getPrice()*bean.getAmount());
+                bean.setNearlyPayDate(TimeTools.now_short());
 
                 int num = storageRelationDAO.sumAllProductByProductId(bean.getProductId());
 

@@ -654,12 +654,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         {
         	// 采购入库
             Collection<StockListener> listenerMapValues = this.listenerMapValues();
-            
             for (StockListener stockListener : listenerMapValues)
             {
             	for (StockItemVO item : itemList)
             	{
-            		stockListener.onWaitFetchStock(user, sb, item);            		
+                    stockListener.onWaitFetchStock(user, sb, item);
             	}
             }
         }
