@@ -30,6 +30,7 @@ import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.PriceConfigManager;
+import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.*;
 import jxl.Workbook;
@@ -145,22 +146,6 @@ import com.china.center.oa.sail.bean.PromotionItemBean;
 import com.china.center.oa.sail.bean.TransportBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.PromotionConstant;
-import com.china.center.oa.sail.dao.AppOutDAO;
-import com.china.center.oa.sail.dao.AppOutVSOutDAO;
-import com.china.center.oa.sail.dao.BaseBalanceDAO;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.BaseRepaireDAO;
-import com.china.center.oa.sail.dao.BatchReturnLogDAO;
-import com.china.center.oa.sail.dao.ConsignDAO;
-import com.china.center.oa.sail.dao.DistributionDAO;
-import com.china.center.oa.sail.dao.ExpressDAO;
-import com.china.center.oa.sail.dao.OutBalanceDAO;
-import com.china.center.oa.sail.dao.OutDAO;
-import com.china.center.oa.sail.dao.OutRepaireDAO;
-import com.china.center.oa.sail.dao.PromotionDAO;
-import com.china.center.oa.sail.dao.PromotionItemDAO;
-import com.china.center.oa.sail.dao.SailConfigDAO;
-import com.china.center.oa.sail.dao.StatsDeliveryRankDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
 import com.china.center.oa.sail.manager.OutManager;
@@ -321,6 +306,8 @@ public class ParentOutAction extends DispatchAction
 
     protected PriceConfigDAO priceConfigDAO = null;
 
+    protected ProductExchangeConfigDAO productExchangeConfigDAO = null;
+
     protected PriceConfigManager priceConfigManager = null;
 
     protected SailConfigManager sailConfigManager = null;
@@ -356,6 +343,8 @@ public class ParentOutAction extends DispatchAction
 	protected static String QUERYSTATSRANK = "queryStatsRank";
 	
 	protected static String QUERYSELFCONFIRMOUT = "querySelfConfirmOut";
+
+    protected static final String QUERYPRODUCTEXCHANGE = "queryProductExchange";
 
 	/**
 	 * 入库单操作锁
@@ -10936,5 +10925,13 @@ public class ParentOutAction extends DispatchAction
 
     public void setProductFacade(ProductFacade productFacade) {
         this.productFacade = productFacade;
+    }
+
+    public ProductExchangeConfigDAO getProductExchangeConfigDAO() {
+        return productExchangeConfigDAO;
+    }
+
+    public void setProductExchangeConfigDAO(ProductExchangeConfigDAO productExchangeConfigDAO) {
+        this.productExchangeConfigDAO = productExchangeConfigDAO;
     }
 }

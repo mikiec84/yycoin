@@ -213,6 +213,16 @@
             validate="false">
             <forward name="importVMOut" path="/sailImport/importVMOut.jsp" />
         </action>
+
+        <!-- 2015/10/31 ?????? -->
+        <action path="/sail/productExchangeConfig" parameter="method"
+                type="org.springframework.web.struts.DelegatingActionProxy"
+                validate="false">
+            <forward name="list" path="/sail/queryProductExchange.jsp" />
+            <forward name="add" path="/sail/addProductExchange.jsp" />
+            <forward name="update" path="/sail/updateProductExchange.jsp" />
+            <forward name="detail" path="/sail/detailProductExchange.jsp" />
+        </action>
         
 	</action-mappings>
 </struts-config>

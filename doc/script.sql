@@ -3,6 +3,9 @@ alter table t_center_out add column remoteAllocate int(11) DEFAULT 0
 alter table T_CENTER_ZJRCPRODUCT add column motivationMoney double DEFAULT '0'
 alter table T_CENTER_ZJRCBASE add column motivationMoney double DEFAULT '0'
 
+--2015/7 外部品名配置
+insert into t_center_oamenuitem values('0124','外部品名配置','../product/importProductVsBank.jsp','01',1,'0112',24,'外部品名配置')
+
 --2015/8/15 新产品申请去掉产品管理部审批环节
 delete from t_center_oamenuitem where menuitemname ='新产品-产品管理部审批' and id='1021'
 
@@ -20,3 +23,14 @@ alter table t_center_out_import add column customerName varchar(200) DEFAULT ''
 
 --2015/10/17 入库-换货功能
 insert into t_center_oamenuitem values(1518,'入库-商品调换','../sail/out.do?method=preForAddBuyExchange&flag=1',15,1,1501,14,'商品调换')
+
+--2015/10/30 商品换货
+insert into t_center_oamenuitem values('0125','商品转换配置','../sail/queryProductExchange.jsp','01',1,'0112',25,'商品转换配置')
+CREATE TABLE T_CENTER_PRODUCT_EXCHANGE (
+id int(11) NOT NULL AUTO_INCREMENT,
+srcProductId varchar(200) NOT NULL,
+srcAmount int(11),
+destProductId varchar(200) NOT NULL,
+destAmount int(11),
+PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8

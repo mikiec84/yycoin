@@ -6,16 +6,15 @@
     <p:link title="商品转换配置" link="true" guid="true" cal="true" dialog="true" />
     <script src="../js/common.js"></script>
     <script src="../js/public.js"></script>
-    <script src="../js/JChe ck.js"></script>
-    <script src="../js/pop.js"></script>
+     <script src="../js/pop.js"></script>
     <script src="../js/plugin/highlight/jquery.highlight.js"></script>
     <script src="../js/jquery.blockUI.js"></script>
     <script type="text/javascript">
 
-        var gurl = '../sail/extout.do?method=';
-        var ukey = 'ZJRCProduct';
+        var gurl = '../sail/productExchangeConfig.do?method=';
+//        var ukey = 'ProductExchange';
 
-        var addUrl = '../sailImport/addZJRCProduct.jsp';
+        var addUrl = '../sail/addProductExchange.jsp';
 
         var allDef = window.top.topFrame.allDef;
         var guidMap;
@@ -25,26 +24,22 @@
             preload();
 
             guidMap = {
-                title: '产品配置',
-                url: gurl + 'query' + ukey  ,
+                title: '商品转换配置',
+                url: gurl + 'list'   ,
                 colModel : [
                     {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} >', width : 40, align: 'center'},
-                    {display: '开单品名', name : 'zjrProductName', width : '20%'},
-                    {display: 'OA产品', name : 'productName', width : '20%'},
-                    {display: '销售价', name : 'price', width : '10%', toFixed : 2},
-                    {display: '供货价', name : 'costPrice', width : '10%', toFixed : 2},
-                    {display: '中收价', name : 'midRevenue', width : '10%', toFixed : 2},
-                    {display: '操作人', name : 'stafferName', width : '10%'},
-                    {display: '时间', name : 'logTime', width : 'auto'}
+                    {display: '商品名', name : 'srcProductName', width : '30%'},
+                    {display: '商品数量', name : 'srcAmount', width : '10%'},
+                    {display: '发货商品名', name : 'destProductName', width : '30%'},
+                    {display: '发货商品数量', name : 'destAmount', width : 'auto'}
                 ],
                 extAtt: {
-                    zjrProductName : {begin : '<a href=' + gurl + 'findZJRCProduct&id={id}>', end : '</a>'}
                 },
                 buttons : [
                     {id: 'add', bclass: 'add', onpress : addBean},
                     {id: 'update', bclass: 'update', onpress : updateBean},
-                    {id: 'del', bclass: 'del',  onpress : delBean},
-                    {id: 'search', bclass: 'search', onpress : doSearch}
+                    {id: 'del', bclass: 'del',  onpress : delBean}
+//                    {id: 'search', bclass: 'search', onpress : doSearch}
                 ],
                 <p:conf/>
             };
@@ -60,7 +55,6 @@
 
         function addBean(opr, grid)
         {
-            //$l(gurl + 'preForAdd' + ukey);
             $l(addUrl);
         }
 
@@ -69,7 +63,7 @@
             if (getRadio('checkb') && getRadioValue('checkb'))
             {
                 if(window.confirm('确定删除?'))
-                    $ajax(gurl + 'delete' + ukey + '&id=' + getRadio('checkb').value, callBackFun);
+                    $ajax(gurl + 'delete' + '&id=' + getRadio('checkb').value, callBackFun);
             }
             else
                 $error('不能操作');
@@ -79,7 +73,7 @@
         {
             if (getRadio('checkb') && getRadioValue('checkb'))
             {
-                $l(gurl + 'find' + ukey + '&update=1&id=' + getRadioValue('checkb'));
+                $l(gurl + 'find' + '&update=1&id=' + getRadioValue('checkb'));
             }
             else
                 $error('不能操作');

@@ -3,48 +3,61 @@
 <%@include file="../common/common.jsp"%>
 <html>
 <head>
-<p:link title="增加产品配置" />
+<p:link title="增加商品转换配置" />
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/math.js"></script>
 <script language="javascript">
+    var index = -1;
 function addBean()
 {
-	submit('确定增加产品配置?', null, null);
+	submit('确定增加商品转换配置?', null, null);
 }
 
-function selectProduct()
+function selectProduct(idx)
 {
+    index = idx;
     window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1');
 }
 
 function getProduct(oos)
 {
     var obj = oos[0];
-    
-    $O('productName').value = obj.pname;   
-    $O('productId').value = obj.value;   
+
+    if (index == 1){
+        $O('srcProductName').value = obj.pname;
+        $O('srcProductId').value = obj.value;
+    } else if (index ==2){
+        $O('destProductName').value = obj.pname;
+        $O('destProductId').value = obj.value;
+    }
 }
 
-function clears()
+function clears(idx)
 {
-    $O('productId').value = '';
-    $O('productName').value = '';
+    if (idx == 1){
+        $O('srcProductId').value = '';
+        $O('srcProductName').value = '';
+    } else if (idx ==2){
+        $O('destProductId').value = '';
+        $O('destProductName').value = '';
+    }
 }
 
 </script>
 
 </head>
 <body class="body_class">
-<form name="formEntry" action="../sail/extout.do" method="post">
-<input type="hidden" name="method" value="addZJRCProduct">
-<input type="hidden" name="productId" value="0">
+<form name="formEntry" action="../sail/productExchangeConfig.do" method="post">
+<input type="hidden" name="method" value="add">
+<input type="hidden" name="srcProductId" value="">
+<input type="hidden" name="destProductId" value="">
 
 <p:navigation
 	height="22">
 	<td width="550" class="navigation"><span style="cursor: pointer;"
-		onclick="javascript:history.go(-1)">产品配置管理</span> &gt;&gt; 增加产品配置</td>
+		onclick="javascript:history.go(-1)">商品转换配置管理</span> &gt;&gt; 增加商品转换</td>
 	<td width="85"></td>
 	
 </p:navigation> <br>
@@ -52,33 +65,38 @@ function clears()
 <p:body width="98%">
 
 	<p:title>
-		<td class="caption"><strong>产品配置基本信息：</strong></td>
+		<td class="caption"><strong>商品转换配置基本信息：</strong></td>
 	</p:title>
 
 	<p:line flag="0" />
 
 	<p:subBody width="100%">
-		<p:class value="com.china.center.oa.extsail.bean.ZJRCProductBean" />
+		<p:class value="com.china.center.oa.sail.bean.ProductExchangeConfigBean" />
 
 		<p:table cells="1">
 		    
-			<p:pro field="productId" innerString="size=60">
+			<p:pro field="srcProductId" innerString="size=60">
 			     <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
-                    class="button_class" onclick="selectProduct()">&nbsp;
+                    class="button_class" onclick="selectProduct(1)">&nbsp;
                  <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
-                        class="button_class" onclick="clears()">&nbsp;&nbsp;
+                        class="button_class" onclick="clears(1)">&nbsp;&nbsp;
 			</p:pro>
 			
-			<p:pro field="zjrProductName" innerString="size=60"/>
-			
-			<p:pro field="price" value="0.0" innerString="size=60 oncheck='isFloat'"/>
-			
-			<p:pro field="costPrice" value="0.0" innerString="size=60 oncheck='isFloat'"/>
-			
-			<p:pro field="midRevenue" value="0.0" innerString="size=60 oncheck='isFloat'"/>
+			<%--<p:pro field="srcProductName" innerString="size=60"/>--%>
 
-            <p:pro field="motivationMoney" value="0.0" innerString="size=60 oncheck='isFloat'"/>
+            <p:pro field="srcAmount" value="0" innerString="size=60 oncheck='isInt'"/>
+
+            <p:pro field="destProductId" innerString="size=60">
+                <input type="button" value="&nbsp;选择发货商品&nbsp;" name="qout1" id="qout1"
+                       class="button_class" onclick="selectProduct(2)">&nbsp;
+                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
+                       class="button_class" onclick="clears(2)">&nbsp;&nbsp;
+            </p:pro>
+
+            <%--<p:pro field="destProductName" innerString="size=60"/>--%>
 			
+			<p:pro field="destAmount" value="0" innerString="size=60 oncheck='isInt'"/>
+
 		</p:table>
 	</p:subBody>
 
