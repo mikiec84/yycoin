@@ -32,5 +32,6 @@ srcProductId varchar(200) NOT NULL,
 srcAmount int(11),
 destProductId varchar(200) NOT NULL,
 destAmount int(11),
-PRIMARY KEY (id)
+PRIMARY KEY (id),
+CONSTRAINT uc_ProductAmount UNIQUE (srcProductId,srcAmount)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8

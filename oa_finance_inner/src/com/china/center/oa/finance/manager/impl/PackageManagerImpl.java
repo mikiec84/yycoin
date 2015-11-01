@@ -10,7 +10,9 @@ import java.util.Set;
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
+import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -37,14 +39,6 @@ import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.constanst.OutConstant;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.DistributionDAO;
-import com.china.center.oa.sail.dao.OutDAO;
-import com.china.center.oa.sail.dao.OutImportDAO;
-import com.china.center.oa.sail.dao.PackageDAO;
-import com.china.center.oa.sail.dao.PackageItemDAO;
-import com.china.center.oa.sail.dao.PackageVSCustomerDAO;
-import com.china.center.oa.sail.dao.PreConsignDAO;
 import com.china.center.oa.sail.vo.DistributionVO;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.sail.vo.PackageVO;
@@ -100,6 +94,8 @@ public class PackageManagerImpl implements PackageManager {
     private Object lock = new Object();
 
     private PreInvoiceApplyDAO preInvoiceApplyDAO = null;
+
+    private ProductExchangeConfigDAO productExchangeConfigDAO = null;
 
 	public PackageManagerImpl()
 	{
@@ -337,7 +333,26 @@ public class PackageManagerImpl implements PackageManager {
 			if (item.getEmergency() == 1) {
 				isEmergency = true;
 			}
-			
+
+            //TODO 2015/11/1 商品转换功能
+            ConditionParse condition = new ConditionParse();
+            condition.addWhereStr();
+            condition.addCondition("ProductExchangeConfigBean.srcProductId", "=", item.getProductId());
+            List<ProductExchangeConfigVO> list = this.productExchangeConfigDAO.queryEntityVOsByCondition(condition);
+            if (!ListTools.isEmptyOrNull(list)){
+                ProductExchangeConfigVO vo = list.get(0);
+
+                if (item.getAmount()*vo.getDestAmount()%vo.getSrcAmount() == 0){
+                    item.setAmount(item.getAmount()*vo.getDestAmount()/vo.getSrcAmount());
+                    item.setProductId(vo.getDestProductId());
+                    item.setProductName(vo.getDestProductName());
+                    _logger.info(item+" create package bean for product exchange:"+vo);
+                } else{
+                    _logger.warn(item+" does not match product exchange:"+vo);
+                }
+
+            }
+
 			itemList.add(item);
 			
 			allAmount += item.getAmount();

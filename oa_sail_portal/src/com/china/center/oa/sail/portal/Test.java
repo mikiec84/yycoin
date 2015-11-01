@@ -26,6 +26,8 @@ import java.util.*;
  */
 public class Test {
     public String getProductName(String original){
+        System.out.println(6*6/9);
+        System.out.println(6*6%9);
         String name = "";
         String[] l1 = original.split(" ");
         if (l1.length == 1){

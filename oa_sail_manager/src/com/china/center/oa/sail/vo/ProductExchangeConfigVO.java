@@ -49,7 +49,7 @@ public class ProductExchangeConfigVO extends ProductExchangeConfigBean
 
     @Override
     public String toString() {
-        return "ProductExchangeConfigVO{" +
+        return super.toString()+" ProductExchangeConfigVO{" +
                 "srcProductName='" + srcProductName + '\'' +
                 ", destProductName='" + destProductName + '\'' +
                 '}';

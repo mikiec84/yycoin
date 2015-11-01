@@ -1392,9 +1392,8 @@ public class OutAction extends ParentOutAction
 
                 String depotpartId = request.getParameter("depotpartId");
 
-                importLog.info(fullId + ":" + user.getStafferName() + ";oldStatus:" + oldStatus);
-
-                importLog.info(fullId + ":" + user.getStafferName() + ";nextStatus:" + statuss);
+                String template = "%s : %s oldStatus:%d nextStatus:%d";
+                _logger.info(String.format(template, fullId, user.getStafferName(), oldStatus, statuss));
 
                 CommonTools.saveParamers(request);
 

@@ -34,7 +34,7 @@ public class ProductExchangeConfigBean implements Serializable
     @FK
     @Join(tagClass = ProductBean.class, type = JoinType.LEFT, alias = "P1")
     @Html(name = "srcProductName", title = "商品名", must = true)
-    private int srcProductId;
+    private String srcProductId;
 
     @Html(title = "商品数量", must = true, type = Element.NUMBER)
     private int srcAmount;
@@ -42,7 +42,7 @@ public class ProductExchangeConfigBean implements Serializable
 
     @Join(tagClass = ProductBean.class, type = JoinType.LEFT, alias = "P2")
     @Html(name = "destProductName", title = "发货商品名", must = true)
-    private int destProductId;
+    private String destProductId;
 
     @Html(title = "发货商品数量", must = true, type = Element.NUMBER)
     private int destAmount;
@@ -55,13 +55,6 @@ public class ProductExchangeConfigBean implements Serializable
         this.id = id;
     }
 
-    public int getSrcProductId() {
-        return srcProductId;
-    }
-
-    public void setSrcProductId(int srcProductId) {
-        this.srcProductId = srcProductId;
-    }
 
     public int getSrcAmount() {
         return srcAmount;
@@ -71,11 +64,19 @@ public class ProductExchangeConfigBean implements Serializable
         this.srcAmount = srcAmount;
     }
 
-    public int getDestProductId() {
+    public String getSrcProductId() {
+        return srcProductId;
+    }
+
+    public void setSrcProductId(String srcProductId) {
+        this.srcProductId = srcProductId;
+    }
+
+    public String getDestProductId() {
         return destProductId;
     }
 
-    public void setDestProductId(int destProductId) {
+    public void setDestProductId(String destProductId) {
         this.destProductId = destProductId;
     }
 

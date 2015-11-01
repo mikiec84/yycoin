@@ -12,7 +12,19 @@
     var index = -1;
 function addBean()
 {
-	submit('确定增加商品转换配置?', null, null);
+	submit('确定增加商品转换配置?', null, verifyProductId);
+}
+
+//TODO
+function verifyProductId(){
+    var srcProductId = $O('srcProductId').value;
+    var destProductId = $O('destProductId').value;
+    if (srcProductId != destProductId){
+        alert("商品名和发货商品名不能相同!")
+        return false;
+    }
+    return true;
+
 }
 
 function selectProduct(idx)
