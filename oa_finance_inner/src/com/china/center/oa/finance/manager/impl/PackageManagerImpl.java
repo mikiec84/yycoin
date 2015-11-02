@@ -302,7 +302,6 @@ public class PackageManagerImpl implements PackageManager {
 		
 		boolean isEmergency = false;
 		Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
-		
 		for (BaseBean base : baseList)
 		{
 			PackageItemBean item = new PackageItemBean();
@@ -333,14 +332,13 @@ public class PackageManagerImpl implements PackageManager {
 			if (item.getEmergency() == 1) {
 				isEmergency = true;
 			}
-
-            //TODO 2015/11/1 商品转换功能
+			//TODO 2015/11/1 商品转换功能
             ConditionParse condition = new ConditionParse();
             condition.addWhereStr();
             condition.addCondition("ProductExchangeConfigBean.srcProductId", "=", item.getProductId());
-            List<ProductExchangeConfigVO> list = this.productExchangeConfigDAO.queryEntityVOsByCondition(condition);
+			List<ProductExchangeConfigVO> list = this.productExchangeConfigDAO.queryEntityVOsByCondition(condition);
             if (!ListTools.isEmptyOrNull(list)){
-                ProductExchangeConfigVO vo = list.get(0);
+				ProductExchangeConfigVO vo = list.get(0);
 
                 if (item.getAmount()*vo.getDestAmount()%vo.getSrcAmount() == 0){
                     item.setAmount(item.getAmount()*vo.getDestAmount()/vo.getSrcAmount());
@@ -350,8 +348,9 @@ public class PackageManagerImpl implements PackageManager {
                 } else{
                     _logger.warn(item+" does not match product exchange:"+vo);
                 }
-
-            }
+            } else{
+				_logger.info("no ProductExchangeConfigVO found:"+item.getOutId());
+			}
 
 			itemList.add(item);
 			
@@ -377,7 +376,6 @@ public class PackageManagerImpl implements PackageManager {
 		if (isEmergency) {
 			packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
 		}
-		
 		packBean.setProductCount(pmap.values().size());
 		
 		PackageVSCustomerBean vsBean = new PackageVSCustomerBean();
@@ -388,9 +386,9 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setIndexPos(1);
 
         packageDAO.saveEntityBean(packBean);
-		
+
 		packageItemDAO.saveAllEntityBeans(itemList);
-		
+
 		packageVSCustomerDAO.saveEntityBean(vsBean);
 	}
 	
@@ -1637,4 +1635,12 @@ public class PackageManagerImpl implements PackageManager {
     public void setPreInvoiceApplyDAO(PreInvoiceApplyDAO preInvoiceApplyDAO) {
         this.preInvoiceApplyDAO = preInvoiceApplyDAO;
     }
+
+	public ProductExchangeConfigDAO getProductExchangeConfigDAO() {
+		return productExchangeConfigDAO;
+	}
+
+	public void setProductExchangeConfigDAO(ProductExchangeConfigDAO productExchangeConfigDAO) {
+		this.productExchangeConfigDAO = productExchangeConfigDAO;
+	}
 }

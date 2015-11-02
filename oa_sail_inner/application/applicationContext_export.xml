@@ -125,4 +125,8 @@
 	<osgi:service ref="estimateProfitDAO" interface="com.china.center.oa.sail.dao.EstimateProfitDAO" />
 
     <osgi:service ref="branchRelationDAO" interface="com.china.center.oa.sail.dao.BranchRelationDAO" />
+
+	<osgi:service ref="productExchangeConfigDAO" interface="com.china.center.oa.sail.dao.ProductExchangeConfigDAO" />
+
+	<osgi:service ref="productExchangeConfigManager" interface="com.china.center.oa.sail.manager.ProductExchangeConfigManager" />
 </beans>

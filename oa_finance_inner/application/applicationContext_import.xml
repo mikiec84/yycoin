@@ -104,5 +104,7 @@
     <osgi:reference id="productDAO" interface="com.china.center.oa.product.dao.ProductDAO" />
     
     <osgi:reference id="customerBankDAO" interface="com.china.center.oa.client.dao.CustomerBankDAO" />
+
+    <osgi:reference id="productExchangeConfigDAO" interface="com.china.center.oa.sail.dao.ProductExchangeConfigDAO" />
 	
 </beans>

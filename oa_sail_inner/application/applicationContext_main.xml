@@ -125,5 +125,9 @@
 	<bean id="estimateProfitDAO" class="com.china.center.oa.sail.dao.impl.EstimateProfitDAOImpl" />
 
     <bean id="branchRelationDAO" class="com.china.center.oa.sail.dao.impl.BranchRelationDAOImpl" />
+
+	<bean id="productExchangeConfigDAO" class="com.china.center.oa.sail.dao.impl.ProductExchangeConfigDAOImpl" />
+
+	<bean id="productExchangeConfigManager" class="com.china.center.oa.sail.manager.impl.ProductExchangeConfigManagerImpl" />
 	
 </beans>
