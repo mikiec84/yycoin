@@ -10,11 +10,14 @@ package com.china.center.oa.product.manager.impl;
 
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.china.center.jdbc.util.ConditionParse;
-import com.china.center.oa.product.bean.ProductVSBankBean;
+import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.vs.StorageRelationBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -25,9 +28,6 @@ import com.center.china.osgi.publics.AbstractListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.expression.Expression;
-import com.china.center.oa.product.bean.CiticVSOAProductBean;
-import com.china.center.oa.product.bean.GoldSilverPriceBean;
-import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.listener.ProductListener;
 import com.china.center.oa.product.manager.ProductManager;
@@ -72,6 +72,10 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
     private ProductVSBankDAO productVSBankDAO = null;
+
+    private StorageRelationDAO storageRelationDAO = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
     
     /**
      * default constructor
@@ -495,7 +499,46 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
 		
 		return true;
 	}
-    
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void autoCreatePriceConfigJob() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        ConditionParse conditionParse =  new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("StorageRelationBean.amount",">", 0);
+        //查询自2015年1月起的库存，最近入库在前
+        conditionParse.addCondition("StorageRelationBean.id",">", "A12015");
+        conditionParse.addCondition("and not exists (select id,productId from T_CENTER_PRICE_CONFIG config where config.productId=StorageRelationBean.productId) order by StorageRelationBean.id desc");
+//        _logger.info(conditionParse.toString());
+        List<StorageRelationBean> storageRelationBeanList = this.storageRelationDAO.queryEntityBeansByCondition(conditionParse);
+        Set<String> productIdSet = new HashSet<String>();
+        if (!ListTools.isEmptyOrNull(storageRelationBeanList)){
+            _logger.info("******autoCreatePriceConfigJob running with size******"+storageRelationBeanList.size());
+            for(StorageRelationBean bean: storageRelationBeanList){
+                String productId = bean.getProductId();
+                if (productIdSet.contains(productId)){
+                    _logger.info("already create PriceConfigBean for productId:"+productId);
+                } else{
+                    PriceConfigBean priceConfigBean = new PriceConfigBean();
+                    String id = commonDAO.getSquenceString20();
+                    priceConfigBean.setId(id);
+                    priceConfigBean.setType(ProductConstant.PRICECONFIG_SETTLE);
+                    priceConfigBean.setProductId(bean.getProductId());
+                    //邮票总价取T_CENTER_STORAGERALATION 表中最近入库的该产品price栏位
+                    priceConfigBean.setPrice(bean.getPrice());
+
+                    priceConfigDAO.saveEntityBean(priceConfigBean);
+                    _logger.info("***auto create PriceConfigBean***"+priceConfigBean);
+
+                    productIdSet.add(productId);
+                }
+            }
+        } else{
+            _logger.info("******autoCreatePriceConfigJob running empty******");
+        }
+    }
+
     /**
      * @return the productCombinationDAO
      */
@@ -613,5 +656,21 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
 
     public void setProductVSBankDAO(ProductVSBankDAO productVSBankDAO) {
         this.productVSBankDAO = productVSBankDAO;
+    }
+
+    public StorageRelationDAO getStorageRelationDAO() {
+        return storageRelationDAO;
+    }
+
+    public void setStorageRelationDAO(StorageRelationDAO storageRelationDAO) {
+        this.storageRelationDAO = storageRelationDAO;
+    }
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
     }
 }

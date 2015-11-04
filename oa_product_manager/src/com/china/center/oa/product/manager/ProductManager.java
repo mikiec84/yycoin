@@ -65,4 +65,10 @@ public interface ProductManager extends ListenerManager<ProductListener>
      */
     boolean importProductVsBank(User user, List<ProductVSBankBean> list)
             throws MYException;
+
+    /**
+     * 2015/11/4 每小时检查库存量大于0的商品的是否在结算价配置表中，如果不存在，则自动生成结算价
+     * @throws MYException
+     */
+    void autoCreatePriceConfigJob() throws MYException;
 }
