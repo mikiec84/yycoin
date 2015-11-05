@@ -8,6 +8,7 @@
  */
 package com.china.center.oa.product.action;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.product.bean.CiticVSOAProductBean;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -50,9 +55,6 @@ import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.dao.InvoiceDAO;
 import com.china.center.oa.publics.dao.PrincipalshipDAO;
 import com.china.center.oa.publics.vo.FlowLogVO;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.TimeTools;
 
 /**
  * 
@@ -558,6 +560,217 @@ public class ProductApplyAction extends DispatchAction {
 
         return JSONTools.writeResponse(response, ajax);
 
+    }
+
+    /**
+     * 2015/11/5 批量导入新产品申请
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importProductApply(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<ProductApplyBean> importItemList = new ArrayList<ProductApplyBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importProductApply");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importProductApply");
+        }
+
+        // 获取上次最后一次导入的时间
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    ProductApplyBean bean = new ProductApplyBean();
+
+                    // 产品名
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        bean.setName(obj[0]);
+                    }else{
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("产品名为空")
+                                .append("<br>");
+                    }
+
+                    //
+//                    if ( !StringTools.isNullOrNone(obj[1]))
+//                    {
+//                        bean.setProductName(obj[1]);
+//                    }else{
+//                        importError = true;
+//
+//                        builder
+//                                .append("第[" + currentNumber + "]错误:")
+//                                .append("OA产品品名为空")
+//                                .append("<br>");
+//                    }
+//
+//                    // 产品
+//                    if ( !StringTools.isNullOrNone(obj[2]))
+//                    {
+//                        bean.setCiticProductCode(obj[2]);
+//                    }else
+//                    {
+//                        importError = true;
+//
+//                        builder
+//                                .append("第[" + currentNumber + "]错误:")
+//                                .append("中信产品code为空")
+//                                .append("<br>");
+//                    }
+//
+//                    // 价格
+//                    if ( !StringTools.isNullOrNone(obj[3]))
+//                    {
+//                        bean.setCiticProductName(obj[3]);
+//                    }else
+//                    {
+//                        importError = true;
+//
+//                        builder
+//                                .append("第[" + currentNumber + "]错误:")
+//                                .append("中信品名为空")
+//                                .append("<br>");
+//                    }
+
+                    // 姓氏
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        bean.setFirstName(obj[4]);
+                    }else
+                    {
+                        bean.setFirstName("N/A");
+                    }
+
+                    importItemList.add(bean);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足5格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importProductApply");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importProductApply");
+        }
+
+        try
+        {
+            this.productApplyManager.importProductApply(user, importItemList);
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+            return mapping.findForward("importProductApply");
+        }
+
+        request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+
+        return mapping.findForward("importProductApply");
+    }
+
+    private String[] fillObj(String[] obj)
+    {
+        String[] result = new String[5];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
     }
 
     public ProductApplyFacade getProductApplyFacade() {

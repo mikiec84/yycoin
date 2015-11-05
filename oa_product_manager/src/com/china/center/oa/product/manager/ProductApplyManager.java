@@ -6,6 +6,8 @@ import com.china.center.common.MYException;
 import com.china.center.oa.product.bean.ProductApplyBean;
 import com.china.center.oa.product.listener.ProductApplyListener;
 
+import java.util.List;
+
 public interface ProductApplyManager extends ListenerManager<ProductApplyListener> {
 
     boolean addProductApply(User user, ProductApplyBean bean) throws MYException;
@@ -19,4 +21,13 @@ public interface ProductApplyManager extends ListenerManager<ProductApplyListene
     boolean pass1ProductApply(User user, ProductApplyBean bean) throws MYException;
 
     boolean rejectProductApply(User user, ProductApplyBean bean) throws MYException;
+
+    /**
+     * 2015/11/5 导入新产品申请
+     * @param user
+     * @param beans
+     * @return
+     * @throws MYException
+     */
+    boolean importProductApply(User user, List<ProductApplyBean> beans) throws MYException;
 }

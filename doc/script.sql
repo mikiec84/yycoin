@@ -35,3 +35,7 @@ destAmount int(11),
 PRIMARY KEY (id),
 CONSTRAINT uc_ProductAmount UNIQUE (srcProductId,srcAmount)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
+
+--2015/11/05 导入新产品
+insert into t_center_oamenuitem values(1033,'批量导入新产品申请','../product/importProductApply.jsp',10,1,101001,26,'批量导入新产品申请')
+alter table T_PRODUCT_APPLY add column className varchar(100) DEFAULT ''

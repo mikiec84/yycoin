@@ -72,14 +72,14 @@ function check()
 
 	 for (var i = 0; i < stafferRoleArr.length - 1; i++)
 	 {
-
-		 //数字型判断
+          //TODO 2015/11/5 去掉提成比例必填限制
+//		 //数字型判断
 		 if (!isNumbers(commissionRatioArr[i].value))
 	        {
 	            alert('提成比例为正整数');
-	            
+
 	            $f(commissionRatioArr[i]);
-	            
+
 	            return false;
 	        }
 
@@ -163,10 +163,8 @@ function load()
 			<p:pro field="discountRate">
 				<p:option type="205" empty="true" />
 			</p:pro>
-			
-			<p:pro field="priceRange">
-				<p:option type="206" empty="true" />
-			</p:pro>
+
+            <p:pro field="className" cell="0" innerString="size=60" />
 			
 			<p:pro field="salePeriod">
 				<p:option type="207" empty="true" />
@@ -295,8 +293,9 @@ function load()
 		<td width="50%" align="center">
             <input type="text" style="width: 100%" name="stafferName" readonly="readonly" onclick="selectStaffer1(this)">
 			<input type="hidden" name="stafferId" value=""></td>
-		<td width="5%" align="center"><input type=button
-			value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
+		<td width="5%" align="center">
+            <input type=button value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
+        </td>
 	</tr>
 </table>
 

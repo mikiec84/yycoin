@@ -578,6 +578,17 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         flowLogDAO.saveEntityBean(log);
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean importProductApply(User user, List<ProductApplyBean> productApplyBeans) throws MYException {
+        if (ListTools.isEmptyOrNull(productApplyBeans)){
+            for (ProductApplyBean bean : productApplyBeans){
+                this.addProductApply(user, bean);
+            }
+        }
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public ProductApplyDAO getProductApplyDAO() {
         return productApplyDAO;
     }

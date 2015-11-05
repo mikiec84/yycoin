@@ -103,7 +103,12 @@ public class ProductApplyBean implements Serializable {
     /**
      * 价格区间 type = 206
      */
+    /**
+     * 2015/11/5 “价格区间”改为“分类品名”，字段改为文本型
+     */
     @Html(title = "价格区间", type = Element.SELECT)
+    @Deprecated
+    @Ignore
     private int priceRange = -1;
     
     /**
@@ -223,6 +228,12 @@ public class ProductApplyBean implements Serializable {
      */
     @Html(title = "销项发票", type = Element.SELECT, must = true)
     private String sailInvoice = "";
+
+    /**
+     * 2015/11/5 “价格区间”改为“分类品名”，字段改为文本型
+     */
+    @Html(title = "分类品名", must = true, maxLength = 100)
+    private String className = "";
     
     @Ignore
     private List<ProductSubApplyBean> productSubApplyList = null;
@@ -587,7 +598,15 @@ public class ProductApplyBean implements Serializable {
 		this.refProductId = refProductId;
 	}
 
-	public List<ProductVSStafferBean> getVsList() {
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public List<ProductVSStafferBean> getVsList() {
         return vsList;
     }
 
