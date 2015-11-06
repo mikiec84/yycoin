@@ -62,26 +62,27 @@ function check()
 	 var stafferIdArr = document.getElementsByName('stafferId');
 
 	 var arr1 = [];
-	 
-	 if (stafferRoleArr == null || stafferRoleArr.length == 0)
-	 {
-		alert('必须要有产品人员属性');
 
-		return false;
-	 }
+	//2015/11/5 去掉人员属性必填限制
+//	 if (stafferRoleArr == null || stafferRoleArr.length == 0)
+//	 {
+//		alert('必须要有产品人员属性');
+//
+//		return false;
+//	 }
 
 	 for (var i = 0; i < stafferRoleArr.length - 1; i++)
 	 {
-          //TODO 2015/11/5 去掉提成比例必填限制
+          // 2015/11/5 去掉提成比例必填限制
 //		 //数字型判断
-		 if (!isNumbers(commissionRatioArr[i].value))
-	        {
-	            alert('提成比例为正整数');
-
-	            $f(commissionRatioArr[i]);
-
-	            return false;
-	        }
+//		 if (!isNumbers(commissionRatioArr[i].value))
+//	        {
+//	            alert('提成比例为正整数');
+//
+//	            $f(commissionRatioArr[i]);
+//
+//	            return false;
+//	        }
 
 	     //子商品不能重复
 		 var each = stafferRoleArr[i];
@@ -288,7 +289,7 @@ function load()
 			</select>
 		</td>
 		<td width="20%" align="center">
-            <input type="text" style="width: 100%" name="commissionRatio">
+            <input type="number" style="width: 100%" name="commissionRatio">
         </td>
 		<td width="50%" align="center">
             <input type="text" style="width: 100%" name="stafferName" readonly="readonly" onclick="selectStaffer1(this)">

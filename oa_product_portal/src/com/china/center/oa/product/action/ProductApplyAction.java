@@ -12,13 +12,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
-import com.china.center.oa.product.bean.CiticVSOAProductBean;
+import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.publics.bean.EnumBean;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.dao.EnumDAO;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,9 +41,6 @@ import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
-import com.china.center.oa.product.bean.ProductApplyBean;
-import com.china.center.oa.product.bean.ProductSubApplyBean;
-import com.china.center.oa.product.bean.ProductVSStafferBean;
 import com.china.center.oa.product.constant.ProductApplyConstant;
 import com.china.center.oa.product.dao.ProductApplyDAO;
 import com.china.center.oa.product.dao.ProductSubApplyDAO;
@@ -81,6 +84,10 @@ public class ProductApplyAction extends DispatchAction {
     private PrincipalshipDAO    principalshipDAO    = null;
     
     private InvoiceDAO invoiceDAO = null;
+
+    private ProductDAO productDAO = null;
+
+    private EnumDAO enumDAO = null;
 
     private static String       QUERYPRODUCTAPPLY   = "queryProductApply";
 
@@ -637,6 +644,20 @@ public class ProductApplyAction extends DispatchAction {
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
                         bean.setName(obj[0]);
+
+                        //重复品名检查
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name", "=", bean.getName());
+                        List<ProductApplyBean> applyBeans = this.productApplyDAO.queryEntityBeansByCondition(conditionParse);
+                        if (!ListTools.isEmptyOrNull(applyBeans)){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("产品名已存在")
+                                    .append("<br>");
+                        }
                     }else{
                         importError = true;
 
@@ -646,54 +667,305 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("<br>");
                     }
 
-                    //
-//                    if ( !StringTools.isNullOrNone(obj[1]))
-//                    {
-//                        bean.setProductName(obj[1]);
-//                    }else{
-//                        importError = true;
-//
-//                        builder
-//                                .append("第[" + currentNumber + "]错误:")
-//                                .append("OA产品品名为空")
-//                                .append("<br>");
-//                    }
-//
-//                    // 产品
-//                    if ( !StringTools.isNullOrNone(obj[2]))
-//                    {
-//                        bean.setCiticProductCode(obj[2]);
-//                    }else
-//                    {
-//                        importError = true;
-//
-//                        builder
-//                                .append("第[" + currentNumber + "]错误:")
-//                                .append("中信产品code为空")
-//                                .append("<br>");
-//                    }
-//
-//                    // 价格
-//                    if ( !StringTools.isNullOrNone(obj[3]))
-//                    {
-//                        bean.setCiticProductName(obj[3]);
-//                    }else
-//                    {
-//                        importError = true;
-//
-//                        builder
-//                                .append("第[" + currentNumber + "]错误:")
-//                                .append("中信品名为空")
-//                                .append("<br>");
-//                    }
-
-                    // 姓氏
-                    if ( !StringTools.isNullOrNone(obj[4]))
+                    //产品类型
+                    if ( !StringTools.isNullOrNone(obj[1]))
                     {
-                        bean.setFirstName(obj[4]);
+                        int type = this.getType(obj[1]);
+                        if (type == -1){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("产品类型不支持")
+                                    .append("<br>");
+                        } else{
+                            bean.setType(type);
+                        }
+                    }else{
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("产品类型为空")
+                                .append("<br>");
+                    }
+
+                    // 材质类型
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String materialType = obj[2];
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("type", "=", "201");
+
+                        List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                        if (!ListTools.isEmptyOrNull(enumBeans)){
+                            for (EnumBean enumBean : enumBeans){
+                                if (materialType.equals(enumBean.getValue())){
+                                    bean.setMateriaType(Integer.valueOf(enumBean.getKey()));
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bean.getMateriaType() == -1){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("材质类型不支持")
+                                    .append("<br>");
+                        }
                     }else
                     {
-                        bean.setFirstName("N/A");
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("材质类型为空")
+                                .append("<br>");
+                    }
+
+                    // 渠道类型
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        int channelType = this.getChannelType(obj[3]);
+                        if (channelType == -1){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("渠道类型不支持")
+                                    .append("<br>");
+                        } else{
+                            bean.setChannelType(channelType);
+                        }
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("渠道类型为空")
+                                .append("<br>");
+                    }
+
+                    // 管理类型
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        int managerType = this.getManagerType(obj[4]);
+                        if (managerType == -1){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("管理类型不支持")
+                                    .append("<br>");
+                        } else{
+                            bean.setManagerType(managerType);
+                        }
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("管理类型为空")
+                                .append("<br>");
+                    }
+
+                    // 分类品名
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        bean.setClassName(obj[5]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("分类品名为空")
+                                .append("<br>");
+                    }
+
+                    // 旧货
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String secondhandGoods = obj[6];
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("type", "=", "210");
+
+                        List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                        if (!ListTools.isEmptyOrNull(enumBeans)){
+                            for (EnumBean enumBean : enumBeans){
+                                if (secondhandGoods.equals(enumBean.getValue())){
+                                    bean.setSecondhandGoods(Integer.valueOf(enumBean.getKey()));
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bean.getSecondhandGoods() == -1){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("旧货类型不支持")
+                                    .append("<br>");
+                        }
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("旧货为空")
+                                .append("<br>");
+                    }
+
+                    // 金
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        bean.setGold(Double.valueOf(obj[7]));
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("金为空")
+                                .append("<br>");
+                    }
+
+                    // 银
+                    if ( !StringTools.isNullOrNone(obj[8]))
+                    {
+                        bean.setSilver(Double.valueOf(obj[8]));
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("银为空")
+                                .append("<br>");
+                    }
+
+                    // 产品性质
+                    if ( !StringTools.isNullOrNone(obj[9]))
+                    {
+                        int nature = this.getNature(obj[9]);
+                        if (nature == -1){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("产品性质不支持")
+                                    .append("<br>");
+                        }else{
+                            bean.setNature(nature);
+                        }
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("产品性质为空")
+                                .append("<br>");
+                    }
+
+                    // 关联成品
+                    if (bean.getNature() == ProductApplyConstant.NATURE_SINGLE) {
+                        // 根据成品，获取配件的编码
+                        String refProductId = obj[10];
+
+                        if ( !StringTools.isNullOrNone(refProductId))
+                        {
+                            bean.setRefProductId(refProductId);
+                            ProductBean product = productDAO.find(refProductId);
+
+                            if (null == product)
+                            {
+                                importError = true;
+
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("关联的成品不存在")
+                                        .append("<br>");
+                            }
+                        }else
+                        {
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("配件产品时要有成品产品关联")
+                                    .append("<br>");
+                        }
+                    }
+
+                    // 进项发票
+                    if ( !StringTools.isNullOrNone(obj[11]))
+                    {
+                        List<InvoiceBean> invoiceList1 = invoiceDAO.listForwardIn();
+                        if (!ListTools.isEmptyOrNull(invoiceList1)){
+                            for (InvoiceBean invoiceBean : invoiceList1){
+                                if (obj[11].equals(invoiceBean.getName())){
+                                    bean.setInputInvoice(invoiceBean.getId());
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (StringTools.isNullOrNone(bean.getInputInvoice())){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("进项发票不存在")
+                                    .append("<br>");
+                        }
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("进项发票为空")
+                                .append("<br>");
+                    }
+
+                    // 销项发票
+                    if ( !StringTools.isNullOrNone(obj[12]))
+                    {
+                        List<InvoiceBean> invoiceList2 = invoiceDAO.listForwardOut();
+                        if (!ListTools.isEmptyOrNull(invoiceList2)){
+                            for (InvoiceBean invoiceBean : invoiceList2){
+                                if (obj[12].equals(invoiceBean.getName())){
+                                    bean.setSailInvoice(invoiceBean.getId());
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (StringTools.isNullOrNone(bean.getSailInvoice())){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("销项发票不存在")
+                                    .append("<br>");
+                        }
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销项发票为空")
+                                .append("<br>");
                     }
 
                     importItemList.add(bean);
@@ -738,13 +1010,12 @@ public class ProductApplyAction extends DispatchAction {
             return mapping.findForward("importProductApply");
         }
 
-        try
-        {
+        try {
             this.productApplyManager.importProductApply(user, importItemList);
         }
         catch(MYException e)
         {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:" + e.getErrorContent());
 
             return mapping.findForward("importProductApply");
         }
@@ -754,9 +1025,74 @@ public class ProductApplyAction extends DispatchAction {
         return mapping.findForward("importProductApply");
     }
 
+    /**
+     * 产品类型
+     * @param type
+     * @return
+     */
+    private int getType(String type){
+        if ("金银章".equals(type)){
+            return ProductConstant.PRODUCT_TYPE_OTHER;
+        } else if ("金银币".equals(type)){
+            return ProductConstant.PRODUCT_TYPE_PAPER;
+        } else if("流通币".equals(type)){
+            return ProductConstant.PRODUCT_TYPE_METAL;
+        } else if ("旧币".equals(type)){
+            return ProductConstant.PRODUCT_TYPE_NUMISMATICS;
+        } else if ("邮票".equals(type)){
+            return ProductConstant.PRODUCT_TYPE_MONCE;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * 渠道类型
+     * @param channelType
+     * @return
+     */
+    private int getChannelType(String channelType){
+        if ("自有".equals(channelType)){
+            return ProductConstant.SAILTYPE_SELF;
+        } else if ("经销".equals(channelType)){
+            return ProductConstant.SAILTYPE_REPLACE;
+        } else if("定制".equals(channelType)){
+            return ProductConstant.SAILTYPE_CUSTOMER;
+        } else if ("私采".equals(channelType)){
+            return ProductConstant.SAILTYPE_OTHER;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * 管理类型
+     * @param managerType
+     * @return
+     */
+    private int getManagerType(String managerType){
+        if ("管理".equals(managerType)){
+            return PublicConstant.MANAGER_TYPE_MANAGER;
+        } else if ("普通".equals(managerType)){
+            return PublicConstant.MANAGER_TYPE_COMMON;
+        } else {
+            return -1;
+        }
+    }
+
+    private int getNature(String nature){
+        if ("配件产品".equals(nature)){
+            return ProductApplyConstant.NATURE_SINGLE;
+        } else if ("成品".equals(nature)){
+            return ProductApplyConstant.NATURE_COMPOSE;
+        } else {
+            return -1;
+        }
+    }
+
     private String[] fillObj(String[] obj)
     {
-        String[] result = new String[5];
+        String[] result = new String[13];
 
         for (int i = 0; i < result.length; i++ )
         {
@@ -845,4 +1181,19 @@ public class ProductApplyAction extends DispatchAction {
 		this.invoiceDAO = invoiceDAO;
 	}
 
+    public ProductDAO getProductDAO() {
+        return productDAO;
+    }
+
+    public void setProductDAO(ProductDAO productDAO) {
+        this.productDAO = productDAO;
+    }
+
+    public EnumDAO getEnumDAO() {
+        return enumDAO;
+    }
+
+    public void setEnumDAO(EnumDAO enumDAO) {
+        this.enumDAO = enumDAO;
+    }
 }

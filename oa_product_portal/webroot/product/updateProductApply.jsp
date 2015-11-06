@@ -167,9 +167,7 @@ function load()
 				<p:option type="205" empty="true" />
 			</p:pro>
 			
-			<p:pro field="priceRange">
-				<p:option type="206" empty="true" />
-			</p:pro>
+			<p:pro field="className" cell="0" innerString="size=60" />
 			
 			<p:pro field="salePeriod">
 				<p:option type="207" empty="true" />

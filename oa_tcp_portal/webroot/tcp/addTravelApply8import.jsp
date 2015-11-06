@@ -400,7 +400,7 @@ function load()
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>
-    
+
     <tr class="content1" id="trCopy_pay" style="display: none;">
          <td align="left">
          <select name="p_receiveType" class="select_class" style="width: 100%;" oncheck="notNone">

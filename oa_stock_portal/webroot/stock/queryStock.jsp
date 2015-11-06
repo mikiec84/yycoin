@@ -502,7 +502,7 @@ function exports()
 						</c:if>
 						
 						<c:if test="${ltype == '2'}">
-                                
+
                             <a title="审批通过采购单" href="javascript:passTo('${item.id}', '${ltype}', '${item.stype}')"> <img
 								src="../images/opr/realse.gif" border="0" height="15" width="15"></a>
 

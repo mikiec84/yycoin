@@ -581,7 +581,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     @Override
     @Transactional(rollbackFor = MYException.class)
     public boolean importProductApply(User user, List<ProductApplyBean> productApplyBeans) throws MYException {
-        if (ListTools.isEmptyOrNull(productApplyBeans)){
+        if (!ListTools.isEmptyOrNull(productApplyBeans)){
             for (ProductApplyBean bean : productApplyBeans){
                 this.addProductApply(user, bean);
             }

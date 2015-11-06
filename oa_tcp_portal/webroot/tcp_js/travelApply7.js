@@ -166,7 +166,7 @@ function checks()
         
         tmp[blist[i].value] = blist[i].value;
     }
-    
+
     return true;
 }
 

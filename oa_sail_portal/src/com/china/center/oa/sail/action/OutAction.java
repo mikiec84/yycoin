@@ -23,6 +23,7 @@ import com.china.center.oa.client.vo.StafferVSCustomerVO;
 import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.vo.*;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -134,13 +135,6 @@ import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailManager;
-import com.china.center.oa.sail.vo.AppOutVO;
-import com.china.center.oa.sail.vo.BaseVO;
-import com.china.center.oa.sail.vo.DistributionVO;
-import com.china.center.oa.sail.vo.OutBalanceVO;
-import com.china.center.oa.sail.vo.OutRepaireVO;
-import com.china.center.oa.sail.vo.OutVO;
-import com.china.center.oa.sail.vo.SailConfigVO;
 import com.china.center.oa.sail.wrap.ConfirmInsWrap;
 import com.china.center.oa.sail.wrap.CreditWrap;
 import com.china.center.oa.tax.bean.FinanceBean;
@@ -1260,7 +1254,7 @@ public class OutAction extends ParentOutAction
         try
         {
             sailManager.updateInvoiceStatus(user, fullId, CommonTools.parseFloat(invoiceMoney),
-                OutConstant.INVOICESTATUS_END);
+                    OutConstant.INVOICESTATUS_END);
         }
         catch (MYException e)
         {
@@ -1731,6 +1725,28 @@ public class OutAction extends ParentOutAction
 //                            {
 //                                throw new RuntimeException(e.getErrorContent(), e);
 //                            }
+                        } else if (statuss == OutConstant.STATUS_PASS){
+                            //TODO 20115/11/2 库管审批通过时，检查行项目商品如在转换表的 商品名 范围内，数量则必须为配置数量的倍数，否则报错提示
+                            List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+                            if (!ListTools.isEmptyOrNull(baseBeans)){
+                                for (BaseBean item : baseBeans){
+                                    ConditionParse condition = new ConditionParse();
+                                    condition.addWhereStr();
+                                    condition.addCondition("ProductExchangeConfigBean.srcProductId", "=", item.getProductId());
+                                    List<ProductExchangeConfigVO> list = this.productExchangeConfigDAO.queryEntityVOsByCondition(condition);
+                                    if (!ListTools.isEmptyOrNull(list)){
+                                        ProductExchangeConfigVO vo = list.get(0);
+                                        if (item.getAmount()%vo.getSrcAmount() == 0){
+                                            _logger.info(item+" basebean match for product exchange:"+vo);
+                                        } else{
+                                            _logger.warn(item+" does not match product exchange:"+vo);
+                                            request.setAttribute(KeyConstant.ERROR_MESSAGE, "商品数量必须为商品转换配置数量的倍数:"+item.getProductName());
+
+                                            return mapping.findForward("error");
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         _logger.info("****************库管审批111111111111*************"+statuss);
