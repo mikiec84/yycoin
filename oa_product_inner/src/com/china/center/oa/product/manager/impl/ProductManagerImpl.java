@@ -521,6 +521,8 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
                     _logger.info("already create PriceConfigBean for productId:"+productId);
                 } else{
                     PriceConfigBean priceConfigBean = new PriceConfigBean();
+                    //2015/11/7 默认不随金银价波动
+                    priceConfigBean.setFtype(1);
                     String id = commonDAO.getSquenceString20();
                     priceConfigBean.setId(id);
                     priceConfigBean.setType(ProductConstant.PRICECONFIG_SETTLE);
