@@ -41,6 +41,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
     private final Log             operationLog          = LogFactory.getLog("opr");
 
+    private final Log           _logger             = LogFactory.getLog(getClass());
+
     private ProductApplyDAO       productApplyDAO       = null;
 
     private ProductSubApplyDAO    productSubApplyDAO    = null;
@@ -87,6 +89,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
         // exp.check("#code &unique @productApplyDAO", "编码已经存在");
 
+        _logger.info("***addProductApply***"+bean);
         productApplyDAO.saveEntityBean(bean);
 
         List<ProductSubApplyBean> subList = bean.getProductSubApplyList();
@@ -583,7 +586,14 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     public boolean importProductApply(User user, List<ProductApplyBean> productApplyBeans) throws MYException {
         if (!ListTools.isEmptyOrNull(productApplyBeans)){
             for (ProductApplyBean bean : productApplyBeans){
-                this.addProductApply(user, bean);
+                bean.setLogTime(TimeTools.now());
+                //默认提交状态
+                bean.setStatus(ProductApplyConstant.STATUS_SUBMIT);
+                boolean result = this.addProductApply(user, bean);
+                if (result){
+                    bean.setDescription("AutoCreatedProductApply:"+bean.getCode());
+                    this.pass1ProductApply(user, bean);
+                }
             }
         }
         return true;  //To change body of implemented methods use File | Settings | File Templates.

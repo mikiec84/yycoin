@@ -876,17 +876,20 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("<br>");
                     }
 
-                    // 关联成品
+                    // 配件产品需关联成品
                     if (bean.getNature() == ProductApplyConstant.NATURE_SINGLE) {
-                        // 根据成品，获取配件的编码
-                        String refProductId = obj[10];
+                        // 关联成品的code或者名称
+                        String product = obj[10];
 
-                        if ( !StringTools.isNullOrNone(refProductId))
+                        if ( !StringTools.isNullOrNone(product))
                         {
-                            bean.setRefProductId(refProductId);
-                            ProductBean product = productDAO.find(refProductId);
+                            ConditionParse conditionParse = new ConditionParse();
+                            conditionParse.addWhereStr();
+                            conditionParse.addCondition(" and (ProductBean.code = '"+product+"' or ProductBean.name like '%"+product+"%')");
+                            _logger.info(conditionParse);
+                            List<ProductBean> productBeans = productDAO.queryEntityBeansByCondition(conditionParse);
 
-                            if (null == product)
+                            if (ListTools.isEmptyOrNull(productBeans))
                             {
                                 importError = true;
 
@@ -894,6 +897,8 @@ public class ProductApplyAction extends DispatchAction {
                                         .append("第[" + currentNumber + "]错误:")
                                         .append("关联的成品不存在")
                                         .append("<br>");
+                            } else{
+                                bean.setRefProductId(productBeans.get(0).getId());
                             }
                         }else
                         {
