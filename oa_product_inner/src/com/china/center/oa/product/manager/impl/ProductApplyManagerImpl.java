@@ -89,7 +89,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
         // exp.check("#code &unique @productApplyDAO", "编码已经存在");
 
-        _logger.info("***addProductApply***"+bean);
+        _logger.info("***addProductApply***" + bean);
         productApplyDAO.saveEntityBean(bean);
 
         List<ProductSubApplyBean> subList = bean.getProductSubApplyList();
@@ -323,7 +323,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
             int status = bean.getStatus();
 
             if (status != ProductApplyConstant.STATUS_PRODUCTAPPLY) {
-                throw new MYException("当前状态不是待产品管理中心审批状态,请联系管理员");
+                throw new MYException("当前状态不是待产品管理中心审批状态,请联系管理员:"+status);
             }
 
             createFullName(applyBean);
@@ -585,16 +585,39 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     @Transactional(rollbackFor = MYException.class)
     public boolean importProductApply(User user, List<ProductApplyBean> productApplyBeans) throws MYException {
         if (!ListTools.isEmptyOrNull(productApplyBeans)){
+            _logger.info("*****importProductApply***"+productApplyBeans.size());
             for (ProductApplyBean bean : productApplyBeans){
                 bean.setLogTime(TimeTools.now());
-                //默认提交状态
-                bean.setStatus(ProductApplyConstant.STATUS_SUBMIT);
-                boolean result = this.addProductApply(user, bean);
-                if (result){
-                    bean.setDescription("AutoCreatedProductApply:"+bean.getCode());
-                    this.pass1ProductApply(user, bean);
-                }
+                JudgeTools.judgeParameterIsNull(user, bean);
+
+                // 获取ID
+                String id = commonDAO.getSquenceString();
+                bean.setId(id);
+
+                checkUnique(bean);
+
+                //直接审核通过
+                createFullName(bean);
+                createCode(bean);
+                createSpell(bean);
+
+                bean.setStatus(ProductApplyConstant.STATUS_FINISHED);
+                bean.setDescription(TimeTools.now_short()+"批量导入新产品申请,产品代码:" + bean.getCode());
+                bean.setOprId(user.getId());
+
+                _logger.info("***addProductApply***" + bean);
+                productApplyDAO.saveEntityBean(bean);
+
+                // 申请审批结束后产品转至正式商品表
+                transferToProductBean(id, bean);
+
+                // 增加数据库日志
+                addLog(id, user, bean, "通过", ProductApplyConstant.OPRMODE_PASS,
+                        ProductApplyConstant.STATUS_FINISHED);
             }
+        } else{
+            _logger.info("*****importProductApply empty****");
+            return false;
         }
         return true;  //To change body of implemented methods use File | Settings | File Templates.
     }

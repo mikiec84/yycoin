@@ -885,7 +885,7 @@ public class ProductApplyAction extends DispatchAction {
                         {
                             ConditionParse conditionParse = new ConditionParse();
                             conditionParse.addWhereStr();
-                            conditionParse.addCondition(" and (ProductBean.code = '"+product+"' or ProductBean.name like '%"+product+"%')");
+                            conditionParse.addCondition(" and (ProductBean.code = '"+product+"' or ProductBean.name = '"+product+"')");
                             _logger.info(conditionParse);
                             List<ProductBean> productBeans = productDAO.queryEntityBeansByCondition(conditionParse);
 
@@ -1016,7 +1016,7 @@ public class ProductApplyAction extends DispatchAction {
         }
 
         try {
-            this.productApplyManager.importProductApply(user, importItemList);
+             this.productApplyManager.importProductApply(user, importItemList);
         }
         catch(MYException e)
         {
