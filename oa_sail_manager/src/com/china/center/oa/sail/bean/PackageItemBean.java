@@ -75,6 +75,12 @@ public class PackageItemBean implements Serializable
 	
 	@Ignore
 	private String refId = "";
+
+	/**
+	 * 2015/11/13 中原银行回执单打印取 out_import表里的商品编码字段productCode
+	 */
+	@Ignore
+	private String productCode = "";
 	
 	public PackageItemBean()
 	{
@@ -312,5 +318,13 @@ public class PackageItemBean implements Serializable
 	 */
 	public void setEmergency(int emergency) {
 		this.emergency = emergency;
+	}
+
+	public String getProductCode() {
+		return productCode;
+	}
+
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
 	}
 }
