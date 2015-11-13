@@ -1803,6 +1803,21 @@ public class ShipAction extends DispatchAction
     }
 
     /**
+     * 2015/11/13 中原银行回执单打印:调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
+     * @param original
+     * @return
+     */
+    private String getCustomerName(String original){
+        String name = original;
+        String[] l1 = original.split("（|-");
+        if (l1.length >= 1){
+            name = l1[0];
+        }
+
+        return name;
+    }
+
+    /**
      * 2015/11/13 中原银行回执单产品编码取 out_import表里的商品编码字段productCode
      * @param item
      */
@@ -2241,14 +2256,13 @@ public class ShipAction extends DispatchAction
             PackageItemBean item = each.getValue();
             this.convertProductName(item);
 
-            //2015/11/13 中原银行不用显示客户姓名
-//            //2015/9/29 增加客户姓名栏位
-//            this.getCustomerName(item);
             this.getProductCode(item);
             itemList1.add(item);
             _logger.info("**********get product code******"+item.getProductCode());
         }
 
+        //2015/11/13 中原银行回执单：调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
+        vo.setCustomerName(this.getCustomerName(vo.getCustomerName()));
         vo.setItemList(itemList1);
 
         request.setAttribute("total", totalAmount);

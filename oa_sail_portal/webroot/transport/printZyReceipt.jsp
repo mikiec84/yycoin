@@ -99,22 +99,22 @@
                     <td>
                         <table width="100%" cellspacing='0' cellpadding="0"  class="border">
                             <tr class="content2">
-                                <td width="20%"><table class="border1"><tr><td align="center">企业代码</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">产品代码</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">规格代码</td></tr></table></td>
-                                <td width="20%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
+                                <td width="10%"><table class="border1"><tr><td align="center">企业代码</td></tr></table></td>
+                                <td width="10%"><table class="border1"><tr><td align="center">产品代码</td></tr></table></td>
+                                <td width="10%"><table class="border1"><tr><td align="center">规格代码</td></tr></table></td>
+                                <td width="30%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
                                 <td width="10%"><table class="border1"><tr><td align="center">数量(套)</td></tr></table></td>
-                                <td width="26%"><table class="border1"><tr><td align="center">备注(成品/破损/其它)</td></tr></table></td>
+                                <td width="30%"><table class="border1"><tr><td align="center">备注(成品/破损/其它)</td></tr></table></td>
                             </tr>
 
                             <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
                                 <tr class="content2">
-                                    <td><table class="border1"><tr><td>102</td></tr></table></td>
-                                    <td><table class="border1"><tr>${item.productCode}<td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td>01</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.amount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">102</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">01</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
                                 </tr>
                             </c:forEach>
 
@@ -172,8 +172,7 @@
                                 <td><table><tr><td></td></tr></table></td>
                             </tr>
                             <tr class="content2">
-                                <td colspan="3"><table><tr><td>交接时间：&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;月&nbsp;&nbsp;日</td></tr></table></td>
-                                <td><table><tr><td></td></tr></table></td>
+                                <td colspan="4"><table><tr><td>交接时间：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日</td></tr></table></td>
                             </tr>
                             <tr class="content2">
                                 <td colspan="3"><table><tr><td></td></tr></table></td>

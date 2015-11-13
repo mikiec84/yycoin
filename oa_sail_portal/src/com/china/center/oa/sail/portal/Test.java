@@ -47,6 +47,17 @@ public class Test {
         return name;
     }
 
+
+    public String getCustomerName(String original){
+        String name = original;
+        String[] l1 = original.split("（|-");
+        if (l1.length >= 1){
+            name = l1[0];
+        }
+
+        return name;
+    }
+
     public String getRefOutId(String description){
         String refOutId = "";
         if (!StringTools.isNullOrNone(description) && description.indexOf("自动生成赠品订单")!= -1){
@@ -65,8 +76,21 @@ public class Test {
         String n4 = "YH2012003四季平安金条100克(永银）";
         String desc2 = "自动生成赠品订单，关联销售单：SO1509061033238507733";
 
+        String c1 = "中原银行驻马店分行（银行）";
+        String c2 = "中原银行驻马店分行-零售";
+        String c3 = "中原银行驻马店分行1";
+
         Test t = new Test();
         String name = null;
+        name = t.getCustomerName(c1);
+        System.out.println("c1:"+name);
+
+        name = t.getCustomerName(c2);
+        System.out.println("c2:"+name);
+
+        name = t.getCustomerName(c3);
+        System.out.println("c3:"+name);
+
         name = t.getProductName(n2);
         System.out.println("n2:"+name);
 
