@@ -1456,12 +1456,21 @@ public class OutImportAction extends DispatchAction
 			importError = true;
 		}
 
+		// 2015/11/16 中原银行导入，需设置商品编码
+		if ( !StringTools.isNullOrNone(obj[4]))
+		{
+			String code = obj[4].trim();
+
+			bean.setProductCode(code);
+		}
+
 		// 商品名称
 		if ( !StringTools.isNullOrNone(obj[5]))
 		{
 			String name = obj[5].trim();
-			
-			bean.setProductCode("");
+
+			//2015/11/16 中原银行普通导入也需要设置产品编码
+//			bean.setProductCode("");
 			
 			// 姓氏
 			bean.setFirstName("N/A");
