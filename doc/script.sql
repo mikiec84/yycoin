@@ -39,3 +39,6 @@ CONSTRAINT uc_ProductAmount UNIQUE (srcProductId,srcAmount)
 --2015/11/05 导入新产品
 insert into t_center_oamenuitem values(1033,'批量导入新产品申请','../product/importProductApply.jsp',10,1,101001,26,'批量导入新产品申请')
 alter table T_PRODUCT_APPLY add column className varchar(100) DEFAULT ''
+
+--2015/11/16 取消采购入库预确认
+delete from t_center_oamenuitem where menuitemname ='采购入库预确认'

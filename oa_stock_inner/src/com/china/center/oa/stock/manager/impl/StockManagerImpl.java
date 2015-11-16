@@ -1240,10 +1240,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 if (item == null)
                 {
                     throw new MYException("系统错误");
-                } else if (item.getExtraStatus() == 0)
-                {
-                    throw new MYException("需进行采购入库预确认.");
                 }
+                //2015/11/16 取消采购入库预确认环节
+//                else if (item.getExtraStatus() == 0)
+//                {
+//                    throw new MYException("需进行采购入库预确认.");
+//                }
 
                 StockBean stock = stockDAO.findVO(item.getStockId());
 
