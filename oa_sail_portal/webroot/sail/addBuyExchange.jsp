@@ -176,7 +176,7 @@ function opens(obj)
 
     //You MUST define oo here, which will be used later!
     oo = obj;
-    window.common.modal(RPT_PRODUCT + '&ctype=1');
+    window.common.modal(RPT_PRODUCT + '&stock=stock');
 }
 
 </script>
