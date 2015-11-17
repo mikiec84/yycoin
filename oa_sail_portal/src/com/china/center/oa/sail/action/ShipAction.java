@@ -2056,7 +2056,7 @@ public class ShipAction extends DispatchAction
             //2015/9/29 增加客户姓名栏位
             this.getCustomerName(item);
             itemList1.add(item);
-            _logger.debug("**********getDescription******"+each.getValue().getDescription());
+            _logger.debug("**********getDescription******" + each.getValue().getDescription());
         }
 
         vo.setItemList(itemList1);
@@ -2122,6 +2122,17 @@ public class ShipAction extends DispatchAction
             _logger.info("*******phone*************"+phone);
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
+
+            //2015/11/17 取第一个SO单的outTime作为中原银行回执单交接时间
+            String outTime = first.getOutTime();
+            if (!StringTools.isNullOrNone(outTime)){
+                String[] temp = outTime.split("-");
+                if (temp.length == 3){
+                    request.setAttribute("year", temp[0]);
+                    request.setAttribute("month", temp[1]);
+                    request.setAttribute("day", temp[2]);
+                }
+            }
         }
 
         for (PackageItemBean each : itemList)
