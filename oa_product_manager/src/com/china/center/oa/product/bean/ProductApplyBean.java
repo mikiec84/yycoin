@@ -115,13 +115,41 @@ public class ProductApplyBean implements Serializable {
      * 销售周期 type = 207
      */
     @Html(title = "销售周期", type = Element.SELECT)
+    @Deprecated
+    @Ignore
     private int salePeriod = -1;
     
     /**
      * 销售对象 type = 208
      */
     @Html(title = "销售对象",  type = Element.SELECT)
+    @Deprecated
+    @Ignore
     private int saleTarget = -1;
+
+    /**2015/11/21 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
+     * 实物数量
+     */
+    @Html(title = "实物数量", type = Element.NUMBER)
+    private int productAmount = -1;
+
+    /**
+     * 包装数量
+     */
+    @Html(title = "包装数量",  type = Element.NUMBER)
+    private int packageAmount = -1;
+
+    /**
+     * 证书数量
+     */
+    @Html(title = "证书数量",  type = Element.NUMBER)
+    private int certificateAmount = -1;
+
+    /**
+     * 产品克重
+     */
+    @Html(title = "产品克重",  type = Element.DOUBLE)
+    private double productWeight = -1;
     
     /**
      * 产品性质 - 0:单元产品，1：合成产品
@@ -140,6 +168,8 @@ public class ProductApplyBean implements Serializable {
      * 纸币类型 type = 209
      */
     @Html(title = "纸币类型", type = Element.SELECT)
+    @Deprecated
+    @Ignore
     private int currencyType = -1;
     
     /**
@@ -152,6 +182,8 @@ public class ProductApplyBean implements Serializable {
      * 外型 type = 211
      */
     @Html(title = "外型", type = Element.SELECT)
+    @Deprecated
+    @Ignore
     private int style = -1;
     
      /**
@@ -612,6 +644,38 @@ public class ProductApplyBean implements Serializable {
 
     public void setVsList(List<ProductVSStafferBean> vsList) {
         this.vsList = vsList;
+    }
+
+    public int getProductAmount() {
+        return productAmount;
+    }
+
+    public void setProductAmount(int productAmount) {
+        this.productAmount = productAmount;
+    }
+
+    public int getPackageAmount() {
+        return packageAmount;
+    }
+
+    public void setPackageAmount(int packageAmount) {
+        this.packageAmount = packageAmount;
+    }
+
+    public int getCertificateAmount() {
+        return certificateAmount;
+    }
+
+    public void setCertificateAmount(int certificateAmount) {
+        this.certificateAmount = certificateAmount;
+    }
+
+    public double getProductWeight() {
+        return productWeight;
+    }
+
+    public void setProductWeight(double productWeight) {
+        this.productWeight = productWeight;
     }
 
     public String toString()

@@ -173,6 +173,7 @@
             <forward name="printPufaReceipt" path="/transport/printPufaReceipt.jsp" />
             <forward name="printShipment" path="/transport/printShipment.jsp" />
             <forward name="printZyReceipt" path="/transport/printZyReceipt.jsp" />
+            <forward name="printNbReceipt" path="/transport/printNbReceipt.jsp" />
             <forward name="importBranchRelation" path="/sailImport/importBranchRelation.jsp" />
             <forward name="addAutoPickup" path="/transport/addAutoPickup.jsp" />
             <forward name="mergePackages" path="/transport/mergePackages.jsp" />

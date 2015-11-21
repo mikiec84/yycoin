@@ -42,3 +42,6 @@ alter table T_PRODUCT_APPLY add column className varchar(100) DEFAULT ''
 
 --2015/11/16 取消采购入库预确认
 delete from t_center_oamenuitem where menuitemname ='采购入库预确认'
+
+--2015/11/21 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
+alter table T_PRODUCT_APPLY add column productAmount int(11) DEFAULT -1,add column packageAmount int(11) DEFAULT -1,add column certificateAmount int(11) DEFAULT -1,add column productWeight double DEFAULT 0 
