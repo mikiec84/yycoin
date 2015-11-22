@@ -72,25 +72,17 @@
 
 			<p:pro field="className" cell="0" innerString="size=60" />
 			
-			<p:pro field="salePeriod">
-				<p:option type="207" empty="true" />
-			</p:pro>
+			<p:pro field="productAmount"/>
 
-			<p:pro field="saleTarget">
-				<p:option type="208" empty="true" />
-			</p:pro>
+            <p:pro field="packageAmount"/>
 
-			<p:pro field="currencyType">
-				<p:option type="209" empty="true" />
-			</p:pro>
+            <p:pro field="certificateAmount"/>
 
 			<p:pro field="secondhandGoods">
 				<p:option type="210" empty="true" />
-			</p:pro>			
+			</p:pro>
 
-			<p:pro field="style">
-				<p:option type="211" empty="true" />
-			</p:pro>	
+            <p:pro field="productWeight"/>
 
 			<p:pro field="commissionBeginDate" />
 			

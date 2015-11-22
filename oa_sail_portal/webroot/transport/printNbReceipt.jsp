@@ -92,7 +92,7 @@
     </tr>
 
     <tr>
-        <td height="10" colspan='2'>&nbsp;&nbsp;&nbsp;&nbsp;根据贵行订单，现我公司发货明细如下：</td>
+        <td height="10" colspan='2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;根据贵行订单，现我公司发货明细如下：</td>
     </tr>
 
     <tr>
@@ -102,15 +102,15 @@
                     <td>
                         <table width="100%" cellspacing='0' cellpadding="0"  class="border">
                             <tr class="content2">
-                                <td width="8%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">产品编码</td></tr></table></td>
+                                <td width="4%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
+                                <td width="8%"><table class="border1"><tr><td align="center">产品编码</td></tr></table></td>
                                 <td width="30%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
                                 <td width="10%"><table class="border1"><tr><td align="center">材质成色</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">单件重量</td></tr></table></td>
+                                <td width="8%"><table class="border1"><tr><td align="center">单件重量</td></tr></table></td>
                                 <td width="8%"><table class="border1"><tr><td align="center">数量(实物)</td></tr></table></td>
                                 <td width="8%"><table class="border1"><tr><td align="center">数量(包装)</td></tr></table></td>
                                 <td width="8%"><table class="border1"><tr><td align="center">数量(证书)</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
+                                <td width="16%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
                             </tr>
 
                             <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
@@ -135,16 +135,11 @@
                                     <td><table class="border1"><tr><td align="center"></td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center"></td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
                                 </tr>
                             </c:forEach>
-                            <tr class="content2">
-                                <td><table class="border1"><tr><td align="center">合计:</td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center">${total}</td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                            </tr>
                         </table>
                     </td>
                 </tr>
@@ -157,22 +152,44 @@
                     <td>
                         <table width="100%" cellspacing='0' cellpadding="0">
                             <tr class="content2">
-                                <td colspan="4"><table><tr><td>注：请贵行收验并加盖预留印鉴后，向我司快递/传真/邮件本确认单。从签收之日起15个工作日内未发出，则视贵行已收齐我司以上发货产品无误。</td></tr></table></td>
+                                <td colspan="4"><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：请贵行收验并加盖预留印鉴后，向我司快递/传真/邮件本确认单。从签收之日起15个工作日内未发出，则视贵行已收齐我司以上发货产品无误。</td></tr></table></td>
                             </tr>
                         </table>
                     </td>
                 </tr>
 
                 <tr>
+                    <td height="15"></td>
+                </tr>
+
+                <tr>
                     <td>
                         <table width="100%" cellspacing='0' cellpadding="0"  class="border">
                             <tr class="content2">
-                                <td width="8%" rowspan="3"><table class="border1"><tr><td align="center">贵行如有问题请在此处注明：</td></tr></table></td>
+                                <td width="8%" rowspan="3">
+                                    <table class="border1">
+                                        <tr class="content2">
+                                            <td colspan="3" width="50%"><table><tr><td>贵行如有问题请在此处注明：</td></tr></table></td>
+                                            <td width="50%"><table><tr><td></td></tr></table></td>
+                                        </tr>
+                                        <tr class="content2">
+                                            <td colspan="3"><table><tr><td></td></tr></table></td>
+                                            <td><table><tr><td></td></tr></table></td>
+                                        </tr>
+                                        <tr class="content2">
+                                            <td colspan="3"><table><tr><td></td></tr></table></td>
+                                            <td><table><tr><td></td></tr></table></td>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                         </table>
                     </td>
                 </tr>
 
+                <tr>
+                    <td height="15"></td>
+                </tr>
 
                 <tr>
                     <td>
@@ -214,7 +231,12 @@
                                 <td><table><tr><td>收货时间：</td></tr></table></td>
                             </tr>
                             <tr class="content2">
-                                <td colspan="4" align="right"><table><tr><td>盖章/签字：</td></tr></table></td>
+                                <td colspan="3"><table><tr><td></td></tr></table></td>
+                                <td><table><tr><td></td></tr></table></td>
+                            </tr>
+                            <tr class="content2">
+                                <td colspan="3"><table><tr><td></td></tr></table></td>
+                                <td><table><tr><td>盖章/签字：</td></tr></table></td>
                             </tr>
                             <tr class="content2">
                                 <td colspan="4">

@@ -81,6 +81,18 @@ public class PackageItemBean implements Serializable
 	 */
 	@Ignore
 	private String productCode = "";
+
+
+    /**
+     * 2015/11/22 宁波银行回执单材质成色
+     * 产品材质为 贵金属纪念章金 的字段值改为Au.999
+     产品材质为 贵金属纪念章银 的字段值改为Ag.999
+     产品材质为 贵金属纪念章_金银 的字段值改为Au.999+Ag.999
+     产品克重 取 新产品申请中的原“外型”字段值，将“外型”改为产品克重，字段类型改为浮点型
+     实物、包装、证书数量取对应字段值
+     */
+    @Ignore
+    private String materiaType = "";
 	
 	public PackageItemBean()
 	{
@@ -327,4 +339,12 @@ public class PackageItemBean implements Serializable
 	public void setProductCode(String productCode) {
 		this.productCode = productCode;
 	}
+
+    public String getMateriaType() {
+        return materiaType;
+    }
+
+    public void setMateriaType(String materiaType) {
+        this.materiaType = materiaType;
+    }
 }
