@@ -94,25 +94,25 @@ public class PackageItemBean implements Serializable
 	 * 实物数量
 	 */
 	@Ignore
-	private int productAmount = -1;
+	private int productAmount = 1;
 
 	/**
 	 * 包装数量
 	 */
 	@Ignore
-	private int packageAmount = -1;
+	private int packageAmount = 0;
 
 	/**
 	 * 证书数量
 	 */
 	@Ignore
-	private int certificateAmount = -1;
+	private int certificateAmount = 0;
 
 	/**
 	 * 产品克重
 	 */
 	@Ignore
-	private double productWeight = -1;
+	private double productWeight = 0;
 	
 	public PackageItemBean()
 	{
