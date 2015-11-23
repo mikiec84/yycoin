@@ -3,11 +3,7 @@ package com.china.center.oa.sail.bean;
 import java.io.Serializable;
 
 import com.china.center.jdbc.annosql.constant.AnoConstant;
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Ignore;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
 
 @SuppressWarnings("serial")
 @Entity(name = "发货单明细")
@@ -93,6 +89,30 @@ public class PackageItemBean implements Serializable
      */
     @Ignore
     private String materiaType = "";
+
+	/**2015/11/21 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
+	 * 实物数量
+	 */
+	@Ignore
+	private int productAmount = -1;
+
+	/**
+	 * 包装数量
+	 */
+	@Ignore
+	private int packageAmount = -1;
+
+	/**
+	 * 证书数量
+	 */
+	@Ignore
+	private int certificateAmount = -1;
+
+	/**
+	 * 产品克重
+	 */
+	@Ignore
+	private double productWeight = -1;
 	
 	public PackageItemBean()
 	{
@@ -347,4 +367,36 @@ public class PackageItemBean implements Serializable
     public void setMateriaType(String materiaType) {
         this.materiaType = materiaType;
     }
+
+	public int getProductAmount() {
+		return productAmount;
+	}
+
+	public void setProductAmount(int productAmount) {
+		this.productAmount = productAmount;
+	}
+
+	public int getPackageAmount() {
+		return packageAmount;
+	}
+
+	public void setPackageAmount(int packageAmount) {
+		this.packageAmount = packageAmount;
+	}
+
+	public int getCertificateAmount() {
+		return certificateAmount;
+	}
+
+	public void setCertificateAmount(int certificateAmount) {
+		this.certificateAmount = certificateAmount;
+	}
+
+	public double getProductWeight() {
+		return productWeight;
+	}
+
+	public void setProductWeight(double productWeight) {
+		this.productWeight = productWeight;
+	}
 }

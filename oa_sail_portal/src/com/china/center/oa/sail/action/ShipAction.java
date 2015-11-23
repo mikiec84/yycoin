@@ -24,10 +24,9 @@ import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
-import com.china.center.oa.publics.bean.CityBean;
-import com.china.center.oa.publics.bean.ProvinceBean;
-import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.EnumDAO;
 import com.china.center.oa.publics.dao.ProvinceDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.sail.bean.*;
@@ -55,7 +54,6 @@ import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.AuthBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.sail.constanst.OutConstant;
@@ -112,6 +110,8 @@ public class ShipAction extends DispatchAction
     private ProductVSBankDAO productVSBankDAO = null;
 
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
+
+    private EnumDAO enumDAO = null;
 
     private final static String QUERYPACKAGE = "queryPackage";
 
@@ -752,8 +752,7 @@ public class ShipAction extends DispatchAction
             shipManager.deletePackage(user, packageIds);
 
             ajax.setSuccess("撤销成功");
-        }catch(MYException e)
-        {
+        }catch(MYException e) {
             _logger.warn(e, e);
 
             ajax.setError("撤销出错:" + e.getErrorContent());
@@ -1777,6 +1776,71 @@ public class ShipAction extends DispatchAction
         }
     }
 
+    /**
+     * 2015/11/23 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
+     * @param item
+     */
+    private void convertProductNameForNb(PackageItemBean item){
+        ProductBean product = productDAO.find(item.getProductId());
+        String productName = null;
+        String productCode = "";
+
+        if (product!= null) {
+            productCode = product.getCode();
+            ConditionParse conditionParse =  new ConditionParse();
+            conditionParse.addCondition("productCode", "=", productCode);
+            List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(beans)){
+                CiticVSOAProductBean bean = beans.get(0);
+                if (bean!= null){
+                    productName = bean.getCiticProductName();
+                }
+            } else{
+                productName = this.getProductName(item.getProductName());
+            }
+
+            this.setProductInfoForNb(item, product);
+        }
+
+        if (!StringTools.isNullOrNone(productName)){
+            String template = "print receipt convertProductName from:%s to:%s with productCode:%s";
+            _logger.info(String.format(template, item.getProductName(), productName, productCode));
+            item.setProductName(productName);
+        }
+    }
+
+
+    private void setProductInfoForNb(PackageItemBean item, ProductBean product){
+        if(item != null && product!= null){
+            item.setProductAmount(product.getProductAmount());
+            item.setPackageAmount(product.getPackageAmount());
+            item.setCertificateAmount(product.getCertificateAmount());
+            item.setProductWeight(product.getProductWeight());
+
+            //材质类型
+            int checkDays = product.getCheckDays();
+            String materialType = "";
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("type", "=", "201");
+            conditionParse.addCondition("keyss", "=", checkDays);
+
+            List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(enumBeans)){
+                EnumBean enumBean = enumBeans.get(0);
+                String value = enumBean.getValue();
+                if ("贵金属纪念章_金".equals(value) || "贵金属纪念章金".equals(value)){
+                    materialType = "Au.999";
+                } else if ("贵金属纪念章_银".equals(value) || "贵金属纪念章银".equals(value)){
+                    materialType = "Ag.999";
+                } else if ("贵金属纪念章_金银".equals(value) || "贵金属纪念章金银".equals(value)){
+                    materialType = "Au.999+Ag.999";
+                }
+            }
+            item.setMateriaType(materialType);
+        }
+    }
+
     public String getProductName(String original){
         String name = "";
         try {
@@ -2519,7 +2583,7 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            this.convertProductName(item);
+            this.convertProductNameForNb(item);
 
             this.getProductCode(item);
             itemList1.add(item);
@@ -3407,5 +3471,13 @@ public class ShipAction extends DispatchAction
 
     public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO) {
         this.citicVSOAProductDAO = citicVSOAProductDAO;
+    }
+
+    public EnumDAO getEnumDAO() {
+        return enumDAO;
+    }
+
+    public void setEnumDAO(EnumDAO enumDAO) {
+        this.enumDAO = enumDAO;
     }
 }

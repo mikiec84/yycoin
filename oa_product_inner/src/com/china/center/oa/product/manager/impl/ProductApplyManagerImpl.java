@@ -476,6 +476,12 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         productBean.setInputInvoice(applyBean.getInputInvoice());
         productBean.setSailInvoice(applyBean.getSailInvoice());
 
+        //2015/11/23 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
+        productBean.setProductAmount(applyBean.getProductAmount());
+        productBean.setPackageAmount(applyBean.getPackageAmount());
+        productBean.setCertificateAmount(applyBean.getCertificateAmount());
+        productBean.setProductWeight(applyBean.getProductWeight());
+
         Expression exp = new Expression(productBean, this);
 
         exp.check("#name &unique @productDAO", "名称已经存在");

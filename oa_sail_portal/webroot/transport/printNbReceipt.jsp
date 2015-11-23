@@ -118,11 +118,11 @@
                                     <td><table class="border1"><tr><td align="center">${vs.index+1}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">Au.999+Ag.999</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">#TODO</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">#TODO</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">#TODO</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">#TODO</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.materiaType}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.productWeight}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.productAmount}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.packageAmount}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.certificateAmount}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
                                 </tr>
                             </c:forEach>

@@ -135,6 +135,8 @@ public class ProductBean implements Serializable
      * 0:不启用库存模型 1:启用库存模型
      */
     @Html(title = "销售周期", type = Element.SELECT, must = true)
+    @Deprecated
+    @Ignore
     private int stockType = -1;
 
     /**
@@ -189,12 +191,16 @@ public class ProductBean implements Serializable
      * 物流期（天）
      */
     @Html(title = "销售对象", type = Element.SELECT, must = true)
+    @Deprecated
+    @Ignore
     private int flowDays = 0;
 
     /**
      * 最小批量的个数
      */
     @Html(title = "纸币类型", type = Element.SELECT, must = true)
+    @Deprecated
+    @Ignore
     private int minAmount = 0;
 
     /**
@@ -225,6 +231,30 @@ public class ProductBean implements Serializable
      */
     @Html(title = "外型", type = Element.SELECT, must = true)
     private int orderAmount = 0;
+
+    /**2015/11/21 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
+     * 实物数量
+     */
+    @Html(title = "实物数量", type = Element.NUMBER)
+    private int productAmount = -1;
+
+    /**
+     * 包装数量
+     */
+    @Html(title = "包装数量",  type = Element.NUMBER)
+    private int packageAmount = -1;
+
+    /**
+     * 证书数量
+     */
+    @Html(title = "证书数量",  type = Element.NUMBER)
+    private int certificateAmount = -1;
+
+    /**
+     * 产品克重
+     */
+    @Html(title = "产品克重",  type = Element.DOUBLE)
+    private double productWeight = -1;
 
     /**
      * 主供应商
@@ -1497,7 +1527,39 @@ public class ProductBean implements Serializable
 		this.sailInvoice = sailInvoice;
 	}
 
-	/**
+    public int getProductAmount() {
+        return productAmount;
+    }
+
+    public void setProductAmount(int productAmount) {
+        this.productAmount = productAmount;
+    }
+
+    public int getPackageAmount() {
+        return packageAmount;
+    }
+
+    public void setPackageAmount(int packageAmount) {
+        this.packageAmount = packageAmount;
+    }
+
+    public int getCertificateAmount() {
+        return certificateAmount;
+    }
+
+    public void setCertificateAmount(int certificateAmount) {
+        this.certificateAmount = certificateAmount;
+    }
+
+    public double getProductWeight() {
+        return productWeight;
+    }
+
+    public void setProductWeight(double productWeight) {
+        this.productWeight = productWeight;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.
