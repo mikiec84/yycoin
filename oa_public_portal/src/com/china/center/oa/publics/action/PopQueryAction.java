@@ -257,6 +257,7 @@ public class PopQueryAction extends DispatchAction
                                       HttpServletRequest request, HttpServletResponse reponse)
         throws ServletException
     {
+        _logger.info("**********rptQueryUser*********");
         CommonTools.saveParamers(request);
 
         List<UserVO> list = null;
@@ -287,6 +288,7 @@ public class PopQueryAction extends DispatchAction
 
         for (UserVO userVO : list)
         {
+
             RoleVO bean = null;
 
             try
@@ -304,6 +306,7 @@ public class PopQueryAction extends DispatchAction
 
                 // 借用
                 userVO.setRoleName(jarr.toString());
+
             }
             catch (MYException e)
             {
@@ -312,6 +315,7 @@ public class PopQueryAction extends DispatchAction
                 return mapping.findForward("error");
             }
         }
+
 
         request.setAttribute("beanList", list);
 
@@ -629,6 +633,11 @@ public class PopQueryAction extends DispatchAction
         {
             condtion.addCondition("StafferBean.name", "like", sname);
         }
+
+
+        //2015/11/24 除了周苏东、潘海明、陈永、唐志外其他人不能用商务登录登录含有以上姓名的系统用户
+        //这4个人不能出现在选择人员的弹出框中
+        condtion.addCondition(" and UserBean.name not like '%周苏东%' and UserBean.name not like '%潘海明%' and UserBean.name not like '%陈永%' and UserBean.name not like '%唐志%'");
 
         // 只显示正常的用户
         condtion.addIntCondition("StafferBean.status", "=", StafferConstant.STATUS_COMMON);
