@@ -1427,7 +1427,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         outBean.setFullId(fullId);
 
         // 保存库单
-        outBean.setStatus(OutConstant.STATUS_SAVE);
+        //2015/11/26 入库销售退单直接提交为“待库管处理”状态
+        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
+                || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
+                || outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT)){
+            outBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);
+        } else{
+            outBean.setStatus(OutConstant.STATUS_SAVE);
+        }
+
 
         setInvoiceId(outBean);
 
