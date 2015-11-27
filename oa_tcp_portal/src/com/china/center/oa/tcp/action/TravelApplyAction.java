@@ -2962,17 +2962,18 @@ public class TravelApplyAction extends DispatchAction
                             }
 
                             //2015/8/12 激励申请时，检查订单为已出库或已发货
-                            if(type == TcpConstanst.MOTIVATION_TYPE){
-                                if (out.getStatus() != OutConstant.STATUS_PASS &&
-                                        out.getStatus() != OutConstant.STATUS_SEC_PASS){
-                                    builder
-                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("激励申请时订单状态必须为已出库或已发货")
-                                            .append("</font><br>");
-
-                                    importError = true;
-                                }
-                            }
+                            //2015/11/27 激励申请时订单状态限制取消
+//                            if(type == TcpConstanst.MOTIVATION_TYPE){
+//                                if (out.getStatus() != OutConstant.STATUS_PASS &&
+//                                        out.getStatus() != OutConstant.STATUS_SEC_PASS){
+//                                    builder
+//                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                            .append("激励申请时订单状态必须为已出库或已发货")
+//                                            .append("</font><br>");
+//
+//                                    importError = true;
+//                                }
+//                            }
 
                             if (customerToOutMap.containsKey(item.getCustomerName())){
                                 List<String> oudIds = customerToOutMap.get(item.getCustomerName());
