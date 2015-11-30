@@ -1812,9 +1812,9 @@ public class ShipAction extends DispatchAction
 
     private void setProductInfoForNb(PackageItemBean item, ProductBean product){
         if(item != null && product!= null){
-            item.setProductAmount(product.getProductAmount());
-            item.setPackageAmount(product.getPackageAmount());
-            item.setCertificateAmount(product.getCertificateAmount());
+            item.setProductAmount(item.getAmount()*product.getProductAmount());
+            item.setPackageAmount(item.getAmount()*product.getPackageAmount());
+            item.setCertificateAmount(item.getAmount()*product.getCertificateAmount());
             item.setProductWeight(product.getProductWeight());
 
             //材质类型
