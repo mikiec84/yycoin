@@ -46,3 +46,15 @@ delete from t_center_oamenuitem where menuitemname ='采购入库预确认'
 --2015/11/21 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
 alter table T_PRODUCT_APPLY add column productAmount int(11) DEFAULT -1,add column packageAmount int(11) DEFAULT -1,add column certificateAmount int(11) DEFAULT -1,add column productWeight double DEFAULT 0 
 alter table T_CENTER_PRODUCT add column productAmount int(11) DEFAULT -1,add column packageAmount int(11) DEFAULT -1,add column certificateAmount int(11) DEFAULT -1,add column productWeight double DEFAULT 0 
+
+--2015/12/1 采购到货信息
+CREATE TABLE T_CENTER_STOCKITEMARRIAL (
+id int(11) NOT NULL AUTO_INCREMENT,
+stockId varchar(200) NOT NULL,
+productId varchar(200) NOT NULL,
+amount int(11),
+deliveryDate varchar(200) NOT NULL,
+arrivalDate varchar(200) NOT NULL,
+logTime varchar(200) NOT NULL,
+PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
