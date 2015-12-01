@@ -219,6 +219,14 @@
                                 <td><table><tr><td></td></tr></table></td>
                             </tr>
                             <tr class="content2">
+                                <td colspan="3"><table><tr><td>传真号码：025-51885923</td></tr></table></td>
+                                <td><table><tr><td></td></tr></table></td>
+                            </tr>
+                            <tr class="content2">
+                                <td colspan="3"><table><tr><td></td></tr></table></td>
+                                <td><table><tr><td></td></tr></table></td>
+                            </tr>
+                            <tr class="content2">
                                 <td colspan="3"><table><tr><td>送货时间：${shipTime}</td></tr></table></td>
                                 <td><table><tr><td>监交人员：</td></tr></table></td>
                             </tr>
