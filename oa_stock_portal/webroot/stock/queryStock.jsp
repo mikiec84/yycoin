@@ -552,9 +552,17 @@ function exports()
 									src="../images/opr/change.gif" border="0" height="15" width="15"></a>
 							</c:if>
 					
-					</c:if> 
-					
-					</td>
+					</c:if>
+
+                        <c:if test="${ltype == '0'}">
+                            <c:if test="${item.status != 8}">
+                                <a title="修改到货信息" href="javascript:endProduct('${item.id}')"> <img
+                                        src="../images/opr/change.gif" border="0" height="15" width="15"></a>
+                            </c:if>
+
+                        </c:if>
+
+                    </td>
 				</tr>
 			</c:forEach>
 		</table>

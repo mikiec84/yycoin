@@ -19,6 +19,8 @@ import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.stock.bean.*;
+import com.china.center.oa.stock.dao.*;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,18 +48,8 @@ import com.china.center.oa.publics.dao.ParameterDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.helper.AuthHelper;
 import com.china.center.oa.publics.helper.OATools;
-import com.china.center.oa.stock.bean.PriceAskBean;
-import com.china.center.oa.stock.bean.PriceAskProviderBean;
-import com.china.center.oa.stock.bean.StockBean;
-import com.china.center.oa.stock.bean.StockItemBean;
-import com.china.center.oa.stock.bean.StockWorkBean;
 import com.china.center.oa.stock.constant.PriceConstant;
 import com.china.center.oa.stock.constant.StockConstant;
-import com.china.center.oa.stock.dao.PriceAskDAO;
-import com.china.center.oa.stock.dao.PriceAskProviderDAO;
-import com.china.center.oa.stock.dao.StockDAO;
-import com.china.center.oa.stock.dao.StockItemDAO;
-import com.china.center.oa.stock.dao.StockWorkDAO;
 import com.china.center.oa.stock.listener.StockListener;
 import com.china.center.oa.stock.manager.PriceAskManager;
 import com.china.center.oa.stock.manager.StockManager;
@@ -111,6 +103,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     private StockWorkDAO stockWorkDAO = null;
 
     private BaseDAO baseDAO = null;
+
+    private StockItemArrivalDAO stockItemArrivalDAO = null;
 
 //    private OutDAO outDAO = null;
 
@@ -558,6 +552,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         // 100W - 
         if (sb.getStatus() == StockConstant.STOCK_STATUS_PRICEPASS)
         {
+            //2015/12/2 检查是否维护到货信息
+            List<StockItemArrivalBean> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityBeansByFK(sb.getId());
+            if (ListTools.isEmptyOrNull(stockItemArrivalBeans)){
+                throw new MYException("采购单没有维护到货信息,不能通过");
+            }
             // 检查是否询价
             //2015/10/24 取消检查询价
 //            for (StockItemBean stockItemBean : itemList)
@@ -1923,6 +1922,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         this.baseDAO = baseDAO;
     }
 
+    public StockItemArrivalDAO getStockItemArrivalDAO() {
+        return stockItemArrivalDAO;
+    }
+
+    public void setStockItemArrivalDAO(StockItemArrivalDAO stockItemArrivalDAO) {
+        this.stockItemArrivalDAO = stockItemArrivalDAO;
+    }
 //    /**
 //     * @return the outDAO
 //     */

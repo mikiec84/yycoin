@@ -1879,7 +1879,8 @@ public class StockAction extends DispatchAction
         		
         	}
         }
-        System.out.println("444444444444444444444444444444444444");
+        String template = "*** queryStock with ltype:%s flag:%d *****";
+        System.out.println(String.format(template,ltype,flag));
         try
         {
             if (OldPageSeparateTools.isFirstLoad(request))

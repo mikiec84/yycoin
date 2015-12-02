@@ -26,6 +26,8 @@
 
 	<bean id="stockItemDAO" class="com.china.center.oa.stock.dao.impl.StockItemDAOImpl" />
 
+    <bean id="stockItemArrivalDAO" class="com.china.center.oa.stock.dao.impl.StockItemArrivalDAOImpl" />
+
 	<bean id="stockManager" class="com.china.center.oa.stock.manager.impl.StockManagerImpl" />
 
 	<bean id="stockWorkDAO" class="com.china.center.oa.stock.dao.impl.StockWorkDAOImpl" />
