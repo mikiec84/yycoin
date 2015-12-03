@@ -24,6 +24,8 @@
 
 	<osgi:service ref="stockItemDAO" interface="com.china.center.oa.stock.dao.StockItemDAO" />
 
+    <osgi:service ref="stockItemArrivalDAO" interface="com.china.center.oa.stock.dao.StockItemArrivalDAO" />
+
 	<osgi:service ref="stockManager" interface="com.china.center.oa.stock.manager.StockManager" />
 	
 	<osgi:service ref="stockWorkDAO" interface="com.china.center.oa.stock.dao.StockWorkDAO" />
