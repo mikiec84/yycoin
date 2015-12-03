@@ -256,6 +256,14 @@ function addStockArrival(id)
 	formEntry.submit();
 }
 
+function updateStockArrival(id)
+{
+    $O('method').value = 'findStock';
+    $O('id').value = id;
+    $O('updateStockArrival').value = '1';
+    formEntry.submit();
+}
+
 function getProduct(id)
 {
 	$O('method').value = 'findStock';
@@ -334,6 +342,7 @@ function exports()
 	type="hidden" value="1" name="firstLoad">
 	<input type="hidden" value="" name="id">
 	<input type="hidden" value="" name="addStockArrival">
+    <input type="hidden" value="" name="updateStockArrival">
 <input type="hidden" value="" name="pass">
 <input type="hidden" value="${ltype}" name="ltype">
 <input type="hidden" value="" name="nearlyPayDate">
@@ -565,8 +574,9 @@ function exports()
 
                         <c:if test="${ltype == '0'}">
                             <c:if test="${item.status != 8}">
-                                <a title="修改到货信息" href="javascript:endProduct('${item.id}')"> <img
-                                        src="../images/opr/change.gif" border="0" height="15" width="15"></a>
+                                <a title="修改到货信息" href="javascript:updateStockArrival('${item.id}')">
+                                    <img src="../images/opr/change.gif" border="0" height="15" width="15">
+                                </a>
                             </c:if>
 
                         </c:if>

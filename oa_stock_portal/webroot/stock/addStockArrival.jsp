@@ -5,6 +5,7 @@
 <head>
     <p:link title="采购单" />
     <script language="JavaScript" src="../js/common.js"></script>
+    <script language="JavaScript" src="../js/JCheck.js"></script>
     <script language="JavaScript" src="../js/public.js"></script>
     <script language="JavaScript" src="../js/key.js"></script>
     <script language="JavaScript" src="../js/title_div.js"></script>
@@ -295,13 +296,16 @@
 
                 <c:forEach items="${bean.itemVO}" var="item" varStatus="vs">
                     <tr id="trCopy" class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
-                        <td align="center"><input type="string" name="productName" value="${item.productName}" readonly></td>
+                        <td align="center">
+                            <input type="text" name="productName" value="${item.productName}" readonly>
+                            <input type="hidden" name="productId" value="${item.productId}">
+                        </td>
 
                         <td align="center"><input type="number" name="amount" value="${item.amount}"></td>
 
-                        <td align="center"><input type="date" name="deliveryDate"></td>
+                        <td align="center"><input type="text" name="deliveryDate" class="calendarFocus"></td>
 
-                        <td align="center"><input type="date" name="arrivalDate"></td>
+                        <td align="center"><input type="text" name="arrivalDate" class="calendarFocus"></td>
 
                         <td align="left"><input type="button" value="清空"  class="button_class" onclick="clears()"></td>
                     </tr>

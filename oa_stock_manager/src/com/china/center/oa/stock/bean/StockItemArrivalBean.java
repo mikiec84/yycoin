@@ -38,7 +38,7 @@ public class StockItemArrivalBean implements Serializable
     /**
      * REF的入库单
      */
-    private String refOutId = "";
+//    private String refOutId = "";
 
     /**
      * 数量
@@ -80,14 +80,14 @@ public class StockItemArrivalBean implements Serializable
     public void setProductId(String productId) {
         this.productId = productId;
     }
-
-    public String getRefOutId() {
-        return refOutId;
-    }
-
-    public void setRefOutId(String refOutId) {
-        this.refOutId = refOutId;
-    }
+//
+//    public String getRefOutId() {
+//        return refOutId;
+//    }
+//
+//    public void setRefOutId(String refOutId) {
+//        this.refOutId = refOutId;
+//    }
 
     public int getAmount() {
         return amount;

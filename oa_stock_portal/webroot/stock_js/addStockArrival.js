@@ -72,7 +72,7 @@ function addTr()
 
     if (length > 15)
     {
-        alert('×î¶àÖ»ÄÜÓĞ15¸ö²úÆ·');
+        alert('æœ€å¤šåªèƒ½æœ‰15ä¸ªäº§å“');
         return null;
     }
 
@@ -101,7 +101,7 @@ function addTr()
 
     tcell = document.createElement("td");
 
-    tcell.innerHTML = '<input type=button value="É¾³ı" class=button_class onclick="removeTr(this)">';
+    tcell.innerHTML = '<input type=button value="åˆ é™¤" class=button_class onclick="removeTr(this)">';
 
     trow.appendChild(tcell);
 
@@ -223,7 +223,7 @@ function clearArray(array, flag)
 }
 
 /**
- * ooÊÇÔÚaddStockArrival.jspÀïÃæ¶¨ÒåµÄ
+ * ooï¿½ï¿½ï¿½ï¿½addStockArrival.jspï¿½ï¿½ï¿½æ¶¨ï¿½ï¿½ï¿½
  */
 function getProductRelation(ox)
 {
@@ -243,7 +243,7 @@ function getProductRelation(ox)
         setObj(oo, ox[0]);
 
         var os = oo.parentNode.parentNode;
-        os.cells[2].childNodes[0].title = 'µ±Ç°²úÆ·µÄ×î´óÊıÁ¿:' + ox[0].pamount;
+        os.cells[2].childNodes[0].title = 'ï¿½ï¿½Ç°ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:' + ox[0].pamount;
         os.cells[2].childNodes[0].oncheck = 'range(-' + ox[0].pamount + ')';
         os.cells[3].childNodes[0].value = ox[0].pprice;
         os.cells[5].childNodes[0].value = ox[0].pprice;
@@ -263,7 +263,7 @@ function getProductRelation(ox)
 
         setObj(inps[0], ox[i]);
 
-        inps[1].title = 'µ±Ç°²úÆ·µÄ×î´óÊıÁ¿:' + ox[i].pamount;
+        inps[1].title = 'ï¿½ï¿½Ç°ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:' + ox[i].pamount;
         inps[1].oncheck = 'range(-' + ox[i].pamount + ')';
         inps[2].value = ox[i].pprice;
         inps[4].value = ox[i].pprice;
@@ -272,7 +272,7 @@ function getProductRelation(ox)
 }
 
 /**
- * ĞéÄâ²úÆ·µÄÑ¡Ôñ
+ * ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½Ñ¡ï¿½ï¿½
  */
 function getProductAbs(ox)
 {

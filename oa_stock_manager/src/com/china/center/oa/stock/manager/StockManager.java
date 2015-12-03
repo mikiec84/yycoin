@@ -44,6 +44,9 @@ public interface StockManager extends ListenerManager<StockListener>
     boolean addStockArrivalBean(final User user, final List<StockItemArrivalBean> beans)
             throws MYException;
 
+    boolean updateStockArrivalBean(final User user, final StockBean stockBean)
+            throws MYException;
+
     StockVO findStockVO(String id);
 
     boolean stockItemAskChange(String itemId, String providerId)

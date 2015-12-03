@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.stock.bean.*;
+import com.china.center.oa.stock.dao.*;
+import com.china.center.tools.*;
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
@@ -78,11 +80,6 @@ import com.china.center.oa.stock.action.helper.PriceAskHelper;
 import com.china.center.oa.stock.action.helper.StockHelper;
 import com.china.center.oa.stock.constant.PriceConstant;
 import com.china.center.oa.stock.constant.StockConstant;
-import com.china.center.oa.stock.dao.PriceAskDAO;
-import com.china.center.oa.stock.dao.PriceAskProviderDAO;
-import com.china.center.oa.stock.dao.StockDAO;
-import com.china.center.oa.stock.dao.StockItemDAO;
-import com.china.center.oa.stock.dao.StockWorkDAO;
 import com.china.center.oa.stock.manager.PriceAskManager;
 import com.china.center.oa.stock.manager.StockManager;
 import com.china.center.oa.stock.vo.PriceAskProviderBeanVO;
@@ -91,13 +88,6 @@ import com.china.center.oa.stock.vo.StockVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestTools;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -156,6 +146,8 @@ public class StockAction extends DispatchAction
     private DepotpartDAO depotpartDAO = null;
     
     private StockWorkDAO stockWorkDAO = null;
+
+    private StockItemArrivalDAO stockItemArrivalDAO = null;
 
     private static String RPTQUERYSTOCKITEM = "rptQueryStockItem";
 
@@ -289,6 +281,30 @@ public class StockAction extends DispatchAction
 		// 商务 - end
 	}
 
+    private List<StockItemArrivalBean> getStockItemArrialBeanFromRequest(HttpServletRequest request){
+        String stockId = request.getParameter("stockId");
+        String[] productIds = request.getParameterValues("productId");
+        String[] amounts = request.getParameterValues("amount");
+        String[] deliveryDates = request.getParameterValues("deliveryDate");
+        String[] arrivalDates = request.getParameterValues("arrivalDate");
+
+        _logger.info("***addStockArrival***"+stockId);
+
+        List<StockItemArrivalBean> stockItemArrivalBeans = new ArrayList<StockItemArrivalBean>();
+
+        for (int i=0;i<productIds.length;i++){
+            StockItemArrivalBean bean = new StockItemArrivalBean();
+            bean.setStockId(stockId);
+            bean.setProductId(productIds[i]);
+            bean.setAmount(Integer.valueOf(amounts[i]));
+            bean.setDeliveryDate(deliveryDates[i]);
+            bean.setArrivalDate(arrivalDates[i]);
+            stockItemArrivalBeans.add(bean);
+        }
+
+        return stockItemArrivalBeans;
+    }
+
     /**
      * 2015/12/3 采购到货信息
      * @param mapping
@@ -303,15 +319,9 @@ public class StockAction extends DispatchAction
             throws ServletException
     {
         User user = Helper.getUser(request);
+
         String stockId = request.getParameter("stockId");
-        _logger.info("***addStockArrival***"+stockId);
-
-        List<StockItemArrivalBean> stockItemArrivalBeans = new ArrayList<StockItemArrivalBean>();
-
-        //TODO
-        StockItemArrivalBean bean = new StockItemArrivalBean();
-        bean.setAmount(1);
-        stockItemArrivalBeans.add(bean);
+        List<StockItemArrivalBean> stockItemArrivalBeans = this.getStockItemArrialBeanFromRequest(request);
         try
         {
             this.stockManager.addStockArrivalBean(user, stockItemArrivalBeans);
@@ -323,6 +333,36 @@ public class StockAction extends DispatchAction
             _logger.warn(e, e);
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加采购到货信息失败:" + e.getMessage());
+        }
+
+        CommonTools.removeParamers(request);
+
+        return queryStock(mapping, form, request, reponse);
+    }
+
+
+    public ActionForward updateStockArrival(ActionMapping mapping, ActionForm form,
+                                         HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+        String stockId = request.getParameter("stockId");
+        StockBean stockBean = new StockBean();
+        stockBean.setId(stockId);
+        List<StockItemArrivalBean> stockItemArrivalBeans = this.getStockItemArrialBeanFromRequest(request);
+        stockBean.setArrivalBeans(stockItemArrivalBeans);
+
+        try
+        {
+            this.stockManager.updateStockArrivalBean(user, stockBean);
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功修改采购到货信息:" + stockId);
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "修改采购到货信息失败:" + e.getMessage());
         }
 
         CommonTools.removeParamers(request);
@@ -1317,9 +1357,15 @@ public class StockAction extends DispatchAction
         request.setAttribute("stockWorkBeanList", swList);
 
         String addStockArrival = request.getParameter("addStockArrival");
+        String updateStockArrival = request.getParameter("updateStockArrival");
         if ("1".equals(addStockArrival)){
             return mapping.findForward("addStockArrival");
-        } else {
+        } else if ("1".equals(updateStockArrival)){
+            List<StockItemArrivalBean> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityBeansByFK(vo.getId());
+            vo.setArrivalBeans(stockItemArrivalBeans);
+            return mapping.findForward("updateStockArrival");
+        }
+        else {
             return mapping.findForward("detailStock");
         }
     }
@@ -3158,4 +3204,12 @@ public class StockAction extends DispatchAction
 	{
 		this.stockWorkDAO = stockWorkDAO;
 	}
+
+    public StockItemArrivalDAO getStockItemArrivalDAO() {
+        return stockItemArrivalDAO;
+    }
+
+    public void setStockItemArrivalDAO(StockItemArrivalDAO stockItemArrivalDAO) {
+        this.stockItemArrivalDAO = stockItemArrivalDAO;
+    }
 }

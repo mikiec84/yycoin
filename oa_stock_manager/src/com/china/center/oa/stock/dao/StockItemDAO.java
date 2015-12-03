@@ -36,6 +36,6 @@ public interface StockItemDAO extends DAO<StockItemBean, StockItemVO>
     int countStatStockItem(String beginTime, String endTime);
 
     int sumNetProductByPid(String pid);
-    
+
     boolean updateExtraStatus(String id, int extraStatus);
 }

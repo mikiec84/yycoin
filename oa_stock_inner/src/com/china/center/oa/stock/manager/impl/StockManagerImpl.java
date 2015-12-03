@@ -184,12 +184,22 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         return true;
     }
 
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public boolean updateStockArrivalBean(User user, StockBean stockBean) throws MYException {
+        this.stockItemArrivalDAO.deleteEntityBeansByFK(stockBean.getId());
+        for (StockItemArrivalBean bean : stockBean.getArrivalBeans()){
+            this.stockItemArrivalDAO.saveEntityBean(bean);
+        }
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     /*
-         * (non-Javadoc)
-         *
-         * @see com.china.center.oa.stock.manager.StockManager#delStockBean(com.center.china.osgi.publics.User,
-         *      java.lang.String)
-         */
+             * (non-Javadoc)
+             *
+             * @see com.china.center.oa.stock.manager.StockManager#delStockBean(com.center.china.osgi.publics.User,
+             *      java.lang.String)
+             */
     @Transactional(rollbackFor = MYException.class)
     public boolean delStockBean(User user, String id)
         throws MYException

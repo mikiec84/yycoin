@@ -184,6 +184,9 @@ public class StockBean implements Serializable
     @Ignore
     private List<StockItemBean> item = null;
 
+    @Ignore
+    private List<StockItemArrivalBean> arrivalBeans = null;
+
     /**
      *
      */
@@ -786,7 +789,15 @@ public class StockBean implements Serializable
 		this.extraStatus = extraStatus;
 	}
 
-	/**
+    public List<StockItemArrivalBean> getArrivalBeans() {
+        return arrivalBeans;
+    }
+
+    public void setArrivalBeans(List<StockItemArrivalBean> arrivalBeans) {
+        this.arrivalBeans = arrivalBeans;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.
