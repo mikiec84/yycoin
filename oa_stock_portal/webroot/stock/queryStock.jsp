@@ -248,6 +248,14 @@ function end(id)
             }, 2);
 }
 
+function addStockArrival(id)
+{
+	$O('method').value = 'findStock';
+	$O('id').value = id;
+	$O('addStockArrival').value = '1';
+	formEntry.submit();
+}
+
 function getProduct(id)
 {
 	$O('method').value = 'findStock';
@@ -323,8 +331,9 @@ function exports()
 	onkeypress="tooltip.bingEsc(event)">
 <form name="formEntry" action="../stock/stock.do"><input
 	type="hidden" name="method" value="queryStock"> <input
-	type="hidden" value="1" name="firstLoad"> <input type="hidden"
-	value="" name="id">
+	type="hidden" value="1" name="firstLoad">
+	<input type="hidden" value="" name="id">
+	<input type="hidden" value="" name="addStockArrival">
 <input type="hidden" value="" name="pass">
 <input type="hidden" value="${ltype}" name="ltype">
 <input type="hidden" value="" name="nearlyPayDate">
@@ -509,7 +518,7 @@ function exports()
                             <a title="驳回采购单" href="javascript:reject('${item.id}')"> <img
                                 src="../images/opr/reject.gif" border="0" height="15" width="15"></a>
 
-                            <a title="采购商品到货信息" href="javascript:getProduct('${item.id}')">
+                            <a title="采购商品到货信息" href="javascript:addStockArrival('${item.id}')">
                                 <img src="../images/opr/change.gif" border="0" height="15" width="15">
                             </a>
                         </c:if>

@@ -39,6 +39,7 @@
              <forward name="stockAskChange"/>
 			 <forward name="rptQueryStockItem"/>
 			 <forward name="updateStockDutyConfig"/>
+             <forward name="addStockArrival"/>
         </action>
         
         <action path="/stock/work" parameter="method"

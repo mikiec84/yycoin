@@ -175,12 +175,21 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         return true;
     }
 
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public boolean addStockArrivalBean(User user, List<StockItemArrivalBean> list) throws MYException {
+        for (StockItemArrivalBean bean : list){
+            this.stockItemArrivalDAO.saveEntityBean(bean);
+        }
+        return true;
+    }
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.china.center.oa.stock.manager.StockManager#delStockBean(com.center.china.osgi.publics.User,
-     *      java.lang.String)
-     */
+         * (non-Javadoc)
+         *
+         * @see com.china.center.oa.stock.manager.StockManager#delStockBean(com.center.china.osgi.publics.User,
+         *      java.lang.String)
+         */
     @Transactional(rollbackFor = MYException.class)
     public boolean delStockBean(User user, String id)
         throws MYException

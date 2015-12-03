@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.stock.bean.*;
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
@@ -75,11 +76,6 @@ import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vs.RoleAuthBean;
 import com.china.center.oa.stock.action.helper.PriceAskHelper;
 import com.china.center.oa.stock.action.helper.StockHelper;
-import com.china.center.oa.stock.bean.PriceAskBean;
-import com.china.center.oa.stock.bean.PriceAskProviderBean;
-import com.china.center.oa.stock.bean.StockBean;
-import com.china.center.oa.stock.bean.StockItemBean;
-import com.china.center.oa.stock.bean.StockWorkBean;
 import com.china.center.oa.stock.constant.PriceConstant;
 import com.china.center.oa.stock.constant.StockConstant;
 import com.china.center.oa.stock.dao.PriceAskDAO;
@@ -292,6 +288,47 @@ public class StockAction extends DispatchAction
 		}
 		// 商务 - end
 	}
+
+    /**
+     * 2015/12/3 采购到货信息
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward addStockArrival(ActionMapping mapping, ActionForm form,
+                                  HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+        String stockId = request.getParameter("stockId");
+        _logger.info("***addStockArrival***"+stockId);
+
+        List<StockItemArrivalBean> stockItemArrivalBeans = new ArrayList<StockItemArrivalBean>();
+
+        //TODO
+        StockItemArrivalBean bean = new StockItemArrivalBean();
+        bean.setAmount(1);
+        stockItemArrivalBeans.add(bean);
+        try
+        {
+            this.stockManager.addStockArrivalBean(user, stockItemArrivalBeans);
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功增加采购到货信息:" + stockId);
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加采购到货信息失败:" + e.getMessage());
+        }
+
+        CommonTools.removeParamers(request);
+
+        return queryStock(mapping, form, request, reponse);
+    }
     
     /**
      * 自动生成外网询价单
@@ -1278,8 +1315,13 @@ public class StockAction extends DispatchAction
         List<StockWorkBean> swList = stockWorkDAO.queryEntityBeansByFK(id);
 
         request.setAttribute("stockWorkBeanList", swList);
-        
-        return mapping.findForward("detailStock");
+
+        String addStockArrival = request.getParameter("addStockArrival");
+        if ("1".equals(addStockArrival)){
+            return mapping.findForward("addStockArrival");
+        } else {
+            return mapping.findForward("detailStock");
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ import com.center.china.osgi.publics.ListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.stock.bean.StockBean;
+import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.bean.StockItemBean;
 import com.china.center.oa.stock.listener.StockListener;
 import com.china.center.oa.stock.vo.StockVO;
@@ -32,6 +33,16 @@ public interface StockManager extends ListenerManager<StockListener>
 {
     boolean addStockBean(final User user, final StockBean bean)
         throws MYException;
+
+    /**
+     * 2015/12/3 采购到货信息
+     * @param user
+     * @param beans
+     * @return
+     * @throws MYException
+     */
+    boolean addStockArrivalBean(final User user, final List<StockItemArrivalBean> beans)
+            throws MYException;
 
     StockVO findStockVO(String id);
 
