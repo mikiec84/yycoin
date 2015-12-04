@@ -57,6 +57,77 @@ public class StockItemArrivalBean implements Serializable
 
     private String logTime = "";
 
+    /**
+     * 本次入库数量,不存数据库，此值会存入对应生成的入库单中。
+     */
+    @Ignore
+    private int warehouseNum = 0;
+
+    /**
+     * 该商品累计已入库数量
+     */
+    @Ignore
+    private int totalWarehouseNum = 0;
+
+    @Ignore
+    private double price = 0.0d;
+
+    @Ignore
+    private double prePrice = 0.0d;
+
+    @Ignore
+    private String nearlyPayDate = "";
+
+    @Ignore
+    private double total = 0.0d;
+
+    @Ignore
+    private String description = "";
+
+    /**
+     * 供应商
+     */
+    @Ignore
+    @Join(tagClass = ProviderBean.class, type = JoinType.LEFT)
+    private String providerId = "";
+
+    /**
+     * 采用谁的询价
+     */
+    @Ignore
+    @Join(tagClass = StafferBean.class, type = JoinType.LEFT)
+    private String stafferId = "";
+
+    @Ignore
+    /**
+     * 拿货
+     */
+    private int fechProduct = StockConstant.STOCK_ITEM_FECH_NO;
+
+    public int getFechProduct() {
+        return fechProduct;
+    }
+
+    public void setFechProduct(int fechProduct) {
+        this.fechProduct = fechProduct;
+    }
+
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
+    }
+
+    public String getStafferId() {
+        return stafferId;
+    }
+
+    public void setStafferId(String stafferId) {
+        this.stafferId = stafferId;
+    }
+
     public String getId() {
         return id;
     }
@@ -119,5 +190,61 @@ public class StockItemArrivalBean implements Serializable
 
     public void setLogTime(String logTime) {
         this.logTime = logTime;
+    }
+
+    public int getWarehouseNum() {
+        return warehouseNum;
+    }
+
+    public void setWarehouseNum(int warehouseNum) {
+        this.warehouseNum = warehouseNum;
+    }
+
+    public int getTotalWarehouseNum() {
+        return totalWarehouseNum;
+    }
+
+    public void setTotalWarehouseNum(int totalWarehouseNum) {
+        this.totalWarehouseNum = totalWarehouseNum;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double getPrePrice() {
+        return prePrice;
+    }
+
+    public void setPrePrice(double prePrice) {
+        this.prePrice = prePrice;
+    }
+
+    public String getNearlyPayDate() {
+        return nearlyPayDate;
+    }
+
+    public void setNearlyPayDate(String nearlyPayDate) {
+        this.nearlyPayDate = nearlyPayDate;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

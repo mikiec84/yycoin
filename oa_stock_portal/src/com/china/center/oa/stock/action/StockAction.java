@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.stock.bean.*;
 import com.china.center.oa.stock.dao.*;
+import com.china.center.oa.stock.vo.StockItemArrivalVO;
 import com.china.center.tools.*;
 import jxl.Workbook;
 import jxl.write.Label;
@@ -288,18 +289,22 @@ public class StockAction extends DispatchAction
         String[] deliveryDates = request.getParameterValues("deliveryDate");
         String[] arrivalDates = request.getParameterValues("arrivalDate");
 
-        _logger.info("***addStockArrival***"+stockId);
+        _logger.info("***addStockArrival***"+stockId+"**productIds**"+productIds.length+
+                "**amounts**"+amounts.length+"**deliveryDates**"+deliveryDates.length+"**arrivalDates**"+arrivalDates.length);
 
         List<StockItemArrivalBean> stockItemArrivalBeans = new ArrayList<StockItemArrivalBean>();
 
         for (int i=0;i<productIds.length;i++){
-            StockItemArrivalBean bean = new StockItemArrivalBean();
-            bean.setStockId(stockId);
-            bean.setProductId(productIds[i]);
-            bean.setAmount(Integer.valueOf(amounts[i]));
-            bean.setDeliveryDate(deliveryDates[i]);
-            bean.setArrivalDate(arrivalDates[i]);
-            stockItemArrivalBeans.add(bean);
+            String productId = productIds[i];
+            if (!StringTools.isNullOrNone(productId)){
+                StockItemArrivalBean bean = new StockItemArrivalBean();
+                bean.setStockId(stockId);
+                bean.setProductId(productIds[i]);
+                bean.setAmount(Integer.valueOf(amounts[i]));
+                bean.setDeliveryDate(deliveryDates[i]);
+                bean.setArrivalDate(arrivalDates[i]);
+                stockItemArrivalBeans.add(bean);
+            }
         }
 
         return stockItemArrivalBeans;
@@ -354,7 +359,9 @@ public class StockAction extends DispatchAction
 
         try
         {
+            _logger.info("updateStockArrival****111111111111");
             this.stockManager.updateStockArrivalBean(user, stockBean);
+            _logger.info("updateStockArrival****22222222222");
 
             request.setAttribute(KeyConstant.MESSAGE, "成功修改采购到货信息:" + stockId);
         }
@@ -1290,6 +1297,10 @@ public class StockAction extends DispatchAction
 
             request.setAttribute("depotpartList", depotpartList);
 
+            _logger.info("***findstock***2222222222222222222222");
+            List<StockItemArrivalVO> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityVOsByFK(vo.getId());
+            vo.setStockItemArrivalVOs(stockItemArrivalBeans);
+            _logger.info("***stockItemArrivalBeans***"+stockItemArrivalBeans.size());
             if ("2".equals(process))
             	return mapping.findForward("processStock2");
             else {
@@ -1361,8 +1372,8 @@ public class StockAction extends DispatchAction
         if ("1".equals(addStockArrival)){
             return mapping.findForward("addStockArrival");
         } else if ("1".equals(updateStockArrival)){
-            List<StockItemArrivalBean> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityBeansByFK(vo.getId());
-            vo.setArrivalBeans(stockItemArrivalBeans);
+            List<StockItemArrivalVO> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityVOsByFK(vo.getId());
+            vo.setStockItemArrivalVOs(stockItemArrivalBeans);
             return mapping.findForward("updateStockArrival");
         }
         else {

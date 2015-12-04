@@ -12,6 +12,8 @@ package com.china.center.oa.stock.dao.impl;
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.dao.StockItemArrivalDAO;
+import com.china.center.oa.stock.vo.StockItemArrivalVO;
+
 import java.util.List;
 
 
@@ -23,7 +25,7 @@ import java.util.List;
  * @see com.china.center.oa.stock.dao.impl.StockItemArrivalDAOImpl
  * @since 1.0
  */
-public class StockItemArrivalDAOImpl extends BaseDAO<StockItemArrivalBean, StockItemArrivalBean> implements StockItemArrivalDAO
+public class StockItemArrivalDAOImpl extends BaseDAO<StockItemArrivalBean, StockItemArrivalVO> implements StockItemArrivalDAO
 {
     @Override
     public List<StockItemArrivalBean> queryByStock(String s) {

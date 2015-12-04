@@ -294,8 +294,27 @@
                     </td>
                 </tr>
 
+                <tr id="trCopy" style="display: none;">
+                    <td align="center">
+                        <select name="productId">
+                            <option value="">-</option>
+                            <c:forEach items="${bean.itemVO}" var="item2" varStatus="vs">
+                                <option value="${item2.productId}">${item2.productName}</option>
+                            </c:forEach>
+                        </select>
+                    </td>
+
+                    <td align="center"><input type="number" name="amount"></td>
+
+                    <td align="center"><input type="date" name="deliveryDate"></td>
+
+                    <td align="center"><input type="date" name="arrivalDate"></td>
+
+                    <td align="left"><input type="button" value="清空"  class="button_class" onclick="clears()"></td>
+                </tr>
+
                 <c:forEach items="${bean.itemVO}" var="item" varStatus="vs">
-                    <tr id="trCopy" class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
+                    <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
                         <td align="center">
                             <input type="text" name="productName" value="${item.productName}" readonly>
                             <input type="hidden" name="productId" value="${item.productId}">
@@ -303,11 +322,11 @@
 
                         <td align="center"><input type="number" name="amount" value="${item.amount}"></td>
 
-                        <td align="center"><input type="text" name="deliveryDate" class="calendarFocus"></td>
+                        <td align="center"><input type="date" name="deliveryDate"></td>
 
-                        <td align="center"><input type="text" name="arrivalDate" class="calendarFocus"></td>
+                        <td align="center"><input type="date" name="arrivalDate"></td>
 
-                        <td align="left"><input type="button" value="清空"  class="button_class" onclick="clears()"></td>
+                        <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                     </tr>
                 </c:forEach>
             </table>

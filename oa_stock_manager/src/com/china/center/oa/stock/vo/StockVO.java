@@ -47,6 +47,9 @@ public class StockVO extends StockBean
     @Ignore
     private List<StockItemVO> itemVO = null;
 
+    @Ignore
+    private List<StockItemArrivalVO> stockItemArrivalVOs = null;
+
     /**
      * 2014/12/15 采购拿货增强显示拿货历史记录tooltip
      */
@@ -236,5 +239,13 @@ public class StockVO extends StockBean
 
     public void setDivMap(Map divMap) {
         this.divMap = divMap;
+    }
+
+    public List<StockItemArrivalVO> getStockItemArrivalVOs() {
+        return stockItemArrivalVOs;
+    }
+
+    public void setStockItemArrivalVOs(List<StockItemArrivalVO> stockItemArrivalVOs) {
+        this.stockItemArrivalVOs = stockItemArrivalVOs;
     }
 }

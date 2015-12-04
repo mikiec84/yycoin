@@ -11,6 +11,8 @@ package com.china.center.oa.stock.dao;
 
 import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.stock.bean.StockItemArrivalBean;
+import com.china.center.oa.stock.vo.StockItemArrivalVO;
+
 import java.util.List;
 
 
@@ -22,7 +24,7 @@ import java.util.List;
  * @see com.china.center.oa.stock.dao.StockItemArrivalDAO
  * @since 1.0
  */
-public interface StockItemArrivalDAO extends DAO<StockItemArrivalBean, StockItemArrivalBean>
+public interface StockItemArrivalDAO extends DAO<StockItemArrivalBean, StockItemArrivalVO>
 {
     List<StockItemArrivalBean> queryByStock(String stockId);
 

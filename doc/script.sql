@@ -52,6 +52,8 @@ CREATE TABLE T_CENTER_STOCKITEMARRIAL (
 id int(11) NOT NULL AUTO_INCREMENT,
 stockId varchar(200) NOT NULL,
 productId varchar(200) NOT NULL,
+stafferId varchar(200),
+providerId varchar(200),
 amount int(11),
 deliveryDate varchar(200) NOT NULL,
 arrivalDate varchar(200) NOT NULL,

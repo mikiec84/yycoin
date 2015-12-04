@@ -187,7 +187,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = MYException.class)
     @Override
     public boolean updateStockArrivalBean(User user, StockBean stockBean) throws MYException {
-        this.stockItemArrivalDAO.deleteEntityBeansByFK(stockBean.getId());
+        boolean result = this.stockItemArrivalDAO.deleteEntityBeansByFK(stockBean.getId());
+        _logger.info(stockBean.getId()+"***updateStockArrivalBean***"+result);
+
         for (StockItemArrivalBean bean : stockBean.getArrivalBeans()){
             this.stockItemArrivalDAO.saveEntityBean(bean);
         }

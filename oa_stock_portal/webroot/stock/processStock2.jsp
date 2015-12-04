@@ -202,44 +202,41 @@ function updatePrice()
 				<td width="10%" align="center">拿 货</td>
 			</tr>
 
-			<c:forEach items="${bean.itemVO}" var="item" varStatus="vs">
-			    <c:if test="${bean.stafferId == user.stafferId || item.stafferId == user.stafferId}">
-				<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
-					<td align="center" >${item.productName}</td>
+			<c:forEach items="${bean.stockItemArrivalVOs}" var="item" varStatus="vs">
+				<c:if test="${bean.stafferId == user.stafferId || item.stafferId == user.stafferId}">
+					<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
+						<td align="center" >${item.productName}</td>
 
-					<td align="center">${item.amount}</td>
-					
-					<td align="center">${item.amount-item.totalWarehouseNum}</td>
-                    <%--<td align="center" onMouseOver="showDiv('${item.id}')" onmousemove="tooltip.move()" onmouseout="tooltip.hide()">--%>
-                    <td align="center">
-                        <a href="javascript:void(0);">${item.totalWarehouseNum}</a>
-                    </td>
+						<td align="center">${item.amount}</td>
 
-					<%--<td align="center">${item.status == 0 ? "<font color=red>否</font>" : "<font color=blue>是</font>"}</td>--%>
+						<td align="center">${item.amount-item.totalWarehouseNum}</td>
+						<td align="center">
+							<a href="javascript:void(0);">${item.totalWarehouseNum}</a>
+						</td>
 
-					<td align="center">${my:formatNum(item.prePrice)}/${my:formatNum(item.price)}</td>
+						<td align="center">${my:formatNum(item.prePrice)}/${my:formatNum(item.price)}</td>
 
-					<td align="center">${item.nearlyPayDate}</td>
+						<td align="center">${item.nearlyPayDate}</td>
 
-					<td align="center">${item.providerName}</td>
+						<td align="center">${item.providerName}</td>
 
-					<td align="center">${my:formatNum(item.total)}</td>
-					
-					<td align="center">${item.description}</td>
-					
-					<td align="center">${item.stafferName}</td>
+						<td align="center">${my:formatNum(item.total)}</td>
 
-					<td align="center">
-                        <!-- 2015/10/26 去掉staffer的判断 -->
-                        <%--<c:if test="${item.fechProduct == 0 && item.stafferId == user.stafferId}">--%>
-                        <%--<c:if test="${item.totalWarehouseNum <item.amount && item.stafferId == user.stafferId}">--%>
-                        <c:if test="${item.fechProduct == 0}">
-                            <a title="拿货"
-                                href="javascript:fech('${item.id}','${item.amount}','${item.totalWarehouseNum}')">
-                            <img src="../images/opr/change.gif" border="0" height="15" width="15"></a>
-                        </c:if>
-					</td>
-				</tr>
+						<td align="center">${item.description}</td>
+
+						<td align="center">${item.stafferName}</td>
+
+						<td align="center">
+							<!-- 2015/10/26 去掉staffer的判断 -->
+								<%--<c:if test="${item.fechProduct == 0 && item.stafferId == user.stafferId}">--%>
+								<%--<c:if test="${item.totalWarehouseNum <item.amount && item.stafferId == user.stafferId}">--%>
+							<c:if test="${item.fechProduct == 0}">
+								<a title="拿货"
+								   href="javascript:fech('${item.id}','${item.amount}','${item.totalWarehouseNum}')">
+									<img src="../images/opr/change.gif" border="0" height="15" width="15"></a>
+							</c:if>
+						</td>
+					</tr>
 				</c:if>
 			</c:forEach>
 		</table>
