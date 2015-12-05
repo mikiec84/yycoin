@@ -298,11 +298,25 @@ public class StockAction extends DispatchAction
             String productId = productIds[i];
             if (!StringTools.isNullOrNone(productId)){
                 StockItemArrivalBean bean = new StockItemArrivalBean();
+                //TODO copy bean from StockItemBean
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("stockId","=", stockId);
+                conditionParse.addCondition("productId","=", productId);
+                List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(stockItemBeans)){
+                    StockItemBean stockItemBean = stockItemBeans.get(0);
+                    BeanUtil.copyProperties(bean, stockItemBean);
+                }
+
+                bean.setId("");
                 bean.setStockId(stockId);
-                bean.setProductId(productIds[i]);
+                bean.setProductId(productId);
                 bean.setAmount(Integer.valueOf(amounts[i]));
                 bean.setDeliveryDate(deliveryDates[i]);
                 bean.setArrivalDate(arrivalDates[i]);
+
+
                 stockItemArrivalBeans.add(bean);
             }
         }
@@ -788,7 +802,7 @@ public class StockAction extends DispatchAction
             {
                 User user = Helper.getUser(request);
 
-                result = stockManager.fetchProduct(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
+                result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
 
                 request.setAttribute(KeyConstant.MESSAGE, msg);
             }

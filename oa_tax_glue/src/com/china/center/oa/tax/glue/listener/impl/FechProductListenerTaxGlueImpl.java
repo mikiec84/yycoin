@@ -150,7 +150,6 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
      * @param each
      * @param out
      * @param financeBean
-     * @param name
      * @param itemList
      * @throws MYException
      */
@@ -390,12 +389,12 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
 		
 		financeTagManager.addFinanceTagBeanWithoutTransaction(user, tag);
 	}
-    
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.center.china.osgi.publics.ParentListener#getListenerType()
-     */
+         * (non-Javadoc)
+         *
+         * @see com.center.china.osgi.publics.ParentListener#getListenerType()
+         */
     public String getListenerType()
     {
         return "FechProductListener.TaxGlueImpl";

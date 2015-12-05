@@ -44,8 +44,8 @@ public interface StockListener extends ParentListener
      * @param item
      * @throws MYException
      */
-    void onEndStockItem(final User user, final StockBean bean, final StockItemArrivalBean item)
-            throws MYException;
+//    void onEndStockItem(final User user, final StockBean bean, final StockItemArrivalBean item)
+//            throws MYException;
     
     /**
      * 待拿货时生成采购付款申请

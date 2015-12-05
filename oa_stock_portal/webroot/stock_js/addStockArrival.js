@@ -72,7 +72,7 @@ function addTr()
 
     if (length > 15)
     {
-        alert('�?多只能有15个产�?');
+        alert('�?多只能有15个产�?');
         return null;
     }
 
@@ -223,7 +223,7 @@ function clearArray(array, flag)
 }
 
 /**
- * oo����addStockArrival.jsp���涨���?
+ * oo����addStockArrival.jsp���涨���?
  */
 function getProductRelation(ox)
 {
@@ -243,7 +243,7 @@ function getProductRelation(ox)
         setObj(oo, ox[0]);
 
         var os = oo.parentNode.parentNode;
-        os.cells[2].childNodes[0].title = '��ǰ��Ʒ���������?:' + ox[0].pamount;
+        os.cells[2].childNodes[0].title = '��ǰ��Ʒ���������?:' + ox[0].pamount;
         os.cells[2].childNodes[0].oncheck = 'range(-' + ox[0].pamount + ')';
         os.cells[3].childNodes[0].value = ox[0].pprice;
         os.cells[5].childNodes[0].value = ox[0].pprice;
@@ -263,7 +263,7 @@ function getProductRelation(ox)
 
         setObj(inps[0], ox[i]);
 
-        inps[1].title = '��ǰ��Ʒ���������?:' + ox[i].pamount;
+        inps[1].title = '��ǰ��Ʒ���������?:' + ox[i].pamount;
         inps[1].oncheck = 'range(-' + ox[i].pamount + ')';
         inps[2].value = ox[i].pprice;
         inps[4].value = ox[i].pprice;
@@ -272,7 +272,7 @@ function getProductRelation(ox)
 }
 
 /**
- * �����Ʒ��ѡ��?
+ * �����Ʒ��ѡ��?
  */
 function getProductAbs(ox)
 {
@@ -331,3 +331,17 @@ function setObj2(src, dest)
 
     src.productid = dest.id;
 }
+
+function showDate(){
+    $('.datepicker').pickadate({
+        format:'yyyy-mm-dd'
+    });
+}
+
+
+function addRow(){
+    addTr();
+    showDate();
+}
+
+

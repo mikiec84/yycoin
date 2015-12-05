@@ -1252,6 +1252,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     //2014/12/14 拿货可以输入本次入库数量，而不是一次性入库
     @Transactional(rollbackFor = {MYException.class})
     @Override
+    @Deprecated
     public boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
         _logger.info("fetchProduct with user:" + user + ";itemId:" + itemId + ";depotpartId:" + depotpartId + ";warehouseNum:" + warehouseNum + ";toBeWarehouse:" + toBeWarehouse);
 //        JudgeTools.judgeParameterIsNull(itemId, user, depotpartId, warehouseNum);

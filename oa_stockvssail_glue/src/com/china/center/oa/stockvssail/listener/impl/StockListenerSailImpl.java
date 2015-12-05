@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.oa.stock.bean.StockItemArrivalBean;
+import com.china.center.oa.stock.dao.StockItemArrivalDAO;
+import com.china.center.oa.stock.vo.StockItemArrivalVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -59,6 +62,8 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
 
     private StockItemDAO stockItemDAO = null;
 
+    private StockItemArrivalDAO stockItemArrivalDAO = null;
+
     private final Log _logger = LogFactory.getLog(getClass());
     
     private DepotpartDAO depotpartDAO = null;
@@ -80,7 +85,12 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
     public void onEndStockItem(User user, StockBean bean, final StockItemBean each)
         throws MYException
     {
-        autoToOut(user, bean, each);
+        if (each instanceof StockItemArrivalBean){
+            StockItemArrivalBean arrivalBean = (StockItemArrivalBean)each;
+            this.autoToOut(user, bean, arrivalBean);
+        } else{
+            autoToOut(user, bean, each);
+        }
     }
 
     /**
@@ -270,6 +280,187 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
         }
     }
 
+
+//    @Override
+//    public void onEndStockItem(User user, StockBean stockBean, StockItemArrivalBean stockItemArrivalBean) throws MYException {
+//        //To change body of implemented methods use File | Settings | File Templates.
+//        this.autoToOut(user, stockBean, stockItemArrivalBean);
+//    }
+
+    private void autoToOut(final User user, StockBean bean, final StockItemArrivalBean each)
+            throws MYException
+    {
+        if (bean.getMtype() == StockConstant.MANAGER_TYPE_COMMON2
+                || bean.getMtype() == StockConstant.MANAGER_TYPE_COMMON3)
+            bean.setMtype(StockConstant.MANAGER_TYPE_COMMON);
+
+        List<StockItemArrivalVO> items = this.stockItemArrivalDAO.queryEntityVOsByFK(bean.getId());
+        for (StockItemArrivalVO item : items)
+        {
+            if ( !item.getId().equals(each.getId()))
+            {
+                continue;
+            }
+
+            List<BaseBean> baseList = new ArrayList<BaseBean>();
+
+            OutBean out = new OutBean();
+
+            out.setStatus(OutConstant.STATUS_SAVE);
+
+            out.setStafferName(user.getStafferName());
+
+            out.setStafferId(user.getStafferId());
+
+            out.setType(OutConstant.OUT_TYPE_INBILL);
+
+            out.setOutType(OutConstant.OUTTYPE_IN_COMMON);
+
+            out.setOutTime(TimeTools.now_short());
+
+            out.setDepartment("采购部");
+
+            out.setCustomerId(item.getProviderId());
+
+            out.setCustomerName(item.getProviderName());
+
+            // 所在区域
+            out.setLocationId(user.getLocationId());
+
+            String depotpartId = each.getDepotpartId();
+
+            DepotpartBean depotpartBean = depotpartDAO.find(depotpartId);
+
+            if (depotpartBean == null)
+            {
+                throw new MYException("数据错误,请确认操作");
+            }
+
+            // 目的仓库通过仓区自动获取
+            out.setLocation(depotpartBean.getLocationId());
+
+            out.setTotal(item.getTotal());
+
+            out.setInway(OutConstant.IN_WAY_NO);
+
+            out.setDutyId(each.getDutyId());
+
+            // 管理类型
+            out.setMtype(bean.getMtype());
+
+            out.setInvoiceId(each.getInvoiceType());
+
+            // 没有发票直接置为 发票已确认 态
+            if (StringTools.isNullOrNone(out.getInvoiceId())) {
+                out.setHasConfirm(1);
+            }
+
+            //采购单备注加到入库单
+            ProductBean product = productDAO.find(each.getProductId());
+            out.setDescription("采购单自动转换成入库单,采购单单号:" + bean.getId() + "，" + bean.getDescription()+"；");
+
+            BaseBean baseBean = new BaseBean();
+
+            baseBean.setLocationId(out.getLocation());
+
+            //2014/12/14 入库单根据实际入库数量分批次生成
+            _logger.info("*************autoToOut getWarehouseNum************"+each.getWarehouseNum());
+            baseBean.setAmount(each.getWarehouseNum());
+            baseBean.setProductName(item.getProductName());
+            baseBean.setUnit("套");
+            baseBean.setPrice(item.getPrice());
+
+            //2014/12/16 根据实际入库数量计算金额
+            baseBean.setValue(item.getPrice()*each.getWarehouseNum());
+
+            baseBean.setShowId(item.getShowId());
+
+            baseBean.setCostPrice(item.getPrice());
+
+            baseBean.setMtype(bean.getMtype());
+
+            baseBean.setProductId(item.getProductId());
+            baseBean.setCostPriceKey(StorageRelationHelper.getPriceKey(item.getPrice()));
+
+            // 这里记住哦
+            String on = ((StockVO)bean).getOwerName();
+            if (bean.getStockType() == StockConstant.STOCK_SAILTYPE_PUBLIC)
+            {
+                baseBean.setOwnerName("公共");
+                baseBean.setOwner("0");
+
+                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
+                {
+                    product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
+                    productDAO.updateEntityBean(product);
+                }
+            }
+            else
+            {
+                baseBean.setOwnerName(on);
+
+                baseBean.setOwner(bean.getOwerId());
+            }
+
+            // 来源于入库的仓区
+            baseBean.setDepotpartId(each.getDepotpartId());
+
+            DepotpartBean deport = depotpartDAO.find(each.getDepotpartId());
+
+            if (deport != null)
+            {
+                baseBean.setDepotpartName(deport.getName());
+            }
+            else
+            {
+                throw new MYException("仓区不存在");
+            }
+
+            // 成本
+            baseBean.setDescription(String.valueOf(item.getPrice()));
+
+            // 进项税率
+            double inputRate = 0.0d;
+
+            if (!StringTools.isNullOrNone(item.getInvoiceType()))
+            {
+                InvoiceBean invoice = invoiceDAO.find(item.getInvoiceType());
+
+                if (null != invoice)
+                {
+                    inputRate = invoice.getVal()/100;
+                }
+            }
+
+            baseBean.setInputRate(inputRate);
+
+            baseList.add(baseBean);
+
+            out.setBaseList(baseList);
+
+            // CORE 采购单生成入库单
+            String fullId = outManager.coloneOutAndSubmitWithOutAffair(out, user,
+                    StorageConstant.OPR_STORAGE_OUTBILLIN);
+
+            item.setHasRef(StockConstant.STOCK_ITEM_HASREF_YES);
+
+            item.setRefOutId(fullId);
+
+            out.setFullId(fullId);
+
+            // 修改采购到货项的属性
+            this.stockItemArrivalDAO.updateEntityBean(item);
+
+            // TAX_ADD 采购到货后生成管理凭证
+            Collection<FechProductListener> listenerMapValues = this.listenerMapValues();
+
+            for (FechProductListener fechProductListener : listenerMapValues)
+            {
+                fechProductListener.onFechProduct(user, bean, each, out);
+            }
+        }
+    }
+
     @Override
 	public void onWaitFetchStock(User user, StockBean bean, StockItemBean item)
 			throws MYException
@@ -363,4 +554,12 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
 	{
 		this.invoiceDAO = invoiceDAO;
 	}
+
+    public StockItemArrivalDAO getStockItemArrivalDAO() {
+        return stockItemArrivalDAO;
+    }
+
+    public void setStockItemArrivalDAO(StockItemArrivalDAO stockItemArrivalDAO) {
+        this.stockItemArrivalDAO = stockItemArrivalDAO;
+    }
 }

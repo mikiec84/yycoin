@@ -30,127 +30,127 @@ import com.china.center.oa.stock.constant.StockConstant;
 public class StockItemBean implements Serializable
 {
     @Id(autoIncrement = true)
-    private String id = "";
+    protected String id = "";
 
     @FK
     @Join(tagClass = StockBean.class)
-    private String stockId = "";
+    protected String stockId = "";
 
     @Join(tagClass = ProductBean.class)
-    private String productId = "";
+    protected String productId = "";
 
     /**
      * REF的入库单
      */
-    private String refOutId = "";
+    protected String refOutId = "";
 
     /**
      * 是否入库
      */
-    private int hasRef = StockConstant.STOCK_ITEM_HASREF_NO;
+    protected int hasRef = StockConstant.STOCK_ITEM_HASREF_NO;
 
     /**
      * 供应商
      */
     @Join(tagClass = ProviderBean.class, type = JoinType.LEFT)
-    private String providerId = "";
+    protected String providerId = "";
 
     /**
      * 采用谁的询价
      */
     @Join(tagClass = StafferBean.class, type = JoinType.LEFT)
-    private String stafferId = "";
+    protected String stafferId = "";
 
     /**
      * 采购数量
      */
-    private int amount = 0;
+    protected int amount = 0;
 
     /**
      * 生成采购单当时产品的库存
      */
-    private int productNum = 0;
+    protected int productNum = 0;
 
-    private int status = StockConstant.STOCK_ITEM_STATUS_INIT;
+    protected int status = StockConstant.STOCK_ITEM_STATUS_INIT;
 
-    private int mtype = PublicConstant.MANAGER_TYPE_COMMON;
+    protected int mtype = PublicConstant.MANAGER_TYPE_COMMON;
 
     /**
      * 拿货
      */
-    private int fechProduct = StockConstant.STOCK_ITEM_FECH_NO;
+    protected int fechProduct = StockConstant.STOCK_ITEM_FECH_NO;
 
-    private String netAskId = "";
+    protected String netAskId = "";
 
     /**
      * 平台的产品
      */
-    private String showId = "";
+    protected String showId = "";
 
     @Join(tagClass = DutyBean.class, type = JoinType.LEFT)
-    private String dutyId = "";
+    protected String dutyId = "";
 
     /**
      * 发票类型
      */
-    private String invoiceType = "";
+    protected String invoiceType = "";
 
     /**
      * 最终的仓区
      */
-    private String depotpartId = "";
+    protected String depotpartId = "";
 
-    private double price = 0.0d;
+    protected double price = 0.0d;
 
-    private double prePrice = 0.0d;
+    protected double prePrice = 0.0d;
 
     /**
      * 产品预期销售额
      */
-    private double sailPrice = 0.0d;
+    protected double sailPrice = 0.0d;
 
-    private double total = 0.0d;
+    protected double total = 0.0d;
 
     /**
      * 采购主管必填,早于这个日期是不能付款的
      */
-    private String nearlyPayDate = "";
+    protected String nearlyPayDate = "";
 
-    private String logTime = "";
+    protected String logTime = "";
 
     /**
      * T_CENTER_PRICEASKPROVIDER(外网询价的ID)
      */
-    private String priceAskProviderId = "";
+    protected String priceAskProviderId = "";
 
-    private String description = "";
+    protected String description = "";
 
     /**
      * 是否付款
      */
-    private int pay = StockConstant.STOCK_PAY_NO;
+    protected int pay = StockConstant.STOCK_PAY_NO;
     
     /**
      * 预确认状态（额外干预）
      * 行项目全部确认完后才置为1
      * 0:未确认  1：已确认
      */
-    private int extraStatus = 0;
+    protected int extraStatus = 0;
 
     /**2014/12/14
      * 本次入库数量,不存数据库，此值会存入对应生成的入库单中。
      */
     @Ignore
-    private int warehouseNum = 0;
+    protected int warehouseNum = 0;
 
     /**  2014/12/14
      * 该商品累计已入库数量
      */
     @Ignore
-    private int totalWarehouseNum = 0;
+    protected int totalWarehouseNum = 0;
 
     @Ignore
-    private List<PriceAskProviderBean> asks = null;
+    protected List<PriceAskProviderBean> asks = null;
 
     /**
      *

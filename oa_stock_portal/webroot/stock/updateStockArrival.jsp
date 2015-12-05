@@ -93,7 +93,7 @@
 </head>
 <body class="body_class" onload="load()" onkeydown="tooltip.bingEsc(event)">
 <form action="../stock/stock.do" name="formEntry">
-    <input type="hidden" name="method" value="addStockArrival">
+    <input type="hidden" name="method" value="updateStockArrival">
     <input type="hidden" name="stockId" value="${bean.id}">
     <p:navigation height="22">
         <td width="550" class="navigation">采购单明细</td>
@@ -300,7 +300,7 @@
                     </td>
                 </tr>
 
-                <tr id="trCopy" style="display: none;">
+                <tr id="trCopy" class="content1" style="display: none;">
                     <td align="center">
                         <select name="productId">
                             <option value="">-</option>
@@ -319,18 +319,18 @@
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
 
-                <c:forEach items="${bean.itemVO}" var="item" varStatus="vs">
+                <c:forEach items="${bean.stockItemArrivalVOs}" var="item" varStatus="vs">
                     <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
                         <td align="center">
-                            <input type="text" name="productName" value="${item.productName}" readonly>
+                            <input type="string" name="productName" value="${item.productName}" readonly>
                             <input type="hidden" name="productId" value="${item.productId}">
                         </td>
 
                         <td align="center"><input type="number" name="amount" value="${item.amount}"></td>
 
-                        <td align="center"><input type="date" name="deliveryDate" class="datepicker"></td>
+                        <td align="center"><input type="date" name="deliveryDate" value="${item.deliveryDate}" class="datepicker"></td>
 
-                        <td align="center"><input type="date" name="arrivalDate" class="datepicker"></td>
+                        <td align="center"><input type="date" name="arrivalDate" value="${item.arrivalDate}" class="datepicker"></td>
 
                         <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                     </tr>

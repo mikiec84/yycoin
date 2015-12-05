@@ -39,4 +39,5 @@ public interface FechProductListener extends ParentListener
     void onFechProduct(final User user, final StockBean bean, final StockItemBean each,
                        final OutBean out)
         throws MYException;
+
 }

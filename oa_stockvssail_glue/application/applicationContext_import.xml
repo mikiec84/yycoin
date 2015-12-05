@@ -58,6 +58,8 @@
 	<osgi:reference id="stockDAO" interface="com.china.center.oa.stock.dao.StockDAO" />
 
     <osgi:reference id="stockItemDAO" interface="com.china.center.oa.stock.dao.StockItemDAO" />
+
+    <osgi:reference id="stockItemArrivalDAO" interface="com.china.center.oa.stock.dao.StockItemArrivalDAO" />
     
     <osgi:reference id="stockManager" interface="com.china.center.oa.stock.manager.StockManager" />
     
