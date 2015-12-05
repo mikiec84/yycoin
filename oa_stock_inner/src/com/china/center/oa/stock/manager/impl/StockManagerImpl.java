@@ -1253,7 +1253,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = {MYException.class})
     @Override
     public boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
-        _logger.info("fetchProduct with user:"+user+";itemId:"+itemId+";depotpartId:"+depotpartId+";warehouseNum:"+warehouseNum+";toBeWarehouse:"+toBeWarehouse);
+        _logger.info("fetchProduct with user:" + user + ";itemId:" + itemId + ";depotpartId:" + depotpartId + ";warehouseNum:" + warehouseNum + ";toBeWarehouse:" + toBeWarehouse);
 //        JudgeTools.judgeParameterIsNull(itemId, user, depotpartId, warehouseNum);
                 StockItemBean item = stockItemDAO.find(itemId);
 
@@ -1343,12 +1343,109 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         return true;
     }
 
+    /**
+     * 2015/12/5 根据到货信息拿货
+     * @param user
+     * @param arrivalItemId
+     * @param depotpartId
+     * @param warehouseNum
+     * @param toBeWarehouse
+     * @return
+     * @throws MYException
+     */
+    @Transactional(rollbackFor = {MYException.class})
+    @Override
+    public boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
+        _logger.info("fetchProduct with user:"+user+";itemId:"+arrivalItemId+";depotpartId:"+depotpartId+";warehouseNum:"+warehouseNum+";toBeWarehouse:"+toBeWarehouse);
+        StockItemArrivalBean item = this.stockItemArrivalDAO.find(arrivalItemId);
+
+        if (item == null)
+        {
+            throw new MYException("系统错误");
+        }
+
+        StockBean stock = stockDAO.findVO(item.getStockId());
+
+        if (stock == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        //2014/12/14 拿货标志需要根据已入库数量与
+        if (item.getFechProduct() == StockConstant.STOCK_ITEM_FECH_YES)
+        {
+            _logger.info(arrivalItemId+" already fetched****");
+            throw new MYException("已经拿货");
+        } else if (warehouseNum == toBeWarehouse){
+            //如果本次入库数量==待入库数量，则本产品入库结束
+            item.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
+            _logger.info(arrivalItemId+" set to STOCK_ITEM_FECH_YES****");
+        }
+
+        try{
+            item.setDepotpartId(depotpartId);
+
+            // 更新item
+            this.stockItemArrivalDAO.updateEntityBean(item);
+
+            item.setWarehouseNum(warehouseNum);
+
+            // 采购入库
+            Collection<StockListener> listenerMapValues = this.listenerMapValues();
+            for (StockListener stockListener : listenerMapValues)
+            {
+                _logger.info("*************create stock in bean***********"+item);
+                stockListener.onEndStockItem(user, stock, item);
+            }
+            String stockId = item.getStockId();
+            List<StockItemBean> items = stockItemDAO.queryEntityBeansByFK(stockId);
+            boolean all = true;
+
+            //检查是否所有的商品已入库完毕
+            if (!ListTools.isEmptyOrNull(items)){
+                _logger.info(stockId+" found item size*****"+items.size());
+                for (StockItemBean stockItemBean : items)
+                {
+                    _logger.info(stockItemBean.getId()+"**stockItemBean.getFechProduct()*"+stockItemBean.getFechProduct());
+                    if (stockItemBean.getFechProduct() == StockConstant.STOCK_ITEM_FECH_NO)
+                    {
+                        all = false;
+
+                        break;
+                    }
+                }
+            }
+
+
+            addLog(user, item.getStockId(), stock.getStatus(), stock, PublicConstant.OPRMODE_PASS,
+                    "询价人拿货");
+
+
+            //所有商品结束入库时，将采购单状态置为“待结束采购”
+            if (all)
+            {
+                _logger.info("****************修改成待结束采购****************");
+                // 修改成待结束采购
+                updateStockStatus(user, item.getStockId(), StockConstant.STOCK_STATUS_END,
+                        PublicConstant.OPRMODE_PASS, "拿货结束");
+            }else{
+                _logger.info(item.getStockId()+"***stock buy Not finished yet***");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("Exception when fetchProduct:",e);
+            throw new MYException("系统错误,请确认操作:"+e.getMessage());
+        }
+
+        return true;
+    }
+
     /*
-         * (non-Javadoc)
-         *
-         * @see com.china.center.oa.stock.manager.StockManager#stockItemAskForNet(com.china.center.oa.stock.bean.StockItemBean,
-         *      java.util.List)
-         */
+             * (non-Javadoc)
+             *
+             * @see com.china.center.oa.stock.manager.StockManager#stockItemAskForNet(com.china.center.oa.stock.bean.StockItemBean,
+             *      java.util.List)
+             */
     @Transactional(rollbackFor = {MYException.class})
     public boolean stockItemAskForNet(StockItemBean oldItem, List<StockItemBean> newItemList)
         throws MYException

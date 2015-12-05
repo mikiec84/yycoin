@@ -58,6 +58,19 @@ public interface StockManager extends ListenerManager<StockListener>
     boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse)
             throws MYException;
 
+    /**
+     * 2015/12/5 根据到货信息拿货
+     * @param user
+     * @param arrivalItemId
+     * @param depotpartId
+     * @param warehouseNum
+     * @param toBeWarehouse
+     * @return
+     * @throws MYException
+     */
+    boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId, int warehouseNum, int toBeWarehouse)
+            throws MYException;
+
     boolean stockItemAsk(StockItemBean bean)
         throws MYException;
 

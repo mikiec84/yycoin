@@ -98,11 +98,23 @@ public class StockItemArrivalBean implements Serializable
     @Join(tagClass = StafferBean.class, type = JoinType.LEFT)
     private String stafferId = "";
 
-    @Ignore
     /**
      * 拿货
      */
     private int fechProduct = StockConstant.STOCK_ITEM_FECH_NO;
+
+    /**
+     * 最终的仓区
+     */
+    private String depotpartId = "";
+
+    public String getDepotpartId() {
+        return depotpartId;
+    }
+
+    public void setDepotpartId(String depotpartId) {
+        this.depotpartId = depotpartId;
+    }
 
     public int getFechProduct() {
         return fechProduct;

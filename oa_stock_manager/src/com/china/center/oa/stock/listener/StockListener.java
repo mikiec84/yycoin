@@ -13,6 +13,7 @@ import com.center.china.osgi.publics.ParentListener;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.stock.bean.StockBean;
+import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.bean.StockItemBean;
 
 
@@ -35,6 +36,16 @@ public interface StockListener extends ParentListener
      */
     void onEndStockItem(final User user, final StockBean bean, final StockItemBean item)
         throws MYException;
+
+    /**
+     * 2015/12/5 根据到货信息拿货
+     * @param user
+     * @param bean
+     * @param item
+     * @throws MYException
+     */
+    void onEndStockItem(final User user, final StockBean bean, final StockItemArrivalBean item)
+            throws MYException;
     
     /**
      * 待拿货时生成采购付款申请
