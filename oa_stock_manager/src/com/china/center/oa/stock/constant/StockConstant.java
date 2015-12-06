@@ -77,7 +77,7 @@ public interface StockConstant
      */
     @Defined(key = "stockStatus", value = "待总经理审核")
     int STOCK_STATUS_STOCKPASS_CEO = 10;
-    
+
     /**
      * 采购item的开始(没有询价)
      */

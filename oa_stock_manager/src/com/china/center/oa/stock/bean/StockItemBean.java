@@ -146,7 +146,6 @@ public class StockItemBean implements Serializable
     /**  2014/12/14
      * 该商品累计已入库数量
      */
-    @Ignore
     protected int totalWarehouseNum = 0;
 
     @Ignore

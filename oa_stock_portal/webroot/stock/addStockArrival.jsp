@@ -12,7 +12,6 @@
     <script language="JavaScript" src="../stock_js/jquery-1.7.1.min.js"></script>
     <script language="JavaScript" src="../stock_js/picker.js"></script>
     <script language="JavaScript" src="../stock_js/picker.date.js"></script>
-    <script language="JavaScript" src="../stock_js/zh_CN.js"></script>
     <script language="JavaScript" src="../stock_js/addStockArrival.js"></script>
     <link rel="stylesheet" href="../stock_js/classic.css" />
     <link rel="stylesheet" href="../stock_js/classic.date.css" />
@@ -29,63 +28,16 @@
         jmap['${item.key}'] = "${item.value}";
         </c:forEach>
 
+        var productMap = {};
+        <c:forEach items="${bean.itemVO}" var="item">
+            productMap['${item.productId}'] = parseInt("${item.amount}");
+        </c:forEach>
+//        console.log(productMap);
+
         function showDiv(id)
         {
             if (jmap[id] != null && jmap[id] != '')
                 tooltip.showTable(jmap[id]);
-        }
-
-        function addBean(opr)
-        {
-            submit('确定提交采购到货信息?', null, lverify);
-        }
-
-        function lverify()
-        {
-//            var checkArr = document.getElementsByName('check_init');
-//
-//            var isSelect = false;
-//
-//            var imap = {};
-//
-//            for (var i = 0; i < checkArr.length; i++)
-//            {
-//                var obj = checkArr[i];
-//
-//                var index = obj.value;
-//
-//                if (obj.checked)
-//                {
-//                    isSelect = true;
-//                    if ($O('productName_' + i).value == '' || $O('productId_' + i).value == '' )
-//                    {
-//                        alert('产品不能为空');
-//                        return false;
-//                    }
-//
-//                    if ($$('amount_' + i)  == null)
-//                    {
-//                        alert('请选择产品是否满足数量要求');
-//                        return false;
-//                    }
-//
-//                    if (imap[$O('productId_' + i).value] == $O('productId_' + i).value)
-//                    {
-//                        alert('选择的产品不能重复');
-//                        return false;
-//                    }
-//
-//                    imap[$O('productId_' + i).value] = $O('productId_' + i).value;
-//                }
-//            }
-//
-//            if (!isSelect)
-//            {
-//                alert('请选择采购产品');
-//                return false;
-//            }
-
-            return true;
         }
 
     </script>
@@ -310,7 +262,7 @@
                         </select>
                     </td>
 
-                    <td align="center"><input type="number" name="amount"></td>
+                    <td align="center"><input type="number" name="amount" required></td>
 
                     <td align="center"><input type="date" name="deliveryDate" class="datepicker"></td>
 
@@ -326,7 +278,7 @@
                             <input type="hidden" name="productId" value="${item.productId}">
                         </td>
 
-                        <td align="center"><input type="number" name="amount" value="${item.amount}"></td>
+                        <td align="center"><input type="number" name="amount" value="${item.amount}" required></td>
 
                         <td align="center"><input type="date" name="deliveryDate" class="datepicker"></td>
 

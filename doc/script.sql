@@ -48,17 +48,38 @@ alter table T_PRODUCT_APPLY add column productAmount int(11) DEFAULT -1,add colu
 alter table T_CENTER_PRODUCT add column productAmount int(11) DEFAULT -1,add column packageAmount int(11) DEFAULT -1,add column certificateAmount int(11) DEFAULT -1,add column productWeight double DEFAULT 0 
 
 --2015/12/1 采购到货信息
-CREATE TABLE T_CENTER_STOCKITEMARRIAL (
-id int(11) NOT NULL AUTO_INCREMENT,
-stockId varchar(200) NOT NULL,
-productId varchar(200) NOT NULL,
-stafferId varchar(200),
-providerId varchar(200),
-depotpartId varchar(200),
-amount int(11),
-fechProduct int(11),
-deliveryDate varchar(200) NOT NULL,
-arrivalDate varchar(200) NOT NULL,
-logTime varchar(200) NOT NULL,
-PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
+CREATE TABLE `T_CENTER_STOCKITEMARRIAL` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stockId` varchar(40) DEFAULT NULL,
+  `productId` varchar(40) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
+  `totalWarehouseNum` int(11) DEFAULT NULL,
+  `refOutId` varchar(40) DEFAULT NULL,
+  `hasRef` int(11) DEFAULT '0',
+  `stafferId` varchar(40) DEFAULT NULL,
+  `providerId` varchar(40) DEFAULT NULL,
+  `showId` varchar(40) DEFAULT NULL,
+  `depotpartId` varchar(40) DEFAULT NULL,
+  `status` int(11) DEFAULT '0',
+  `fechProduct` int(11) DEFAULT '0',
+  `pay` int(11) DEFAULT '0',
+  `price` double DEFAULT NULL,
+  `prePrice` double DEFAULT NULL,
+  `sailPrice` double DEFAULT NULL,
+  `total` double DEFAULT NULL,
+  `nearlyPayDate` varchar(40) DEFAULT NULL,
+  `logTime` varchar(40) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `productNum` int(11) DEFAULT '0',
+  `netAskId` varchar(40) DEFAULT NULL,
+  `priceAskProviderId` varchar(40) DEFAULT NULL,
+  `dutyId` varchar(40) DEFAULT NULL,
+  `invoiceType` varchar(40) DEFAULT NULL,
+  `mtype` int(11) DEFAULT '0',
+  `extraStatus` int(11) DEFAULT '0',
+  `deliveryDate` varchar(200) NOT NULL,
+  `arrivalDate` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=116910 DEFAULT CHARSET=utf8;
+
+alter table T_CENTER_STOCKITEM add column totalWarehouseNum int(11) default 0

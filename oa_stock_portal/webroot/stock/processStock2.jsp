@@ -220,7 +220,7 @@ function updatePrice()
 
 						<td align="center">${item.providerName}</td>
 
-						<td align="center">${my:formatNum(item.total)}</td>
+						<td align="center">${my:formatNum(item.amount*item.price)}</td>
 
 						<td align="center">${item.description}</td>
 

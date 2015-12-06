@@ -334,14 +334,54 @@ function setObj2(src, dest)
 
 function showDate(){
     $('.datepicker').pickadate({
-        format:'yyyy-mm-dd'
+        format:'yyyy-mm-dd',
+        monthsFull:["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+        monthsShort:["一","二","三","四","五","六","七","八","九","十","十一","十二"],
+        weekdaysFull:["星期日","星期一","星期二","星期三","星期四","星期五","星期六"],
+        weekdaysShort:["日","一","二","三","四","五","六"],
+        today:"今日",clear:"清除",close:"关闭",firstDay:1,formatSubmit:"yyyy-mm-dd"
     });
 }
-
 
 function addRow(){
     addTr();
     showDate();
+}
+
+function lverify()
+{
+    var productIds = document.getElementsByName('productId');
+    var amounts = document.getElementsByName('amount');
+    var productMap2 = {}
+    for (var i=0;i<productIds.length; i++){
+        var productIdNode = productIds[i];
+        var amountNode = amounts[i];
+        var productId = productIdNode.value;
+        var amount = amountNode.value;
+//                console.log(productIdNode);
+//                console.log(amountNode);
+//                console.log(productId);
+//                console.log(amount);
+        if (amount>0){
+            if (productId in productMap2){
+                productMap2[productId] = parseInt(productMap2[productId])+parseInt(amount)
+            } else{
+                productMap2[productId] = parseInt(amount)
+            }
+        }
+    }
+//            console.log(productMap2);
+    //object equal
+    if (JSON.stringify(productMap2) !== JSON.stringify(productMap) ){
+        alert("同一商品的到货数量累计必须等于原采购数量");
+        return false;
+    }
+    return true;
+}
+
+function addBean(opr)
+{
+    submit('确定提交采购到货信息?', null, lverify);
 }
 
 

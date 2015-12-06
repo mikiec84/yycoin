@@ -192,6 +192,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         for (StockItemArrivalBean bean : stockBean.getArrivalBeans()){
             this.stockItemArrivalDAO.saveEntityBean(bean);
+            this.addLog(user, stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, stockBean, -1, bean.toString() );
         }
         return true;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -1372,12 +1373,16 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             throw new MYException("数据错误,请确认操作");
         }
 
-        //2014/12/14 拿货标志需要根据已入库数量与
+        //2015/12/6 检查拿货数量
         if (item.getFechProduct() == StockConstant.STOCK_ITEM_FECH_YES)
         {
             _logger.info(arrivalItemId+" already fetched****");
             throw new MYException("已经拿货");
-        } else if (warehouseNum == toBeWarehouse){
+        } else if (warehouseNum > toBeWarehouse){
+            //本次入库数量大于待入库数量
+            _logger.error(arrivalItemId+" 本次入库数量大于待入库数量");
+            throw new MYException("本次入库数量大于待入库数量");
+        }   else if (warehouseNum == toBeWarehouse){
             //如果本次入库数量==待入库数量，则本产品入库结束
             item.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
             _logger.info(arrivalItemId+" set to STOCK_ITEM_FECH_YES****");
@@ -1385,6 +1390,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         try{
             item.setDepotpartId(depotpartId);
+            item.setTotalWarehouseNum(warehouseNum+item.getTotalWarehouseNum());
 
             // 更新item
             this.stockItemArrivalDAO.updateEntityBean(item);

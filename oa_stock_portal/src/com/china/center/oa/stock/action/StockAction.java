@@ -373,10 +373,7 @@ public class StockAction extends DispatchAction
 
         try
         {
-            _logger.info("updateStockArrival****111111111111");
             this.stockManager.updateStockArrivalBean(user, stockBean);
-            _logger.info("updateStockArrival****22222222222");
-
             request.setAttribute(KeyConstant.MESSAGE, "成功修改采购到货信息:" + stockId);
         }
         catch (MYException e)
