@@ -165,14 +165,15 @@
                             </tr>
                             <tr class="content2">
                                 <td colspan="3"><table><tr><td>监交人：</td></tr></table></td>
-                                <td><table><tr><td></td></tr></table></td>
+                                <td><table><tr><td>收件人：${bean.receiver}</td></tr></table></td>
                             </tr>
                             <tr class="content2">
                                 <td colspan="3"><table><tr><td></td></tr></table></td>
                                 <td><table><tr><td></td></tr></table></td>
                             </tr>
                             <tr class="content2">
-                                <td colspan="4"><table><tr><td>交接时间：&nbsp;&nbsp;${year}&nbsp;&nbsp;年&nbsp;&nbsp;${month}&nbsp;&nbsp;月&nbsp;&nbsp;${day}&nbsp;&nbsp;日</td></tr></table></td>
+                                <td colspan="3"><table><tr><td>交接时间：&nbsp;&nbsp;${year}&nbsp;&nbsp;年&nbsp;&nbsp;${month}&nbsp;&nbsp;月&nbsp;&nbsp;${day}&nbsp;&nbsp;日</td></tr></table></td>
+                                <td><table><tr><td>收件人电话：${bean.mobile}</td></tr></table></td>
                             </tr>
                             <tr class="content2">
                                 <td colspan="3"><table><tr><td></td></tr></table></td>
