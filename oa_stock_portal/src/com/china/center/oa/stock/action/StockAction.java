@@ -291,7 +291,7 @@ public class StockAction extends DispatchAction
         String[] arrivalDates = request.getParameterValues("arrivalDate");
 
         _logger.info("***addStockArrival***"+stockId+"**productIds**"+productIds.length+
-                "**itemIds**"+itemIds.length+
+                "**itemIds**"+itemIds+
                 "**amounts**"+amounts.length+"**deliveryDates**"+deliveryDates.length+"**arrivalDates**"+arrivalDates.length);
 
         List<StockItemArrivalBean> stockItemArrivalBeans = new ArrayList<StockItemArrivalBean>();
@@ -311,12 +311,14 @@ public class StockAction extends DispatchAction
                     BeanUtil.copyProperties(bean, stockItemBean);
                 }
 
-                String itemId = itemIds[i];
-                if (StringTools.isNullOrNone(itemId)){
-                    bean.setId("");
-                } else{
-                    bean.setId(itemId);
+                bean.setId("");
+                if (itemIds!= null && itemIds.length == productIds.length ){
+                    String itemId = itemIds[i];
+                    if (!StringTools.isNullOrNone(itemId)){
+                        bean.setId(itemId);
+                    }
                 }
+
 
                 bean.setStockId(stockId);
                 bean.setProductId(productId);
