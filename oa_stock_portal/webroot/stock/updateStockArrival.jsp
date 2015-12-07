@@ -244,10 +244,11 @@
         <p:subBody width="100%">
             <table width="100%" border="0" cellspacing='1' id="tables">
                 <tr align="center" class="content0">
-                    <td width="30%" align="center">采购产品</td>
-                    <td width="20%" align="center">数量</td>
-                    <td width="30%" align="center">出货日期</td>
+                    <td width="35%" align="center">采购产品</td>
+                    <td width="10%" align="center">数量</td>
+                    <td width="20%" align="center">出货日期</td>
                     <td width="20%" align="center">预计到货日期</td>
+                    <td width="10%" align="center">是否拿货</td>
                     <td width="5%" align="left">
                         <input type="button" accesskey="A" value="增加" class="button_class" onclick="addRow()">
                     </td>
@@ -261,13 +262,14 @@
                                 <option value="${item2.productId}">${item2.productName}</option>
                             </c:forEach>
                         </select>
+                        <input type="hidden" name="itemId" value="">
                     </td>
 
                     <td align="center"><input type="number" name="amount" required></td>
 
-                    <td align="center"><input type="date" name="deliveryDate" class="datepicker"></td>
+                    <td align="center"><input type="text" name="deliveryDate" class="datepicker"></td>
 
-                    <td align="center"><input type="date" name="arrivalDate" class="datepicker"></td>
+                    <td align="center"><input type="text" name="arrivalDate" class="datepicker"></td>
 
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
@@ -277,15 +279,32 @@
                         <td align="center">
                             <input type="string" name="productName" value="${item.productName}" readonly>
                             <input type="hidden" name="productId" value="${item.productId}">
+                            <input type="hidden" name="itemId" value="${item.id}">
                         </td>
 
-                        <td align="center"><input type="number" name="amount" value="${item.amount}" required></td>
+                        <c:if test="${item.fechProduct == 0}">
+                            <td align="center"><input type="number" name="amount" value="${item.amount}" required></td>
 
-                        <td align="center"><input type="date" name="deliveryDate" value="${item.deliveryDate}" class="datepicker"></td>
+                            <td align="center"><input type="text" name="deliveryDate" value="${item.deliveryDate}" class="datepicker"></td>
 
-                        <td align="center"><input type="date" name="arrivalDate" value="${item.arrivalDate}" class="datepicker"></td>
+                            <td align="center"><input type="text" name="arrivalDate" value="${item.arrivalDate}" class="datepicker"></td>
 
-                        <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
+                            <td align="center">${my:get('stockItemFech', item.fechProduct)}</td>
+
+                            <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
+                        </c:if>
+
+                        <c:if test="${item.fechProduct == 1}">
+                            <td align="center"><input type="number" name="amount" value="${item.amount}" readonly></td>
+
+                            <td align="center"><input type="text" name="deliveryDate" value="${item.deliveryDate}" readonly></td>
+
+                            <td align="center"><input type="text" name="arrivalDate" value="${item.arrivalDate}" readonly></td>
+
+                            <td align="center">${my:get('stockItemFech', item.fechProduct)}</td>
+
+                            <td align="left"></td>
+                        </c:if>
                     </tr>
                 </c:forEach>
             </table>

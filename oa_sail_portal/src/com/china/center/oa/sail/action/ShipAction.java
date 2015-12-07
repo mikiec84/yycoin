@@ -1433,8 +1433,8 @@ public class ShipAction extends DispatchAction
 
         List<PackageItemBean> itemList = packageItemDAO.
                 queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
-        String msg4 = vo.getId()+"**********itemList size****"+itemList.size();
-        _logger.info(msg4);
+        String template = "CK:%s customer:%s item size:%d";
+        _logger.info(String.format(template, vo.getId(), vo.getCustomerName(), itemList.size()));
         request.setAttribute("bean", vo);
 
         request.setAttribute("pickupId", pickupId);

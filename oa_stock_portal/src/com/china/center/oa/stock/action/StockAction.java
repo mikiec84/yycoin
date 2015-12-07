@@ -285,11 +285,13 @@ public class StockAction extends DispatchAction
     private List<StockItemArrivalBean> getStockItemArrialBeanFromRequest(HttpServletRequest request){
         String stockId = request.getParameter("stockId");
         String[] productIds = request.getParameterValues("productId");
+        String[] itemIds = request.getParameterValues("itemId");
         String[] amounts = request.getParameterValues("amount");
         String[] deliveryDates = request.getParameterValues("deliveryDate");
         String[] arrivalDates = request.getParameterValues("arrivalDate");
 
         _logger.info("***addStockArrival***"+stockId+"**productIds**"+productIds.length+
+                "**itemIds**"+itemIds.length+
                 "**amounts**"+amounts.length+"**deliveryDates**"+deliveryDates.length+"**arrivalDates**"+arrivalDates.length);
 
         List<StockItemArrivalBean> stockItemArrivalBeans = new ArrayList<StockItemArrivalBean>();
@@ -298,18 +300,24 @@ public class StockAction extends DispatchAction
             String productId = productIds[i];
             if (!StringTools.isNullOrNone(productId)){
                 StockItemArrivalBean bean = new StockItemArrivalBean();
-                //TODO copy bean from StockItemBean
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addWhereStr();
                 conditionParse.addCondition("stockId","=", stockId);
                 conditionParse.addCondition("productId","=", productId);
                 List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
                 if (!ListTools.isEmptyOrNull(stockItemBeans)){
+                    //copy bean from StockItemBean
                     StockItemBean stockItemBean = stockItemBeans.get(0);
                     BeanUtil.copyProperties(bean, stockItemBean);
                 }
 
-                bean.setId("");
+                String itemId = itemIds[i];
+                if (StringTools.isNullOrNone(itemId)){
+                    bean.setId("");
+                } else{
+                    bean.setId(itemId);
+                }
+
                 bean.setStockId(stockId);
                 bean.setProductId(productId);
                 bean.setAmount(Integer.valueOf(amounts[i]));

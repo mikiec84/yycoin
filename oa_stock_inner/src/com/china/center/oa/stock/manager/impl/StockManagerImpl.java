@@ -187,12 +187,23 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = MYException.class)
     @Override
     public boolean updateStockArrivalBean(User user, StockBean stockBean) throws MYException {
-        boolean result = this.stockItemArrivalDAO.deleteEntityBeansByFK(stockBean.getId());
-        _logger.info(stockBean.getId()+"***updateStockArrivalBean***"+result);
+        _logger.info(stockBean.getId()+"***updateStockArrivalBean***");
 
         for (StockItemArrivalBean bean : stockBean.getArrivalBeans()){
-            this.stockItemArrivalDAO.saveEntityBean(bean);
-            this.addLog(user, stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, stockBean, -1, bean.toString() );
+            if (StringTools.isNullOrNone(bean.getId())){
+                this.stockItemArrivalDAO.saveEntityBean(bean);
+            } else{
+                StockItemArrivalBean stockItemArrivalBean = this.stockItemArrivalDAO.find(bean.getId());
+                if (stockItemArrivalBean!= null){
+                    stockItemArrivalBean.setProductId(bean.getProductId());
+                    stockItemArrivalBean.setAmount(bean.getAmount());
+                    stockItemArrivalBean.setDeliveryDate(bean.getDeliveryDate());
+                    stockItemArrivalBean.setArrivalDate(bean.getArrivalDate());
+                    this.stockItemArrivalDAO.updateEntityBean(stockItemArrivalBean);
+                }
+            }
+
+            this.addLog(user, stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, stockBean, -1, bean.toString());
         }
         return true;  //To change body of implemented methods use File | Settings | File Templates.
     }

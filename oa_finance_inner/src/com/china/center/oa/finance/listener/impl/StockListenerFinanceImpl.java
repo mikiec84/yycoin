@@ -56,7 +56,7 @@ public class StockListenerFinanceImpl implements StockListener
     		return;
     	}
     	
-    	onWaitFetchStock(user, bean, item);
+//    	onWaitFetchStock(user, bean, item);
     }
 
 	@Override
