@@ -884,7 +884,9 @@ public class ShipAction extends DispatchAction
         int pickupCount = packageList.size();
 
         //2015/1/25 检查是否银行业务部订单
-        boolean isBankOrder = this.checkBankPackages(packageList);
+//        boolean isBankOrder = this.checkBankPackages(packageList);
+        //2015/12/8 see #136 不再根据银行分组
+        boolean isBankOrder = false;
         if (isBankOrder){
             //<key,value> as <银行名称，List<PackageItemBean>>
             Map<String, List<PackageItemBean>> map = new HashMap<String, List<PackageItemBean>>();
