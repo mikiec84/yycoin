@@ -207,16 +207,22 @@ function showDiv(id)
 					<td align="center">${item.pay == 0 ? "未付款" : "已付款"}</td>
 
                     <c:if test="${item.hasRef == 0}">
-                    <td align="center">
-                    <font color=red>否</font>
-                    </td>
+						<td align="center">
+						<font color=red>否</font>
+						</td>
                     </c:if>
                     
                      <c:if test="${item.hasRef == 1}">
-                     <td align="center">
-                     <a href=../sail/out.do?method=findOut&fow=99&outId=${item.refOutId}>是</a>
-                     </td>
+						 <td align="center">
+						 	<a href=../sail/out.do?method=findOut&fow=99&outId=${item.refOutId}>是</a>
+						 </td>
                     </c:if>
+
+					<c:if test="${item.hasRef == 2}">
+						<td align="center">
+							<a href=../sail/out.do?method=findOut&fow=99&outId=${item.refOutId}>部分入库</a>
+						</td>
+					</c:if>
 
 					<td align="center">${my:formatNum(item.total)}</td>
 					

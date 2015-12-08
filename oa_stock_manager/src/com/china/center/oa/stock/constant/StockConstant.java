@@ -224,6 +224,12 @@ public interface StockConstant
     @Defined(key = "hasRef", value = "是")
     int STOCK_ITEM_HASREF_YES = 1;
 
+    /**2015/12/8 采购到货行修改
+     * 部分生成库单
+     */
+    @Defined(key = "hasRef", value = "部分入库")
+    int STOCK_ITEM_HASREF_PART = 2;
+
     /**
      * 未拿货
      */
@@ -235,6 +241,12 @@ public interface StockConstant
      */
     @Defined(key = "stockItemFech", value = "已拿货")
     int STOCK_ITEM_FECH_YES = 1;
+
+    /**
+     * 部分拿货
+     */
+    @Defined(key = "stockItemFech", value = "部分拿货")
+    int STOCK_ITEM_FECH_PART = 2;
 
     /**
      * 销售采购

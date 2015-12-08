@@ -1136,7 +1136,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         JudgeTools.judgeParameterIsNull(itemId, providerId);
 
         PriceAskProviderBean bean = priceAskProviderDAO.findBeanByAskIdAndProviderId(itemId,
-            providerId, PriceConstant.PRICE_ASK_TYPE_INNER);
+                providerId, PriceConstant.PRICE_ASK_TYPE_INNER);
 
         if (bean == null)
         {
@@ -1369,7 +1369,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = {MYException.class})
     @Override
     public boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
-        _logger.info("fetchProduct with user:"+user+";itemId:"+arrivalItemId+";depotpartId:"+depotpartId+";warehouseNum:"+warehouseNum+";toBeWarehouse:"+toBeWarehouse);
+        _logger.info("fetchProduct with user:" + user + ";itemId:" + arrivalItemId + ";depotpartId:" + depotpartId + ";warehouseNum:" + warehouseNum + ";toBeWarehouse:" + toBeWarehouse);
         StockItemArrivalBean item = this.stockItemArrivalDAO.find(arrivalItemId);
 
         if (item == null)
@@ -1377,7 +1377,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             throw new MYException("系统错误");
         }
 
-        StockBean stock = stockDAO.findVO(item.getStockId());
+        String stockId = item.getStockId();
+        StockBean stock = stockDAO.findVO(stockId);
 
         if (stock == null)
         {
@@ -1396,7 +1397,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         }   else if (warehouseNum == toBeWarehouse){
             //如果本次入库数量==待入库数量，则本产品入库结束
             item.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
-            _logger.info(arrivalItemId+" set to STOCK_ITEM_FECH_YES****");
+            _logger.info(arrivalItemId + " set to STOCK_ITEM_FECH_YES****");
         }
 
         try{
@@ -1415,11 +1416,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 _logger.info("*************create stock in bean***********"+item);
                 stockListener.onEndStockItem(user, stock, item);
             }
-            String stockId = item.getStockId();
-            List<StockItemBean> items = stockItemDAO.queryEntityBeansByFK(stockId);
+            List<StockItemArrivalBean> items = this.stockItemArrivalDAO.queryEntityBeansByFK(stockId);
             boolean all = true;
 
-            //检查是否所有的商品已入库完毕
+            //检查是否所有的到货行已入库完毕
             if (!ListTools.isEmptyOrNull(items)){
                 _logger.info(stockId+" found item size*****"+items.size());
                 for (StockItemBean stockItemBean : items)

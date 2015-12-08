@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.dao.StockItemArrivalDAO;
 import com.china.center.oa.stock.vo.StockItemArrivalVO;
+import com.china.center.tools.ListTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -450,6 +452,48 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
 
             // 修改采购到货项的属性
             this.stockItemArrivalDAO.updateEntityBean(item);
+
+            if (item.getFechProduct() == StockConstant.STOCK_ITEM_FECH_YES) {
+                //TODO 如果采购行对应的所有到货信息均已拿货，则更新对应采购行是否拿货标志
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("stockId", "=", bean.getId());
+                conditionParse.addCondition("productId", "=", item.getProductId());
+                List<StockItemArrivalBean> arrivalBeans = this.stockItemArrivalDAO.queryEntityBeansByCondition(conditionParse);
+                boolean allArrived = true;
+                if (!ListTools.isEmptyOrNull(arrivalBeans)){
+                    for (StockItemArrivalBean arrivalBean: arrivalBeans){
+                        if (arrivalBean.getFechProduct() == StockConstant.STOCK_ITEM_FECH_NO){
+                            allArrived = false;
+                            break;
+                        }
+                    }
+                }
+
+                //找到对应的采购行
+                List<StockItemBean> itemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(itemBeans)){
+                    StockItemBean itemBean = itemBeans.get(0);
+
+                    if (allArrived){
+                        itemBean.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
+                        itemBean.setHasRef(StockConstant.STOCK_ITEM_HASREF_YES);
+                    } else{
+                        itemBean.setFechProduct(StockConstant.STOCK_ITEM_FECH_PART);
+                        itemBean.setHasRef(StockConstant.STOCK_ITEM_HASREF_PART);
+                    }
+
+                    if (StringTools.isNullOrNone(itemBean.getRefOutId())){
+                        itemBean.setRefOutId(fullId);
+                    } else{
+                        itemBean.setRefOutId(itemBean.getRefOutId()+";"+fullId);
+                    }
+
+                    _logger.info(itemBean+"********set to STOCK_ITEM_FECH_YES*********");
+                    this.stockItemDAO.updateEntityBean(itemBean);
+                }
+
+            }
 
             // TAX_ADD 采购到货后生成管理凭证
             Collection<FechProductListener> listenerMapValues = this.listenerMapValues();
