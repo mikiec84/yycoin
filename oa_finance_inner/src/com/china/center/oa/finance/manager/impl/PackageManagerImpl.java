@@ -1007,8 +1007,8 @@ public class PackageManagerImpl implements PackageManager {
                 item.setPackageId(id);
                 item.setOutId(bean.getId());
                 item.setBaseId(bean.getId());
-//                item.setProductId(bean.getInvoiceNum());
-
+				//2015/12/8 发票号作为productId
+                item.setProductId(bean.getInvoiceNumber());
                 item.setProductName("发票号：" + bean.getInvoiceNumber());
                 item.setAmount(1);
                 item.setPrice(bean.getInvoiceMoney());
@@ -1096,6 +1096,9 @@ public class PackageManagerImpl implements PackageManager {
 //        item.setBaseId(base.getId());
 //        item.setProductId(base.getInvoiceNum());
         item.setProductName("发票号：" + ins.getInvoiceNumber());
+		//2015/12/8 预开票申请已发票号作为productId
+		item.setProductId(ins.getInvoiceName());
+
         item.setAmount(1);
         item.setPrice(ins.getInvoiceMoney());
         item.setValue(ins.getInvoiceMoney());
