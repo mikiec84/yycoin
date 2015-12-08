@@ -83,3 +83,5 @@ CREATE TABLE `T_CENTER_STOCKITEMARRIAL` (
 ) ENGINE=InnoDB AUTO_INCREMENT=116910 DEFAULT CHARSET=utf8;
 
 alter table T_CENTER_STOCKITEM add column totalWarehouseNum int(11) default 0
+
+alter table T_CENTER_STOCKITEM modify refOutId varchar(200)
