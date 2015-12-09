@@ -8,7 +8,10 @@
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/cnchina.js"></script>
-<script language="JavaScript" src="../js/jquery/jquery.js"></script>
+<script language="JavaScript" src="../stock_js/jquery-1.7.1.min.js"></script>
+<script language="JavaScript" src="../stock_js/jquery.ui.widget.js"></script>
+<script language="JavaScript" src="../stock_js/jquery.iframe-transport.js"></script>
+<script language="JavaScript" src="../stock_js/jquery.fileupload.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
 <script language="javascript">
 
@@ -117,6 +120,25 @@ function load()
 	{
 	   removeOption();
 	}
+
+    $('#fileupload').fileupload({
+        dataType: 'json',
+        done: function (e, data) {
+            var result = data.result;
+            var items = result.msg;
+            console.log(items);
+            //TODO
+            console.log(typeof(items));
+            for (var i=0;i<items.length;i++){
+                var item = items[i];
+                console.log(item);
+                var productName = $O('productName_' + i);
+                productName.value="test";
+                var productId = $O('productId_' + i);
+                productId.value=item.productId;
+            }
+        }
+    });
 }
 
 function removeOption()
@@ -450,13 +472,7 @@ function checkCurrentUser()
 				<option value="">--</option>
                <p:option type="stockStype"></p:option>
             </p:pro>
-			
-			<p:pro field="needTime"/>
-			
-			<p:pro field="type">
-                <option value="1">外网/卢工/马甸询价</option>
-            </p:pro>
-            
+
             <p:pro field="mode">
                 <option value="0">销售采购</option>
             </p:pro>
@@ -500,6 +516,7 @@ function checkCurrentUser()
             	</select>&nbsp;&nbsp;
 	            <input type="button" value="选择成品产品" name="btn_select" id="btn_select"
 	                    class="button_class" onclick="selectProductBom()">&nbsp;&nbsp;
+                <input id="fileupload" type="file" name="files[]" data-url="/uportal/stock/stock.do?method=importStockItem">
             </p:cell>
 
 			<p:cells id="selects" celspan="2" title="采购处理">
