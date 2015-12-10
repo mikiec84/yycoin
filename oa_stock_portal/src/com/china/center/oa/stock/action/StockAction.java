@@ -20,11 +20,8 @@ import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.actionhelper.common.*;
 import com.china.center.actionhelper.json.AjaxResult;
-import com.china.center.oa.finance.bean.InvoiceinsBean;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutImportBean;
-import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.product.bean.ProviderBean;
+import com.china.center.oa.product.dao.ProviderDAO;
 import com.china.center.oa.stock.bean.*;
 import com.china.center.oa.stock.dao.*;
 import com.china.center.oa.stock.vo.StockItemArrivalVO;
@@ -155,6 +152,8 @@ public class StockAction extends DispatchAction
 
     private StockItemArrivalDAO stockItemArrivalDAO = null;
 
+    private ProviderDAO providerDAO = null;
+
     private static String RPTQUERYSTOCKITEM = "rptQueryStockItem";
 
     /**
@@ -194,12 +193,13 @@ public class StockAction extends DispatchAction
 
         try
         {
+            _logger.info("***addStock***111111111111");
             BeanUtil.getBean(bean, request);
-
+            _logger.info("***addStock***2222222222222222");
             setStockBean(bean, request);
-            
+            _logger.info("***addStock***3333333333333");
             setCommerceOperator(request, user, bean);
-            
+            _logger.info("***addStock***44444444444444");
             bean.setUserId(user.getId());
 
             bean.setLocationId(user.getLocationId());
@@ -233,14 +233,14 @@ public class StockAction extends DispatchAction
 
             // 权限
             checkAddTypeAuth(user, String.valueOf(bean.getMode()));
-
+            _logger.info("***addStock***555555555555");
             stockManager.addStockBean(user, bean);
 
             if ("1".equals(oprMode))
             {
                 stockManager.passStock(user, bean.getId());
             }
-
+            _logger.info("***addStock***66666666666666666");
             request.setAttribute(KeyConstant.MESSAGE, "成功增加采购单:" + bean.getId());
         }
         catch (MYException e)
@@ -350,7 +350,7 @@ public class StockAction extends DispatchAction
 
         boolean importError = false;
 
-        List<StockItemBean> stockItemBeans = new ArrayList<StockItemBean>();
+        List<StockItemVO> stockItemBeans = new ArrayList<StockItemVO>();
 
         StringBuilder builder = new StringBuilder();
 
@@ -363,15 +363,11 @@ public class StockAction extends DispatchAction
             _logger.error(e1, e1);
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
-
-            return mapping.findForward("importEmergencyOut");
         }
 
         if ( !rds.haveStream())
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
-
-            return mapping.findForward("importEmergencyOut");
         }
 
         ReaderFile reader = ReadeFileFactory.getXLSReader();
@@ -382,6 +378,7 @@ public class StockAction extends DispatchAction
 
             while (reader.hasNext())
             {
+                _logger.info("***import stock item***11111111111");
                 String[] obj = fillObj((String[])reader.next());
 
                 // 第一行忽略
@@ -389,17 +386,18 @@ public class StockAction extends DispatchAction
                 {
                     continue;
                 }
-
+                _logger.info("***import stock item***22222222222222");
                 if (StringTools.isNullOrNone(obj[0]))
                 {
                     continue;
                 }
-
+                _logger.info("***import stock item***33333333333333");
                 int currentNumber = reader.getCurrentLineNumber();
 
                 if (obj.length >= 2 )
                 {
-                    StockItemBean bean = new StockItemBean();
+                    _logger.info("***import stock item***44444444444444");
+                    StockItemVO bean = new StockItemVO();
 
                     // 产品名
                     if ( !StringTools.isNullOrNone(obj[0]))
@@ -419,6 +417,7 @@ public class StockAction extends DispatchAction
                         } else{
                             ProductBean product = productBeans.get(0);
                             bean.setProductId(product.getId());
+                            bean.setProductName(productName);
                         }
                     } else{
                         builder
@@ -433,8 +432,22 @@ public class StockAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String provider = obj[1].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name", "=", provider);
+                        List<ProviderBean> providerBeans = this.providerDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(providerBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("供应商不存在")
+                                    .append("<br>");
 
-                        bean.setProviderId("111222");
+                            importError = true;
+                        } else{
+                            ProviderBean providerBean = providerBeans.get(0);
+                            bean.setProviderId(providerBean.getId());
+                            bean.setProviderName(provider);
+                        }
                     } else{
                         builder
                                 .append("第[" + currentNumber + "]错误:")
@@ -478,7 +491,22 @@ public class StockAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[4]))
                     {
                         String invoiceType = obj[4].trim();
-                        bean.setInvoiceType(invoiceType);
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=", invoiceType);
+                        List<InvoiceBean> invoiceBeans = this.invoiceDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(invoiceBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票类型不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            InvoiceBean invoiceBean = invoiceBeans.get(0);
+                            bean.setInvoiceType(invoiceBean.getId());
+                        }
                     } else{
                         builder
                                 .append("第[" + currentNumber + "]错误:")
@@ -492,7 +520,22 @@ public class StockAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[5]))
                     {
                         String dutyName = obj[5].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=",dutyName);
+                        List<DutyBean> dutyBeans = this.dutyDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(dutyBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("纳税实体不存在")
+                                    .append("<br>");
 
+                            importError = true;
+                        } else{
+                            DutyBean dutyBean = dutyBeans.get(0);
+                            bean.setDutyId(dutyBean.getId());
+                            bean.setDutyName(dutyName);
+                        }
                     } else{
                         builder
                                 .append("第[" + currentNumber + "]错误:")
@@ -506,17 +549,16 @@ public class StockAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[6]))
                     {
                         String deliveryDate = obj[6].trim();
-
+                        bean.setDeliveryDate(deliveryDate);
                     }
 
                     // 预计到货日期
                     if ( !StringTools.isNullOrNone(obj[7]))
                     {
                         String arrivalDate = obj[7].trim();
-
+                        bean.setArrivalDate(arrivalDate);
                     }
-
-
+                    _logger.info("***import stock item***55555555555555");
                     stockItemBeans.add(bean);
                 }
                 else
@@ -532,10 +574,7 @@ public class StockAction extends DispatchAction
         }catch (Exception e)
         {
             _logger.error(e, e);
-
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
-
-            return mapping.findForward("importEmergencyOut");
+            importError = true;
         }
         finally
         {
@@ -551,17 +590,15 @@ public class StockAction extends DispatchAction
 
         rds.close();
 
-        if (importError){
-
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
-
-            return mapping.findForward("importEmergencyOut");
-        }
-
-        _logger.info("***import stock item***"+stockItemBeans);
+        _logger.info("***import stock item***" + stockItemBeans);
         AjaxResult ajaxResult = new AjaxResult();
-        ajaxResult.setSuccess("OK");
-        ajaxResult.setMsg(stockItemBeans);
+        if (importError){
+            ajaxResult.setRet(0);
+            ajaxResult.setMsg(builder.toString());
+        }else {
+            ajaxResult.setRet(1);
+            ajaxResult.setMsg(stockItemBeans);
+        }
 
         return JSONTools.writeResponse(response, ajaxResult);
     }
@@ -1162,7 +1199,7 @@ public class StockAction extends DispatchAction
 
                 bean.setProductId(request.getParameter("productId_" + indexs[i]));
 
-                bean.setPriceAskProviderId(request.getParameter("netaskId_" + indexs[i]));
+//                bean.setPriceAskProviderId(request.getParameter("netaskId_" + indexs[i]));
 
                 bean.setLogTime(TimeTools.now());
 
@@ -1175,7 +1212,7 @@ public class StockAction extends DispatchAction
 
                 bean.setAmount(CommonTools.parseInt(request.getParameter("amount_" + indexs[i])));
                 //2015/10/29 直接设置total
-                bean.setTotal(bean.getPrice()*bean.getAmount());
+                bean.setTotal(bean.getPrice() * bean.getAmount());
                 bean.setNearlyPayDate(TimeTools.now_short());
 
                 int num = storageRelationDAO.sumAllProductByProductId(bean.getProductId());
@@ -1185,9 +1222,13 @@ public class StockAction extends DispatchAction
                 bean.setStatus(StockConstant.STOCK_ITEM_STATUS_INIT);
 
                 //2015/10/24 增加供应商和发票类型
-                bean.setProviderId(request.getParameter("providerId_"+indexs[i]));
-                bean.setInvoiceType(request.getParameter("invoiceType_"+indexs[i]));
-                bean.setDutyId(request.getParameter("dutyId_"+indexs[i]));
+                bean.setProviderId(request.getParameter("providerId_" + indexs[i]));
+                bean.setInvoiceType(request.getParameter("invoiceType_" + indexs[i]));
+                bean.setDutyId(request.getParameter("dutyId_" + indexs[i]));
+
+                //2015/11/10 导入发货日期和预计到货日期
+                bean.setDeliveryDate(request.getParameter("deliveryDate_"+indexs[i]));
+                bean.setArrivalDate(request.getParameter("arrivalDate_"+indexs[i]));
 
 
                 item.add(bean);
@@ -3499,5 +3540,13 @@ public class StockAction extends DispatchAction
 
     public void setStockItemArrivalDAO(StockItemArrivalDAO stockItemArrivalDAO) {
         this.stockItemArrivalDAO = stockItemArrivalDAO;
+    }
+
+    public ProviderDAO getProviderDAO() {
+        return providerDAO;
+    }
+
+    public void setProviderDAO(ProviderDAO providerDAO) {
+        this.providerDAO = providerDAO;
     }
 }

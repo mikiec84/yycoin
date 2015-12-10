@@ -85,3 +85,7 @@ CREATE TABLE `T_CENTER_STOCKITEMARRIAL` (
 alter table T_CENTER_STOCKITEM add column totalWarehouseNum int(11) default 0
 
 alter table T_CENTER_STOCKITEM modify refOutId varchar(200)
+
+alter table T_CENTER_STOCKITEM add column deliveryDate varchar(200) default '', add column arrivalDate varchar(200) default ''
+
+alter table T_CENTER_PACKAGE_ITEM modify productId varchar(200)

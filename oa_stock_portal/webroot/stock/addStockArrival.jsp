@@ -280,9 +280,9 @@
 
                         <td align="center"><input type="number" name="amount" value="${item.amount}" required></td>
 
-                        <td align="center"><input type="date" name="deliveryDate" class="datepicker"></td>
+                        <td align="center"><input type="date" name="deliveryDate" class="datepicker" value="${item.deliveryDate}"></td>
 
-                        <td align="center"><input type="date" name="arrivalDate" class="datepicker"></td>
+                        <td align="center"><input type="date" name="arrivalDate" class="datepicker" value="${item.arrivalDate}"></td>
 
                         <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                     </tr>

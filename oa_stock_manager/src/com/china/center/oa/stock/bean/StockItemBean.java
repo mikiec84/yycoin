@@ -91,7 +91,7 @@ public class StockItemBean implements Serializable
     protected String dutyId = "";
 
     /**
-     * 发票类型
+     * 发票类型 @InvoiceBean.id
      */
     protected String invoiceType = "";
 
@@ -148,6 +148,17 @@ public class StockItemBean implements Serializable
      */
     protected int totalWarehouseNum = 0;
 
+
+    /**
+     * 出货日期
+     */
+    protected String deliveryDate = "";
+
+    /**
+     * 预计到货日期
+     */
+    protected String arrivalDate = "";
+
     @Ignore
     protected List<PriceAskProviderBean> asks = null;
 
@@ -156,6 +167,22 @@ public class StockItemBean implements Serializable
      */
     public StockItemBean()
     {
+    }
+
+    public String getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(String deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
+    public String getArrivalDate() {
+        return arrivalDate;
+    }
+
+    public void setArrivalDate(String arrivalDate) {
+        this.arrivalDate = arrivalDate;
     }
 
     /**
