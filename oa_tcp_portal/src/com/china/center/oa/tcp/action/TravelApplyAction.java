@@ -3531,11 +3531,12 @@ public class TravelApplyAction extends DispatchAction
         String filenName = "Export_" + TimeTools.now("MMddHHmmss") + ".csv";
 
         String customerName = request.getParameter("customerName");
-        _logger.info("export ibReport detail with customer name:"+customerName);
+        _logger.info("export ibReport detail with customer name:" + customerName);
 
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
 
+        Set<String> orders = new HashSet<String>();
         List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(con);
 
         if (ListTools.isEmptyOrNull(ibReportList))
@@ -3574,9 +3575,13 @@ public class TravelApplyAction extends DispatchAction
             for (Iterator<TcpIbReportItemBean> iter = ibReportList.iterator(); iter.hasNext();)
             {
                 TcpIbReportItemBean ib = iter.next();
+                String fullId = ib.getFullId();
+                if (orders.contains(fullId)){
+                    continue;
+                }
                 if (StringTools.isNullOrNone(customerName)|| ib.getCustomerName().contains(customerName))  {
                     line.writeColumn(ib.getCustomerName());
-                    line.writeColumn(ib.getFullId());
+                    line.writeColumn(fullId);
                     line.writeColumn(ib.getProductName());
                     line.writeColumn(ib.getAmount());
                     line.writeColumn(ib.getIbMoney());
@@ -3590,6 +3595,8 @@ public class TravelApplyAction extends DispatchAction
                         line.writeColumn(outBean.getPodate());
                     }
                     line.writeLine();
+
+                    orders.add(fullId);
                 } else{
                     _logger.info("ib.getCustomerName() not match:"+ib.getCustomerName());
                 }
