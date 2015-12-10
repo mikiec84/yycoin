@@ -8,7 +8,11 @@
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/cnchina.js"></script>
-<script language="JavaScript" src="../js/jquery/jquery.js"></script>
+<script language="JavaScript" src="../stock_js/jquery-1.7.1.min.js"></script>
+<script language="JavaScript" src="../stock_js/jquery.ui.widget.js"></script>
+<script language="JavaScript" src="../stock_js/jquery.iframe-transport.js"></script>
+<script language="JavaScript" src="../stock_js/jquery.fileupload.js"></script>
+<script language="JavaScript" src="../stock_js/addStock.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
 <script language="javascript">
 
@@ -108,6 +112,11 @@ function load()
 	{
 	   removeOption();
 	}
+
+    $('#fileupload').fileupload({
+        dataType: 'json',
+        done: importStockItem
+    });
 }
 
 function removeOption()
@@ -413,13 +422,7 @@ function natureChange()
 				<option value="">--</option>
                <p:option type="stockStype"></p:option>
             </p:pro>
-			
-			<p:pro field="needTime"/>
-			
-			<p:pro field="type">
-                <option value="1">外网/卢工/马甸询价</option>
-            </p:pro>
-            
+
             <p:pro field="mode">
                 <option value="1">生产采购</option>
             </p:pro>
@@ -463,6 +466,8 @@ function natureChange()
             	</select>&nbsp;&nbsp;
 	            <input type="button" value="选择成品产品" name="btn_select" id="btn_select"
 	                    class="button_class" onclick="selectProductBom()">&nbsp;&nbsp;
+                <input id="fileupload" type="file" name="files[]" data-url="/uportal/stock/stock.do?method=importStockItem">
+                <p id="msg"></p>
             </p:cell>
 
 			<p:cells id="selects" celspan="2" title="采购处理">
@@ -499,6 +504,8 @@ function natureChange()
                                     <option value="${dutyItem.id}">${dutyItem.name}</option>
                                 </c:forEach>
                             </select>
+                            <input type="hidden" name="deliveryDate_${item}" value="">&nbsp;
+                            <input type="hidden" name="arrivalDate_${item}" value="">&nbsp;
 							<input type="button" value="&nbsp;清 空&nbsp;" 
                     			class="button_class" onclick="sclearValues(${item})">
 							</td>
