@@ -1092,12 +1092,10 @@ public class PackageManagerImpl implements PackageManager {
 
         item.setPackageId(id);
         item.setOutId(ins.getId());
-        //TODO
-//        item.setBaseId(base.getId());
-//        item.setProductId(base.getInvoiceNum());
+
         item.setProductName("发票号：" + ins.getInvoiceNumber());
 		//2015/12/8 预开票申请已发票号作为productId
-		item.setProductId(ins.getInvoiceName());
+		item.setProductId(ins.getInvoiceNumber());
 
         item.setAmount(1);
         item.setPrice(ins.getInvoiceMoney());
