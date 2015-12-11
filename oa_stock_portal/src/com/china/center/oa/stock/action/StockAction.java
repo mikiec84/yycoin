@@ -4,6 +4,7 @@
 package com.china.center.oa.stock.action;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -21,7 +22,8 @@ import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.actionhelper.common.*;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.oa.product.bean.ProviderBean;
-import com.china.center.oa.product.dao.ProviderDAO;
+import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.vo.ProductBOMVO;
 import com.china.center.oa.stock.bean.*;
 import com.china.center.oa.stock.dao.*;
 import com.china.center.oa.stock.vo.StockItemArrivalVO;
@@ -48,9 +50,6 @@ import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.DepotConstant;
-import com.china.center.oa.product.dao.DepotpartDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DepartmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
@@ -117,6 +116,8 @@ public class StockAction extends DispatchAction
     private RoleDAO roleDAO = null;
 
     private ProductDAO productDAO = null;
+
+    private ProductBOMDAO productBOMDAO = null;
 
     private UserManager userManager = null;
 
@@ -339,9 +340,332 @@ public class StockAction extends DispatchAction
         return stockItemArrivalBeans;
     }
 
-
+    /**
+     * 导入配件
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
     public ActionForward importStockItem(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        String ptype = request.getParameter("ptype");
+        String example = request.getParameter("example");
+
+        // Read from request
+        StringBuilder buffer = new StringBuilder();
+        try{
+            BufferedReader reader = request.getReader();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+            }
+            String data = buffer.toString();
+            _logger.info("***data***"+data);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+        _logger.info(example+"***import stock item***"+ptype);
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<StockItemVO> stockItemBeans = new ArrayList<StockItemVO>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    List<StockItemVO> bomList = new ArrayList<StockItemVO>();
+//                    StockItemVO bean = new StockItemVO();
+
+                    // 产品名
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String productName = obj[0].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=",productName);
+                        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(productBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("产品名不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            ProductBean product = productBeans.get(0);
+                            String productId = product.getId();
+
+                            List<ProductBOMVO> voList = productBOMDAO.queryEntityVOsByFK(productId);
+                            if (ListTools.isEmptyOrNull(voList)){
+                                _logger.warn("product is not finished product:"+productName);
+                                StockItemVO bean = new StockItemVO();
+                                bean.setProductId(productId);
+                                bean.setProductName(productName);
+                                bomList.add(bean);
+                            } else{
+                                for (ProductBOMVO bom :voList){
+                                    StockItemVO bean = new StockItemVO();
+                                    bean.setProductId(bom.getProductId());
+                                    bean.setProductName(bom.getProductName());
+                                    bomList.add(bean);
+                                }
+                            }
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("产品名不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 供应商
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String provider = obj[1].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name", "=", provider);
+                        List<ProviderBean> providerBeans = this.providerDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(providerBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("供应商不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            ProviderBean providerBean = providerBeans.get(0);
+                            for (StockItemVO bean :bomList){
+                                bean.setProviderId(providerBean.getId());
+                                bean.setProviderName(provider);
+                            }
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("供应商不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 参考价格
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String price = obj[2].trim();
+
+                        for (StockItemVO bean :bomList){
+                            bean.setPrice(MathTools.parseDouble(price));
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("参考价格不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 数量
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String amount = obj[3].trim();
+
+                        for (StockItemVO bean :bomList){
+                            bean.setAmount(Integer.valueOf(amount));
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("数量不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 发票类型
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        String invoiceType = obj[4].trim();
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=", invoiceType);
+                        List<InvoiceBean> invoiceBeans = this.invoiceDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(invoiceBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票类型不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            InvoiceBean invoiceBean = invoiceBeans.get(0);
+                            for (StockItemVO bean :bomList){
+                                bean.setInvoiceType(invoiceBean.getId());
+                            }
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票类型不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 纳税实体
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        String dutyName = obj[5].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=",dutyName);
+                        List<DutyBean> dutyBeans = this.dutyDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(dutyBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("纳税实体不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            DutyBean dutyBean = dutyBeans.get(0);
+                            for (StockItemVO bean :bomList){
+                                bean.setDutyId(dutyBean.getId());
+                                bean.setDutyName(dutyName);
+                            }
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("纳税实体不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 出货日期
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String deliveryDate = obj[6].trim();
+                        for (StockItemVO bean :bomList){
+                            bean.setDeliveryDate(deliveryDate);
+                        }
+                    }
+
+                    // 预计到货日期
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        String arrivalDate = obj[7].trim();
+                        for (StockItemVO bean :bomList){
+                            bean.setArrivalDate(arrivalDate);
+                        }
+                    }
+                    stockItemBeans.addAll(bomList);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足26格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+            importError = true;
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        _logger.info("***import finished stock item***" + stockItemBeans);
+        AjaxResult ajaxResult = new AjaxResult();
+        if (importError){
+            ajaxResult.setRet(0);
+            ajaxResult.setMsg(builder.toString());
+        }else {
+            ajaxResult.setRet(1);
+            ajaxResult.setMsg(stockItemBeans);
+        }
+
+        return JSONTools.writeResponse(response, ajaxResult);
+    }
+
+    /** 2015/12/11
+     * 导入成品
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importFinishedStockItem(ActionMapping mapping, ActionForm form,
+                                         HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
         _logger.info("***import stock item***");
@@ -3545,5 +3869,13 @@ public class StockAction extends DispatchAction
 
     public void setProviderDAO(ProviderDAO providerDAO) {
         this.providerDAO = providerDAO;
+    }
+
+    public ProductBOMDAO getProductBOMDAO() {
+        return productBOMDAO;
+    }
+
+    public void setProductBOMDAO(ProductBOMDAO productBOMDAO) {
+        this.productBOMDAO = productBOMDAO;
     }
 }
