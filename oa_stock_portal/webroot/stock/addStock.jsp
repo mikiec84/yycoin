@@ -124,8 +124,15 @@ function load()
 
     $('#fileupload').fileupload({
         dataType: 'json',
-        done: importStockItem
-    });
+        progress: function (e, data) {
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			$('#progress .bar').css(
+					'width',
+					progress + '%'
+			);
+		},
+		done: importStockItem
+	});
 }
 
 function removeOption()
@@ -506,6 +513,9 @@ function checkCurrentUser()
 	                    class="button_class" onclick="selectProductBom()">&nbsp;&nbsp;
                 <input id="fileupload" type="file" name="files[]" data-url="/uportal/stock/stock.do?method=importStockItem">
 				<p id="msg"></p>
+				<div id="progress">
+					<div class="bar" style="width: 0%;"></div>
+				</div>
             </p:cell>
 
 			<p:cells id="selects" celspan="2" title="采购处理">

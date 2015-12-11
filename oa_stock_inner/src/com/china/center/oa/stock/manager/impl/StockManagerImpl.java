@@ -170,6 +170,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             // stockItemBean.setMtype(bean.getMtype());
 
             stockItemDAO.saveEntityBean(stockItemBean);
+
+            //2015/12/11 默认生成到货信息
+            StockItemArrivalBean arrivalBean = new StockItemArrivalBean();
+            BeanUtil.copyProperties(arrivalBean, stockItemBean);
+            arrivalBean.setId("");
+            this.stockItemArrivalDAO.saveEntityBean(arrivalBean);
         }
 
         return true;

@@ -527,7 +527,7 @@ function exports()
                             <a title="驳回采购单" href="javascript:reject('${item.id}')"> <img
                                 src="../images/opr/reject.gif" border="0" height="15" width="15"></a>
 
-                            <a title="采购商品到货信息" href="javascript:addStockArrival('${item.id}')">
+                            <a title="采购商品到货信息" href="javascript:updateStockArrival('${item.id}')">
                                 <img src="../images/opr/change.gif" border="0" height="15" width="15">
                             </a>
                         </c:if>

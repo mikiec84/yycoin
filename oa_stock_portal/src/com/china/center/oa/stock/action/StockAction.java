@@ -378,7 +378,6 @@ public class StockAction extends DispatchAction
 
             while (reader.hasNext())
             {
-                _logger.info("***import stock item***11111111111");
                 String[] obj = fillObj((String[])reader.next());
 
                 // 第一行忽略
@@ -386,17 +385,14 @@ public class StockAction extends DispatchAction
                 {
                     continue;
                 }
-                _logger.info("***import stock item***22222222222222");
                 if (StringTools.isNullOrNone(obj[0]))
                 {
                     continue;
                 }
-                _logger.info("***import stock item***33333333333333");
                 int currentNumber = reader.getCurrentLineNumber();
 
                 if (obj.length >= 2 )
                 {
-                    _logger.info("***import stock item***44444444444444");
                     StockItemVO bean = new StockItemVO();
 
                     // 产品名
@@ -462,7 +458,7 @@ public class StockAction extends DispatchAction
                     {
                         String price = obj[2].trim();
 
-                        bean.setPrice(Double.valueOf(price));
+                        bean.setPrice(MathTools.parseDouble(price));
                     } else{
                         builder
                                 .append("第[" + currentNumber + "]错误:")
@@ -636,6 +632,7 @@ public class StockAction extends DispatchAction
      * @return
      * @throws ServletException
      */
+    @Deprecated
     public ActionForward addStockArrival(ActionMapping mapping, ActionForm form,
                                   HttpServletRequest request, HttpServletResponse reponse)
             throws ServletException
