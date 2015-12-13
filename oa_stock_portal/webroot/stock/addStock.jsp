@@ -8,15 +8,22 @@
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/cnchina.js"></script>
-<script language="JavaScript" src="../stock_js/jquery-1.7.1.min.js"></script>
+<script language="JavaScript" src="../stock_js/jquery-1.11.3.min.js"></script>
 <script language="JavaScript" src="../stock_js/jquery.ui.widget.js"></script>
 <script language="JavaScript" src="../stock_js/jquery.iframe-transport.js"></script>
 <script language="JavaScript" src="../stock_js/jquery.fileupload.js"></script>
+<script language="JavaScript" src="../stock_js/polyfiller.js"></script>
+<script src="../stock_js/sweetalert.min.js"></script>
 <script language="JavaScript" src="../stock_js/addStock.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
+<link rel="stylesheet" href="../stock_js/sweetalert.css"/>
 <script language="javascript">
+webshims.setOptions('waitReady', false);
+webshims.setOptions('forms-ext', {types: 'date'});
+webshims.polyfill('forms forms-ext');
 
 var showJSON = JSON.parse('${showJSON}');
+var bptype = false;
 
 function loadShow()
 {
@@ -116,7 +123,7 @@ function load()
 	change();
 	
 	loadForm();
-	
+
 	if ($$('mode') == 0)
 	{
 	   removeOption();
@@ -124,7 +131,15 @@ function load()
 
     $('#fileupload').fileupload({
         dataType: 'json',
-        formData: {example: 'test', 'ptype':$$('ptype')},
+        url: "/uportal/stock/stock.do?method=importStockItem&ptype="+bptype,
+//        formData: {'ptype':$$('ptype')},
+        send: function(e,data){
+            if ($$('ptype')=='')
+            {
+                swal("请选择采购商品类别");
+                return false;
+            }
+        },
         progress: function (e, data) {
 			var progress = parseInt(data.loaded / data.total * 100, 10);
 			$('#progress .bar').css(
@@ -367,7 +382,7 @@ function sclearValues(index)
 	$d('amount_' + index);
 }
 
-var bptype = false; 
+
 function natureChange()
 {
 	if ($$('ptype') == '1')
@@ -378,7 +393,6 @@ function natureChange()
 		$d('btn_select');
 		bptype = false;
 	}
-
 
 	// init
 	var checkArr = document.getElementsByName('check_init');
@@ -512,8 +526,7 @@ function checkCurrentUser()
             	</select>&nbsp;&nbsp;
 	            <input type="button" value="选择成品产品" name="btn_select" id="btn_select"
 	                    class="button_class" onclick="selectProductBom()">&nbsp;&nbsp;
-                <input id="fileupload" type="file" name="files[]" data-url="/uportal/stock/stock.do?method=importStockItem">
-				<p id="msg"></p>
+                <input id="fileupload" type="file" name="files[]">
 				<div id="progress">
 					<div class="bar" style="width: 0%;"></div>
 				</div>
@@ -537,9 +550,9 @@ function checkCurrentUser()
                             <input type="text" name="providerName_${item}" value="" size="20" readonly="readonly">
                             <input type="hidden" name="providerId_${item}" value="">&nbsp;
 							参考价格:
-                            <input type="number" name="price_${item}"  id="price_${item}" value="" size="6" oncheck="notNone;isFloat;">&nbsp;
+                            <input type="text" name="price_${item}"  id="price_${item}" value="" size="6" oncheck="notNone;isFloat;">&nbsp;
 							数量:
-                            <input type="number" name="amount_${item}" id="amount_${item}" value="" size="6" oncheck="notNone;isNumber;">&nbsp;
+                            <input type="text" name="amount_${item}" id="amount_${item}" value="" size="6" oncheck="notNone;isNumber;">&nbsp;
                             发票类型:
                             <select name="invoiceType_${item}">
                                 <option value="">--</option>
@@ -554,8 +567,8 @@ function checkCurrentUser()
                                     <option value="${dutyItem.id}">${dutyItem.name}</option>
                                 </c:forEach>
                             </select>
-							<input type="hidden" name="deliveryDate_${item}" value="">&nbsp;
-							<input type="hidden" name="arrivalDate_${item}" value="">&nbsp;
+							<input type="date" id="deliveryDate_${item}" name="deliveryDate_${item}" value="">&nbsp;
+							<input type="date" id="arrivalDate_${item}" name="arrivalDate_${item}" value="">&nbsp;
 							<input type="button" value="&nbsp;清 空&nbsp;"
                     			class="button_class" onclick="sclearValues(${item})">
 							</td>

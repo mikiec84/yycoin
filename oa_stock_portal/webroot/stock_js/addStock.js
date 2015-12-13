@@ -4,24 +4,20 @@ function importStockItem(e, data){
     var ret = result.ret;
 
     if (ret == 0){
-        $("#msg").text(result.msg);
+        swal("导入模板出错！", result.msg, "error");
         return;
     }
-//            console.log(items);
-//            console.log(typeof(items));
+
     for (var i=0;i<items.length;i++){
         var item = items[i];
-//                console.log(item);
         var check = document.getElementById('check_init_' + i);
         check.checked = true;
 
         var productName = $O('productName_' + i);
-//				console.log(productName);
         productName.value=item.productName;
 
         var productId = $O('productId_' + i);
         productId.value=item.productId;
-//				console.log(productId);
 
         var providerName = $O('providerName_'+i);
         providerName.value=item.providerName;
@@ -39,12 +35,9 @@ function importStockItem(e, data){
 
         var invoiceType = $O('invoiceType_'+i);
         invoiceType.value=item.invoiceType;
-//				console.log(invoiceType);
-//				console.log(invoiceType.value);
         var invoiceTypeOptions = invoiceType.options;
         for (var j = 0; j < invoiceTypeOptions.length; j++)
         {
-//					console.log(invoiceTypeOptions[j].value);
             if (invoiceTypeOptions[j].value == invoiceType.value)
             {
                 invoiceTypeOptions[j].selected = "selected";
@@ -56,7 +49,6 @@ function importStockItem(e, data){
         var dutyOptions = dutyId.options;
         for (var j = 0; j < dutyOptions.length; j++)
         {
-//					console.log(dutyOptions[j].value);
             if (dutyOptions[j].value == dutyId.value)
             {
                 dutyOptions[j].selected = "selected";
@@ -64,9 +56,27 @@ function importStockItem(e, data){
         }
 
         var deliveryDate = $O('deliveryDate_'+i);
-        deliveryDate.value=item.deliveryDate;
+//        deliveryDate.value=item.deliveryDate;
+//        console.log(deliveryDate);
+//        console.log(deliveryDate.value);
+        $("#deliveryDate_"+i).val(item.deliveryDate);
 
         var arrivalDate = $O('arrivalDate_'+i);
-        arrivalDate.value=item.arrivalDate;
+//        arrivalDate.value=item.arrivalDate;
+//        console.log(arrivalDate);
+//        console.log(arrivalDate.value);
+        $("#arrivalDate_"+i).val(item.arrivalDate);
     }
+}
+
+//deprecated see pickadate.js
+function showDate(){
+    $('.datepicker').pickadate({
+        format:'yyyy-mm-dd',
+        monthsFull:["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+        monthsShort:["一","二","三","四","五","六","七","八","九","十","十一","十二"],
+        weekdaysFull:["星期日","星期一","星期二","星期三","星期四","星期五","星期六"],
+        weekdaysShort:["日","一","二","三","四","五","六"],
+        today:"今日",clear:"清除",close:"关闭",firstDay:1,formatSubmit:"yyyy-mm-dd"
+    });
 }

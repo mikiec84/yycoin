@@ -197,6 +197,8 @@ public class StockItemVO extends StockItemBean
             .append(TAB)
             .append("productName = ")
             .append(this.productName)
+            .append("productId = ")
+            .append(this.productId)
             .append(TAB)
             .append("productCode = ")
             .append(this.productCode)

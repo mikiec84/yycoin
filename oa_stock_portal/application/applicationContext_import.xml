@@ -52,6 +52,8 @@
 	<osgi:reference id="providerUserDAO" interface="com.china.center.oa.product.dao.ProviderUserDAO" />
 	
 	<osgi:reference id="productDAO" interface="com.china.center.oa.product.dao.ProductDAO" />
+
+    <osgi:reference id="productBOMDAO" interface="com.china.center.oa.product.dao.ProductBOMDAO" />
 	
 	<osgi:reference id="priceAskDAO" interface="com.china.center.oa.stock.dao.PriceAskDAO" />
 

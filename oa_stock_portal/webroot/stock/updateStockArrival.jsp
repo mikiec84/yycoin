@@ -9,18 +9,19 @@
     <script language="JavaScript" src="../js/public.js"></script>
     <script language="JavaScript" src="../js/key.js"></script>
     <script language="JavaScript" src="../js/title_div.js"></script>
-    <script language="JavaScript" src="../stock_js/jquery-1.7.1.min.js"></script>
-    <script language="JavaScript" src="../stock_js/picker.js"></script>
-    <script language="JavaScript" src="../stock_js/picker.date.js"></script>
+    <script language="JavaScript" src="../stock_js/jquery-1.11.3.min.js"></script>
+    <script language="JavaScript" src="../stock_js/polyfiller.js"></script>
     <script language="JavaScript" src="../stock_js/addStockArrival.js"></script>
-    <link rel="stylesheet" href="../stock_js/classic.css" />
-    <link rel="stylesheet" href="../stock_js/classic.date.css" />
 
     <script language="javascript">
+        webshims.setOptions('waitReady', false);
+        webshims.setOptions('forms-ext', {types: 'date'});
+        webshims.polyfill('forms forms-ext');
+
         function load()
         {
             loadForm();
-            showDate();
+//            showDate();
         }
 
         var jmap = {};
@@ -267,9 +268,9 @@
 
                     <td align="center"><input type="number" name="amount" required></td>
 
-                    <td align="center"><input type="text" name="deliveryDate" class="datepicker"></td>
+                    <td align="center"><input type="date" name="deliveryDate" ></td>
 
-                    <td align="center"><input type="text" name="arrivalDate" class="datepicker"></td>
+                    <td align="center"><input type="date" name="arrivalDate" ></td>
 
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
@@ -285,9 +286,9 @@
                         <c:if test="${item.fechProduct == 0}">
                             <td align="center"><input type="number" name="amount" value="${item.amount}" required></td>
 
-                            <td align="center"><input type="text" name="deliveryDate" value="${item.deliveryDate}" class="datepicker"></td>
+                            <td align="center"><input type="date" name="deliveryDate" value="${item.deliveryDate}" ></td>
 
-                            <td align="center"><input type="text" name="arrivalDate" value="${item.arrivalDate}" class="datepicker"></td>
+                            <td align="center"><input type="date" name="arrivalDate" value="${item.arrivalDate}" ></td>
 
                             <td align="center">${my:get('stockItemFech', item.fechProduct)}</td>
 
@@ -297,9 +298,9 @@
                         <c:if test="${item.fechProduct == 1}">
                             <td align="center"><input type="number" name="amount" value="${item.amount}" readonly></td>
 
-                            <td align="center"><input type="text" name="deliveryDate" value="${item.deliveryDate}" readonly></td>
+                            <td align="center"><input type="date" name="deliveryDate" value="${item.deliveryDate}" readonly></td>
 
-                            <td align="center"><input type="text" name="arrivalDate" value="${item.arrivalDate}" readonly></td>
+                            <td align="center"><input type="date" name="arrivalDate" value="${item.arrivalDate}" readonly></td>
 
                             <td align="center">${my:get('stockItemFech', item.fechProduct)}</td>
 
