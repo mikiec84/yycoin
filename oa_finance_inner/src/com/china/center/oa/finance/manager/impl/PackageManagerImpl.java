@@ -611,6 +611,7 @@ public class PackageManagerImpl implements PackageManager {
 	public void createPackage(PreConsignBean pre, OutVO out) throws MYException
 	{
 		String location = "";
+        String fullId = out.getFullId();
 		
 		// 通过仓库获取 仓库地点
 		DepotBean depot = depotDAO.find(out.getLocation());
@@ -618,13 +619,13 @@ public class PackageManagerImpl implements PackageManager {
 		if (depot != null)
 			location = depot.getIndustryId2();
 		
-		List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
+		List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(fullId);
 		
-		List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(out.getFullId());
+		List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(fullId);
 		
 		if (ListTools.isEmptyOrNull(distList))
 		{
-			triggerLog.info("======createPackage== (distList is null or empty)====" + out.getFullId());
+			triggerLog.info("======createPackage== (distList is null or empty)====" + fullId);
 			preConsignDAO.deleteEntityBean(pre.getId());
 			
 			return;
@@ -635,7 +636,7 @@ public class PackageManagerImpl implements PackageManager {
 		// 如果是空发,则不处理
 		if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
 		{
-			triggerLog.info("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + out.getFullId());
+			triggerLog.info("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + fullId);
 			preConsignDAO.deleteEntityBean(pre.getId());
 			
 			return;
@@ -644,14 +645,12 @@ public class PackageManagerImpl implements PackageManager {
 		// 地址不全,不发
 		if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
 		{
-            triggerLog.info("======address not complete==" + out.getFullId());
+            triggerLog.info("======address not complete==" + fullId);
 			return;
 		}
 		
 		String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
 
-        System.out.println("***********fullAddress****************"+fullAddress);
-		
 		// 此客户是否存在同一个发货包裹,且未拣配
 		ConditionParse con = new ConditionParse();
 		
@@ -660,17 +659,14 @@ public class PackageManagerImpl implements PackageManager {
 		setInnerCondition(distVO, location, con);
 		
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
-		
-//		if (packageList.size() > 1){
-//			throw new MYException("数据异常,生成发货单出错.");
-//		}
-		
+
 		if (ListTools.isEmptyOrNull(packageList))
 		{
-            _logger.info("****create new package now***"+out.getFullId());
+            _logger.info("****create new package now***"+fullId);
 			createNewPackage(out, baseList, distVO, fullAddress, location);
 			
 		}else{
+            _logger.info("****package already exist***"+fullId);
             String id = packageList.get(0).getId();
 			
 			PackageBean packBean = packageDAO.find(id);
@@ -678,11 +674,11 @@ public class PackageManagerImpl implements PackageManager {
 			// 不存在或已不是初始状态(可能已被拣配)
 			if (null == packBean || packBean.getStatus() != 0)
 			{
-                _logger.info(out.getFullId()+"****added to new package***");
+                _logger.info(fullId+"****added to new package***");
 				createNewPackage(out, baseList, distVO, fullAddress, location);
 			}else
 			{
-                _logger.info(out.getFullId()+"****add SO to existent package now***"+packBean.getId());
+                _logger.info(fullId+"****add SO to existent package now***"+packBean.getId());
 
                 //2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
                 List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
@@ -701,7 +697,7 @@ public class PackageManagerImpl implements PackageManager {
                     //2015/2/15 检查重复SO单
                     for (PackageItemBean p: currentItems){
                         if (out.getFullId().equals(p.getOutId())){
-                            _logger.warn("****duplicate package item***"+out.getFullId());
+                            _logger.warn("****duplicate package item***"+fullId);
                             preConsignDAO.deleteEntityBean(pre.getId());
                             return;
                         }

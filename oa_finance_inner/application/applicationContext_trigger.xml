@@ -131,7 +131,7 @@
     <bean id="insFollowOutJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="insFollowOutJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/5 * * * ?" />
     </bean>
 
     <!--2015/10/19 十分钟检查下状态为 “已出库”且发货方式不是“空发”的但没有生成CK单的订单，列入preconsign表 -->
