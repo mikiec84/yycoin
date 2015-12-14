@@ -1547,7 +1547,8 @@ public class ShipAction extends DispatchAction
         {
             request.setAttribute("packageId", vo.getId());
 
-            request.setAttribute("title", "北京黄金交易中心有限公司贵金属产品发货清单");
+            //2015/12/14 把浦发银行的回执单抬头改成：永银文化贵金属产品发货清单
+            request.setAttribute("title", "永银文化贵金属产品发货清单");
 
             //for (PackageItemBean each : itemList)
             for (Iterator<PackageItemBean> iterator = itemList.iterator(); iterator.hasNext();)
