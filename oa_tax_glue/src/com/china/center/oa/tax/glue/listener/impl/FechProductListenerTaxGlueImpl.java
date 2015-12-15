@@ -39,6 +39,7 @@ import com.china.center.oa.tax.dao.TaxDAO;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
 import com.china.center.oa.tax.manager.FinanceTagManager;
+import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 
 
@@ -123,9 +124,11 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
 
         ProviderBean provider = providerDAO.find(each.getProviderId());
 
-        if (provider == null)
+        if (StringTools.isNullOrNone(each.getProviderId())){
+            throw new MYException("T_CENTER_STOCKITEM表供应商栏位providerId不能为空："+each.getId());
+        } else if (provider == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("T_CENTER_STOCKITEM表供应商providerId不存在："+each.getProviderId());
         }
 
         // 一般纳税人
