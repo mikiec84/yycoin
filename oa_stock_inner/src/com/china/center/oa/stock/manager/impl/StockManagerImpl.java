@@ -193,9 +193,22 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = MYException.class)
     @Override
     public boolean updateStockArrivalBean(User user, StockBean stockBean) throws MYException {
-        _logger.info(stockBean.getId()+"***updateStockArrivalBean***");
+        _logger.info(stockBean.getId() + "***updateStockArrivalBean***");
 
-        for (StockItemArrivalBean bean : stockBean.getArrivalBeans()){
+        List<StockItemArrivalBean> arrivalBeans = stockBean.getArrivalBeans();
+        //remove original
+        List<StockItemArrivalBean> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityBeansByFK(stockBean.getId());
+        if (!ListTools.isEmptyOrNull(stockItemArrivalBeans)){
+            for (StockItemArrivalBean bean : stockItemArrivalBeans){
+                if (this.contains(arrivalBeans, bean)){
+                    continue;
+                }else{
+                    this.stockItemArrivalDAO.deleteEntityBean(bean.getId());
+                }
+            }
+        }
+
+        for (StockItemArrivalBean bean : arrivalBeans){
             if (StringTools.isNullOrNone(bean.getId())){
                 this.stockItemArrivalDAO.saveEntityBean(bean);
             } else{
@@ -211,7 +224,18 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
             this.addLog(user, stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, stockBean, -1, bean.toString());
         }
+
+
         return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    private boolean contains(List<StockItemArrivalBean> stockItemArrivalBeans, StockItemArrivalBean bean){
+        for (StockItemArrivalBean arrivalBean: stockItemArrivalBeans){
+            if (bean.getId().equals(arrivalBean.getId())){
+                return true;
+            }
+        }
+        return false;
     }
 
     /*

@@ -12,15 +12,15 @@
 <script language="JavaScript" src="../stock_js/jquery.ui.widget.js"></script>
 <script language="JavaScript" src="../stock_js/jquery.iframe-transport.js"></script>
 <script language="JavaScript" src="../stock_js/jquery.fileupload.js"></script>
-<script language="JavaScript" src="../stock_js/polyfiller.js"></script>
+<%--<script language="JavaScript" src="../stock_js/polyfiller.js"></script>--%>
 <script src="../stock_js/sweetalert.min.js"></script>
 <script language="JavaScript" src="../stock_js/addStock.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
 <link rel="stylesheet" href="../stock_js/sweetalert.css"/>
 <script language="javascript">
-webshims.setOptions('waitReady', false);
-webshims.setOptions('forms-ext', {types: 'date'});
-webshims.polyfill('forms forms-ext');
+//webshims.setOptions('waitReady', false);
+//webshims.setOptions('forms-ext', {types: 'date'});
+//webshims.polyfill('forms forms-ext');
 
 var showJSON = JSON.parse('${showJSON}');
 var bptype = false;
@@ -520,7 +520,7 @@ function checkCurrentUser()
 			
 			<p:pro field="description"  innerString="cols=80 rows=3" />
 
-            <p:cell title="采购商品类别" id="CG_PTYPE">
+			<p:cell title="采购商品类别" id="CG_PTYPE">
             	<select name="ptype" class="select_class" style="width: 240px" onchange="natureChange()">
             		<p:option type="natureType" empty="true"></p:option>
             	</select>&nbsp;&nbsp;
@@ -567,8 +567,8 @@ function checkCurrentUser()
                                     <option value="${dutyItem.id}">${dutyItem.name}</option>
                                 </c:forEach>
                             </select>
-							<input type="date" id="deliveryDate_${item}" name="deliveryDate_${item}" value="">&nbsp;
-							<input type="date" id="arrivalDate_${item}" name="arrivalDate_${item}" value="">&nbsp;
+							<input type="text" id="deliveryDate_${item}" name="deliveryDate_${item}" value=""><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "deliveryDate_${item}");' height='20px' width='20px'/>&nbsp;
+							<input type="text" id="arrivalDate_${item}" name="arrivalDate_${item}" value=""><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "arrivalDate_${item}");' height='20px' width='20px'/>&nbsp;
 							<input type="button" value="&nbsp;清 空&nbsp;"
                     			class="button_class" onclick="sclearValues(${item})">
 							</td>

@@ -10,13 +10,13 @@
     <script language="JavaScript" src="../js/key.js"></script>
     <script language="JavaScript" src="../js/title_div.js"></script>
     <script language="JavaScript" src="../stock_js/jquery-1.11.3.min.js"></script>
-    <script language="JavaScript" src="../stock_js/polyfiller.js"></script>
+    <%--<script language="JavaScript" src="../stock_js/polyfiller.js"></script>--%>
     <script language="JavaScript" src="../stock_js/addStockArrival.js"></script>
 
     <script language="javascript">
-        webshims.setOptions('waitReady', false);
-        webshims.setOptions('forms-ext', {types: 'date'});
-        webshims.polyfill('forms forms-ext');
+//        webshims.setOptions('waitReady', false);
+//        webshims.setOptions('forms-ext', {types: 'date'});
+//        webshims.polyfill('forms forms-ext');
 
         function load()
         {
@@ -40,6 +40,15 @@
         {
             if (jmap[id] != null && jmap[id] != '')
                 tooltip.showTable(jmap[id]);
+        }
+
+        function calDateInner(obj, name)
+        {
+            var tr = getTrObject(obj);
+
+            var el = getInputInTr(tr, name);
+
+            return calDate(el)
         }
 
     </script>
@@ -268,9 +277,9 @@
 
                     <td align="center"><input type="number" name="amount" required></td>
 
-                    <td align="center"><input type="date" name="deliveryDate" ></td>
+                    <td align="center"><input type="text" name="deliveryDate" ><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "deliveryDate");' height='20px' width='20px'/></td>
 
-                    <td align="center"><input type="date" name="arrivalDate" ></td>
+                    <td align="center"><input type="text" name="arrivalDate" ><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "arrivalDate");' height='20px' width='20px'/></td>
 
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
@@ -286,9 +295,9 @@
                         <c:if test="${item.fechProduct == 0}">
                             <td align="center"><input type="number" name="amount" value="${item.amount}" required></td>
 
-                            <td align="center"><input type="date" name="deliveryDate" value="${item.deliveryDate}" ></td>
+                            <td align="center"><input type="text" name="deliveryDate" value="${item.deliveryDate}" ><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "deliveryDate");' height='20px' width='20px'/></td>
 
-                            <td align="center"><input type="date" name="arrivalDate" value="${item.arrivalDate}" ></td>
+                            <td align="center"><input type="text" name="arrivalDate" value="${item.arrivalDate}" ><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "arrivalDate");' height='20px' width='20px'/></td>
 
                             <td align="center">${my:get('stockItemFech', item.fechProduct)}</td>
 
