@@ -1399,20 +1399,21 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = {MYException.class})
     @Override
     public boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
-        _logger.info("fetchProduct with user:" + user + ";itemId:" + arrivalItemId + ";depotpartId:" + depotpartId + ";warehouseNum:" + warehouseNum + ";toBeWarehouse:" + toBeWarehouse);
         StockItemArrivalBean item = this.stockItemArrivalDAO.find(arrivalItemId);
 
         if (item == null)
         {
-            throw new MYException("系统错误");
+            throw new MYException("到货行不存在："+arrivalItemId);
         }
 
         String stockId = item.getStockId();
         StockBean stock = stockDAO.findVO(stockId);
 
+        _logger.info("fetchProduct with stockId:" + stockId + ";itemId:" + arrivalItemId + ";depotpartId:" + depotpartId + ";warehouseNum:" + warehouseNum + ";toBeWarehouse:" + toBeWarehouse);
+
         if (stock == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("采购单不存在："+stockId);
         }
 
         //2015/12/6 检查拿货数量
