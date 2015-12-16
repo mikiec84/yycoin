@@ -4774,7 +4774,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 退库的逻辑比较特殊
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-            && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK))
+            && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
+                || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
+                || outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE))
         {
             if ( ! (outBean.getStatus() == OutConstant.STATUS_SAVE
                     || outBean.getStatus() == OutConstant.STATUS_REJECT || outBean.getStatus() == OutConstant.BUY_STATUS_SUBMIT))

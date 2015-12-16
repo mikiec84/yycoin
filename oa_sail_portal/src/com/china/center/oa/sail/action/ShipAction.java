@@ -1916,6 +1916,26 @@ public class ShipAction extends DispatchAction
     }
 
     /**
+     * 2015/12/16 中原银行调入分行：，字段值取out_import中根据OANO对应的branchname 字段值，
+     * 如果是发票，则根据发票对应的销售单关联OANO字段，取其行项目上的branchname字段值
+     * @param outId
+     * @return
+     */
+    private String getBranchNameFromOutImport(String outId){
+        String branchName = "";
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("OANo", "=", outId);
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByCondition(conditionParse);
+
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            branchName = importBeans.get(0).getBranchName();
+        }
+        return branchName;
+    }
+
+    /**
      * 2015/11/13 中原银行回执单打印:调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
      * @param original
      * @return
@@ -2200,10 +2220,13 @@ public class ShipAction extends DispatchAction
             String outId = first.getOutId();
             String stafferName = "永银商务部";
             String phone = "4006518859";
+            String firstOutId = "";
+            String branchName = "";
             _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
                 _logger.warn("****Empty OutId***********"+first.getId());
             }else if (outId.startsWith("SO")){
+                firstOutId = outId;
                 String[] result = this.getStafferNameAndPhone(outId);
                 if (result.length>=2){
                     stafferName = result[0];
@@ -2220,6 +2243,7 @@ public class ShipAction extends DispatchAction
                         for (String out: temp){
                             if (out.startsWith("SO")){
                                 refOutId = out;
+                                firstOutId = out;
                                 break;
                             }
                         }
@@ -2233,8 +2257,15 @@ public class ShipAction extends DispatchAction
             }
             _logger.info("*****stafferName***********"+stafferName);
             _logger.info("*******phone*************"+phone);
+
+            branchName = this.getBranchNameFromOutImport(firstOutId);
+            _logger.info("***branchName***" + branchName);
+            request.setAttribute("branchName",branchName);
+
+
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
+
 
             //2015/11/17 取第一个SO单的outTime作为中原银行回执单交接时间
             String outTime = first.getOutTime();
@@ -2290,11 +2321,10 @@ public class ShipAction extends DispatchAction
 
             if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
             {
-                _logger.info("******赠品类型*****"+each.getOutId());
                 List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
 
-                if (!ListTools.isEmptyOrNull(outiList))
-                {
+                _logger.info("******赠品类型*****"+each.getOutId());
+                if (!ListTools.isEmptyOrNull(outiList)) {
                     String refId = outiList.get(0).getCiticNo();
                     _logger.info("****refId:"+refId);
                     each.setRefId(refId);
@@ -2314,6 +2344,8 @@ public class ShipAction extends DispatchAction
                         continue;
                     }
                 }
+
+
             }
 
             String key = each.getProductId();

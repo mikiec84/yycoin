@@ -256,7 +256,7 @@ function rejectBack()
     //2015/10/23 入库换货
     if (getRadio('fullId').outtype == 8) {
         if (window.confirm('确认驳回退库?')) {
-            document.location.href = '../sail/out.do?method=submitOutForExchange&outId=' + getRadioValue("fullId");
+            document.location.href = '../sail/out.do?method=rejectBack&queryType=${queryType}&outId=' + getRadioValue("fullId");
         }
     } else if ((getRadio('fullId').statuss == 0 || getRadio('fullId').statuss == 1) && (getRadio('fullId').outtype == 4 || getRadio('fullId').outtype == 5 || getRadio('fullId').outtype == 7))
 	{
