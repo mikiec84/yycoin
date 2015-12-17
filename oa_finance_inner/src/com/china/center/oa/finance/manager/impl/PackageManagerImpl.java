@@ -149,7 +149,7 @@ public class PackageManagerImpl implements PackageManager {
 		conditionParse.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_OUT_PRESENT);
 		//状态为 “已出库”
 		conditionParse.addCondition("OutBean.status", "=", OutConstant.STATUS_PASS);
-		conditionParse.addCondition("OutBean.outTime", ">", "2015-09-01");
+		conditionParse.addCondition("OutBean.outTime", ">", "2015-11-01");
 		//没有生成CK单的订单
 		conditionParse.addCondition("and not exists(select p.id from T_CENTER_PACKAGE_ITEM p where p.outId = OutBean.fullId)");
 
