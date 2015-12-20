@@ -374,9 +374,14 @@ function lverify()
     }
 //            console.log(productMap2);
     //object equal
-    if (JSON.stringify(productMap2) !== JSON.stringify(productMap) ){
-        alert("同一商品的到货数量累计必须等于原采购数量");
-        return false;
+    //if (JSON.stringify(productMap2) !== JSON.stringify(productMap) ){
+    //    alert("同一商品的到货数量累计必须等于原采购数量");
+    //    return false;
+    //}
+    //2015/12/20 使用lodash compare object
+    if (!_.isEqual(productMap2, productMap)){
+            alert("同一商品的到货数量累计必须等于原采购数量");
+            return false;
     }
     return true;
 }

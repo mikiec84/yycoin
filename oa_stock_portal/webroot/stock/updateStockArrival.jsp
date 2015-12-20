@@ -11,6 +11,7 @@
     <script language="JavaScript" src="../js/title_div.js"></script>
     <script language="JavaScript" src="../stock_js/jquery-1.11.3.min.js"></script>
     <%--<script language="JavaScript" src="../stock_js/polyfiller.js"></script>--%>
+    <script language="JavaScript" src="../stock_js/lodash3.10.1.min.js"></script>
     <script language="JavaScript" src="../stock_js/addStockArrival.js"></script>
 
     <script language="javascript">
