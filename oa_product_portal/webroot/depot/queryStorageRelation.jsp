@@ -88,10 +88,19 @@ function checkStorageLog(opr, grid)
 
 function depotpartLog(opr, grid)
 {
+//    console.log(getRadio('checkb'));
+//    console.log(getRadio('checkb').lproductId);
+//    console.log(getRadio('checkb').ldepotpartId);
+
+//    console.log(checkElement.getAttribute("lproductId"));
+//    console.log(checkElement.getAttribute("ldepotpartId"));
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var depotpartId = checkElement.getAttribute("ldepotpartId");
 		$l(gurl + 'queryStorageLog&queryType=1&productId=' 
-			+ getRadio('checkb').lproductId + '&depotpartId=' + getRadio('checkb').ldepotpartId);
+			+ productId + '&depotpartId=' + depotpartId);
 	}
 	else
 	$error('不能操作');
@@ -100,10 +109,17 @@ function depotpartLog(opr, grid)
 function depotpartLog2(opr, grid)
 {
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
-		$l(gurl + 'queryStorageLog&queryType=1&productId=' 
-			+ getRadio('checkb').lproductId + '&depotpartId=' + getRadio('checkb').ldepotpartId 
-			+ '&priceKey=' + getRadio('checkb').lpriceKey);
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var depotpartId = checkElement.getAttribute("ldepotpartId");
+        var lpriceKey = checkElement.getAttribute("lpriceKey");
+        $l(gurl + 'queryStorageLog&queryType=1&productId='
+                + productId + '&depotpartId=' + depotpartId
+                + '&priceKey=' + lpriceKey);
+//		$l(gurl + 'queryStorageLog&queryType=1&productId='
+//			+ getRadio('checkb').lproductId + '&depotpartId=' + getRadio('checkb').ldepotpartId
+//			+ '&priceKey=' + getRadio('checkb').lpriceKey);
 	}
 	else
 	$error('不能操作');
@@ -112,9 +128,15 @@ function depotpartLog2(opr, grid)
 function depotLog(opr, grid)
 {
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
-		$l(gurl + 'queryStorageLog&queryType=2&productId=' 
-			+ getRadio('checkb').lproductId + '&locationId=' + getRadio('checkb').llocationId);
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var llocationId = checkElement.getAttribute("llocationId");
+        $l(gurl + 'queryStorageLog&queryType=2&productId='
+                + productId + '&locationId=' + llocationId);
+
+//		$l(gurl + 'queryStorageLog&queryType=2&productId='
+//			+ getRadio('checkb').lproductId + '&locationId=' + getRadio('checkb').llocationId);
 	}
 	else
 	$error('不能操作');
@@ -123,10 +145,17 @@ function depotLog(opr, grid)
 function depotLog2(opr, grid)
 {
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
-		$l(gurl + 'queryStorageLog&queryType=2&productId=' 
-			+ getRadio('checkb').lproductId + '&locationId=' + getRadio('checkb').llocationId 
-			+ '&priceKey=' + getRadio('checkb').lpriceKey);
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var llocationId = checkElement.getAttribute("llocationId");
+        var lpriceKey = checkElement.getAttribute("lpriceKey");
+        $l(gurl + 'queryStorageLog&queryType=2&productId='
+                + productId + '&locationId=' + llocationId
+                + '&priceKey=' + lpriceKey);
+//		$l(gurl + 'queryStorageLog&queryType=2&productId='
+//			+ getRadio('checkb').lproductId + '&locationId=' + getRadio('checkb').llocationId
+//			+ '&priceKey=' + getRadio('checkb').lpriceKey);
 	}
 	else
 	$error('不能操作');
