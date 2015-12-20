@@ -92,7 +92,7 @@
         <property name="cronExpression" value="0 0/10 * * * ?" />
     </bean>
 
-    <!--资金管理-收款审核 每10分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过-->
+    <!--资金管理-收款审核 每25分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过-->
     <bean id="passPaymentApplyJob"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="paymentApplyManager" />
@@ -103,10 +103,10 @@
     <bean id="passPaymentApplyJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="passPaymentApplyJob" />
-        <property name="cronExpression" value="0 0/10 * * * ?" />
+        <property name="cronExpression" value="0 0/25 * * * ?" />
     </bean>
 
-    <!--资金管理-收款稽核 每10分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过-->
+    <!--资金管理-收款稽核 每25分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过-->
     <bean id="passPaymentApply2Job"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="paymentApplyManager" />
@@ -117,10 +117,10 @@
     <bean id="passPaymentApply2JobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="passPaymentApply2Job" />
-        <property name="cronExpression" value="0 0/10 * * * ?" />
+        <property name="cronExpression" value="0 0/25 * * * ?" />
     </bean>
 
-    <!--票随货发的发票拣配 每5分钟运行一次-->
+    <!--票随货发的发票拣配 每30分钟运行一次-->
     <bean id="insFollowOutJob"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="invoiceinsManager" />
@@ -131,10 +131,10 @@
     <bean id="insFollowOutJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="insFollowOutJob" />
-        <property name="cronExpression" value="0 0/5 * * * ?" />
+        <property name="cronExpression" value="0 0/30 * * * ?" />
     </bean>
 
-    <!--2015/10/19 十分钟检查下状态为 “已出库”且发货方式不是“空发”的但没有生成CK单的订单，列入preconsign表 -->
+    <!--2015/10/19 40分钟检查下状态为 “已出库”且发货方式不是“空发”的但没有生成CK单的订单，列入preconsign表 -->
     <bean id="checkOrderWithoutCKJob"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="packageManager" />
@@ -145,7 +145,7 @@
     <bean id="checkOrderWithoutCKJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="checkOrderWithoutCKJob" />
-        <property name="cronExpression" value="0 0/10 * * * ?" />
+        <property name="cronExpression" value="0 0/40 * * * ?" />
     </bean>
 
     <bean
