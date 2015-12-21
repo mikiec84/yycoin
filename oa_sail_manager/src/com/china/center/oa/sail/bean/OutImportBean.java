@@ -120,6 +120,11 @@ public class OutImportBean implements Serializable
 	@FK(index = AnoConstant.FK_FIRST)
 	@Join(tagClass = OutBean.class, type = JoinType.LEFT)
 	private String OANo = "";
+
+	/**
+	 * 2015/12/21 宁波银行订单编号
+	 */
+	private String nbyhNo = "";
 	
 	/**
 	 * 异常原因
@@ -822,4 +827,12 @@ public class OutImportBean implements Serializable
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
+
+	public String getNbyhNo() {
+		return nbyhNo;
+	}
+
+	public void setNbyhNo(String nbyhNo) {
+		this.nbyhNo = nbyhNo;
+	}
 }

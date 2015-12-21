@@ -89,3 +89,7 @@ alter table T_CENTER_STOCKITEM modify refOutId varchar(200)
 alter table T_CENTER_STOCKITEM add column deliveryDate varchar(200) default '', add column arrivalDate varchar(200) default ''
 
 alter table T_CENTER_PACKAGE_ITEM modify productId varchar(200)
+
+-- 2015/12/21 Äþ²¨ÒøÐÐÓÊ¼þ
+alter table T_CENTER_PACKAGE add column nbyhNo varchar(200)
+

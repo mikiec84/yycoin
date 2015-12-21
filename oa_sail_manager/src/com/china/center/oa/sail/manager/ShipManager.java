@@ -46,6 +46,8 @@ public interface ShipManager
 
     void sendMailForShipping() throws MYException;
 
+    void sendMailForNbShipping() throws MYException;
+
     void saveAllEntityBeans(List<BranchRelationBean> importItemList) throws MYException;
 
     List<String> autoPickup(int pickupCount, String productName) throws MYException;
