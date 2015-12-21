@@ -1119,6 +1119,8 @@ public class ShipManagerImpl implements ShipManager
 
 	/**
 	 * see #146: 宁波银行邮件信息
+     * 每天23点，统计当天截止时间t_center_package表中
+     * 邮件发送标识为空，且status字段值为2的，且客户名称为 宁波银行XXXX    的CK单
 	 * @throws MYException
 	 */
 	@Override
@@ -1129,68 +1131,19 @@ public class ShipManagerImpl implements ShipManager
 		System.out.println(msg);
 		triggerLog.info(msg);
 
-		// 每天23点，统计当天截止时间t_center_package表中
-		// 邮件发送标识为空，且status字段值为2的，且客户名称为 宁波银行XXXX    的CK单
+
 		ConditionParse con = new ConditionParse();
 		con.addWhereStr();
 		con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
 		con.addIntCondition("PackageBean.status", "=", 2);
 		con.addIntCondition("CustomerBean.customerName", "like", "宁波银行%");
 
-		//分支行对应关系：<分行邮件，List<支行邮件>>
-		Map<String,Set<String>> branch2SubBranch = new HashMap<String,Set<String>>();
-		//分行邮件与名称表:<分行邮件,分行名称>
-		Map<String,String> branch2Name = new HashMap<String,String>();
-		//分行邮件与合并订单表:<分行邮件,List<订单>>
-		Map<String,List<PackageVO>> branch2Packages = new HashMap<String,List<PackageVO>>();
-		//发送邮件标志:<分行邮件,flg>
-		Map<String,Integer> branch2Flag = new HashMap<String,Integer>();
-		//抄送支行标志:<分行邮件,flg>
-		Map<String,Integer> branch2Copy = new HashMap<String,Integer>();
-
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 		if (!ListTools.isEmptyOrNull(packageList))
 		{
 			_logger.info("****packageList to be sent mail***"+packageList.size());
-			for (PackageVO vo : packageList){
-				//First query 分支行对应关系表
-				ConditionParse con2 = new ConditionParse();
-				con2.addWhereStr();
-				con2.addCondition("BranchRelationBean.id", "=", vo.getCustomerId());
-				List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
-				if (!ListTools.isEmptyOrNull(relationList)){
-					BranchRelationVO relation = relationList.get(0);
-					_logger.info("**********relation******"+relation);
-					String branchMail = relation.getBranchMail();
-					if (!StringTools.isNullOrNone(branchMail)){
-						String subBranchMail = relation.getSubBranchMail();
-						if (branch2SubBranch.containsKey(branchMail)){
-							branch2SubBranch.get(branchMail).add(subBranchMail);
-						} else{
-							Set<String> branchMailSet = new HashSet<String>();
-							branchMailSet.add(subBranchMail);
-							branch2SubBranch.put(branchMail,branchMailSet);
-						}
-
-						branch2Name.put(branchMail,relation.getBranchName());
-
-						if (branch2Packages.containsKey(branchMail)){
-							List<PackageVO> voList = branch2Packages.get(branchMail);
-							voList.add(vo);
-						}else{
-							List<PackageVO> voList =  new ArrayList<PackageVO>();
-							voList.add(vo);
-							branch2Packages.put(branchMail,voList);
-						}
-
-						branch2Flag.put(branchMail,relation.getSendMailFlag());
-						branch2Copy.put(branchMail,relation.getCopyToBranchFlag());
-					}
-				}
-			}
-
 			//send mail for merged packages
-			for (String key : branch2Packages.keySet()) {
+			for (PackageVO vo : packageList) {
 				List<PackageVO> packages = branch2Packages.get(key);
 				String fileName = getShippingAttachmentPath() + "/" + branch2Name.get(key)
 						+ "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
@@ -1201,7 +1154,7 @@ public class ShipManagerImpl implements ShipManager
 				if(branch2Flag.get(key) == 1){
 					String branchName = branch2Name.get(key);
 					_logger.info("分行:"+branchName+"***包裹数***:"+branch2Packages.get(key).size());
-					createMailAttachment(branch2Packages.get(key),branchName , fileName);
+					createNbMailAttachment(packageList, fileName);
 
 					// check file either exists
 					File file = new File(fileName);
@@ -1213,13 +1166,6 @@ public class ShipManagerImpl implements ShipManager
 
 					// 发送给分行
 					commonMailManager.sendMail(key, title,content, fileName);
-				}
-
-				if(branch2Copy.get(key) == 1){
-					// 抄送所有支行
-					for (String branchMail : branch2SubBranch.get(key)){
-						commonMailManager.sendMail(branchMail, title,content, fileName);
-					}
 				}
 
 				for (PackageBean vo:branch2Packages.get(key)){
@@ -1344,9 +1290,6 @@ public class ShipManagerImpl implements ShipManager
 			for (PackageVO bean :beans){
 				List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
 				if (!ListTools.isEmptyOrNull(itemList)){
-//                    i++;
-
-
 					for (PackageItemBean each : itemList)
 					{
 						i++;
@@ -1362,57 +1305,48 @@ public class ShipManagerImpl implements ShipManager
 						con3.addWhereStr();
 						con3.addCondition("OutImportBean.oano", "=", each.getOutId());
 						List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
-						OutImportBean importBean = null;
+						OutImportBean importBean = new OutImportBean();
 						if (!ListTools.isEmptyOrNull(importBeans)){
 							importBean = importBeans.get(0);
 						}
 
 						//机构id
-						ws.addCell(new Label(j++, i, each.getProductName(), format3));
+						ws.addCell(new Label(j++, i, importBean.getComunicationBranch(), format3));
 
 						//机构名称
-						ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+						ws.addCell(new Label(j++, i, importBean.getComunicatonBranchName(), format3));
+
+                        String transportNo = "";
+                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
+                        if (!ListTools.isEmptyOrNull(consignBeans)){
+                            ConsignBean b = consignBeans.get(0);
+                            if (!StringTools.isNullOrNone(b.getTransportNo())){
+                                transportNo = b.getTransportNo();
+                            }
+                        }
 
 						//发货单号
-						ws.addCell(new Label(j++, i, each.getPackageId(), format3));
+						ws.addCell(new Label(j++, i, transportNo, format3));
 
 						//订单编号
-						ws.addCell(new Label(j++, i, bean.getReceiver(), format3));
+						ws.addCell(new Label(j++, i, importBean.getNbyhNo(), format3));
 
-						//快递单号
-//                        String transportNo = "";
-//                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
-//                        if (!ListTools.isEmptyOrNull(consignBeans)){
-//                            ConsignBean b = consignBeans.get(0);
-//                            if (!StringTools.isNullOrNone(b.getTransportNo())){
-//                                transportNo = b.getTransportNo();
-//                            }
-//                        }
+                        //快递单号
 						ws.addCell(new Label(j++, i, transportNo, format3));
 
 						//产品id
-						ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
+						ws.addCell(new Label(j++, i, importBean.getProductCode(), format3));
 
 						//产品名称
-						ws.addCell(new Label(j++, i, this.getYesterday(), format3));
+						ws.addCell(new Label(j++, i, importBean.getProductName(), format3));
 
 						//产品类型
+                        ws.addCell(new Label(j++, i, "工艺金", format3));
 
 						//产品数量
-//                        List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(each.getOutId());
-//                        if (ListTools.isEmptyOrNull(distList)){
-//                            ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-//                        } else{
-//                            String outboundDate = distList.get(0).getOutboundDate();
-//                            if (StringTools.isNullOrNone(outboundDate)){
-//                                ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-//                            } else{
-//                                ws.addCell(new Label(j++, i, distList.get(0).getOutboundDate(), format3));
-//                            }
-//                        }
+                        ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
 
 						j = 0;
-//                        i++;
 					}
 				}
 			}
@@ -1421,7 +1355,6 @@ public class ShipManagerImpl implements ShipManager
 		}
 		catch (Throwable e)
 		{
-//            _logger.error(e, e);
 			e.printStackTrace();
 		}
 		finally

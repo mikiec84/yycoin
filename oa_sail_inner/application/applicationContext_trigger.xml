@@ -104,6 +104,20 @@
         <property name="cronExpression" value="0 0 10 * * ?" />
     </bean>
 
+    <!--2015/12/21 宁波银行发货邮件-->
+    <bean id="sendMailForNbShipping"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="shipManager" />
+        <property name="targetMethod" value="sendMailForNbShipping" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="sendMailForNbShippingTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="sendMailForNbShipping" />
+        <property name="cronExpression" value="0 0 5 * * ?" />
+    </bean>
+
     <!--job to 统计CK单中距当前时间最长的单据创建时间 -->
     <bean id="sortPackages"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
@@ -129,6 +143,7 @@
                 <ref bean="statsPersonalSwatchTrigger" />
                 <ref bean="createOAOrderFromAppTrigger"/>
                 <ref bean="sendMailForShippingTrigger"/>
+                <ref bean="sendMailForNbShippingTrigger"/>
                 <ref bean="sortPackagesTrigger"/>
             </list>
         </property>
