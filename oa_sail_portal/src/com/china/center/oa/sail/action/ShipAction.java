@@ -2232,6 +2232,9 @@ public class ShipAction extends DispatchAction
                     stafferName = result[0];
                     phone = result[1];
                 }
+            }else if (outId.startsWith("ZS") || outId.startsWith("XZ")){
+                //2015/12/21 中原银行打印回执单，赠送单调入分行内容有误
+                firstOutId = outId;
             } else if(outId.startsWith("A")){
                 InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
                 if (bean!= null){
