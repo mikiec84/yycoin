@@ -91,5 +91,6 @@ alter table T_CENTER_STOCKITEM add column deliveryDate varchar(200) default '', 
 alter table T_CENTER_PACKAGE_ITEM modify productId varchar(200)
 
 -- 2015/12/21 Äþ²¨ÒøÐÐÓÊ¼þ
-alter table T_CENTER_PACKAGE add column nbyhNo varchar(200)
+alter table t_center_out_import add column nbyhNo varchar(200) default ''
+alter table T_CENTER_PACKAGE add column sendMailFlagNbyh int(11) default -1
 

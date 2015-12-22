@@ -1057,7 +1057,7 @@ public class ShipManagerImpl implements ShipManager
     public void sendMailForShipping2() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         long now = System.currentTimeMillis();
-        System.out.println("**************run schedule****************"+now);
+        System.out.println("**************run schedule****************" + now);
 
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
@@ -1118,90 +1118,41 @@ public class ShipManagerImpl implements ShipManager
     }
 
 	/**
-	 * see #146: 宁波银行邮件信息
+	 * see #146: 宁波银行邮件信息(发货前)
+	 *  每天17点，统计当天截止时间t_center_package表中
+	 * 邮件发送标识为空，且status字段值为2的，且客户名称为 宁波银行XXXX    的CK单
 	 * @throws MYException
 	 */
 	@Override
 	@Transactional(rollbackFor = MYException.class)
-	public void sendMailForNbShipping() throws MYException {
+	public void sendMailForNbBeforeShipping() throws MYException {
 		//To change body of implemented methods use File | Settings | File Templates.
 		String msg =  "**************run sendMailForNbShipping job****************";
 		System.out.println(msg);
 		triggerLog.info(msg);
+		_logger.info(msg);
 
-		// 每天23点，统计当天截止时间t_center_package表中
-		// 邮件发送标识为空，且status字段值为2的，且客户名称为 宁波银行XXXX    的CK单
 		ConditionParse con = new ConditionParse();
 		con.addWhereStr();
-		con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
-		con.addIntCondition("PackageBean.status", "=", 2);
-		con.addIntCondition("CustomerBean.customerName", "like", "宁波银行%");
-
-		//分支行对应关系：<分行邮件，List<支行邮件>>
-		Map<String,Set<String>> branch2SubBranch = new HashMap<String,Set<String>>();
-		//分行邮件与名称表:<分行邮件,分行名称>
-		Map<String,String> branch2Name = new HashMap<String,String>();
-		//分行邮件与合并订单表:<分行邮件,List<订单>>
-		Map<String,List<PackageVO>> branch2Packages = new HashMap<String,List<PackageVO>>();
-		//发送邮件标志:<分行邮件,flg>
-		Map<String,Integer> branch2Flag = new HashMap<String,Integer>();
-		//抄送支行标志:<分行邮件,flg>
-		Map<String,Integer> branch2Copy = new HashMap<String,Integer>();
+		con.addIntCondition("PackageBean.sendMailFlagNbyh", "=", 0);
+		con.addCondition("CustomerBean.name", "like", "宁波银行%");
 
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 		if (!ListTools.isEmptyOrNull(packageList))
 		{
-			_logger.info("****packageList to be sent mail***"+packageList.size());
-			for (PackageVO vo : packageList){
-				//First query 分支行对应关系表
-				ConditionParse con2 = new ConditionParse();
-				con2.addWhereStr();
-				con2.addCondition("BranchRelationBean.id", "=", vo.getCustomerId());
-				List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
-				if (!ListTools.isEmptyOrNull(relationList)){
-					BranchRelationVO relation = relationList.get(0);
-					_logger.info("**********relation******"+relation);
-					String branchMail = relation.getBranchMail();
-					if (!StringTools.isNullOrNone(branchMail)){
-						String subBranchMail = relation.getSubBranchMail();
-						if (branch2SubBranch.containsKey(branchMail)){
-							branch2SubBranch.get(branchMail).add(subBranchMail);
-						} else{
-							Set<String> branchMailSet = new HashSet<String>();
-							branchMailSet.add(subBranchMail);
-							branch2SubBranch.put(branchMail,branchMailSet);
-						}
+			_logger.info("****NB packageList to be sent mail***"+packageList.size());
 
-						branch2Name.put(branchMail,relation.getBranchName());
-
-						if (branch2Packages.containsKey(branchMail)){
-							List<PackageVO> voList = branch2Packages.get(branchMail);
-							voList.add(vo);
-						}else{
-							List<PackageVO> voList =  new ArrayList<PackageVO>();
-							voList.add(vo);
-							branch2Packages.put(branchMail,voList);
-						}
-
-						branch2Flag.put(branchMail,relation.getSendMailFlag());
-						branch2Copy.put(branchMail,relation.getCopyToBranchFlag());
-					}
-				}
-			}
 
 			//send mail for merged packages
-			for (String key : branch2Packages.keySet()) {
-				List<PackageVO> packages = branch2Packages.get(key);
-				String fileName = getShippingAttachmentPath() + "/" + branch2Name.get(key)
+			{
+				String fileName = getShippingAttachmentPath() + "/宁波银行"
 						+ "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
 				_logger.info("************fileName****"+fileName);
 
 				String title = String.format("永银文化%s发货信息", this.getYesterday());
 				String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
-				if(branch2Flag.get(key) == 1){
-					String branchName = branch2Name.get(key);
-					_logger.info("分行:"+branchName+"***包裹数***:"+branch2Packages.get(key).size());
-					createMailAttachment(branch2Packages.get(key),branchName , fileName);
+				{
+					createNbMailAttachment(packageList, fileName);
 
 					// check file either exists
 					File file = new File(fileName);
@@ -1211,26 +1162,72 @@ public class ShipManagerImpl implements ShipManager
 						throw new MYException("邮件附件未成功生成");
 					}
 
-					// 发送给分行
-					commonMailManager.sendMail(key, title,content, fileName);
-				}
-
-				if(branch2Copy.get(key) == 1){
-					// 抄送所有支行
-					for (String branchMail : branch2SubBranch.get(key)){
-						commonMailManager.sendMail(branchMail, title,content, fileName);
-					}
-				}
-
-				for (PackageBean vo:branch2Packages.get(key)){
-					//Update sendMailFlag to 1
-					PackageBean packBean = packageDAO.find(vo.getId());
-					packBean.setSendMailFlag(1);
-					this.packageDAO.updateEntityBean(packBean);
+					commonMailManager.sendMail("zhousudong@yycoin.com", title,content, fileName);
 				}
 			}
 		} else {
-//            System.out.println("**************no Vo found***************");
+			_logger.info("*****no VO found to send mail****");
+		}
+	}
+
+	/**
+	 * see #146: 宁波银行邮件信息(已发货)
+	 *  每天23点，统计当天截止时间t_center_package表中
+	 * 邮件发送标识为空，且status字段值为2的，且客户名称为 宁波银行XXXX    的CK单
+	 * @throws MYException
+	 */
+	@Override
+	@Transactional(rollbackFor = MYException.class)
+	public void sendMailForNbShipping() throws MYException {
+		//To change body of implemented methods use File | Settings | File Templates.
+		String msg =  "**************run sendMailForNbShipping job****************";
+		System.out.println(msg);
+		triggerLog.info(msg);
+		_logger.info(msg);
+
+		ConditionParse con = new ConditionParse();
+		con.addWhereStr();
+		con.addIntCondition("PackageBean.sendMailFlagNbyh", "=", 0);
+		con.addIntCondition("PackageBean.status", "=", 2);
+		con.addCondition("CustomerBean.name", "like", "宁波银行%");
+
+		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+		if (!ListTools.isEmptyOrNull(packageList))
+		{
+			_logger.info("****NB packageList to be sent mail***"+packageList.size());
+
+
+			//send mail for merged packages
+			{
+				String fileName = getShippingAttachmentPath() + "/宁波银行"
+						+ "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+				_logger.info("************fileName****"+fileName);
+
+				String title = String.format("永银文化%s发货信息", this.getYesterday());
+				String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
+				{
+					createNbMailAttachment(packageList, fileName);
+
+					// check file either exists
+					File file = new File(fileName);
+
+					if (!file.exists())
+					{
+						throw new MYException("邮件附件未成功生成");
+					}
+
+					commonMailManager.sendMail("zhousudong@yycoin.com", title,content, fileName);
+				}
+
+				for (PackageBean vo: packageList){
+					//Update sendMailFlag to 1
+					PackageBean packBean = packageDAO.find(vo.getId());
+					packBean.setSendMailFlagNbyh(1);
+					this.packageDAO.updateEntityBean(packBean);
+					_logger.info("update package setSendMailFlagNbyh status:"+vo.getId());
+				}
+			}
+		} else {
 			_logger.info("*****no VO found to send mail****");
 		}
 	}
@@ -1316,16 +1313,17 @@ public class ShipManagerImpl implements ShipManager
 			ws.addCell(new Label(1, i, title, format));
 
 			//set column width
-			ws.setColumnView(0, 5);
-			ws.setColumnView(1, 40);
+			ws.setColumnView(0, 30);
+			ws.setColumnView(1, 20);
 			ws.setColumnView(2, 40);
 			ws.setColumnView(3, 40);
-			ws.setColumnView(4, 5);
-			ws.setColumnView(5, 30);
-			ws.setColumnView(6, 10);
-			ws.setColumnView(7, 20);
-			ws.setColumnView(8, 10);
+			ws.setColumnView(4, 40);
+			ws.setColumnView(5, 20);
+			ws.setColumnView(6, 20);
+			ws.setColumnView(7, 10);
+			ws.setColumnView(8, 30);
 			ws.setColumnView(9, 10);
+			ws.setColumnView(10, 10);
 
 			i++;
 			// 正文表格
@@ -1344,14 +1342,11 @@ public class ShipManagerImpl implements ShipManager
 			for (PackageVO bean :beans){
 				List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
 				if (!ListTools.isEmptyOrNull(itemList)){
-//                    i++;
-
-
 					for (PackageItemBean each : itemList)
 					{
 						i++;
-						ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
-						setWS(ws, i, 300, false);
+//						ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
+//						setWS(ws, i, 300, false);
 
 						//供应商id
 						ws.addCell(new Label(j++, i, "2015120215260025", format3));
@@ -1361,55 +1356,48 @@ public class ShipManagerImpl implements ShipManager
 						ConditionParse con3 = new ConditionParse();
 						con3.addWhereStr();
 						con3.addCondition("OutImportBean.oano", "=", each.getOutId());
+						_logger.info("***outID***"+each.getOutId());
 						List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
-						OutImportBean importBean = null;
+						OutImportBean importBean = new OutImportBean();
 						if (!ListTools.isEmptyOrNull(importBeans)){
 							importBean = importBeans.get(0);
 						}
 
 						//机构id
-						ws.addCell(new Label(j++, i, each.getProductName(), format3));
+						ws.addCell(new Label(j++, i, importBean.getComunicationBranch(), format3));
 
 						//机构名称
-						ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+						ws.addCell(new Label(j++, i, importBean.getComunicatonBranchName(), format3));
+
+						String transportNo = "";
+						List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
+						if (!ListTools.isEmptyOrNull(consignBeans)){
+							ConsignBean b = consignBeans.get(0);
+							if (!StringTools.isNullOrNone(b.getTransportNo())){
+								transportNo = b.getTransportNo();
+							}
+						}
 
 						//发货单号
-						ws.addCell(new Label(j++, i, each.getPackageId(), format3));
+						ws.addCell(new Label(j++, i, transportNo, format3));
 
 						//订单编号
-						ws.addCell(new Label(j++, i, bean.getReceiver(), format3));
+						ws.addCell(new Label(j++, i, importBean.getNbyhNo(), format3));
 
 						//快递单号
-//                        String transportNo = "";
-//                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
-//                        if (!ListTools.isEmptyOrNull(consignBeans)){
-//                            ConsignBean b = consignBeans.get(0);
-//                            if (!StringTools.isNullOrNone(b.getTransportNo())){
-//                                transportNo = b.getTransportNo();
-//                            }
-//                        }
 						ws.addCell(new Label(j++, i, transportNo, format3));
 
 						//产品id
-						ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
+						ws.addCell(new Label(j++, i, each.getProductCode(), format3));
 
 						//产品名称
-						ws.addCell(new Label(j++, i, this.getYesterday(), format3));
+						ws.addCell(new Label(j++, i, each.getProductName(), format3));
 
 						//产品类型
+						ws.addCell(new Label(j++, i, "工艺金", format3));
 
 						//产品数量
-//                        List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(each.getOutId());
-//                        if (ListTools.isEmptyOrNull(distList)){
-//                            ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-//                        } else{
-//                            String outboundDate = distList.get(0).getOutboundDate();
-//                            if (StringTools.isNullOrNone(outboundDate)){
-//                                ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-//                            } else{
-//                                ws.addCell(new Label(j++, i, distList.get(0).getOutboundDate(), format3));
-//                            }
-//                        }
+						ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
 
 						j = 0;
 //                        i++;
@@ -1419,9 +1407,7 @@ public class ShipManagerImpl implements ShipManager
 
 
 		}
-		catch (Throwable e)
-		{
-//            _logger.error(e, e);
+		catch (Throwable e){
 			e.printStackTrace();
 		}
 		finally

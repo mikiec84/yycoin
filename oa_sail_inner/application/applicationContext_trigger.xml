@@ -104,6 +104,38 @@
         <property name="cronExpression" value="0 0 10 * * ?" />
     </bean>
 
+    <!--2015/12/22 job to send mail before NB shipping info at 17:00-->
+    <bean id="sendMailForNbBeforeShipping"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="shipManager" />
+        <property name="targetMethod" value="sendMailForNbBeforeShipping" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="sendMailForNbBeforeShippingTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="sendMailForNbBeforeShipping" />
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+        <property name="cronExpression" value="0 40 17 * * ?" />
+    </bean>
+
+
+    <!--job to send mail for NB shipping info -->
+    <bean id="sendMailForNbShipping"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="shipManager" />
+        <property name="targetMethod" value="sendMailForNbShipping" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="sendMailForNbShippingTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="sendMailForNbShipping" />
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+        <property name="cronExpression" value="0 50 17 * * ?" />
+    </bean>
+
+
     <!--job to 统计CK单中距当前时间最长的单据创建时间 -->
     <bean id="sortPackages"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
@@ -129,6 +161,8 @@
                 <ref bean="statsPersonalSwatchTrigger" />
                 <ref bean="createOAOrderFromAppTrigger"/>
                 <ref bean="sendMailForShippingTrigger"/>
+                <ref bean="sendMailForNbBeforeShippingTrigger"/>
+                <ref bean="sendMailForNbShippingTrigger"/>
                 <ref bean="sortPackagesTrigger"/>
             </list>
         </property>

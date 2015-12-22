@@ -138,6 +138,12 @@ public class PackageBean implements Serializable
      */
     private int sendMailFlag = 0;
 
+	/**
+	 * 2015/12/22 宁波银行邮件
+	 *发送邮件标识 1:已发送
+	 */
+	private int sendMailFlagNbyh = 0;
+
     /**2015/3/18 取CK单中距当前时间最长的单据创建时间
      *单据时间
      */
@@ -518,7 +524,15 @@ public class PackageBean implements Serializable
         this.insFollowOut = insFollowOut;
     }
 
-    @Override
+	public int getSendMailFlagNbyh() {
+		return sendMailFlagNbyh;
+	}
+
+	public void setSendMailFlagNbyh(int sendMailFlagNbyh) {
+		this.sendMailFlagNbyh = sendMailFlagNbyh;
+	}
+
+	@Override
     public String toString() {
         return "PackageBean{" +
                 "id='" + id + '\'' +

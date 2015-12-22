@@ -1200,7 +1200,7 @@ public class OutImportAction extends DispatchAction
     
 	/**
 	 * importOutForPufa 
-	 * 浦发销售导入
+	 * 浦发/宁波银行销售导入
 	 * @param mapping
 	 * @param form
 	 * @param request
@@ -1469,9 +1469,6 @@ public class OutImportAction extends DispatchAction
 		{
 			String name = obj[5].trim();
 
-			//2015/11/16 中原银行普通导入也需要设置产品编码
-//			bean.setProductCode("");
-			
 			// 姓氏
 			bean.setFirstName("N/A");
 			
@@ -2192,6 +2189,12 @@ public class OutImportAction extends DispatchAction
         {
             bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
         }
+
+		// 20115/12/22 宁波银行订单编号
+		if ( !StringTools.isNullOrNone(obj[43]))
+		{
+			bean.setNbyhNo(obj[43].trim());
+		}
 		
 		return importError;
 	}
