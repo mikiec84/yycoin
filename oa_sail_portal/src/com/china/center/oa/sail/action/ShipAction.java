@@ -1585,6 +1585,50 @@ public class ShipAction extends DispatchAction
 
             vo.setItemList(itemList);
 
+            //2015/12/24 取浦发银行回执单商务联系人及电话
+            if (!ListTools.isEmptyOrNull(itemList)){
+                _logger.info("******itemList size****"+itemList.size());
+                PackageItemBean first = itemList.get(0);
+                String outId = first.getOutId();
+                String stafferName = "刘倩（华东） 凌燕（华中） 周晓辉（华南） 岳元梅（华北、西部）";
+                String phone = "18994031103 13925070986  18680580807  18980089190";
+                _logger.info(first+"******first****"+outId);
+                if (StringTools.isNullOrNone(outId)){
+                    _logger.warn("****Empty OutId***********"+first.getId());
+                }else if (outId.startsWith("SO")){
+                    String[] result = this.getStafferNameAndPhone(outId);
+                    if (result.length>=2){
+                        stafferName = result[0];
+                        phone = result[1];
+                    }
+                } else if(outId.startsWith("A")){
+                    InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
+                    if (bean!= null){
+                        String refIds = bean.getRefIds();
+                        _logger.info(outId+"*****refIds found********"+refIds);
+                        if (!StringTools.isNullOrNone(refIds)){
+                            String[] temp = refIds.split(";");
+                            String refOutId = null;
+                            for (String out: temp){
+                                if (out.startsWith("SO")){
+                                    refOutId = out;
+                                    break;
+                                }
+                            }
+                            String[] result2 = this.getStafferNameAndPhone(refOutId);
+                            if (result2.length>=2){
+                                stafferName = result2[0];
+                                phone = result2[1];
+                            }
+                        }
+                    }
+                }
+                _logger.info("*****stafferName***********"+stafferName);
+                _logger.info("*******phone*************"+phone);
+                request.setAttribute("stafferName", stafferName);
+                request.setAttribute("phone",phone);
+            }
+
             request.setAttribute("total", totalAmount);
 
             return mapping.findForward("printPufaReceipt");
