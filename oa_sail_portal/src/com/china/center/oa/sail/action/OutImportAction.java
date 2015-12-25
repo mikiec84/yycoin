@@ -589,29 +589,32 @@ public class OutImportAction extends DispatchAction
 					bean.setMidValue(midValue);
 				}
 			}
-		} else {
-			builder
-            .append("第[" + currentNumber + "]错误:")
-            .append("中收不能为空，若没有，请用'无'代替")
-            .append("<br>");
-			
-			importError = true;
 		}
+		//2015/12/25 所有银行导入订单“中收金额”不用必填
+//		else {
+//			builder
+//            .append("第[" + currentNumber + "]错误:")
+//            .append("中收不能为空，若没有，请用'无'代替")
+//            .append("<br>");
+//
+//			importError = true;
+//		}
 
 		// 计划交付日期
 		if ( !StringTools.isNullOrNone(obj[11]))
 		{
 			bean.setArriveDate(obj[11]);
 		}
-		else
-		{
-			builder
-            .append("第[" + currentNumber + "]错误:")
-            .append("计划交付日期不能为空")
-            .append("<br>");
-			
-			importError = true;
-		}
+		//2015/12/25 所有银行导入订单“计划交付日期”不用必填
+//		else
+//		{
+//			builder
+//            .append("第[" + currentNumber + "]错误:")
+//            .append("计划交付日期不能为空")
+//            .append("<br>");
+//
+//			importError = true;
+//		}
 		
 		// 库存类型
 		if ( !StringTools.isNullOrNone(obj[12]))
@@ -1601,29 +1604,32 @@ public class OutImportAction extends DispatchAction
 					bean.setMidValue(midValue);
 				}
 			}
-		} else {
-			builder
-            .append("第[" + currentNumber + "]错误:")
-            .append("中收不能为空，若没有，请用'无'代替")
-            .append("<br>");
-			
-			importError = true;
 		}
+		//2015/12/25 所有银行导入订单“中收金额”不用必填
+//		else {
+//			builder
+//            .append("第[" + currentNumber + "]错误:")
+//            .append("中收不能为空，若没有，请用'无'代替")
+//            .append("<br>");
+//
+//			importError = true;
+//		}
 
 		// 计划交付日期
 		if ( !StringTools.isNullOrNone(obj[11]))
 		{
 			bean.setArriveDate(obj[11]);
 		}
-		else
-		{
-			builder
-            .append("第[" + currentNumber + "]错误:")
-            .append("计划交付日期不能为空")
-            .append("<br>");
-			
-			importError = true;
-		}
+		// #151: 2015/12/25 所有银行导入订单“计划交付日期”不用必填
+//		else
+//		{
+//			builder
+//            .append("第[" + currentNumber + "]错误:")
+//            .append("计划交付日期不能为空")
+//            .append("<br>");
+//
+//			importError = true;
+//		}
 		
 		// 库存类型
 		if ( !StringTools.isNullOrNone(obj[12]))

@@ -95,11 +95,11 @@ function callBackPrintFun()
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td>收货时间：</td></tr></table></td>
-						<td><table><tr><td>商务联系人：刘倩（华东） 凌燕（华中） 周晓辉（华南） 岳元梅（华北、西部）</td></tr></table></td>
+						<td><table><tr><td>商务联系人：${stafferName}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td></td></tr></table></td>
-						<td><table><tr><td>电话：18994031103 13925070986  18680580807  18980089190</td></tr></table></td>
+						<td><table><tr><td>电话：${phone}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="4"><table><tr><td>产品如下:</td></tr></table></td>
