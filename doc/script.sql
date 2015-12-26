@@ -91,5 +91,14 @@ alter table T_CENTER_STOCKITEM add column deliveryDate varchar(200) default '', 
 alter table T_CENTER_PACKAGE_ITEM modify productId varchar(200)
 
 -- 2015/12/21 宁波银行邮件
-alter table T_CENTER_PACKAGE add column nbyhNo varchar(200)
+alter table t_center_out_import add column nbyhNo varchar(200) default ''
+alter table T_CENTER_PACKAGE add column sendMailFlagNbyh int(11) default -1
+
+--2015/12/26 自动库管审批通过
+insert into t_center_oamenuitem values(1493,'导入自动库管审批订单','../sailImport/importOutAutoApprove.jsp',14,1,1402,99,'自动库管审批通过')
+CREATE TABLE t_center_auto_approve (
+id int(11) NOT NULL AUTO_INCREMENT,
+fullId varchar(200) NOT NULL,
+PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
 

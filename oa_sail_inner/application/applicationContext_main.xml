@@ -129,5 +129,7 @@
 	<bean id="productExchangeConfigDAO" class="com.china.center.oa.sail.dao.impl.ProductExchangeConfigDAOImpl" />
 
 	<bean id="productExchangeConfigManager" class="com.china.center.oa.sail.manager.impl.ProductExchangeConfigManagerImpl" />
+
+    <bean id="autoApproveOutDAO" class="com.china.center.oa.sail.dao.impl.AutoApproveOutDAOImpl" />
 	
 </beans>

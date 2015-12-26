@@ -19,11 +19,7 @@ import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.china.center.common.MYException;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.wrap.ResultBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.OutBalanceBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutRepaireBean;
-import com.china.center.oa.sail.bean.SwatchStatsBean;
+import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.listener.OutListener;
 import com.china.center.oa.sail.wrap.BatchBackWrap;
 
@@ -714,4 +710,12 @@ public interface OutManager extends ListenerManager<OutListener>
      * @throws MYException
      */
     public  boolean updateZjrcOutStatus(final String fullId) throws MYException;
+
+    /**
+     * 2015/12/26 #150:导入自动库管审批订单
+     * @param beans
+     * @return
+     * @throws MYException
+     */
+    public boolean importOutAutoApprove(List<AutoApproveBean> beans) throws MYException;
 }

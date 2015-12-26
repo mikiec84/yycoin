@@ -236,4 +236,6 @@
     <osgi:reference id="productExchangeConfigDAO" interface="com.china.center.oa.sail.dao.ProductExchangeConfigDAO" />
 
     <osgi:reference id="productExchangeConfigManager" interface="com.china.center.oa.sail.manager.ProductExchangeConfigManager" />
+
+    <osgi:reference id="autoApproveOutDAO" interface="com.china.center.oa.sail.dao.AutoApproveOutDAO" />
 </beans>

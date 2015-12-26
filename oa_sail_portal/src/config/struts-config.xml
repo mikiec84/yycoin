@@ -156,6 +156,7 @@
             <forward name="importEstimateProfit" path="/sailImport/importEstimateProfit.jsp" />
             <forward name="queryEstimateProfit" path="/sailImport/queryEstimateProfit.jsp" />
             <forward name="importEmergencyOut" path="/sailImport/importEmergencyOut.jsp" />
+            <forward name="importOutAutoApprove" path="/sailImport/importOutAutoApprove.jsp" />
         </action>
         
         <action path="/sail/ship" parameter="method"
