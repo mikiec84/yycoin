@@ -1991,7 +1991,7 @@ public class ShipAction extends DispatchAction
         if (!ListTools.isEmptyOrNull(importBeans))
         {
             for (OutImportBean outImportBean: importBeans){
-                if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
+                if (!StringTools.isNullOrNone(outImportBean.getBranchName())){
                     branchName = outImportBean.getBranchName();
                     break;
                 }
@@ -2130,6 +2130,9 @@ public class ShipAction extends DispatchAction
                 continue;
             }
 
+            //2015/12/26 #145:回执单打印CK单合并多客户名称问题
+            this.getCustomerName(each);
+
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
@@ -2252,7 +2255,7 @@ public class ShipAction extends DispatchAction
             this.convertProductName(item);
 
             //2015/9/29 增加客户姓名栏位
-            this.getCustomerName(item);
+//            this.getCustomerName(item);
             itemList1.add(item);
             _logger.debug("**********getDescription******" + each.getValue().getDescription());
         }
@@ -2355,6 +2358,9 @@ public class ShipAction extends DispatchAction
                 _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
                 continue;
             }
+
+            //2015/12/26 #153: 中原银行回执单，合并同一产品后，无法取到产品代码
+            this.getProductCode(each);
 
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
@@ -2480,7 +2486,7 @@ public class ShipAction extends DispatchAction
             PackageItemBean item = each.getValue();
             this.convertProductName(item);
 
-            this.getProductCode(item);
+//            this.getProductCode(item);
             itemList1.add(item);
             _logger.info("**********get product code******" + item.getProductCode());
         }
@@ -2564,6 +2570,9 @@ public class ShipAction extends DispatchAction
                 _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
                 continue;
             }
+
+            //2015/12/26 #152: 产品编码要在此处获取，因为相同的产品会合并，在后边处理会有问题。
+            this.getProductCode(each);
 
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
@@ -2688,7 +2697,7 @@ public class ShipAction extends DispatchAction
             PackageItemBean item = each.getValue();
             this.convertProductNameForNb(item);
 
-            this.getProductCode(item);
+//            this.getProductCode(item);
             itemList1.add(item);
             _logger.info("**********get product code******"+item.getProductCode());
         }
