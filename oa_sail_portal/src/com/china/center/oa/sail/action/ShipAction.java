@@ -1929,14 +1929,25 @@ public class ShipAction extends DispatchAction
     }
 
     private String getCustomerNameFromOutImport(String outId){
-        String customerName = "";
+        StringBuilder sb = new StringBuilder();
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
         if (!ListTools.isEmptyOrNull(importBeans))
         {
-            customerName = importBeans.get(0).getCustomerName();
+            for (OutImportBean outImportBean: importBeans){
+                String customerName = outImportBean.getCustomerName();
+                if (!StringTools.isNullOrNone(customerName)){
+                    sb.append(customerName).append(";");
+                }
+            }
         }
-        return customerName;
+        String customerName = sb.toString();
+        if (StringTools.isNullOrNone(customerName)){
+            return customerName;
+        } else{
+            //remove last ";" char
+            return customerName.substring(0,customerName.length()-1);
+        }
     }
 
     /**
@@ -1953,7 +1964,12 @@ public class ShipAction extends DispatchAction
 
         if (!ListTools.isEmptyOrNull(importBeans))
         {
-            productCode = importBeans.get(0).getProductCode();
+            for (OutImportBean outImportBean: importBeans){
+                if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
+                    productCode = outImportBean.getProductCode();
+                    break;
+                }
+            }
         }
         _logger.info(productCode+"getProductCodeFromOutImport****"+conditionParse.toString());
         return productCode;
@@ -1974,7 +1990,12 @@ public class ShipAction extends DispatchAction
 
         if (!ListTools.isEmptyOrNull(importBeans))
         {
-            branchName = importBeans.get(0).getBranchName();
+            for (OutImportBean outImportBean: importBeans){
+                if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
+                    branchName = outImportBean.getBranchName();
+                    break;
+                }
+            }
         }
         return branchName;
     }

@@ -22,10 +22,10 @@ public interface ShipManager
      * @throws MYException
      */
     public Map<String, Set<String>> prePickup(User user, String packageIds) throws MYException;
-	
-	boolean addPickup(User user, String packageIds) throws MYException;
-	
-	boolean deletePackage(User user, String packageIds) throws MYException;
+
+    boolean addPickup(User user, String packageIds) throws MYException;
+
+    boolean deletePackage(User user, String packageIds) throws MYException;
 
     /**  2015/2/26
      * 撤销“已拣配”或“已打印”状态的CK单
@@ -35,18 +35,20 @@ public interface ShipManager
      * @throws MYException
      */
     boolean cancelPackage(User user, String packageIds) throws MYException;
-	
-	boolean updateStatus(User user, String pickupId) throws MYException;
+
+    boolean updateStatus(User user, String pickupId) throws MYException;
 
     boolean updatePackagesStatus(User user, String packageIds) throws MYException;
-	
-	boolean updatePrintStatus(String pickupId, int index_pos) throws MYException;
-	
-	void createPackage(PreConsignBean pre, OutVO out) throws MYException;
+
+    boolean updatePrintStatus(String pickupId, int index_pos) throws MYException;
+
+    void createPackage(PreConsignBean pre, OutVO out) throws MYException;
 
     void sendMailForShipping() throws MYException;
 
     void sendMailForNbShipping() throws MYException;
+
+    void sendMailForNbBeforeShipping() throws MYException;
 
     void saveAllEntityBeans(List<BranchRelationBean> importItemList) throws MYException;
 
@@ -65,7 +67,7 @@ public interface ShipManager
 
     // 2015/2/8 后台Job，商品拣配的排序默认按订单日期由远到近的顺序排列
     void sortPackagesJob() throws MYException;
-//	
+    //
 //	void createInsPackage(PreConsignBean pre, String insId) throws MYException;
     //2015/2/25 手工合并CK单
     void mergePackages(String user, String packageIds, int shipping, int transport1, int transport2, int expressPay, int transportPay, String cityId, String address, String receiver, String phone) throws MYException;
