@@ -2212,6 +2212,13 @@ public class ShipAction extends DispatchAction
 
                 itemBean.setOutId(itemBean.getOutId() + "<br>" + each.getOutId());
 
+                //#145: 2015/12/27 回执单CK单合并多客户名称问题
+                if (StringTools.isNullOrNone(itemBean.getCustomerName())){
+                    itemBean.setCustomerName(each.getCustomerName());
+                }else{
+                    itemBean.setCustomerName(itemBean.getCustomerName()+"<br>"+each.getCustomerName());
+                }
+
                 if (!StringTools.isNullOrNone(itemBean.getRefId()))
                 {
                     String refId = this.getRefId(out, each.getOutId());
