@@ -115,7 +115,7 @@
     <bean id="sendMailForNbShippingTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="sendMailForNbShipping" />
-        <property name="cronExpression" value="0 0 5 * * ?" />
+        <property name="cronExpression" value="0 0/5 * * * ?" />
     </bean>
 
     <!--job to 统计CK单中距当前时间最长的单据创建时间 -->
@@ -132,6 +132,20 @@
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
+    <!--#150 2015/12/27 自动库管审批通过 -->
+    <bean id="autoApproveOutJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outManager" />
+        <property name="targetMethod" value="autoApproveOutJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="autoApproveOutJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="autoApproveOutJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -145,6 +159,7 @@
                 <ref bean="sendMailForShippingTrigger"/>
                 <ref bean="sendMailForNbShippingTrigger"/>
                 <ref bean="sortPackagesTrigger"/>
+                <ref bean="autoApproveOutJobTrigger"/>
             </list>
         </property>
     </bean>

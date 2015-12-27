@@ -718,4 +718,19 @@ public interface OutManager extends ListenerManager<OutListener>
      * @throws MYException
      */
     public boolean importOutAutoApprove(List<AutoApproveBean> beans) throws MYException;
+
+    /**
+     * #150: 自动库管审批Job
+     */
+    public void autoApproveOutJob();
+
+    /**
+     * #150: 自动库管审批
+     * @param fullId
+     * @param user
+     * @param nextStatus
+     * @param reason
+     * @return
+     */
+    public int autoApprove(String fullId, User user, int nextStatus,String reason) throws MYException;
 }

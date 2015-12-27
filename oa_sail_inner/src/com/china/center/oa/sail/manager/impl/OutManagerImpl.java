@@ -25,11 +25,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.client.dao.CustomerIndividualDAO;
 import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -283,6 +285,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private ZJRCOutDAO zjrcOutDAO = null;
 
     private PackageDAO packageDAO = null;
+
+    private AutoApproveOutDAO autoApproveOutDAO = null;
+
+    private ProductExchangeConfigDAO productExchangeConfigDAO = null;
     
     /**
      * 短信最大停留时间
@@ -11971,6 +11977,246 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return true;
     }
 
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public boolean importOutAutoApprove(List<AutoApproveBean> autoApproveBeans) throws MYException {
+        this.autoApproveOutDAO.saveAllEntityBeans(autoApproveBeans);
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void autoApproveOutJob() {
+        //To change body of implemented methods use File | Settings | File Templates.
+        triggerLog.info("***autoApproveOutJob is running***");
+        _logger.info("***autoApproveOutJob is running***");
+        List<AutoApproveBean> beans = this.autoApproveOutDAO.listEntityBeans();
+        if (!ListTools.isEmptyOrNull(beans)){
+             for(AutoApproveBean bean : beans){
+                 String fullId = bean.getFullId();
+                 try{
+                    this.autoApprove(fullId, null, OutConstant.STATUS_PASS, "库管自动审批JOB通过");
+                 }catch(Exception e){
+                     e.printStackTrace();
+                 }finally{
+                     this.autoApproveOutDAO.deleteEntityBean(bean.getId());
+                 }
+             }
+        }
+    }
+
+    @Override
+    public int autoApprove(final String fullId, final User user, final int nextStatus,
+                           final String reason) throws MYException{
+            final OutBean outBean = outDAO.find(fullId);
+            String template ="***autoApprove fullId:%s nextStatus:%s reason:%s";
+            _logger.info(String.format(template, fullId, nextStatus, reason));
+            checkPass(outBean);
+            final int oldStatus = outBean.getStatus();
+
+            if (oldStatus!= OutConstant.STATUS_FLOW_PASS){
+                _logger.warn("fullId is not OutConstant.STATUS_FLOW_PASS:"+fullId);
+                return -1;
+            }
+
+            // 库管审批通过时，检查行项目商品如在转换表的 商品名 范围内，数量则必须为配置数量的倍数，否则报错提示
+            List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+            if (!ListTools.isEmptyOrNull(baseBeans)){
+                for (BaseBean item : baseBeans){
+                    ConditionParse condition = new ConditionParse();
+                    condition.addWhereStr();
+                    condition.addCondition("ProductExchangeConfigBean.srcProductId", "=", item.getProductId());
+                    List<ProductExchangeConfigVO> list = this.productExchangeConfigDAO.queryEntityVOsByCondition(condition);
+                    if (!ListTools.isEmptyOrNull(list)){
+                        ProductExchangeConfigVO vo = list.get(0);
+                        if (item.getAmount()%vo.getSrcAmount() == 0){
+                            _logger.info(item+" basebean match for product exchange:"+vo);
+                        } else{
+                            _logger.warn(item+" does not match product exchange:"+vo);
+                            return -1;
+                        }
+                    }
+                }
+            }
+
+
+        // 这里需要计算客户的信用金额-是否报送物流中心经理审批
+        boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
+
+        // 如果是黑名单的客户(且没有付款)
+        if (outCredit && outBean.getReserve3() == OutConstant.OUT_SAIL_TYPE_MONEY
+                && outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                && outBean.getPay() == OutConstant.PAY_NOT)
+        {
+            try
+            {
+                this.payOut(user, fullId, "结算中心确定已经回款");
+            }
+            catch (MYException e)
+            {
+                _logger.error(e);
+                return -1;
+            }
+
+            OutBean newOut = outDAO.find(fullId);
+
+            if (newOut.getPay() == OutConstant.PAY_NOT)
+            {
+                _logger.warn("只有结算中心确定已经回款后才可以审批此销售单:"+fullId);
+                return -1;
+            }
+        }
+
+            final DepotBean depot = checkDepotInPass(nextStatus, outBean);
+            // LOCK 销售单/入库单通过(这里是销售单库存变动的核心)
+            synchronized (PublicLock.PRODUCT_CORE)
+            {
+                // 入库操作在数据库事务中完成
+                TransactionTemplate tran = new TransactionTemplate(transactionManager);
+                try
+                {
+                    tran.execute(new TransactionCallback()
+                    {
+                        public Object doInTransaction(TransactionStatus arg0)
+                        {
+                            int newNextStatus = nextStatus;
+
+                            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                            {
+                                // 直接把结算中心通过的设置成物流管理员通过(直接跳过物流)
+                                if (newNextStatus == OutConstant.STATUS_MANAGER_PASS)
+                                {
+                                    newNextStatus = OutConstant.STATUS_FLOW_PASS;
+                                }
+
+                                // 针对通用产品，结算中心通过后直接为待回款，跳过库管审批
+                                if (oldStatus == OutConstant.STATUS_SUBMIT)
+                                {
+                                    outDAO.modifyManagerTime(outBean.getFullId(), TimeTools.now());
+
+                                    // 领样/巡展转销售
+                                    boolean isSTS = isSwatchToSail(outBean.getFullId());
+
+                                    if (isSTS){
+                                        newNextStatus = OutConstant.STATUS_PASS;
+                                    }else{
+                                        List<BaseBean> list = baseDAO.queryEntityBeansByFK(fullId);
+
+                                        if (list.get(0).getProductId().equals(ProductConstant.OUT_COMMON_PRODUCTID)
+                                                || list.get(0).getProductId().equals(ProductConstant.OUT_COMMON_MPRODUCTID))
+                                        {
+                                            newNextStatus = OutConstant.STATUS_PASS;
+                                        }
+
+                                        // 中信订单 - 商务审批 - 直接到库管审批
+                                        if (outBean.getFlowId().equals("CITIC")
+                                                || outBean.getFlowId().equals("ZJRC"))
+                                        {
+                                            newNextStatus = OutConstant.STATUS_FLOW_PASS;
+
+                                            // 针对中信银行接口产生的OA库单要先拆分行项目 。先检查，若足够库存则拆分行项目.拆分后订单将占有库存
+                                            // 增加 只对成本为0的数据进行操作
+                                            List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+
+                                            // 成本为0的表示还未拆分到具体的库存批次
+                                            if (baseList.get(0).getCostPrice() == 0)
+                                            {
+                                                List<BaseBean> newBaseList = null;
+                                                try
+                                                {
+                                                    newBaseList = splitBase(baseList);
+                                                }
+                                                catch (MYException e)
+                                                {
+                                                    throw new RuntimeException(e.getErrorContent(), e);
+                                                }
+
+                                                baseDAO.deleteEntityBeansByFK(outBean.getFullId());
+
+                                                baseDAO.saveAllEntityBeans(newBaseList);
+
+                                                // 同步更新未拆分到具体批次前就开票的明细（规定：这样销售单须一次性开完发票）
+                                                outBean.setForceBuyType(999);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY)
+                                    newNextStatus = OutConstant.BUY_STATUS_PASS;
+                            }
+
+                            String stafferName = "自动库管通过Job";
+                            if (user != null){
+                                stafferName = user.getStafferName();
+                            }
+                            _logger.info(outBean.getFullId() + ":" + stafferName + ":"
+                                    + newNextStatus + ":redrectFrom:" + oldStatus);
+
+                            // 修改状态
+                            outDAO.modifyOutStatus(outBean.getFullId(), newNextStatus);
+                            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                            {
+                                handerPassOut(fullId, user, outBean, depot, newNextStatus);
+                            }
+                            else
+                            {
+                                if (outBean.getOutType() != OutConstant.OUTTYPE_OUT_APPLY)
+                                    handerPassBuy(fullId, user, outBean, newNextStatus);
+                            }
+
+                            addOutLog(fullId, user, outBean, reason, SailConstant.OPR_OUT_PASS,
+                                    newNextStatus);
+
+                            // 把状态放到最新的out里面
+                            outBean.setStatus(newNextStatus);
+
+                            // OSGI 监听实现
+                            Collection<OutListener> listenerMapValues = listenerMapValues();
+
+                            for (OutListener listener : listenerMapValues)
+                            {
+                                try
+                                {
+                                    listener.onPass(user, outBean);
+                                }
+                                catch (MYException e)
+                                {
+                                    throw new RuntimeException(e.getErrorContent(), e);
+                                }
+                            }
+
+                            notifyOut(outBean, user, 0);
+
+                            return Boolean.TRUE;
+                        }
+                    });
+                }
+                catch (TransactionException e)
+                {
+                    _logger.error(e, e);
+                    throw new MYException("数据库内部错误");
+                }
+                catch (DataAccessException e)
+                {
+                    _logger.error(e, e);
+                    throw new MYException("数据库内部错误");
+                }
+                catch (Exception e)
+                {
+                    _logger.error(e, e);
+                    throw new MYException("处理异常:" + e.getMessage());
+                }
+            }
+
+            // 更新后的状态
+            return outBean.getStatus();
+
+    }
+
+
     /**
      * @return the mailAttchmentPath
      */
@@ -12445,5 +12691,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      */
     public void setPackageDAO(PackageDAO packageDAO) {
         this.packageDAO = packageDAO;
+    }
+
+    public AutoApproveOutDAO getAutoApproveOutDAO() {
+        return autoApproveOutDAO;
+    }
+
+    public void setAutoApproveOutDAO(AutoApproveOutDAO autoApproveOutDAO) {
+        this.autoApproveOutDAO = autoApproveOutDAO;
+    }
+
+    public ProductExchangeConfigDAO getProductExchangeConfigDAO() {
+        return productExchangeConfigDAO;
+    }
+
+    public void setProductExchangeConfigDAO(ProductExchangeConfigDAO productExchangeConfigDAO) {
+        this.productExchangeConfigDAO = productExchangeConfigDAO;
     }
 }
