@@ -40,29 +40,29 @@ import com.china.center.tools.TimeTools;
 
 public class ShipManagerImpl implements ShipManager
 {
-	private final Log operationLog = LogFactory.getLog("opr");
+    private final Log operationLog = LogFactory.getLog("opr");
 
-	private final Log triggerLog = LogFactory.getLog("trigger");
+    private final Log triggerLog = LogFactory.getLog("trigger");
 
     private final Log _logger = LogFactory.getLog(getClass());
-	
-	private PreConsignDAO preConsignDAO = null;
-	
-	private PackageDAO packageDAO = null;
-	
-	private PackageItemDAO packageItemDAO = null;
-	
-	private OutDAO outDAO = null;
-	
-	private BaseDAO baseDAO = null;
-	
-	private DistributionDAO distributionDAO = null;
-	
-	private CommonDAO commonDAO = null;
-	
-	private DepotDAO depotDAO = null;
-	
-	private PackageVSCustomerDAO packageVSCustomerDAO = null;
+
+    private PreConsignDAO preConsignDAO = null;
+
+    private PackageDAO packageDAO = null;
+
+    private PackageItemDAO packageItemDAO = null;
+
+    private OutDAO outDAO = null;
+
+    private BaseDAO baseDAO = null;
+
+    private DistributionDAO distributionDAO = null;
+
+    private CommonDAO commonDAO = null;
+
+    private DepotDAO depotDAO = null;
+
+    private PackageVSCustomerDAO packageVSCustomerDAO = null;
 
     private CommonMailManager commonMailManager = null;
 
@@ -71,121 +71,121 @@ public class ShipManagerImpl implements ShipManager
     private OutImportDAO outImportDAO = null;
 
     private ConsignDAO consignDAO = null;
-	
-	public ShipManagerImpl()
-	{
-	}
-	
-	private void createNewPackage(OutVO outBean,
-			List<BaseBean> baseList, DistributionVO distVO, String fullAddress, String location)
-	{
+
+    public ShipManagerImpl()
+    {
+    }
+
+    private void createNewPackage(OutVO outBean,
+                                  List<BaseBean> baseList, DistributionVO distVO, String fullAddress, String location)
+    {
         System.out.println("***********ShipManager createNewPackage*************");
-		String id = commonDAO.getSquenceString20("CK");
-		
-		int allAmount = 0;
-		
-		PackageBean packBean = new PackageBean();
-		
-		packBean.setId(id);
-		packBean.setCustomerId(outBean.getCustomerId());
-		packBean.setShipping(distVO.getShipping());
-		packBean.setTransport1(distVO.getTransport1());
-		packBean.setExpressPay(distVO.getExpressPay());
-		packBean.setTransport2(distVO.getTransport2());
-		packBean.setTransportPay(distVO.getTransportPay());
-		packBean.setAddress(fullAddress);
-		packBean.setReceiver(distVO.getReceiver());
-		packBean.setMobile(distVO.getMobile());
-		packBean.setLocationId(location);
-		packBean.setCityId(distVO.getCityId());
-		
-		packBean.setStafferName(outBean.getStafferName());
-		packBean.setIndustryName(outBean.getIndustryName());
-		packBean.setDepartName(outBean.getIndustryName3());
-		
-		packBean.setTotal(outBean.getTotal());
-		packBean.setStatus(0);
-		packBean.setLogTime(TimeTools.now());
-		
-		List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
-		
-		Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
-		
-		boolean isEmergency = false;
-		for (BaseBean base : baseList)
-		{
-			PackageItemBean item = new PackageItemBean();
-			
-			item.setPackageId(id);
-			item.setOutId(outBean.getFullId());
-			item.setBaseId(base.getId());
-			item.setProductId(base.getProductId());
-			item.setProductName(base.getProductName());
+        String id = commonDAO.getSquenceString20("CK");
 
-			//2015/8/12 调拨单产生的CK单的数量应该取绝对值，因为调拨出库是负的数量
-			if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-					&& outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT )
-			{
-				item.setAmount(Math.abs(base.getAmount()));
-				item.setPrice(Math.abs(base.getPrice()));
-			} else {
-				item.setAmount(base.getAmount());
-				item.setPrice(base.getPrice());
-			}
+        int allAmount = 0;
 
-			item.setValue(base.getValue());
-			item.setOutTime(outBean.getOutTime());
-			item.setDescription(outBean.getDescription());
-			item.setCustomerId(outBean.getCustomerId());
-			item.setEmergency(outBean.getEmergency());
-			
-			if (item.getEmergency() == 1) {
-				isEmergency = true;
-			}
-			
-			itemList.add(item);
-			
-			allAmount += item.getAmount();
-			
-			if (!pmap.containsKey(base.getProductId()))
-			{
-				List<BaseBean> blist = new ArrayList<BaseBean>();
-				
-				blist.add(base);
-				
-				pmap.put(base.getProductId(), blist);
-			}else
-			{
-				List<BaseBean> blist = pmap.get(base.getProductId());
-				
-				blist.add(base);
-			}
-		}
-		
-		packBean.setAmount(allAmount);
-		
-		if (isEmergency) {
-			packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
-		}
-		
-		packBean.setProductCount(pmap.values().size());
-		
-		PackageVSCustomerBean vsBean = new PackageVSCustomerBean();
-		
-		vsBean.setPackageId(id);
-		vsBean.setCustomerId(outBean.getCustomerId());
-		vsBean.setCustomerName(outBean.getCustomerName());
-		vsBean.setIndexPos(1);
-		
-		packageDAO.saveEntityBean(packBean);
-		
-		packageItemDAO.saveAllEntityBeans(itemList);
-		
-		packageVSCustomerDAO.saveEntityBean(vsBean);
-	}
-	
-	private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
-	{
+        PackageBean packBean = new PackageBean();
+
+        packBean.setId(id);
+        packBean.setCustomerId(outBean.getCustomerId());
+        packBean.setShipping(distVO.getShipping());
+        packBean.setTransport1(distVO.getTransport1());
+        packBean.setExpressPay(distVO.getExpressPay());
+        packBean.setTransport2(distVO.getTransport2());
+        packBean.setTransportPay(distVO.getTransportPay());
+        packBean.setAddress(fullAddress);
+        packBean.setReceiver(distVO.getReceiver());
+        packBean.setMobile(distVO.getMobile());
+        packBean.setLocationId(location);
+        packBean.setCityId(distVO.getCityId());
+
+        packBean.setStafferName(outBean.getStafferName());
+        packBean.setIndustryName(outBean.getIndustryName());
+        packBean.setDepartName(outBean.getIndustryName3());
+
+        packBean.setTotal(outBean.getTotal());
+        packBean.setStatus(0);
+        packBean.setLogTime(TimeTools.now());
+
+        List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+
+        Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+
+        boolean isEmergency = false;
+        for (BaseBean base : baseList)
+        {
+            PackageItemBean item = new PackageItemBean();
+
+            item.setPackageId(id);
+            item.setOutId(outBean.getFullId());
+            item.setBaseId(base.getId());
+            item.setProductId(base.getProductId());
+            item.setProductName(base.getProductName());
+
+            //2015/8/12 调拨单产生的CK单的数量应该取绝对值，因为调拨出库是负的数量
+            if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                    && outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT )
+            {
+                item.setAmount(Math.abs(base.getAmount()));
+                item.setPrice(Math.abs(base.getPrice()));
+            } else {
+                item.setAmount(base.getAmount());
+                item.setPrice(base.getPrice());
+            }
+
+            item.setValue(base.getValue());
+            item.setOutTime(outBean.getOutTime());
+            item.setDescription(outBean.getDescription());
+            item.setCustomerId(outBean.getCustomerId());
+            item.setEmergency(outBean.getEmergency());
+
+            if (item.getEmergency() == 1) {
+                isEmergency = true;
+            }
+
+            itemList.add(item);
+
+            allAmount += item.getAmount();
+
+            if (!pmap.containsKey(base.getProductId()))
+            {
+                List<BaseBean> blist = new ArrayList<BaseBean>();
+
+                blist.add(base);
+
+                pmap.put(base.getProductId(), blist);
+            }else
+            {
+                List<BaseBean> blist = pmap.get(base.getProductId());
+
+                blist.add(base);
+            }
+        }
+
+        packBean.setAmount(allAmount);
+
+        if (isEmergency) {
+            packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
+        }
+
+        packBean.setProductCount(pmap.values().size());
+
+        PackageVSCustomerBean vsBean = new PackageVSCustomerBean();
+
+        vsBean.setPackageId(id);
+        vsBean.setCustomerId(outBean.getCustomerId());
+        vsBean.setCustomerName(outBean.getCustomerName());
+        vsBean.setIndexPos(1);
+
+        packageDAO.saveEntityBean(packBean);
+
+        packageItemDAO.saveAllEntityBeans(itemList);
+
+        packageVSCustomerDAO.saveEntityBean(vsBean);
+    }
+
+    private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
+    {
         int shipping = distVO.getShipping();
         if (shipping == 0){
             //自提：收货人，电话一致，才合并
@@ -233,161 +233,161 @@ public class ShipManagerImpl implements ShipManager
             con.addIntCondition("PackageBean.status", "=", 0);
         }
 
-	}
+    }
 
-	/**
-	 * 
-	 */
-	public void createPackage(PreConsignBean pre, OutVO out) throws MYException
-	{
+    /**
+     *
+     */
+    public void createPackage(PreConsignBean pre, OutVO out) throws MYException
+    {
         _logger.info("**************ShipManager createPackage************"+out.getFullId());
-		String location = "";
-		
-		// 通过仓库获取 仓库地点
-		DepotBean depot = depotDAO.find(out.getLocation());
-		
-		if (depot != null)
-			location = depot.getIndustryId2();
-		
-		List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
-		
-		List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(out.getFullId());
-		
-		if (ListTools.isEmptyOrNull(distList))
-		{
-			preConsignDAO.deleteEntityBean(pre.getId());
-			
-			return;
-		}
-		
-		DistributionVO distVO = distList.get(0);
-		
-		// 如果是空发,则不处理
-		if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
-		{
-			preConsignDAO.deleteEntityBean(pre.getId());
-			
-			return;
-		}
-		
-		// 地址不全,不发
-		if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
-		{
-			return;
-		}
-		
-		String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
-		
-		// 此客户是否存在同一个发货包裹,且未拣配
-		ConditionParse con = new ConditionParse();
-		
-		con.addWhereStr();
-		
-		setInnerCondition(distVO, location, con);
-		
-		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
-		
+        String location = "";
+
+        // 通过仓库获取 仓库地点
+        DepotBean depot = depotDAO.find(out.getLocation());
+
+        if (depot != null)
+            location = depot.getIndustryId2();
+
+        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
+
+        List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(out.getFullId());
+
+        if (ListTools.isEmptyOrNull(distList))
+        {
+            preConsignDAO.deleteEntityBean(pre.getId());
+
+            return;
+        }
+
+        DistributionVO distVO = distList.get(0);
+
+        // 如果是空发,则不处理
+        if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
+        {
+            preConsignDAO.deleteEntityBean(pre.getId());
+
+            return;
+        }
+
+        // 地址不全,不发
+        if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
+        {
+            return;
+        }
+
+        String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
+
+        // 此客户是否存在同一个发货包裹,且未拣配
+        ConditionParse con = new ConditionParse();
+
+        con.addWhereStr();
+
+        setInnerCondition(distVO, location, con);
+
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+
 //		if (packageList.size() > 1){
 //			throw new MYException("数据异常,生成发货单出错.");
 //		}
-		
-		if (ListTools.isEmptyOrNull(packageList))
-		{
-			createNewPackage(out, baseList, distVO, fullAddress, location);
-			
-		}else{
+
+        if (ListTools.isEmptyOrNull(packageList))
+        {
+            createNewPackage(out, baseList, distVO, fullAddress, location);
+
+        }else{
             _logger.info("**********ShipManager package already exist*******************");
-			String id = packageList.get(0).getId();
-			
-			PackageBean packBean = packageDAO.find(id);
-			
-			// 不存在或已不是初始状态(可能已被拣配)
-			if (null == packBean || packBean.getStatus() != 0)
-			{
-				createNewPackage(out, baseList, distVO, fullAddress, location);
-			}else
-			{
-				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
-				
-				int allAmount = 0;
-				double total = 0;
-				
-				Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
-				boolean isEmergency = false;
-				for (BaseBean base : baseList)
-				{
-					PackageItemBean item = new PackageItemBean();
-					
-					item.setPackageId(id);
-					item.setOutId(out.getFullId());
-					item.setBaseId(base.getId());
-					item.setProductId(base.getProductId());
-					item.setProductName(base.getProductName());
-					item.setAmount(base.getAmount());
-					item.setPrice(base.getPrice());
-					item.setValue(base.getValue());
-					item.setOutTime(out.getOutTime());
-					item.setDescription(out.getDescription());
-					item.setCustomerId(out.getCustomerId());
-					item.setEmergency(out.getEmergency());
-					
-					if (item.getEmergency() == 1) {
-						isEmergency = true;
-					}
-					
-					itemList.add(item);
-					
-					allAmount += item.getAmount();
-					total += base.getValue();
-					
-					if (!pmap.containsKey(base.getProductId()))
-					{
-						List<BaseBean> blist = new ArrayList<BaseBean>();
-						
-						blist.add(base);
-						
-						pmap.put(base.getProductId(), blist);
-					}else
-					{
-						List<BaseBean> blist = pmap.get(base.getProductId());
-						
-						blist.add(base);
-					}
-				}
-				
-				packBean.setAmount(packBean.getAmount() + allAmount);
-				packBean.setTotal(packBean.getTotal() + total);
-				packBean.setProductCount(packBean.getProductCount() + pmap.values().size());
-				
-				if (isEmergency) {
-					packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
-				}
-				
-				packageDAO.updateEntityBean(packBean);
-				
-				packageItemDAO.saveAllEntityBeans(itemList);
-				
-				// 包与客户关系
-				PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, out.getCustomerId());
-				
-				if (null == vsBean)
-				{
-					int count = packageVSCustomerDAO.countByCondition("where packageId = ?", id);
-					
-					PackageVSCustomerBean newvsBean = new PackageVSCustomerBean();
-					
-					newvsBean.setPackageId(id);
-					newvsBean.setCustomerId(out.getCustomerId());
-					newvsBean.setCustomerName(out.getCustomerName());
-					newvsBean.setIndexPos(count + 1);
-					
-					packageVSCustomerDAO.saveEntityBean(newvsBean);
-				}
-			}
-		}
-		
-		preConsignDAO.deleteEntityBean(pre.getId());
-	}
+            String id = packageList.get(0).getId();
+
+            PackageBean packBean = packageDAO.find(id);
+
+            // 不存在或已不是初始状态(可能已被拣配)
+            if (null == packBean || packBean.getStatus() != 0)
+            {
+                createNewPackage(out, baseList, distVO, fullAddress, location);
+            }else
+            {
+                List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+
+                int allAmount = 0;
+                double total = 0;
+
+                Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+                boolean isEmergency = false;
+                for (BaseBean base : baseList)
+                {
+                    PackageItemBean item = new PackageItemBean();
+
+                    item.setPackageId(id);
+                    item.setOutId(out.getFullId());
+                    item.setBaseId(base.getId());
+                    item.setProductId(base.getProductId());
+                    item.setProductName(base.getProductName());
+                    item.setAmount(base.getAmount());
+                    item.setPrice(base.getPrice());
+                    item.setValue(base.getValue());
+                    item.setOutTime(out.getOutTime());
+                    item.setDescription(out.getDescription());
+                    item.setCustomerId(out.getCustomerId());
+                    item.setEmergency(out.getEmergency());
+
+                    if (item.getEmergency() == 1) {
+                        isEmergency = true;
+                    }
+
+                    itemList.add(item);
+
+                    allAmount += item.getAmount();
+                    total += base.getValue();
+
+                    if (!pmap.containsKey(base.getProductId()))
+                    {
+                        List<BaseBean> blist = new ArrayList<BaseBean>();
+
+                        blist.add(base);
+
+                        pmap.put(base.getProductId(), blist);
+                    }else
+                    {
+                        List<BaseBean> blist = pmap.get(base.getProductId());
+
+                        blist.add(base);
+                    }
+                }
+
+                packBean.setAmount(packBean.getAmount() + allAmount);
+                packBean.setTotal(packBean.getTotal() + total);
+                packBean.setProductCount(packBean.getProductCount() + pmap.values().size());
+
+                if (isEmergency) {
+                    packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
+                }
+
+                packageDAO.updateEntityBean(packBean);
+
+                packageItemDAO.saveAllEntityBeans(itemList);
+
+                // 包与客户关系
+                PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, out.getCustomerId());
+
+                if (null == vsBean)
+                {
+                    int count = packageVSCustomerDAO.countByCondition("where packageId = ?", id);
+
+                    PackageVSCustomerBean newvsBean = new PackageVSCustomerBean();
+
+                    newvsBean.setPackageId(id);
+                    newvsBean.setCustomerId(out.getCustomerId());
+                    newvsBean.setCustomerName(out.getCustomerName());
+                    newvsBean.setIndexPos(count + 1);
+
+                    packageVSCustomerDAO.saveEntityBean(newvsBean);
+                }
+            }
+        }
+
+        preConsignDAO.deleteEntityBean(pre.getId());
+    }
 
     @Override
     @Transactional(rollbackFor = MYException.class)
@@ -544,68 +544,68 @@ public class ShipManagerImpl implements ShipManager
 
     }
 
-	@Override
-	public Map<String, Set<String>> prePickup(User user, String packageIds) throws MYException {
-         _logger.info("prePickup 11111111111111111");
-		JudgeTools.judgeParameterIsNull(user, packageIds);
+    @Override
+    public Map<String, Set<String>> prePickup(User user, String packageIds) throws MYException {
+        _logger.info("prePickup 11111111111111111");
+        JudgeTools.judgeParameterIsNull(user, packageIds);
 
-		String [] packages = packageIds.split("~");
-		//<key,value> as <receiver or mobile, Set of CK>
+        String [] packages = packageIds.split("~");
+        //<key,value> as <receiver or mobile, Set of CK>
         Map<String, Set<String>> map = new HashMap<String,Set<String>>();
         boolean needMerge = false;
 
-		//Find all packages to be pickup
-		ConditionParse conditionParse = new ConditionParse();
-		conditionParse.addCondition("status", "=", ShipConstant.SHIP_STATUS_INIT);
-		List<PackageBean> packagesTodo = this.packageDAO.queryEntityBeansByCondition(conditionParse);
-		_logger.info("prePickup check initial package size:"+packagesTodo.size());
+        //Find all packages to be pickup
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("status", "=", ShipConstant.SHIP_STATUS_INIT);
+        List<PackageBean> packagesTodo = this.packageDAO.queryEntityBeansByCondition(conditionParse);
+        _logger.info("prePickup check initial package size:"+packagesTodo.size());
 
-		for (String packageId: packages){
-			PackageBean bean = packageDAO.find(packageId);
-			String receiver = bean.getReceiver();
-			String mobile = bean.getMobile();
+        for (String packageId: packages){
+            PackageBean bean = packageDAO.find(packageId);
+            String receiver = bean.getReceiver();
+            String mobile = bean.getMobile();
 
-			// 2015/7/28 点击拣配时检查是否有未捡配CK单与当前捡配的单子是相同收货人或电话但未被合单，弹屏提示CK单号
-			if (!ListTools.isEmptyOrNull(packagesTodo)){
-				for (PackageBean packageBean : packagesTodo)
-				{
-					String id = packageBean.getId();
-					String currentReceiver = packageBean.getReceiver();
-					String currentMobile = packageBean.getMobile();
+            // 2015/7/28 点击拣配时检查是否有未捡配CK单与当前捡配的单子是相同收货人或电话但未被合单，弹屏提示CK单号
+            if (!ListTools.isEmptyOrNull(packagesTodo)){
+                for (PackageBean packageBean : packagesTodo)
+                {
+                    String id = packageBean.getId();
+                    String currentReceiver = packageBean.getReceiver();
+                    String currentMobile = packageBean.getMobile();
 
-					//收货人一致
-					if (!StringTools.isNullOrNone(currentReceiver) && currentReceiver.equals(receiver)){
-						if (map.containsKey(receiver)){
-							Set<String> ckList = map.get(receiver);
-							ckList.add(id);
-							String template = "同一收货人:%s的CK单:%s需要合并";
-							_logger.warn(String.format(template, receiver, id));
-							needMerge = true;
-							continue;
-						} else{
-							Set<String> ckList = new HashSet<String>();
-							ckList.add(id);
-							map.put(receiver, ckList);
-						}
-					}
+                    //收货人一致
+                    if (!StringTools.isNullOrNone(currentReceiver) && currentReceiver.equals(receiver)){
+                        if (map.containsKey(receiver)){
+                            Set<String> ckList = map.get(receiver);
+                            ckList.add(id);
+                            String template = "同一收货人:%s的CK单:%s需要合并";
+                            _logger.warn(String.format(template, receiver, id));
+                            needMerge = true;
+                            continue;
+                        } else{
+                            Set<String> ckList = new HashSet<String>();
+                            ckList.add(id);
+                            map.put(receiver, ckList);
+                        }
+                    }
 
-					//电话一致
-					if (!StringTools.isNullOrNone(currentMobile) && currentMobile.equals(mobile)){
-						if (map.containsKey(mobile)){
-							Set<String> ckList = map.get(mobile);
-							ckList.add(id);
-							String template = "同一收货电话:%s的CK单:%s需要合并";
-							needMerge = true;
-							_logger.warn(String.format(template, mobile, id));
-						} else{
-							Set<String> ckList = new HashSet<String>();
-							ckList.add(id);
-							map.put(mobile, ckList);
-						}
-					}
-				}
-			}
-		}
+                    //电话一致
+                    if (!StringTools.isNullOrNone(currentMobile) && currentMobile.equals(mobile)){
+                        if (map.containsKey(mobile)){
+                            Set<String> ckList = map.get(mobile);
+                            ckList.add(id);
+                            String template = "同一收货电话:%s的CK单:%s需要合并";
+                            needMerge = true;
+                            _logger.warn(String.format(template, mobile, id));
+                        } else{
+                            Set<String> ckList = new HashSet<String>();
+                            ckList.add(id);
+                            map.put(mobile, ckList);
+                        }
+                    }
+                }
+            }
+        }
 
 
         _logger.info("prePickup 3333333333333333333333");
@@ -621,51 +621,51 @@ public class ShipManagerImpl implements ShipManager
                 _logger.info("remove key with single CK:"+entry.getKey());
             }
         }
-		return needMerge ? map : null;
-	}
+        return needMerge ? map : null;
+    }
 
-	/**
-	 * 拣配包
-	 */
-	@Transactional(rollbackFor = MYException.class)
-	public boolean addPickup(User user, String packageIds) throws MYException
-	{
-		JudgeTools.judgeParameterIsNull(user, packageIds);
+    /**
+     * 拣配包
+     */
+    @Transactional(rollbackFor = MYException.class)
+    public boolean addPickup(User user, String packageIds) throws MYException
+    {
+        JudgeTools.judgeParameterIsNull(user, packageIds);
 
-		String [] packages = packageIds.split("~");
+        String [] packages = packageIds.split("~");
 
-		if (null != packages)
-		{
-			String pickupId = commonDAO.getSquenceString20("PC");
-			
-			int i = 1;
+        if (null != packages)
+        {
+            String pickupId = commonDAO.getSquenceString20("PC");
 
-			for (String id : packages)
-			{
-				// 只能拣配初始态的
-				PackageBean bean = packageDAO.find(id);
-				
-				if (null == bean)
-				{
-					throw new MYException("出库单[%s]不存在", id);
-				}else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
-				{
-					throw new MYException("[%s]已被拣配", id);
-				}
+            int i = 1;
 
-				bean.setIndex_pos(i++);
+            for (String id : packages)
+            {
+                // 只能拣配初始态的
+                PackageBean bean = packageDAO.find(id);
 
-				bean.setPickupId(pickupId);
-				
-				bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
-				
-				packageDAO.updateEntityBean(bean);
-			}
-			
-		}
-		
-		return true;
-	}
+                if (null == bean)
+                {
+                    throw new MYException("出库单[%s]不存在", id);
+                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                {
+                    throw new MYException("[%s]已被拣配", id);
+                }
+
+                bean.setIndex_pos(i++);
+
+                bean.setPickupId(pickupId);
+
+                bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
+
+                packageDAO.updateEntityBean(bean);
+            }
+
+        }
+
+        return true;
+    }
 
     /**
      *
@@ -787,7 +787,7 @@ public class ShipManagerImpl implements ShipManager
             //一个批次里的商品总数量不能大于50，如一张CK单的数量超过50，单独为一个批次
             final int LIMIT = 2;
             if (amount>LIMIT){
-               _logger.info("****product amount reach MAX****");
+                _logger.info("****product amount reach MAX****");
                 packBean = new PackageBean();
                 packBean.setAmount(bean.getAmount());
                 String pickupId = commonDAO.getSquenceString20("PC");
@@ -839,135 +839,135 @@ public class ShipManagerImpl implements ShipManager
     }
 
     @Transactional(rollbackFor = MYException.class)
-	public boolean deletePackage(User user, String packageIds)
-			throws MYException
-	{
-		JudgeTools.judgeParameterIsNull(user, packageIds);
-		
-		String [] packages = packageIds.split("~");
-		
-		if (null != packages)
-		{
-			Set<String> set = new HashSet<String>();
-			
-			for (String id : packages)
-			{
-				// 只能拣配初始态的
-				PackageBean bean = packageDAO.find(id);
-				
-				if (null == bean)
-				{
-					throw new MYException("出库单[%s]不存在", id);
-				}
-				
-				packageDAO.deleteEntityBean(bean.getId());
-				
-				List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
-				
-				for (PackageItemBean each : itemList)
-				{
-					if (!set.contains(each.getOutId()))
-					{
-						set.add(each.getOutId());
-					}
-					
-					packageItemDAO.deleteEntityBean(each.getId());
-				}
-				
-				packageVSCustomerDAO.deleteEntityBeansByFK(id);
-			}
-			
-			// 重新生成发货单
-			for (String outId : set)
-			{
-				PreConsignBean pre = new PreConsignBean();
-				
-				pre.setOutId(outId);
-				
-				preConsignDAO.saveEntityBean(pre);
-			}
-			
-			operationLog.info("重新生成发货单准备数据PreConsign:" + set);
-		}
-		
-		return true;
-	}
+    public boolean deletePackage(User user, String packageIds)
+            throws MYException
+    {
+        JudgeTools.judgeParameterIsNull(user, packageIds);
 
-	/**
-	 * 
-	 */
-	@Transactional(rollbackFor = MYException.class)
-	public boolean updatePrintStatus(String pickupId, int index_pos) throws MYException
-	{
-		JudgeTools.judgeParameterIsNull(pickupId);
-		
-		ConditionParse condtion = new ConditionParse();
-    	
-    	condtion.addWhereStr();
-    	
-    	condtion.addCondition("PackageBean.pickupId", "=", pickupId);
-    	condtion.addIntCondition("PackageBean.index_pos", "=", index_pos);
+        String [] packages = packageIds.split("~");
 
-    	List<PackageBean> packageList = packageDAO.queryEntityBeansByCondition(condtion);
-    	
-    	if (!ListTools.isEmptyOrNull(packageList))
-    	{
-    		PackageBean packageBean = packageList.get(0);
-    		
-    		if (packageBean.getStatus() != ShipConstant.SHIP_STATUS_CONSIGN)
-    		{
-    			packageBean.setStatus(ShipConstant.SHIP_STATUS_PRINT);
-        		
-        		packageDAO.updateEntityBean(packageBean);
+        if (null != packages)
+        {
+            Set<String> set = new HashSet<String>();
+
+            for (String id : packages)
+            {
+                // 只能拣配初始态的
+                PackageBean bean = packageDAO.find(id);
+
+                if (null == bean)
+                {
+                    throw new MYException("出库单[%s]不存在", id);
+                }
+
+                packageDAO.deleteEntityBean(bean.getId());
+
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
+
+                for (PackageItemBean each : itemList)
+                {
+                    if (!set.contains(each.getOutId()))
+                    {
+                        set.add(each.getOutId());
+                    }
+
+                    packageItemDAO.deleteEntityBean(each.getId());
+                }
+
+                packageVSCustomerDAO.deleteEntityBeansByFK(id);
+            }
+
+            // 重新生成发货单
+            for (String outId : set)
+            {
+                PreConsignBean pre = new PreConsignBean();
+
+                pre.setOutId(outId);
+
+                preConsignDAO.saveEntityBean(pre);
+            }
+
+            operationLog.info("重新生成发货单准备数据PreConsign:" + set);
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     */
+    @Transactional(rollbackFor = MYException.class)
+    public boolean updatePrintStatus(String pickupId, int index_pos) throws MYException
+    {
+        JudgeTools.judgeParameterIsNull(pickupId);
+
+        ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+
+        condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+        condtion.addIntCondition("PackageBean.index_pos", "=", index_pos);
+
+        List<PackageBean> packageList = packageDAO.queryEntityBeansByCondition(condtion);
+
+        if (!ListTools.isEmptyOrNull(packageList))
+        {
+            PackageBean packageBean = packageList.get(0);
+
+            if (packageBean.getStatus() != ShipConstant.SHIP_STATUS_CONSIGN)
+            {
+                packageBean.setStatus(ShipConstant.SHIP_STATUS_PRINT);
+
+                packageDAO.updateEntityBean(packageBean);
                 _logger.info(packageBean.getId() + " status updated to " + ShipConstant.SHIP_STATUS_PRINT);
-    		}
-    	}
-		
-		return true;
-	}
-	
-	@Transactional(rollbackFor = MYException.class)
-	public boolean updateStatus(User user, String pickupId) throws MYException
-	{
-		JudgeTools.judgeParameterIsNull(user, pickupId);
-		
-		List<PackageBean> packageList = packageDAO.queryEntityBeansByFK(pickupId);
+            }
+        }
+
+        return true;
+    }
+
+    @Transactional(rollbackFor = MYException.class)
+    public boolean updateStatus(User user, String pickupId) throws MYException
+    {
+        JudgeTools.judgeParameterIsNull(user, pickupId);
+
+        List<PackageBean> packageList = packageDAO.queryEntityBeansByFK(pickupId);
         this.checkEmptyTransportNo(packageList);
-		
-		Set<String> set = new HashSet<String>();
-		
-		for (PackageBean each : packageList)
-		{
+
+        Set<String> set = new HashSet<String>();
+
+        for (PackageBean each : packageList)
+        {
             if (StringTools.isNullOrNone(each.getPickupId())){
                 _logger.info("****CK单pickupId不能为空****"+each.getId());
                 throw new MYException("CK单[%s]pickupId不能为空", each.getId());
             }
-			each.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
-			
-			each.setShipTime(TimeTools.now());
-			
-			List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
-			
-			for (PackageItemBean eachItem : itemList)
-			{
-				if (!set.contains(eachItem.getOutId()))
-				{
-					OutBean out = outDAO.find(eachItem.getOutId());
-					
-					if (null != out && out.getStatus() == OutConstant.STATUS_PASS)
-					{
-						outDAO.modifyOutStatus(out.getFullId(), OutConstant.STATUS_SEC_PASS);
-						
-						distributionDAO.updateOutboundDate(out.getFullId(), TimeTools.now_short());
-					}
-				}
-			}
-			
-			packageDAO.updateEntityBean(each);
-		}
-		
-		return true;
-	}
+            each.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
+
+            each.setShipTime(TimeTools.now());
+
+            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+
+            for (PackageItemBean eachItem : itemList)
+            {
+                if (!set.contains(eachItem.getOutId()))
+                {
+                    OutBean out = outDAO.find(eachItem.getOutId());
+
+                    if (null != out && out.getStatus() == OutConstant.STATUS_PASS)
+                    {
+                        outDAO.modifyOutStatus(out.getFullId(), OutConstant.STATUS_SEC_PASS);
+
+                        distributionDAO.updateOutboundDate(out.getFullId(), TimeTools.now_short());
+                    }
+                }
+            }
+
+            packageDAO.updateEntityBean(each);
+        }
+
+        return true;
+    }
 
     //2015/3/4 确认发货时要检查发货方式为第三方快递的CK单的快递单号不能为空
     private void checkEmptyTransportNo(List<PackageBean> packageList) throws MYException{
@@ -1009,10 +1009,10 @@ public class ShipManagerImpl implements ShipManager
 
         if (packages!= null){
             for (String pack : packages){
-                  PackageBean bean = this.packageDAO.find(pack);
-                  if (bean!= null){
-                      packageList.add(bean);
-                  }
+                PackageBean bean = this.packageDAO.find(pack);
+                if (bean!= null){
+                    packageList.add(bean);
+                }
             }
         }
 
@@ -1057,7 +1057,7 @@ public class ShipManagerImpl implements ShipManager
     public void sendMailForShipping2() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         long now = System.currentTimeMillis();
-        System.out.println("**************run schedule****************"+now);
+        System.out.println("**************run schedule****************" + now);
 
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
@@ -1117,204 +1117,257 @@ public class ShipManagerImpl implements ShipManager
 
     }
 
-	/**
-	 * see #146: 宁波银行邮件信息
-     * 每天23点，统计当天截止时间t_center_package表中
+    /**
+     * see #146: 宁波银行邮件信息(发货前)
+     *  每天17点，统计当天截止时间t_center_package表中
      * 邮件发送标识为空，且status字段值为2的，且客户名称为 宁波银行XXXX    的CK单
-	 * @throws MYException
-	 */
-	@Override
-	@Transactional(rollbackFor = MYException.class)
-	public void sendMailForNbShipping() throws MYException {
-		//To change body of implemented methods use File | Settings | File Templates.
-		String msg =  "**************run sendMailForNbShipping job****************";
-		System.out.println(msg);
-		triggerLog.info(msg);
+     * @throws MYException
+     */
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void sendMailForNbBeforeShipping() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        String msg =  "**************run sendMailForNbShipping job****************";
+        System.out.println(msg);
+        triggerLog.info(msg);
+        _logger.info(msg);
+
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+        con.addIntCondition("PackageBean.sendMailFlagNbyh", "=", 0);
+        con.addCondition("CustomerBean.name", "like", "宁波银行%");
+
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+        if (!ListTools.isEmptyOrNull(packageList))
+        {
+            _logger.info("****NB packageList to be sent mail***"+packageList.size());
 
 
-		ConditionParse con = new ConditionParse();
-		con.addWhereStr();
-		con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
-		con.addIntCondition("PackageBean.status", "=", 2);
-		con.addIntCondition("CustomerBean.customerName", "like", "宁波银行%");
+            //send mail for merged packages
+            {
+                String fileName = getShippingAttachmentPath() + "/宁波银行"
+                        + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+                _logger.info("************fileName****"+fileName);
 
-		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
-		if (!ListTools.isEmptyOrNull(packageList))
-		{
-			_logger.info("****packageList to be sent mail***"+packageList.size());
-			//send mail for merged packages
-			for (PackageVO vo : packageList) {
-				List<PackageVO> packages = branch2Packages.get(key);
-				String fileName = getShippingAttachmentPath() + "/" + branch2Name.get(key)
-						+ "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
-				_logger.info("************fileName****"+fileName);
+                String title = String.format("永银文化%s发货信息", this.getYesterday());
+                String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
+                {
+                    createNbMailAttachment(packageList, fileName);
 
-				String title = String.format("永银文化%s发货信息", this.getYesterday());
-				String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
-				if(branch2Flag.get(key) == 1){
-					String branchName = branch2Name.get(key);
-					_logger.info("分行:"+branchName+"***包裹数***:"+branch2Packages.get(key).size());
-					createNbMailAttachment(packageList, fileName);
+                    // check file either exists
+                    File file = new File(fileName);
 
-					// check file either exists
-					File file = new File(fileName);
+                    if (!file.exists())
+                    {
+                        throw new MYException("邮件附件未成功生成");
+                    }
 
-					if (!file.exists())
-					{
-						throw new MYException("邮件附件未成功生成");
-					}
+                    commonMailManager.sendMail("zhousudong@yycoin.com", title,content, fileName);
+                }
+            }
+        } else {
+            _logger.info("*****no VO found to send mail****");
+        }
+    }
 
-					// 发送给分行
-					commonMailManager.sendMail(key, title,content, fileName);
-				}
+    /**
+     * see #146: 宁波银行邮件信息(已发货)
+     *  每天23点，统计当天截止时间t_center_package表中
+     * 邮件发送标识为空，且status字段值为2的，且客户名称为 宁波银行XXXX    的CK单
+     * @throws MYException
+     */
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void sendMailForNbShipping() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        String msg =  "**************run sendMailForNbShipping job****************";
+        System.out.println(msg);
+        triggerLog.info(msg);
+        _logger.info(msg);
 
-				for (PackageBean vo:branch2Packages.get(key)){
-					//Update sendMailFlag to 1
-					PackageBean packBean = packageDAO.find(vo.getId());
-					packBean.setSendMailFlag(1);
-					this.packageDAO.updateEntityBean(packBean);
-				}
-			}
-		} else {
-//            System.out.println("**************no Vo found***************");
-			_logger.info("*****no VO found to send mail****");
-		}
-	}
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+        con.addIntCondition("PackageBean.sendMailFlagNbyh", "=", 0);
+        con.addIntCondition("PackageBean.status", "=", 2);
+        con.addCondition("CustomerBean.name", "like", "宁波银行%");
 
-	private void createNbMailAttachment(List<PackageVO> beans, String fileName)
-	{
-		WritableWorkbook wwb = null;
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+        if (!ListTools.isEmptyOrNull(packageList))
+        {
+            _logger.info("****NB packageList to be sent mail***"+packageList.size());
 
-		WritableSheet ws = null;
 
-		OutputStream out = null;
+            //send mail for merged packages
+            {
+                String fileName = getShippingAttachmentPath() + "/宁波银行"
+                        + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+                _logger.info("************fileName****"+fileName);
 
-		try
-		{
-			out = new FileOutputStream(fileName);
+                String title = String.format("永银文化%s发货信息", this.getYesterday());
+                String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
+                {
+                    createNbMailAttachment(packageList, fileName);
 
-			// create a excel
-			wwb = Workbook.createWorkbook(out);
+                    // check file either exists
+                    File file = new File(fileName);
 
-			ws = wwb.createSheet("发货信息", 0);
+                    if (!file.exists())
+                    {
+                        throw new MYException("邮件附件未成功生成");
+                    }
 
-			// 横向
-			ws.setPageSetup(PageOrientation.LANDSCAPE.LANDSCAPE, PaperSize.A4,0.5d,0.5d);
+                    commonMailManager.sendMail("zhousudong@yycoin.com", title,content, fileName);
+                }
 
-			// 标题字体
-			WritableFont font = new WritableFont(WritableFont.ARIAL, 11,
-					WritableFont.BOLD, false,
-					jxl.format.UnderlineStyle.NO_UNDERLINE,
-					jxl.format.Colour.BLACK);
+                //Update sendMailFlagNbyh to 1
+                for (PackageBean vo: packageList){
+                    PackageBean packBean = packageDAO.find(vo.getId());
+                    packBean.setSendMailFlagNbyh(1);
+                    this.packageDAO.updateEntityBean(packBean);
+                    _logger.info("update package setSendMailFlagNbyh status:"+vo.getId());
+                }
+            }
+        } else {
+            _logger.info("*****no VO found to send mail****");
+        }
+    }
 
-			WritableFont font2 = new WritableFont(WritableFont.ARIAL, 9,
-					WritableFont.BOLD, false,
-					jxl.format.UnderlineStyle.NO_UNDERLINE,
-					jxl.format.Colour.BLACK);
+    private void createNbMailAttachment(List<PackageVO> beans, String fileName)
+    {
+        WritableWorkbook wwb = null;
 
-			WritableFont font3 = new WritableFont(WritableFont.ARIAL, 9,
-					WritableFont.NO_BOLD, false,
-					jxl.format.UnderlineStyle.NO_UNDERLINE,
-					jxl.format.Colour.BLACK);
+        WritableSheet ws = null;
 
-			WritableFont font4 = new WritableFont(WritableFont.ARIAL, 9,
-					WritableFont.BOLD, false,
-					jxl.format.UnderlineStyle.NO_UNDERLINE,
-					jxl.format.Colour.BLUE);
+        OutputStream out = null;
 
-			WritableCellFormat format = new WritableCellFormat(font);
+        try
+        {
+            out = new FileOutputStream(fileName);
 
-			format.setAlignment(jxl.format.Alignment.CENTRE);
-			format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+            // create a excel
+            wwb = Workbook.createWorkbook(out);
 
-			WritableCellFormat format2 = new WritableCellFormat(font2);
+            ws = wwb.createSheet("发货信息", 0);
 
-			format2.setAlignment(jxl.format.Alignment.LEFT);
-			format2.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
-			format2.setWrap(true);
+            // 横向
+            ws.setPageSetup(PageOrientation.LANDSCAPE.LANDSCAPE, PaperSize.A4,0.5d,0.5d);
 
-			WritableCellFormat format21 = new WritableCellFormat(font2);
-			format21.setAlignment(jxl.format.Alignment.RIGHT);
+            // 标题字体
+            WritableFont font = new WritableFont(WritableFont.ARIAL, 11,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
 
-			WritableCellFormat format3 = new WritableCellFormat(font3);
-			format3.setBorder(jxl.format.Border.ALL,
-					jxl.format.BorderLineStyle.THIN);
+            WritableFont font2 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
 
-			WritableCellFormat format31 = new WritableCellFormat(font3);
-			format31.setBorder(jxl.format.Border.ALL,
-					jxl.format.BorderLineStyle.THIN);
-			format31.setAlignment(jxl.format.Alignment.RIGHT);
+            WritableFont font3 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.NO_BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
 
-			WritableCellFormat format4 = new WritableCellFormat(font4);
-			format4.setBorder(jxl.format.Border.ALL,
-					jxl.format.BorderLineStyle.THIN);
+            WritableFont font4 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLUE);
 
-			WritableCellFormat format41 = new WritableCellFormat(font4);
-			format41.setBorder(jxl.format.Border.ALL,
-					jxl.format.BorderLineStyle.THIN);
-			format41.setAlignment(jxl.format.Alignment.CENTRE);
-			format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+            WritableCellFormat format = new WritableCellFormat(font);
 
-			int i = 0, j = 0, i1 = 1;
-			String title = String.format("永银文化%s发货信息", this.getYesterday());
+            format.setAlignment(jxl.format.Alignment.CENTRE);
+            format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
 
-			// 完成标题
-			ws.addCell(new Label(1, i, title, format));
+            WritableCellFormat format2 = new WritableCellFormat(font2);
 
-			//set column width
-			ws.setColumnView(0, 5);
-			ws.setColumnView(1, 40);
-			ws.setColumnView(2, 40);
-			ws.setColumnView(3, 40);
-			ws.setColumnView(4, 5);
-			ws.setColumnView(5, 30);
-			ws.setColumnView(6, 10);
-			ws.setColumnView(7, 20);
-			ws.setColumnView(8, 10);
-			ws.setColumnView(9, 10);
+            format2.setAlignment(jxl.format.Alignment.LEFT);
+            format2.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+            format2.setWrap(true);
 
-			i++;
-			// 正文表格
-			ws.addCell(new Label(0, i, "供应商id", format3));
-			ws.addCell(new Label(1, i, "供应商名称", format3));
-			ws.addCell(new Label(2, i, "机构id", format3));
-			ws.addCell(new Label(3, i, "机构名称", format3));
-			ws.addCell(new Label(4, i, "发货单号（供应商提供）", format3));
-			ws.addCell(new Label(5, i, "订单编号", format3));
-			ws.addCell(new Label(6, i, "快递单号", format3));
-			ws.addCell(new Label(7, i, "产品id", format3));
-			ws.addCell(new Label(8, i, "产品名称", format3));
-			ws.addCell(new Label(9, i, "产品类型", format3));
-			ws.addCell(new Label(10, i, "产品数量", format3));
+            WritableCellFormat format21 = new WritableCellFormat(font2);
+            format21.setAlignment(jxl.format.Alignment.RIGHT);
 
-			for (PackageVO bean :beans){
-				List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
-				if (!ListTools.isEmptyOrNull(itemList)){
-					for (PackageItemBean each : itemList)
-					{
-						i++;
-						ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
-						setWS(ws, i, 300, false);
+            WritableCellFormat format3 = new WritableCellFormat(font3);
+            format3.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
 
-						//供应商id
-						ws.addCell(new Label(j++, i, "2015120215260025", format3));
-						//供应商名称
-						ws.addCell(new Label(j++, i, "永银文化", format3));
+            WritableCellFormat format31 = new WritableCellFormat(font3);
+            format31.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format31.setAlignment(jxl.format.Alignment.RIGHT);
 
-						ConditionParse con3 = new ConditionParse();
-						con3.addWhereStr();
-						con3.addCondition("OutImportBean.oano", "=", each.getOutId());
-						List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
-						OutImportBean importBean = new OutImportBean();
-						if (!ListTools.isEmptyOrNull(importBeans)){
-							importBean = importBeans.get(0);
-						}
+            WritableCellFormat format4 = new WritableCellFormat(font4);
+            format4.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
 
-						//机构id
-						ws.addCell(new Label(j++, i, importBean.getComunicationBranch(), format3));
+            WritableCellFormat format41 = new WritableCellFormat(font4);
+            format41.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format41.setAlignment(jxl.format.Alignment.CENTRE);
+            format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
 
-						//机构名称
-						ws.addCell(new Label(j++, i, importBean.getComunicatonBranchName(), format3));
+            int i = 0, j = 0, i1 = 1;
+            String title = String.format("永银文化%s发货信息", this.getYesterday());
+
+            // 完成标题
+            ws.addCell(new Label(1, i, title, format));
+
+            //set column width
+            ws.setColumnView(0, 30);
+            ws.setColumnView(1, 20);
+            ws.setColumnView(2, 40);
+            ws.setColumnView(3, 40);
+            ws.setColumnView(4, 40);
+            ws.setColumnView(5, 20);
+            ws.setColumnView(6, 20);
+            ws.setColumnView(7, 10);
+            ws.setColumnView(8, 30);
+            ws.setColumnView(9, 10);
+            ws.setColumnView(10, 10);
+
+            i++;
+            // 正文表格
+            ws.addCell(new Label(0, i, "供应商id", format3));
+            ws.addCell(new Label(1, i, "供应商名称", format3));
+            ws.addCell(new Label(2, i, "机构id", format3));
+            ws.addCell(new Label(3, i, "机构名称", format3));
+            ws.addCell(new Label(4, i, "发货单号（供应商提供）", format3));
+            ws.addCell(new Label(5, i, "订单编号", format3));
+            ws.addCell(new Label(6, i, "快递单号", format3));
+            ws.addCell(new Label(7, i, "产品id", format3));
+            ws.addCell(new Label(8, i, "产品名称", format3));
+            ws.addCell(new Label(9, i, "产品类型", format3));
+            ws.addCell(new Label(10, i, "产品数量", format3));
+
+            for (PackageVO bean :beans){
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
+                if (!ListTools.isEmptyOrNull(itemList)){
+                    for (PackageItemBean each : itemList)
+                    {
+                        i++;
+//						ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
+//						setWS(ws, i, 300, false);
+
+                        //供应商id
+                        ws.addCell(new Label(j++, i, "2015120215260025", format3));
+                        //供应商名称
+                        ws.addCell(new Label(j++, i, "永银文化", format3));
+
+                        ConditionParse con3 = new ConditionParse();
+                        con3.addWhereStr();
+                        con3.addCondition("OutImportBean.oano", "=", each.getOutId());
+                        _logger.info("***outID***"+each.getOutId());
+                        List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
+                        OutImportBean importBean = new OutImportBean();
+                        if (!ListTools.isEmptyOrNull(importBeans)){
+                            importBean = importBeans.get(0);
+                        }
+
+                        //机构id
+                        ws.addCell(new Label(j++, i, importBean.getComunicationBranch(), format3));
+
+                        //机构名称
+                        ws.addCell(new Label(j++, i, importBean.getComunicatonBranchName(), format3));
 
                         String transportNo = "";
                         List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
@@ -1325,63 +1378,63 @@ public class ShipManagerImpl implements ShipManager
                             }
                         }
 
-						//发货单号
-						ws.addCell(new Label(j++, i, transportNo, format3));
+                        //发货单号
+                        ws.addCell(new Label(j++, i, transportNo, format3));
 
-						//订单编号
-						ws.addCell(new Label(j++, i, importBean.getNbyhNo(), format3));
+                        //订单编号
+                        ws.addCell(new Label(j++, i, importBean.getNbyhNo(), format3));
 
                         //快递单号
-						ws.addCell(new Label(j++, i, transportNo, format3));
+                        ws.addCell(new Label(j++, i, transportNo, format3));
 
-						//产品id
-						ws.addCell(new Label(j++, i, importBean.getProductCode(), format3));
+                        //产品id
+                        ws.addCell(new Label(j++, i, each.getProductCode(), format3));
 
-						//产品名称
-						ws.addCell(new Label(j++, i, importBean.getProductName(), format3));
+                        //产品名称
+                        ws.addCell(new Label(j++, i, each.getProductName(), format3));
 
-						//产品类型
+                        //产品类型
                         ws.addCell(new Label(j++, i, "工艺金", format3));
 
-						//产品数量
+                        //产品数量
                         ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
 
-						j = 0;
-					}
-				}
-			}
+                        j = 0;
+//                        i++;
+                    }
+                }
+            }
 
 
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			if (wwb != null)
-			{
-				try
-				{
-					wwb.write();
-					wwb.close();
-				}
-				catch (Exception e1)
-				{
-				}
-			}
-			if (out != null)
-			{
-				try
-				{
-					out.close();
-				}
-				catch (IOException e1)
-				{
-				}
-			}
-		}
-	}
+        }
+        catch (Throwable e){
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (wwb != null)
+            {
+                try
+                {
+                    wwb.write();
+                    wwb.close();
+                }
+                catch (Exception e1)
+                {
+                }
+            }
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
+    }
 
     @Override
     @Transactional(rollbackFor = MYException.class)
@@ -1652,9 +1705,9 @@ public class ShipManagerImpl implements ShipManager
                     String citicNo = "";
                     if (!ListTools.isEmptyOrNull(importBeans)){
                         for (OutImportBean b: importBeans){
-                           if (!StringTools.isNullOrNone(b.getCiticNo())){
-                               citicNo = b.getCiticNo();
-                           }
+                            if (!StringTools.isNullOrNone(b.getCiticNo())){
+                                citicNo = b.getCiticNo();
+                            }
                         }
                     }
 
@@ -1998,10 +2051,10 @@ public class ShipManagerImpl implements ShipManager
         if (!StringTools.isNullOrNone(productName)){
             StringBuilder sb = new StringBuilder();
             sb.append(temp)
-                .append(" and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%")
-                .append(productName)
-                .append("%')")
-                .append(" order by PackageBean.logTime asc");
+                    .append(" and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%")
+                    .append(productName)
+                    .append("%')")
+                    .append(" order by PackageBean.logTime asc");
 
             condtion.setCondition(sb.toString());
         }
@@ -2161,12 +2214,12 @@ public class ShipManagerImpl implements ShipManager
                     //2015/3/22 发票单发指CK单中只有A或FP开头的单号，没有其他类型的订单
                     int count = 0;
                     for (PackageItemBean item : items){
-                          String outId = item.getOutId();
-                          if (outId.startsWith("A") || outId.startsWith("FP")){
-                              count++;
-                          }else{
-                              break;
-                          }
+                        String outId = item.getOutId();
+                        if (outId.startsWith("A") || outId.startsWith("FP")){
+                            count++;
+                        }else{
+                            break;
+                        }
                     }
                     if (count == items.size()){
                         _logger.info(packBean.getId()+" set to INVOICE_SHIP_ALONE****");
@@ -2184,148 +2237,148 @@ public class ShipManagerImpl implements ShipManager
     }
 
     /**
-	 * @return the preConsignDAO
-	 */
-	public PreConsignDAO getPreConsignDAO()
-	{
-		return preConsignDAO;
-	}
+     * @return the preConsignDAO
+     */
+    public PreConsignDAO getPreConsignDAO()
+    {
+        return preConsignDAO;
+    }
 
-	/**
-	 * @param preConsignDAO the preConsignDAO to set
-	 */
-	public void setPreConsignDAO(PreConsignDAO preConsignDAO)
-	{
-		this.preConsignDAO = preConsignDAO;
-	}
+    /**
+     * @param preConsignDAO the preConsignDAO to set
+     */
+    public void setPreConsignDAO(PreConsignDAO preConsignDAO)
+    {
+        this.preConsignDAO = preConsignDAO;
+    }
 
-	/**
-	 * @return the packageDAO
-	 */
-	public PackageDAO getPackageDAO()
-	{
-		return packageDAO;
-	}
+    /**
+     * @return the packageDAO
+     */
+    public PackageDAO getPackageDAO()
+    {
+        return packageDAO;
+    }
 
-	/**
-	 * @param packageDAO the packageDAO to set
-	 */
-	public void setPackageDAO(PackageDAO packageDAO)
-	{
-		this.packageDAO = packageDAO;
-	}
+    /**
+     * @param packageDAO the packageDAO to set
+     */
+    public void setPackageDAO(PackageDAO packageDAO)
+    {
+        this.packageDAO = packageDAO;
+    }
 
-	/**
-	 * @return the packageItemDAO
-	 */
-	public PackageItemDAO getPackageItemDAO()
-	{
-		return packageItemDAO;
-	}
+    /**
+     * @return the packageItemDAO
+     */
+    public PackageItemDAO getPackageItemDAO()
+    {
+        return packageItemDAO;
+    }
 
-	/**
-	 * @param packageItemDAO the packageItemDAO to set
-	 */
-	public void setPackageItemDAO(PackageItemDAO packageItemDAO)
-	{
-		this.packageItemDAO = packageItemDAO;
-	}
+    /**
+     * @param packageItemDAO the packageItemDAO to set
+     */
+    public void setPackageItemDAO(PackageItemDAO packageItemDAO)
+    {
+        this.packageItemDAO = packageItemDAO;
+    }
 
-	/**
-	 * @return the outDAO
-	 */
-	public OutDAO getOutDAO()
-	{
-		return outDAO;
-	}
+    /**
+     * @return the outDAO
+     */
+    public OutDAO getOutDAO()
+    {
+        return outDAO;
+    }
 
-	/**
-	 * @param outDAO the outDAO to set
-	 */
-	public void setOutDAO(OutDAO outDAO)
-	{
-		this.outDAO = outDAO;
-	}
+    /**
+     * @param outDAO the outDAO to set
+     */
+    public void setOutDAO(OutDAO outDAO)
+    {
+        this.outDAO = outDAO;
+    }
 
-	/**
-	 * @return the baseDAO
-	 */
-	public BaseDAO getBaseDAO()
-	{
-		return baseDAO;
-	}
+    /**
+     * @return the baseDAO
+     */
+    public BaseDAO getBaseDAO()
+    {
+        return baseDAO;
+    }
 
-	/**
-	 * @param baseDAO the baseDAO to set
-	 */
-	public void setBaseDAO(BaseDAO baseDAO)
-	{
-		this.baseDAO = baseDAO;
-	}
+    /**
+     * @param baseDAO the baseDAO to set
+     */
+    public void setBaseDAO(BaseDAO baseDAO)
+    {
+        this.baseDAO = baseDAO;
+    }
 
-	/**
-	 * @return the distributionDAO
-	 */
-	public DistributionDAO getDistributionDAO()
-	{
-		return distributionDAO;
-	}
+    /**
+     * @return the distributionDAO
+     */
+    public DistributionDAO getDistributionDAO()
+    {
+        return distributionDAO;
+    }
 
-	/**
-	 * @param distributionDAO the distributionDAO to set
-	 */
-	public void setDistributionDAO(DistributionDAO distributionDAO)
-	{
-		this.distributionDAO = distributionDAO;
-	}
+    /**
+     * @param distributionDAO the distributionDAO to set
+     */
+    public void setDistributionDAO(DistributionDAO distributionDAO)
+    {
+        this.distributionDAO = distributionDAO;
+    }
 
-	/**
-	 * @return the commonDAO
-	 */
-	public CommonDAO getCommonDAO()
-	{
-		return commonDAO;
-	}
+    /**
+     * @return the commonDAO
+     */
+    public CommonDAO getCommonDAO()
+    {
+        return commonDAO;
+    }
 
-	/**
-	 * @param commonDAO the commonDAO to set
-	 */
-	public void setCommonDAO(CommonDAO commonDAO)
-	{
-		this.commonDAO = commonDAO;
-	}
+    /**
+     * @param commonDAO the commonDAO to set
+     */
+    public void setCommonDAO(CommonDAO commonDAO)
+    {
+        this.commonDAO = commonDAO;
+    }
 
-	/**
-	 * @return the depotDAO
-	 */
-	public DepotDAO getDepotDAO()
-	{
-		return depotDAO;
-	}
+    /**
+     * @return the depotDAO
+     */
+    public DepotDAO getDepotDAO()
+    {
+        return depotDAO;
+    }
 
-	/**
-	 * @param depotDAO the depotDAO to set
-	 */
-	public void setDepotDAO(DepotDAO depotDAO)
-	{
-		this.depotDAO = depotDAO;
-	}
+    /**
+     * @param depotDAO the depotDAO to set
+     */
+    public void setDepotDAO(DepotDAO depotDAO)
+    {
+        this.depotDAO = depotDAO;
+    }
 
-	/**
-	 * @return the packageVSCustomerDAO
-	 */
-	public PackageVSCustomerDAO getPackageVSCustomerDAO()
-	{
-		return packageVSCustomerDAO;
-	}
+    /**
+     * @return the packageVSCustomerDAO
+     */
+    public PackageVSCustomerDAO getPackageVSCustomerDAO()
+    {
+        return packageVSCustomerDAO;
+    }
 
-	/**
-	 * @param packageVSCustomerDAO the packageVSCustomerDAO to set
-	 */
-	public void setPackageVSCustomerDAO(PackageVSCustomerDAO packageVSCustomerDAO)
-	{
-		this.packageVSCustomerDAO = packageVSCustomerDAO;
-	}
+    /**
+     * @param packageVSCustomerDAO the packageVSCustomerDAO to set
+     */
+    public void setPackageVSCustomerDAO(PackageVSCustomerDAO packageVSCustomerDAO)
+    {
+        this.packageVSCustomerDAO = packageVSCustomerDAO;
+    }
 
     public CommonMailManager getCommonMailManager() {
         return commonMailManager;
