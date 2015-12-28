@@ -30,4 +30,9 @@ public interface StatBankManager
      * @return
      */
     double findTotalByBankId(String bankId);
+
+    /**
+     * #144:银行余额统计JOB
+     */
+    void statBankBalance();
 }

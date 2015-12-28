@@ -13,6 +13,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.china.center.oa.finance.bean.BankBalanceBean;
+import com.china.center.oa.finance.dao.*;
+import com.china.center.oa.finance.vo.BankVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -23,11 +26,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.finance.bean.BankBean;
 import com.china.center.oa.finance.bean.StatBankBean;
-import com.china.center.oa.finance.dao.BankDAO;
-import com.china.center.oa.finance.dao.InBillDAO;
-import com.china.center.oa.finance.dao.OutBillDAO;
-import com.china.center.oa.finance.dao.PaymentDAO;
-import com.china.center.oa.finance.dao.StatBankDAO;
 import com.china.center.oa.finance.manager.StatBankManager;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.tools.MathTools;
@@ -57,6 +55,8 @@ public class StatBankManagerImpl implements StatBankManager
     private PaymentDAO paymentDAO = null;
 
     private BankDAO bankDAO = null;
+
+    private BankBalanceDAO bankBalanceDAO = null;
 
     private PlatformTransactionManager transactionManager = null;
 
@@ -275,6 +275,22 @@ public class StatBankManagerImpl implements StatBankManager
         return lastTotal;
     }
 
+    @Override
+    public void statBankBalance() {
+        //To change body of implemented methods use File | Settings | File Templates.
+        triggerLog.info("***statBankBalance JOB is running***");
+        List<BankVO> list = this.bankDAO.listEntityVOs();
+        for (BankVO bankVO : list) {
+            double total = this.findTotalByBankId(bankVO.getId());
+
+            BankBalanceBean bean = new BankBalanceBean();
+            bean.setBankId(bankVO.getId());
+            bean.setBalance(total);
+            bean.setDate(TimeTools.now_short());
+            this.bankBalanceDAO.saveEntityBean(bean);
+        }
+    }
+
     /**
      * @return the statBankDAO
      */
@@ -392,5 +408,13 @@ public class StatBankManagerImpl implements StatBankManager
     public void setPaymentDAO(PaymentDAO paymentDAO)
     {
         this.paymentDAO = paymentDAO;
+    }
+
+    public BankBalanceDAO getBankBalanceDAO() {
+        return bankBalanceDAO;
+    }
+
+    public void setBankBalanceDAO(BankBalanceDAO bankBalanceDAO) {
+        this.bankBalanceDAO = bankBalanceDAO;
     }
 }

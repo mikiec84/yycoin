@@ -148,6 +148,20 @@
         <property name="cronExpression" value="0 0/40 * * * ?" />
     </bean>
 
+    <!--#144 银行余额统计JOB，每天23:00运行-->
+    <bean id="statBankBalanceJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="statBankManager" />
+        <property name="targetMethod" value="statBankBalance" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="statBankBalanceJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="statBankBalanceJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+
     <bean
             class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -162,6 +176,7 @@
                 <ref bean="passPaymentApply2JobTrigger"/>
                 <ref bean="insFollowOutJobTrigger"/>
                 <ref bean="checkOrderWithoutCKJobTrigger"/>
+                <ref bean="statBankBalanceJobTrigger"/>
             </list>
         </property>
     </bean>

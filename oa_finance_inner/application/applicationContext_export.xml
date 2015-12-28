@@ -93,5 +93,7 @@
 	<osgi:service ref="packageManager" interface="com.china.center.oa.finance.manager.PackageManager" />
 	
 	<osgi:service ref="backPrePayApplyDAO" interface="com.china.center.oa.finance.dao.BackPrePayApplyDAO" />
+
+    <osgi:service ref="bankBalanceDAO" interface="com.china.center.oa.finance.dao.BankBalanceDAO" />
 	
 </beans>

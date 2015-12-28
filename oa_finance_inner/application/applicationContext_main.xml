@@ -96,4 +96,6 @@
 	<bean id="packageManager" class="com.china.center.oa.finance.manager.impl.PackageManagerImpl" />
 	
 	<bean id="backPrePayApplyDAO" class="com.china.center.oa.finance.dao.impl.BackPrePayApplyDAOImpl" />
+
+    <bean id="bankBalanceDAO" class="com.china.center.oa.finance.dao.impl.BankBalanceDAOImpl" />
 </beans>
