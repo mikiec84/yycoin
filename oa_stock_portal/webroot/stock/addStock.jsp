@@ -68,53 +68,7 @@ function addBean(opr)
 	submit('确定申请产品采购?', null, lverify);
 }
 
-function lverify()
-{
-	var checkArr = document.getElementsByName('check_init');
 
-	var isSelect = false;
-
-	var imap = {};
-
-	for (var i = 0; i < checkArr.length; i++)
-	{
-		var obj = checkArr[i];
-
-		var index = obj.value;
-
-		if (obj.checked)
-		{
-			isSelect = true;
-			if ($O('productName_' + i).value == '' || $O('productId_' + i).value == '' )
-			{
-				alert('产品不能为空');
-				return false;
-			}
-
-			if ($$('amount_' + i)  == null)
-			{
-				alert('请选择产品是否满足数量要求');
-				return false;
-			}
-
-			if (imap[$O('productId_' + i).value] == $O('productId_' + i).value)
-			{
-				alert('选择的产品不能重复');
-				return false;
-			}
-
-			imap[$O('productId_' + i).value] = $O('productId_' + i).value;
-		}
-	}
-
-	if (!isSelect)
-	{
-		alert('请选择采购产品');
-		return false;
-	}
-
-	return true;
-}
 
 function load()
 {
@@ -547,7 +501,7 @@ function checkCurrentUser()
                             <input type="button" value="&nbsp;选 择供应商&nbsp;" name="btn_provider_${item}" class="button_class"
                                    onclick="selectProvider(${item})">&nbsp;
                             供应商:
-                            <input type="text" name="providerName_${item}" value="" size="20" readonly="readonly">
+                            <input type="text" name="providerName_${item}" value="" size="20" readonly="readonly" >
                             <input type="hidden" name="providerId_${item}" value="">&nbsp;
 							参考价格:
                             <input type="text" name="price_${item}"  id="price_${item}" value="" size="6" oncheck="notNone;isFloat;">&nbsp;

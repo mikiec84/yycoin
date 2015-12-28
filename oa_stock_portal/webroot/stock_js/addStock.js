@@ -89,3 +89,69 @@ function calDateInner(obj, name)
 
     return calDate(el)
 }
+
+function lverify()
+{
+    var checkArr = document.getElementsByName('check_init');
+
+    var isSelect = false;
+
+    var imap = {};
+
+    for (var i = 0; i < checkArr.length; i++)
+    {
+        var obj = checkArr[i];
+
+        var index = obj.value;
+
+        if (obj.checked)
+        {
+            isSelect = true;
+            if ($O('productName_' + i).value == '' || $O('productId_' + i).value == '' )
+            {
+                alert('产品不能为空');
+                return false;
+            }
+
+            if ($O('providerName_' + i).value == '' || $O('providerId_' + i).value == '' )
+            {
+                alert('供应商不能为空');
+                return false;
+            }
+
+            if ($O('invoiceType_' + i).value == '')
+            {
+                alert('发票类型不能为空');
+                return false;
+            }
+
+            if ($O('dutyId_' + i).value == '')
+            {
+                alert('纳税实体不能为空');
+                return false;
+            }
+
+            if ($$('amount_' + i)  == null)
+            {
+                alert('请选择产品是否满足数量要求');
+                return false;
+            }
+
+            if (imap[$O('productId_' + i).value] == $O('productId_' + i).value)
+            {
+                alert('选择的产品不能重复');
+                return false;
+            }
+
+            imap[$O('productId_' + i).value] = $O('productId_' + i).value;
+        }
+    }
+
+    if (!isSelect)
+    {
+        alert('请选择采购产品');
+        return false;
+    }
+
+    return true;
+}
