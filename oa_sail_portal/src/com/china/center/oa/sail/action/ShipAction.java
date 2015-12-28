@@ -1595,12 +1595,6 @@ public class ShipAction extends DispatchAction
                 _logger.info(first+"******first****"+outId);
                 if (StringTools.isNullOrNone(outId)){
                     _logger.warn("****Empty OutId***********"+first.getId());
-                }else if (outId.startsWith("SO")){
-                    String[] result = this.getStafferNameAndPhone(outId);
-                    if (result.length>=2){
-                        stafferName = result[0];
-                        phone = result[1];
-                    }
                 } else if(outId.startsWith("A")){
                     InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
                     if (bean!= null){
@@ -1621,6 +1615,12 @@ public class ShipAction extends DispatchAction
                                 phone = result2[1];
                             }
                         }
+                    }
+                } else {
+                    String[] result = this.getStafferNameAndPhone(outId);
+                    if (result.length>=2){
+                        stafferName = result[0];
+                        phone = result[1];
                     }
                 }
                 _logger.info("*****stafferName***********"+stafferName);
