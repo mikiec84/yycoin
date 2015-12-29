@@ -11,6 +11,8 @@ package com.china.center.oa.finance.dao;
 
 import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.finance.bean.BankBalanceBean;
+import com.china.center.oa.finance.vo.BankBalanceVO;
+
 import java.util.List;
 
 
@@ -22,7 +24,7 @@ import java.util.List;
  * @see com.china.center.oa.finance.dao.BankBalanceDAO
  * @since 3.0
  */
-public interface BankBalanceDAO extends DAO<BankBalanceBean, BankBalanceBean>
+public interface BankBalanceDAO extends DAO<BankBalanceBean, BankBalanceVO>
 {
-    List<BankBalanceBean> query(String bank, String beginDate, String endDate);
+    List<BankBalanceVO> query(String bank, String beginDate, String endDate);
 }

@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.china.center.common.MYException;
 import com.china.center.oa.finance.bean.BankBalanceBean;
 import com.china.center.oa.finance.dao.*;
 import com.china.center.oa.finance.vo.BankVO;
@@ -20,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -278,17 +280,36 @@ public class StatBankManagerImpl implements StatBankManager
     @Override
     public void statBankBalance() {
         //To change body of implemented methods use File | Settings | File Templates.
-        triggerLog.info("***statBankBalance JOB is running***");
-        List<BankVO> list = this.bankDAO.listEntityVOs();
-        for (BankVO bankVO : list) {
-            double total = this.findTotalByBankId(bankVO.getId());
+        final List<BankVO> list = this.bankDAO.listEntityVOs();
+        triggerLog.info("***statBankBalance JOB is running***"+list.size());
 
-            BankBalanceBean bean = new BankBalanceBean();
-            bean.setBankId(bankVO.getId());
-            bean.setBalance(total);
-            bean.setDate(TimeTools.now_short());
-            this.bankBalanceDAO.saveEntityBean(bean);
+        try
+        {
+            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+            tran.execute(new TransactionCallback()
+            {
+                public Object doInTransaction(TransactionStatus arg0)
+                {
+                    for (BankVO bankVO : list) {
+                        double total = findTotalByBankId(bankVO.getId());
+
+                        BankBalanceBean bean = new BankBalanceBean();
+                        bean.setBankId(bankVO.getId());
+                        bean.setBalance(total);
+                        bean.setStatDate(TimeTools.now_short());
+                        bankBalanceDAO.saveEntityBean(bean);
+                    }
+
+                    return Boolean.TRUE;
+                }
+            });
         }
+        catch (Exception e)
+        {
+            triggerLog.error(e, e);
+        }
+
     }
 
     /**

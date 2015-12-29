@@ -102,3 +102,13 @@ fullId varchar(200) NOT NULL,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
 
+--2015/12/29 银行余额统计
+CREATE TABLE T_CENTER_BANK_BALANCE (
+id int(11) NOT NULL AUTO_INCREMENT,
+bankId varchar(200) NOT NULL,
+statDate varchar(200) NOT NULL,
+balance double DEFAULT NULL,
+PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
+insert into t_center_oamenuitem values(1654,'银行余额查询','../bank/queryBankBalance.jsp',16,1,1312,99,'银行余额查询')
+

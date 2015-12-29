@@ -25,14 +25,14 @@ import java.io.Serializable;
 @Table(name = "T_CENTER_BANK_BALANCE")
 public class BankBalanceBean implements Serializable
 {
-    @Id
-    private String id = "";
+    @Id(autoIncrement = true)
+    private int id = 0;
 
     @FK
     @Join(tagClass = BankBean.class)
     private String bankId = "";
 
-    private String date = "";
+    private String statDate = "";
 
     /**
      * 余额
@@ -46,11 +46,11 @@ public class BankBalanceBean implements Serializable
     {
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -62,12 +62,12 @@ public class BankBalanceBean implements Serializable
         this.bankId = bankId;
     }
 
-    public String getDate() {
-        return date;
+    public String getStatDate() {
+        return statDate;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setStatDate(String statDate) {
+        this.statDate = statDate;
     }
 
     public double getBalance() {
