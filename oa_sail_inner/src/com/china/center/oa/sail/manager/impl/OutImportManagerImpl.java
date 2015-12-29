@@ -449,9 +449,11 @@ public class OutImportManagerImpl implements OutImportManager
 					OutBean outBean = createOut(useList);
 					
 					// 中信类型 产生赠品订单
-					if (eachOut.getItype() == 0){
-						createGiftOut(outBean);
-					}
+                    //#153:放开赠品订单类型判断
+                    createGiftOut(outBean);
+//					if (eachOut.getItype() == 0){
+//						createGiftOut(outBean);
+//					}
 					
 					eachOut.setOANo(outBean.getFullId());
 					
