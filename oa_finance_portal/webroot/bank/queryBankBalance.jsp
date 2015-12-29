@@ -18,38 +18,24 @@
     <script language="javascript">
       function query()
         {
-            var transport1 = $$('transport1');
-            var transport2 = $$('transport2');
-
-            if (transport1 != '' || transport2 != '')
-            {
-                if ($$('shipment') != '')
-                {
-                    if ($$('shipment') == 0 || $$('shipment') == 1)
-                    {
-                        alert('选择快递或货运时发货方式不能为自提与公司');
-
-                        return false;
-                    }
-                }
-            }
-
-            formEntry.submit();
+           formEntry.submit();
         }
 
-        function clears()
-        {
+      function load()
+      {
+          loadForm();
+      }
 
-        }
-
-        function exportBankBalance(){
-          console.log("export ***");
+      function exportBankBalance(){
+          if (window.confirm("确定导出当前查询结果?")){
+              document.location.href = '../finance/bank.do?method=export&customerName='+'${customerName}';
+          }
       }
     </script>
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../finance/bank.do">
+<form name="formEntry" action="../finance/bank.do" method="post">
     <input type="hidden" name="method" value="queryBankBalance">
     <input type="hidden" value="1" name="firstLoad">
     <p:navigation
@@ -64,9 +50,9 @@
             <table width="100%" align="center" cellspacing='1' class="table0">
                 <tr class="content1">
                     <td width="15%" align="center">开始时间</td>
-                    <td align="center" width="35%"><p:plugin name="outTime" size="20" value="${ppmap.outTime}"/></td>
+                    <td align="center" width="35%"><p:plugin name="beginDate" size="20"/></td>
                     <td width="15%" align="center">结束时间</td>
-                    <td align="center"><p:plugin name="outTime1" size="20" value="${ppmap.outTime1}"/>
+                    <td align="center"><p:plugin name="endDate" size="20"/>
                     </td>
                 </tr>
 
@@ -75,7 +61,7 @@
                     <td align="left">
                         <input type="text" name="bank" maxlength="40" size="30" >
                     </td>
-                    <td width="15%" align="center">日期</td>
+                    <td width="15%" align="center"></td>
                     <td align="left">
                     </td>
                 </tr>
@@ -104,46 +90,17 @@
                     <td align="center" class="td_class" ><strong>日期</strong></td>
                 </tr>
 
-                <c:forEach items="${itemList}" var="item" varStatus="vs">
+                <c:forEach items="${list}" var="item" varStatus="vs">
                     <tr class="${vs.index % 2 == 0 ? 'content1' : 'content2'}">
-                        <td align="center" onclick="hrefAndSelect(this)">${item.pickupId}</td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
-                        <td align="center" onclick="hrefAndSelect(this)"></td>
+                        <td align="center" class="td_class" ><strong>${item.bankName}</strong></td>
+                        <td align="center" class="td_class" ><strong>${item.balance}</strong></td>
+                        <td align="center" class="td_class" ><strong>${item.statDate}</strong></td>
                     </tr>
-                    <c:forEach items="${item.packageList}" var="item2" varStatus="vs2">
-                        <tr class="${vs2.index % 2 == 0 ? 'content1' : 'content2'}">
-                            <td align="center"></td>
-                            <td align="center">--</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${item2.index_pos}</td>
-                            <td align="center"><input type="checkbox" name="packageIds" value="${item2.id}"></td>
-                            <td align="center" onclick="hrefAndSelect(this)">
-                                <a
-                                        href="../sail/ship.do?method=findPackage&packageId=${item2.id}"
-                                        >${item2.id}</a></td>
-                            <td align="center" onclick="hrefAndSelect(this)">${my:get('shipStatus', item2.status)}</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${item2.industryName}</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${my:get('outShipment',item2.shipping)}</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${item2.transportName1}</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${item2.transportName2}</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${item2.receiver}</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${item2.mobile}</td>
-                            <td align="center" onclick="hrefAndSelect(this)">${item2.locationName}</td>
-                        </tr>
-                    </c:forEach>
-
                 </c:forEach>
 
             </table>
 
-            <p:formTurning form="formEntry" method="queryPickup"></p:formTurning>
+            <p:formTurning form="formEntry" method="queryBankBalance"></p:formTurning>
 
         </p:subBody>
 

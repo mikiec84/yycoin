@@ -24,8 +24,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.finance.dao.*;
 import com.china.center.oa.finance.manager.*;
+import com.china.center.oa.finance.vo.*;
 import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -59,22 +62,7 @@ import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.bean.PaymentApplyBean;
 import com.china.center.oa.finance.bean.PaymentBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
-import com.china.center.oa.finance.dao.BackPayApplyDAO;
-import com.china.center.oa.finance.dao.BankDAO;
-import com.china.center.oa.finance.dao.InBillDAO;
-import com.china.center.oa.finance.dao.OutBillDAO;
-import com.china.center.oa.finance.dao.PaymentApplyDAO;
-import com.china.center.oa.finance.dao.PaymentDAO;
-import com.china.center.oa.finance.dao.PaymentVSOutDAO;
-import com.china.center.oa.finance.dao.StatBankDAO;
 import com.china.center.oa.finance.facade.FinanceFacade;
-import com.china.center.oa.finance.vo.BankVO;
-import com.china.center.oa.finance.vo.BatchSplitInBillWrap;
-import com.china.center.oa.finance.vo.InBillVO;
-import com.china.center.oa.finance.vo.OutBillVO;
-import com.china.center.oa.finance.vo.PaymentApplyVO;
-import com.china.center.oa.finance.vo.PaymentVO;
-import com.china.center.oa.finance.vo.PrePaymentWrap;
 import com.china.center.oa.finance.vs.PaymentVSOutBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
@@ -97,15 +85,6 @@ import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestDataStream;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
-import com.china.center.tools.UtilStream;
 
 /**
  * BankAction
@@ -170,6 +149,8 @@ public class FinanceAction extends DispatchAction {
 	private InvoiceDAO invoiceDAO = null;
 	
 	private RoleAuthDAO roleAuthDAO = null;
+
+    private BankBalanceDAO bankBalanceDAO = null;
 
 	private static final String QUERYBANK = "queryBank";
 
@@ -623,6 +604,141 @@ public class FinanceAction extends DispatchAction {
 
 		return mapping.findForward("queryBank");
 	}
+
+
+    /**
+     * #144: 2015/12/29 银行余额统计
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward queryBankBalance(ActionMapping mapping, ActionForm form,
+                                      HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException {
+        _logger.info("*****queryBankBalance*****");
+        CommonTools.saveParamers(request);
+
+        List<BankBalanceVO> list = null;
+
+        if (PageSeparateTools.isFirstLoad(request)) {
+            ConditionParse condtion = new ConditionParse();
+
+            condtion.addWhereStr();
+
+            setInnerCondition(request, condtion);
+
+            int total = bankDAO.countByCondition(condtion.toString());
+
+            PageSeparate page = new PageSeparate(total,
+                    PublicConstant.PAGE_COMMON_SIZE);
+
+            PageSeparateTools.initPageSeparate(condtion, page, request,
+                    RPTQUERYBANK);
+
+            list = this.bankBalanceDAO.queryEntityVOsByCondition(condtion, page);
+        } else {
+            PageSeparateTools.processSeparate(request, RPTQUERYBANK);
+
+            list = bankBalanceDAO.queryEntityVOsByCondition(
+                    PageSeparateTools.getCondition(request, RPTQUERYBANK),
+                    PageSeparateTools.getPageSeparate(request, RPTQUERYBANK));
+        }
+
+
+        request.setAttribute("list", list);
+
+        return mapping.findForward("queryBankBalance");
+    }
+
+
+    public ActionForward export(ActionMapping mapping, ActionForm form,
+                                HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        OutputStream out = null;
+
+        String filenName = "Export_" + TimeTools.now("MMddHHmmss") + ".csv";
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        _logger.info("export bank balance");
+        ConditionParse con = new ConditionParse();
+        String name = request.getParameter("bank");
+        String beginDate = request.getParameter("beginDate");
+        String endDate = request.getParameter("endDate");
+        List<BankBalanceVO> list = this.bankBalanceDAO.listEntityVOs();
+
+        if (ListTools.isEmptyOrNull(list))
+        {
+            return null;
+        }
+
+        response.setContentType("application/x-dbf");
+
+        response.setHeader("Content-Disposition", "attachment; filename="
+                + filenName);
+
+        WriteFile write = null;
+
+        try
+        {
+            out = response.getOutputStream();
+
+            write = WriteFileFactory.getMyTXTWriter();
+
+            write.openFile(out);
+
+            WriteFileBuffer line = new WriteFileBuffer(write);
+            line.writeColumn("银行");
+            line.writeColumn("余额");
+            line.writeColumn("日期");
+
+            line.writeLine();
+
+            for (Iterator<BankBalanceVO> iter = list.iterator(); iter.hasNext();)
+            {
+                BankBalanceVO ib = iter.next();
+                line.writeColumn(ib.getBankName());
+                line.writeColumn(ib.getBalance());
+                line.writeColumn(ib.getStatDate());
+
+                line.writeLine();
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+            return null;
+        }
+        finally
+        {
+            if (write != null)
+            {
+                try
+                {
+                    write.close();
+                }
+                catch (Exception e1)
+                {
+                }
+            }
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
+
+        return null;
+    }
 
 	/**
 	 * addPaymentk
@@ -3884,4 +4000,11 @@ public class FinanceAction extends DispatchAction {
         this.baseDAO = baseDAO;
     }
 
+    public BankBalanceDAO getBankBalanceDAO() {
+        return bankBalanceDAO;
+    }
+
+    public void setBankBalanceDAO(BankBalanceDAO bankBalanceDAO) {
+        this.bankBalanceDAO = bankBalanceDAO;
+    }
 }

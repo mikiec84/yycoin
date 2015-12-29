@@ -12,6 +12,8 @@ import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.finance.bean.BankBalanceBean;
 import com.china.center.oa.finance.dao.BankBalanceDAO;
+import com.china.center.oa.finance.vo.BankBalanceVO;
+
 import java.util.List;
 
 
@@ -23,15 +25,15 @@ import java.util.List;
  * @see com.china.center.oa.finance.dao.impl.BankBalanceDAOImpl
  * @since 3.0
  */
-public class BankBalanceDAOImpl extends BaseDAO<BankBalanceBean, BankBalanceBean> implements BankBalanceDAO
+public class BankBalanceDAOImpl extends BaseDAO<BankBalanceBean, BankBalanceVO> implements BankBalanceDAO
 {
     @Override
-    public List<BankBalanceBean> query(String bank, String beginDate, String endDate) {
+    public List<BankBalanceVO> query(String bank, String beginDate, String endDate) {
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         conditionParse.addCondition("bank","like","%"+bank+"%");
         conditionParse.addCondition("date",">=", beginDate);
         conditionParse.addCondition("date","<=", endDate);
-        return this.queryEntityBeansByCondition(conditionParse);  //To change body of implemented methods use File | Settings | File Templates.
+        return this.queryEntityVOsByCondition(conditionParse);  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -134,5 +134,7 @@
 	<osgi:reference id="insImportLogDAO" interface="com.china.center.oa.finance.dao.InsImportLogDAO" />
 	
 	<osgi:reference id="invoiceinsImportDAO" interface="com.china.center.oa.finance.dao.InvoiceinsImportDAO" />
+
+    <osgi:reference id="bankBalanceDAO" interface="com.china.center.oa.finance.dao.BankBalanceDAO" />
 	
 </beans>
