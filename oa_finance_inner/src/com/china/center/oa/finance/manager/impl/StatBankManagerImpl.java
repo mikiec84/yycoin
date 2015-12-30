@@ -9,6 +9,7 @@
 package com.china.center.oa.finance.manager.impl;
 
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -282,6 +283,7 @@ public class StatBankManagerImpl implements StatBankManager
         //To change body of implemented methods use File | Settings | File Templates.
         final List<BankVO> list = this.bankDAO.listEntityVOs();
         triggerLog.info("***statBankBalance JOB is running***"+list.size());
+        final DecimalFormat decimalFormat = new DecimalFormat("#.00");
 
         try
         {
@@ -296,7 +298,7 @@ public class StatBankManagerImpl implements StatBankManager
 
                         BankBalanceBean bean = new BankBalanceBean();
                         bean.setBankId(bankVO.getId());
-                        bean.setBalance(total);
+                        bean.setBalance(Double.valueOf(decimalFormat.format(total)));
                         bean.setStatDate(TimeTools.now_short());
                         bankBalanceDAO.saveEntityBean(bean);
                     }

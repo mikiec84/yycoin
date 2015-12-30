@@ -624,33 +624,13 @@ public class FinanceAction extends DispatchAction {
 
         if (PageSeparateTools.isFirstLoad(request)) {
 			_logger.info("*****queryBankBalance*****111111111111");
-            ConditionParse condtion = new ConditionParse();
-            condtion.addWhereStr();
-			_logger.info("*****queryBankBalance*****222222222222222");
 
-
-			String beginDate = request.getParameter("beginDate");
-			String endDate = request.getParameter("endDate");
-			if (StringTools.isNullOrNone(beginDate)){
-				beginDate = TimeTools.now_short();
-			}
-			if (StringTools.isNullOrNone(endDate)){
-				endDate = TimeTools.now_short();
-			}
-			condtion.addCondition("BankBalanceBean.statDate",">=",beginDate);
-			condtion.addCondition("BankBalanceBean.statDate","<=", endDate);
-
-			String bank = request.getParameter("bank");
-			if (!StringTools.isNullOrNone(bank)){
-				condtion.addCondition("and exists (select BankBean.id from T_CENTER_BANK BankBean where BankBalanceBean.bankId = BankBean.id and BankBean.name like '%"+bank+ "%')");
-			}
-
+            ConditionParse condtion = this.conditionParseQueryBankBalance(request);
 			_logger.info("***condition***"+condtion.toString());
             int total = this.bankBalanceDAO.countByCondition(condtion.toString());
-			_logger.info("***condition***"+total)
-			;
-            PageSeparate page = new PageSeparate(total,
-                    PublicConstant.PAGE_COMMON_SIZE);
+			_logger.info("***condition total***"+total);
+
+            PageSeparate page = new PageSeparate(total, PublicConstant.PAGE_SIZE);
 
             PageSeparateTools.initPageSeparate(condtion, page, request,
                     QUERY_BANK_BALANCE);
@@ -661,8 +641,14 @@ public class FinanceAction extends DispatchAction {
 			_logger.info("*****queryBankBalance*****333333333333");
             PageSeparateTools.processSeparate(request, QUERY_BANK_BALANCE);
 
-            list = bankBalanceDAO.queryEntityVOsByCondition(
-                    PageSeparateTools.getCondition(request, QUERY_BANK_BALANCE),
+            _logger.info(PageSeparateTools.getCondition(request, QUERY_BANK_BALANCE).toString());
+            _logger.info(PageSeparateTools.getPageSeparate(request, QUERY_BANK_BALANCE).toString());
+            ConditionParse condtion = this.conditionParseQueryBankBalance(request);
+//            list = bankBalanceDAO.queryEntityVOsByCondition(
+//                    PageSeparateTools.getCondition(request, QUERY_BANK_BALANCE),
+//                    PageSeparateTools.getPageSeparate(request, QUERY_BANK_BALANCE));
+            //TODO
+            list = bankBalanceDAO.queryEntityVOsByCondition(condtion,
                     PageSeparateTools.getPageSeparate(request, QUERY_BANK_BALANCE));
         }
 
@@ -672,6 +658,38 @@ public class FinanceAction extends DispatchAction {
         return mapping.findForward("queryBankBalance");
     }
 
+    private ConditionParse conditionParseQueryBankBalance(HttpServletRequest request){
+        Map<String, String> queryOutCondtionMap = CommonTools.saveParamersToMap(request);
+
+        ConditionParse condtion = new ConditionParse();
+        condtion.addWhereStr();
+        _logger.info("*****queryBankBalance*****222222222222222***"+queryOutCondtionMap);
+
+        String beginDate = request.getParameter("beginDate");
+        String endDate = request.getParameter("endDate");
+        if (StringTools.isNullOrNone(beginDate)){
+            beginDate = TimeTools.now_short();
+        }
+        queryOutCondtionMap.put("beginDate", beginDate);
+
+
+        if (StringTools.isNullOrNone(endDate)){
+            endDate = TimeTools.now_short();
+        }
+        queryOutCondtionMap.put("endDate", endDate);
+
+        condtion.addCondition("BankBalanceBean.statDate",">=",beginDate);
+        condtion.addCondition("BankBalanceBean.statDate","<=", endDate);
+
+        String bank = request.getParameter("bank");
+        if (!StringTools.isNullOrNone(bank)){
+            condtion.addCondition("and exists (select BankBean.id from T_CENTER_BANK BankBean where BankBalanceBean.bankId = BankBean.id and BankBean.name like '%"+bank+ "%')");
+            queryOutCondtionMap.put("bank", bank);
+        }
+
+        request.getSession().setAttribute("ppmap", queryOutCondtionMap);
+        return condtion;
+    }
 
     public ActionForward export(ActionMapping mapping, ActionForm form,
                                 HttpServletRequest request, HttpServletResponse response)
@@ -696,6 +714,8 @@ public class FinanceAction extends DispatchAction {
 		List<BankBalanceVO> list = bankBalanceDAO.queryEntityVOsByCondition(OldPageSeparateTools
 				.getCondition(request, exportKey));
 		_logger.info("***export bank balance size***"+list.size());
+        _logger.info("***export condition***"+OldPageSeparateTools
+                .getCondition(request, exportKey).toString());
 
         if (ListTools.isEmptyOrNull(list))
         {

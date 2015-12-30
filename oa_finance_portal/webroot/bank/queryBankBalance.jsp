@@ -28,7 +28,7 @@
 
       function exportBankBalance(){
           if (window.confirm("确定导出当前查询结果?")){
-              document.location.href = '../finance/bank.do?method=export&customerName='+'${customerName}';
+              document.location.href = '../finance/bank.do?method=export';
           }
       }
     </script>
@@ -38,8 +38,7 @@
 <form name="formEntry" action="../finance/bank.do" method="post">
     <input type="hidden" name="method" value="queryBankBalance">
     <input type="hidden" value="1" name="firstLoad">
-    <p:navigation
-            height="22">
+    <p:navigation height="22">
         <td width="550" class="navigation">资金管理 &gt;&gt; 银行余额列表</td>
         <td width="85"></td>
     </p:navigation> <br>
@@ -50,16 +49,16 @@
             <table width="100%" align="center" cellspacing='1' class="table0">
                 <tr class="content1">
                     <td width="15%" align="center">开始时间</td>
-                    <td align="center" width="35%"><p:plugin name="beginDate" size="20"/></td>
+                    <td align="center" width="35%"><p:plugin name="beginDate" size="20" value="${ppmap.beginDate}"/></td>
                     <td width="15%" align="center">结束时间</td>
-                    <td align="center"><p:plugin name="endDate" size="20"/>
+                    <td align="center"><p:plugin name="endDate" size="20" value="${ppmap.endDate}"/>
                     </td>
                 </tr>
 
                 <tr class="content2">
                     <td width="15%" align="center">银行</td>
                     <td align="left">
-                        <input type="text" name="bank" maxlength="40" size="30" >
+                        <input type="text" name="bank" maxlength="40" size="30" value="${ppmap.bank}">
                     </td>
                     <td width="15%" align="center"></td>
                     <td align="left">

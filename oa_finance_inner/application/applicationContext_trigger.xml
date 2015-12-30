@@ -159,7 +159,8 @@
     <bean id="statBankBalanceJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="statBankBalanceJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+        <property name="cronExpression" value="0 0 23 * * ?" />
     </bean>
 
     <bean
