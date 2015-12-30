@@ -24,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.actionhelper.common.*;
 import com.china.center.oa.finance.dao.*;
 import com.china.center.oa.finance.manager.*;
 import com.china.center.oa.finance.vo.*;
@@ -41,11 +42,6 @@ import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.ActionTools;
-import com.china.center.actionhelper.common.JSONPageSeparateTools;
-import com.china.center.actionhelper.common.JSONTools;
-import com.china.center.actionhelper.common.KeyConstant;
-import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
@@ -167,6 +163,8 @@ public class FinanceAction extends DispatchAction {
 	private static final String QUERYSTAT = "queryStat";
 
 	private static final String QUERYSELFPAYMENTAPPLY = "querySelfPaymentApply";
+
+	private static final String QUERY_BANK_BALANCE = "queryBankBalance";
 
 	/**
 	 * default constructor
@@ -619,32 +617,53 @@ public class FinanceAction extends DispatchAction {
                                       HttpServletRequest request, HttpServletResponse reponse)
             throws ServletException {
         _logger.info("*****queryBankBalance*****");
+		request.getSession().setAttribute("exportKey", QUERY_BANK_BALANCE);
         CommonTools.saveParamers(request);
 
         List<BankBalanceVO> list = null;
 
         if (PageSeparateTools.isFirstLoad(request)) {
+			_logger.info("*****queryBankBalance*****111111111111");
             ConditionParse condtion = new ConditionParse();
-
             condtion.addWhereStr();
+			_logger.info("*****queryBankBalance*****222222222222222");
 
-            setInnerCondition(request, condtion);
 
-            int total = bankDAO.countByCondition(condtion.toString());
+			String beginDate = request.getParameter("beginDate");
+			String endDate = request.getParameter("endDate");
+			if (StringTools.isNullOrNone(beginDate)){
+				beginDate = TimeTools.now_short();
+			}
+			if (StringTools.isNullOrNone(endDate)){
+				endDate = TimeTools.now_short();
+			}
+			condtion.addCondition("BankBalanceBean.statDate",">=",beginDate);
+			condtion.addCondition("BankBalanceBean.statDate","<=", endDate);
 
+			String bank = request.getParameter("bank");
+			if (!StringTools.isNullOrNone(bank)){
+				condtion.addCondition("and exists (select BankBean.id from T_CENTER_BANK BankBean where BankBalanceBean.bankId = BankBean.id and BankBean.name like '%"+bank+ "%')");
+			}
+
+			_logger.info("***condition***"+condtion.toString());
+            int total = this.bankBalanceDAO.countByCondition(condtion.toString());
+			_logger.info("***condition***"+total)
+			;
             PageSeparate page = new PageSeparate(total,
                     PublicConstant.PAGE_COMMON_SIZE);
 
             PageSeparateTools.initPageSeparate(condtion, page, request,
-                    RPTQUERYBANK);
+                    QUERY_BANK_BALANCE);
 
             list = this.bankBalanceDAO.queryEntityVOsByCondition(condtion, page);
+			_logger.info("****list size***"+list.size());
         } else {
-            PageSeparateTools.processSeparate(request, RPTQUERYBANK);
+			_logger.info("*****queryBankBalance*****333333333333");
+            PageSeparateTools.processSeparate(request, QUERY_BANK_BALANCE);
 
             list = bankBalanceDAO.queryEntityVOsByCondition(
-                    PageSeparateTools.getCondition(request, RPTQUERYBANK),
-                    PageSeparateTools.getPageSeparate(request, RPTQUERYBANK));
+                    PageSeparateTools.getCondition(request, QUERY_BANK_BALANCE),
+                    PageSeparateTools.getPageSeparate(request, QUERY_BANK_BALANCE));
         }
 
 
@@ -658,18 +677,25 @@ public class FinanceAction extends DispatchAction {
                                 HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
+		String exportKey = (String) request.getSession().getAttribute(
+				"exportKey");
+
         OutputStream out = null;
 
         String filenName = "Export_" + TimeTools.now("MMddHHmmss") + ".csv";
 
         User user = (User) request.getSession().getAttribute("user");
 
-        _logger.info("export bank balance");
-        ConditionParse con = new ConditionParse();
-        String name = request.getParameter("bank");
-        String beginDate = request.getParameter("beginDate");
-        String endDate = request.getParameter("endDate");
-        List<BankBalanceVO> list = this.bankBalanceDAO.listEntityVOs();
+
+//        ConditionParse con = new ConditionParse();
+//        String name = request.getParameter("bank");
+//        String beginDate = request.getParameter("beginDate");
+//        String endDate = request.getParameter("endDate");
+//        List<BankBalanceVO> list = this.bankBalanceDAO.listEntityVOs();
+
+		List<BankBalanceVO> list = bankBalanceDAO.queryEntityVOsByCondition(OldPageSeparateTools
+				.getCondition(request, exportKey));
+		_logger.info("***export bank balance size***"+list.size());
 
         if (ListTools.isEmptyOrNull(list))
         {

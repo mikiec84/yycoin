@@ -110,5 +110,5 @@ statDate varchar(200) NOT NULL,
 balance double DEFAULT NULL,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
-insert into t_center_oamenuitem values(1654,'银行余额查询','../bank/queryBankBalance.jsp',16,1,1312,99,'银行余额查询')
+insert into t_center_oamenuitem values(1654,'银行余额查询','../finance/bank.do?method=queryBankBalance',16,1,1312,99,'银行余额查询')
 
