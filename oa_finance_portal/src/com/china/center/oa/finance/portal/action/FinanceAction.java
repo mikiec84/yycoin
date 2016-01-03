@@ -626,7 +626,6 @@ public class FinanceAction extends DispatchAction {
 			_logger.info("*****queryBankBalance*****111111111111");
 
             ConditionParse condtion = this.conditionParseQueryBankBalance(request);
-			_logger.info("***condition***"+condtion.toString());
             int total = this.bankBalanceDAO.countByCondition(condtion.toString());
 			_logger.info("***condition total***"+total);
 
@@ -688,6 +687,8 @@ public class FinanceAction extends DispatchAction {
         }
 
         request.getSession().setAttribute("ppmap", queryOutCondtionMap);
+
+        _logger.info("conditionParseQueryBankBalance***"+condtion.toString());
         return condtion;
     }
 
@@ -695,8 +696,8 @@ public class FinanceAction extends DispatchAction {
                                 HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
-		String exportKey = (String) request.getSession().getAttribute(
-				"exportKey");
+//		String exportKey = (String) request.getSession().getAttribute(
+//				"exportKey");
 
         OutputStream out = null;
 
@@ -704,18 +705,13 @@ public class FinanceAction extends DispatchAction {
 
         User user = (User) request.getSession().getAttribute("user");
 
-
-//        ConditionParse con = new ConditionParse();
-//        String name = request.getParameter("bank");
-//        String beginDate = request.getParameter("beginDate");
-//        String endDate = request.getParameter("endDate");
+        ConditionParse con = this.conditionParseQueryBankBalance(request);
 //        List<BankBalanceVO> list = this.bankBalanceDAO.listEntityVOs();
 
-		List<BankBalanceVO> list = bankBalanceDAO.queryEntityVOsByCondition(OldPageSeparateTools
-				.getCondition(request, exportKey));
+		List<BankBalanceVO> list = bankBalanceDAO.queryEntityVOsByCondition(con);
 		_logger.info("***export bank balance size***"+list.size());
-        _logger.info("***export condition***"+OldPageSeparateTools
-                .getCondition(request, exportKey).toString());
+//        _logger.info("***export condition***"+OldPageSeparateTools
+//                .getCondition(request, exportKey).toString());
 
         if (ListTools.isEmptyOrNull(list))
         {

@@ -28,7 +28,11 @@
 
       function exportBankBalance(){
           if (window.confirm("确定导出当前查询结果?")){
-              document.location.href = '../finance/bank.do?method=export';
+              var bank = $('#bank').val();
+              var beginDate = $('#beginDate').val();
+              var endDate = $('#endDate').val();
+              document.location.href = '../finance/bank.do?method=export&bank='+bank+"&beginDate="+
+                beginDate+"&endDate="+endDate;
           }
       }
     </script>
@@ -58,7 +62,7 @@
                 <tr class="content2">
                     <td width="15%" align="center">银行</td>
                     <td align="left">
-                        <input type="text" name="bank" maxlength="40" size="30" value="${ppmap.bank}">
+                        <input type="text" id="bank" name="bank" maxlength="40" size="30" value="${ppmap.bank}">
                     </td>
                     <td width="15%" align="center"></td>
                     <td align="left">
