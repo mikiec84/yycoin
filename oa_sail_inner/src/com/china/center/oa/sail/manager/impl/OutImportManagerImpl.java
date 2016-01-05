@@ -1165,14 +1165,25 @@ public class OutImportManagerImpl implements OutImportManager
                 }
 
                 //2015/6/14 银行指 客户名中包括“适用银行”字段值
-                if (out.getCustomerName().contains(gift.getBank())){
-                     _logger.info(out.getCustomerName()+" bank is suitable:"+gift.getBank());
-                } else{
-                    _logger.warn(out.getCustomerName()+" bank is not suitable:"+gift.getBank());
-                    continue;
+                //2016/1/5 银行可多选，用分号；分割
+                String bank = gift.getBank();
+                String customerName = out.getCustomerName();
+                String[] banks = bank.split(";");
+                boolean suitable = false;
+                for (String b: banks){
+                    if (customerName.contains(b)){
+                        _logger.info(customerName+" bank is suitable:"+bank);
+                        suitable = true;
+                        break;
+                    } else{
+                        _logger.warn(customerName+" bank is not suitable:"+bank);
+                        continue;
+                    }
                 }
 
-                qualifiedGiftList.add(gift);
+                if (suitable){
+                    qualifiedGiftList.add(gift);
+                }
             }
         }
 

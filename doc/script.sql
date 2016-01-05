@@ -112,3 +112,7 @@ PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
 insert into t_center_oamenuitem values(1654,'银行余额查询','../finance/bank.do?method=queryBankBalance&load=1',16,1,1312,99,'银行余额查询')
 
+--2016/1/5 赠品平台优化
+alter table T_CENTER_VS_GIFT add column industryName varchar(100) default '', add column industryName2 varchar(100) default '', add column industryName3 varchar(100) default '', add column city varchar(100) default '', add column stafferName varchar(100) default ''
+
+

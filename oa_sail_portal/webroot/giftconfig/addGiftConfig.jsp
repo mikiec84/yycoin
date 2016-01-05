@@ -91,7 +91,27 @@ function clears(idx)
             </p:cell>
 
             <p:cell title="适用银行">
-                <input type="text" name="bank" id="bank">
+                <input type="text" name="bank" id="bank" placeholder="可多选，以分号;分割">
+            </p:cell>
+
+            <p:cell title="事业部">
+                <input type="text" name="industryName" id="industryName" placeholder="可多选，以分号;分割">
+            </p:cell>
+
+            <p:cell title="大区">
+                <input type="text" name="industryName2" id="industryName2" placeholder="可多选，以分号;分割">
+            </p:cell>
+
+            <p:cell title="部门">
+                <input type="text" name="industryName3" id="industryName3" placeholder="可多选，以分号;分割">
+            </p:cell>
+
+            <p:cell title="人员">
+                <input type="text" name="stafferName" id="stafferName" placeholder="可多选，以分号;分割">
+            </p:cell>
+
+            <p:cell title="城市">
+                <input type="text" name="city" id="city" placeholder="可多选，以分号;分割">
             </p:cell>
 
             <p:pro field="beginDate" />

@@ -76,6 +76,26 @@ function load()
                 <input type="text" name="bank" id="bank" value="${bean.bank}">
             </p:cell>
 
+            <p:cell title="事业部">
+                <input type="text" name="industryName" id="industryName" placeholder="可多选，以分号;分割" value="${bean.industryName}">
+            </p:cell>
+
+            <p:cell title="大区">
+                <input type="text" name="industryName2" id="industryName2" placeholder="可多选，以分号;分割" value="${bean.industryName2}">
+            </p:cell>
+
+            <p:cell title="部门">
+                <input type="text" name="industryName3" id="industryName3" placeholder="可多选，以分号;分割" value="${bean.industryName3}">
+            </p:cell>
+
+            <p:cell title="人员">
+                <input type="text" name="stafferName" id="stafferName" placeholder="可多选，以分号;分割" value="${bean.stafferName}">
+            </p:cell>
+
+            <p:cell title="城市">
+                <input type="text" name="city" id="city" placeholder="可多选，以分号;分割" value="${bean.city}">
+            </p:cell>
+
             <p:pro field="beginDate" />
 
             <p:pro field="endDate" />

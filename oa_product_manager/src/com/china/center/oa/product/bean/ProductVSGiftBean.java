@@ -59,6 +59,31 @@ public class ProductVSGiftBean implements Serializable
     @Html(title = "备注", type = Element.TEXTAREA, maxLength = 255)
     private String description = "";
 
+    /**
+     * 2016/1/5 #156 增加事业部，大区，部门，人员，城市的选择字段
+     * 多选，用分号;分割
+     */
+
+
+    @Html(title = "事业部", maxLength = 100)
+    private String industryName = "";
+
+    @Html(title = "大区", maxLength = 100)
+    private String industryName2 = "";
+
+    @Html(title = "部门", maxLength = 100)
+    private String industryName3 = "";
+
+
+    /**
+     * 城市
+     */
+    @Html(title = "城市", maxLength = 100)
+    private String city = "";
+
+    @Html(title = "人员", maxLength = 100)
+    private String stafferName = "";
+
 	public ProductVSGiftBean()
 	{
 	}
@@ -151,6 +176,46 @@ public class ProductVSGiftBean implements Serializable
         this.sailAmount = sailAmount;
     }
 
+    public String getIndustryName() {
+        return industryName;
+    }
+
+    public void setIndustryName(String industryName) {
+        this.industryName = industryName;
+    }
+
+    public String getIndustryName2() {
+        return industryName2;
+    }
+
+    public void setIndustryName2(String industryName2) {
+        this.industryName2 = industryName2;
+    }
+
+    public String getIndustryName3() {
+        return industryName3;
+    }
+
+    public void setIndustryName3(String industryName3) {
+        this.industryName3 = industryName3;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getStafferName() {
+        return stafferName;
+    }
+
+    public void setStafferName(String stafferName) {
+        this.stafferName = stafferName;
+    }
+
     @Override
     public String toString() {
         return "ProductVSGiftBean{" +
@@ -164,6 +229,11 @@ public class ProductVSGiftBean implements Serializable
                 ", beginDate='" + beginDate + '\'' +
                 ", endDate='" + endDate + '\'' +
                 ", description='" + description + '\'' +
+                ", industryName='" + industryName + '\'' +
+                ", industryName2='" + industryName2 + '\'' +
+                ", industryName3='" + industryName3 + '\'' +
+                ", city='" + city + '\'' +
+                ", stafferName='" + stafferName + '\'' +
                 '}';
     }
 }
