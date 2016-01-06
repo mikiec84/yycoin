@@ -1,17 +1,11 @@
 package com.china.center.oa.sail.manager.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
+import com.china.center.oa.client.vo.CustomerVO;
+import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.PackageVO;
@@ -1130,7 +1124,9 @@ public class OutImportManagerImpl implements OutImportManager
     	
     	List<ProductVSGiftVO> giftList = productVSGiftDAO.queryEntityVOsByFK(productId);
 
-        List<ProductVSGiftVO> qualifiedGiftList = new ArrayList<ProductVSGiftVO>();
+//        List<ProductVSGiftVO> qualifiedGiftList = new ArrayList<ProductVSGiftVO>();
+        int priority = -1;
+        ProductVSGiftVO giftVO = null;
     	
     	if (ListTools.isEmptyOrNull(giftList))
     		return;
@@ -1138,56 +1134,62 @@ public class OutImportManagerImpl implements OutImportManager
             _logger.info("giftList size:"+giftList.size());
             //2015/5/2 必须在有效期内才生成赠品订单
             for (ProductVSGiftVO gift: giftList){
-                _logger.info("gift configuration:"+gift);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                try{
-                    Date end = sdf.parse(gift.getEndDate());
-                    Date begin = sdf.parse(gift.getBeginDate());
-
-                    //2015/6/14 compare with PODATE
-                    if (StringTools.isNullOrNone(out.getPodate())){
-                        Date now = new Date();
-                        if (end.before(now) || now.before(begin)){
-                            _logger.warn(gift+" gift is out of date:"+now);
-                            continue;
-                        }
-                    } else{
-                        Date poDate = sdf.parse(out.getPodate());
-                        if (poDate.before(begin) || poDate.after(end)){
-                            _logger.warn(gift+" gift is out of date:"+poDate);
-                            continue;
-                        }
-                    }
-
-                }catch(Exception e){
-                    _logger.error(productId+" Exception when create gift out:",e);
-                    continue ;
+                int result = this.satisfy(out, gift);
+                if (result>priority){
+                    _logger.info("***update priority from "+priority+" to "+result);
+                    priority = result;
+                    giftVO = gift;
                 }
-
-                //2015/6/14 银行指 客户名中包括“适用银行”字段值
-                //2016/1/5 银行可多选，用分号；分割
-                String bank = gift.getBank();
-                String customerName = out.getCustomerName();
-                String[] banks = bank.split(";");
-                boolean suitable = false;
-                for (String b: banks){
-                    if (customerName.contains(b)){
-                        _logger.info(customerName+" bank is suitable:"+bank);
-                        suitable = true;
-                        break;
-                    } else{
-                        _logger.warn(customerName+" bank is not suitable:"+bank);
-                        continue;
-                    }
-                }
-
-                if (suitable){
-                    qualifiedGiftList.add(gift);
-                }
+//                _logger.info("gift configuration:"+gift);
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//                try{
+//                    Date end = sdf.parse(gift.getEndDate());
+//                    Date begin = sdf.parse(gift.getBeginDate());
+//
+//                    //2015/6/14 compare with PODATE
+//                    if (StringTools.isNullOrNone(out.getPodate())){
+//                        Date now = new Date();
+//                        if (end.before(now) || now.before(begin)){
+//                            _logger.warn(gift+" gift is out of date:"+now);
+//                            continue;
+//                        }
+//                    } else{
+//                        Date poDate = sdf.parse(out.getPodate());
+//                        if (poDate.before(begin) || poDate.after(end)){
+//                            _logger.warn(gift+" gift is out of date:"+poDate);
+//                            continue;
+//                        }
+//                    }
+//
+//                }catch(Exception e){
+//                    _logger.error(productId+" Exception when create gift out:",e);
+//                    continue ;
+//                }
+//
+//                //2015/6/14 银行指 客户名中包括“适用银行”字段值
+//                //2016/1/5 银行可多选，用分号；分割
+//                String bank = gift.getBank();
+//                String customerName = out.getCustomerName();
+//                String[] banks = bank.split(";");
+//                boolean suitable = false;
+//                for (String b: banks){
+//                    if (customerName.contains(b)){
+//                        _logger.info(customerName+" bank is suitable:"+bank);
+//                        suitable = true;
+//                        break;
+//                    } else{
+//                        _logger.warn(customerName+" bank is not suitable:"+bank);
+//                        continue;
+//                    }
+//                }
+//
+//                if (suitable){
+//                    qualifiedGiftList.add(gift);
+//                }
             }
         }
 
-        if (ListTools.isEmptyOrNull(qualifiedGiftList)){
+        if (priority == -1){
             _logger.warn("qualifiedGiftList size is zero, so will not create gift out bean!");
         } else{
             OutBean newOutBean = new OutBean();
@@ -1218,28 +1220,49 @@ public class OutImportManagerImpl implements OutImportManager
 
             outDAO.saveEntityBean(newOutBean);
 
-            for (ProductVSGiftVO each : qualifiedGiftList)
-            {
-                BaseBean newBaseBean = new BaseBean();
+            //2016/1/6 多个赠送活动满足条件，只允许参加一个
 
-                BeanUtil.copyProperties(newBaseBean, base);
+            BaseBean newBaseBean = new BaseBean();
 
-                newBaseBean.setId(commonDAO.getSquenceString());
+            BeanUtil.copyProperties(newBaseBean, base);
 
-                //2015/6/14 检查销售数量与赠品数量
-                double giftPercentage = ((double)each.getAmount())/each.getSailAmount();
-                newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
+            newBaseBean.setId(commonDAO.getSquenceString());
 
-                newBaseBean.setProductId(each.getGiftProductId());
-                newBaseBean.setProductName(each.getGiftProductName());
-                newBaseBean.setPrice(0);
-                newBaseBean.setValue(0);
-                newBaseBean.setProfit(0);
-                newBaseBean.setProfitRatio(0);
-                newBaseBean.setOutId(newOutId);
+            //2015/6/14 检查销售数量与赠品数量
+            double giftPercentage = ((double)giftVO.getAmount())/giftVO.getSailAmount();
+            newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
 
-                baseDAO.saveEntityBean(newBaseBean);
-            }
+            newBaseBean.setProductId(giftVO.getGiftProductId());
+            newBaseBean.setProductName(giftVO.getGiftProductName());
+            newBaseBean.setPrice(0);
+            newBaseBean.setValue(0);
+            newBaseBean.setProfit(0);
+            newBaseBean.setProfitRatio(0);
+            newBaseBean.setOutId(newOutId);
+
+            baseDAO.saveEntityBean(newBaseBean);
+//            for (ProductVSGiftVO each : qualifiedGiftList)
+//            {
+//                BaseBean newBaseBean = new BaseBean();
+//
+//                BeanUtil.copyProperties(newBaseBean, base);
+//
+//                newBaseBean.setId(commonDAO.getSquenceString());
+//
+//                //2015/6/14 检查销售数量与赠品数量
+//                double giftPercentage = ((double)each.getAmount())/each.getSailAmount();
+//                newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
+//
+//                newBaseBean.setProductId(each.getGiftProductId());
+//                newBaseBean.setProductName(each.getGiftProductName());
+//                newBaseBean.setPrice(0);
+//                newBaseBean.setValue(0);
+//                newBaseBean.setProfit(0);
+//                newBaseBean.setProfitRatio(0);
+//                newBaseBean.setOutId(newOutId);
+//
+//                baseDAO.saveEntityBean(newBaseBean);
+//            }
 
             // 配送
             List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
@@ -1258,23 +1281,6 @@ public class OutImportManagerImpl implements OutImportManager
                 newDist.setOutId(newOutId);
 
                 distributionDAO.saveEntityBean(newDist);
-
-                // 发货
-/*        	List<ConsignBean> consignList = consignDAO.queryConsignByDistId(distId);
-
-        	for(ConsignBean consign : consignList)
-        	{
-        		ConsignBean newConsign = new ConsignBean();
-
-        		BeanUtil.copyProperties(newConsign, consign);
-
-        		newConsign.setFullId(newOutId);
-        		newConsign.setDistId(newDistId);
-
-        		newConsign.setGid(commonDAO.getSquenceString20());
-
-        		consignDAO.addConsign(newConsign);
-        	}*/
             }
 
             // 记录退货审批日志 操作人系统，自动审批
@@ -1293,8 +1299,167 @@ public class OutImportManagerImpl implements OutImportManager
 
             flowLogDAO.saveEntityBean(log);
         }
-    	
+    }
 
+    /** 2015/1/6 #156
+     * check whether OutBean satisfy gift config
+     * @param out
+     * @param gift
+     * @return 优先级从高到低为人员～城市～部门～大区～事业部～银行
+     */
+    private int satisfy(OutBean out, ProductVSGiftVO gift) {
+        final Map<String,Integer> priority = new HashMap<String ,Integer>();
+        priority.put("人员", 6);
+        priority.put("城市", 5);
+        priority.put("部门", 4);
+        priority.put("大区", 3);
+        priority.put("事业部", 2);
+        priority.put("银行", 1);
+
+        int result = -1;
+        String msg = out+" vs gift configuration:"+gift;
+        _logger.info(msg);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try{
+            Date end = sdf.parse(gift.getEndDate());
+            Date begin = sdf.parse(gift.getBeginDate());
+
+            //2015/6/14 compare with PODATE
+            if (StringTools.isNullOrNone(out.getPodate())){
+                Date now = new Date();
+                if (end.before(now) || now.before(begin)){
+                    _logger.warn(gift+" gift is out of date:"+now);
+                    return -1;
+                }
+            } else{
+                Date poDate = sdf.parse(out.getPodate());
+                if (poDate.before(begin) || poDate.after(end)){
+                    _logger.warn(gift+" gift is out of date:"+poDate);
+                    return -1;
+                }
+            }
+
+        }catch(Exception e){
+            _logger.error(" Exception when create gift out:"+msg,e);
+            return -1 ;
+        }
+
+
+
+        //2015/6/14 银行指 客户名中包括“适用银行”字段值
+        //2016/1/5 银行可多选，用分号；分割
+        String bank = gift.getBank();
+        if (!StringTools.isNullOrNone(bank)){
+            String customerName = out.getCustomerName();
+            String[] banks = bank.split(";");
+            if (!this.contains2(banks, customerName)){
+                _logger.warn(customerName+" bank is not suitable:"+bank);
+                return -1;
+            }else{
+                result = priority.get("银行");
+            }
+        }
+
+        //事业部，大区，部门，人员就取人员管理上面的信息
+        StafferVO stafferVO = this.stafferDAO.findVO(out.getStafferId());
+
+        if (stafferVO!= null){
+            //事业部
+            String industryName = gift.getIndustryName();
+            if (!StringTools.isNullOrNone(industryName)){
+                String[] industryNames = industryName.split(";");
+                if (!this.contains(industryNames, stafferVO.getIndustryName())){
+                    _logger.info(industryName+" is not suitable:"+stafferVO.getIndustryName());
+                    return -1;
+                } else{
+                   result = priority.get("事业部");
+                }
+            }
+
+            //大区
+            String industryName2 = gift.getIndustryName2();
+            if (!StringTools.isNullOrNone(industryName2)){
+                String[] industryName2s = industryName2.split(";");
+                if (!this.contains(industryName2s, stafferVO.getIndustryName2())){
+                    _logger.info(industryName2+" is not suitable:"+stafferVO.getIndustryName2());
+                    return -1;
+                } else{
+                    result = priority.get("大区");
+                }
+            }
+
+            //部门
+            String industryName3 = gift.getIndustryName3();
+            if (!StringTools.isNullOrNone(industryName3)){
+                String[] industryName3s = industryName3.split(";");
+                if (!this.contains(industryName3s, stafferVO.getIndustryName3())){
+                    _logger.info(industryName3+" is not suitable:"+stafferVO.getIndustryName3());
+                    return -1;
+                }  else{
+                    result = priority.get("部门");
+                }
+            }
+        }
+
+        //城市
+        String city = gift.getCity();
+        if (!StringTools.isNullOrNone(city)){
+            //城市取客户信息表中的城市信息
+            CustomerVO customerVO = this.customerMainDAO.findVO(out.getCustomerId());
+            if (customerVO!= null){
+                String customerCity = customerVO.getCityName();
+                String[] cities = city.split(";");
+                if (!this.contains(cities, city)){
+                    _logger.info(customerCity+" is not suitable:"+city);
+                    return -1;
+                } else{
+                    result = priority.get("城市");
+                }
+            }
+        }
+
+
+        //人员
+        String stafferName = gift.getStafferName();
+        if (!StringTools.isNullOrNone(stafferName)){
+           String[] stafferNames = stafferName.split(";");
+           String staffer = out.getStafferName();
+            if (!this.contains(stafferNames, staffer)){
+                _logger.info(stafferName+" is not suitable:"+staffer);
+                return -1;
+            } else{
+                result = priority.get("人员");
+            }
+        }
+
+        _logger.info(msg+" satisfy gift config:"+gift+"***result***"+result);
+        return result;
+    }
+
+    /**
+     * whether array contains element
+     * @param array
+     * @param element
+     * @return
+     */
+    private boolean contains(String[] array, String element){
+        List<String> list  = Arrays.asList(array);
+        return list.contains(element);
+    }
+
+    /**
+     * whether element contains any of array
+     * @param array
+     * @param element
+     * @return
+     */
+    private boolean contains2(String[] array, String element){
+        for (String el : array){
+            if (element.contains(el)){
+                return true;
+            }
+        }
+        return false;
     }
     
 	/**
