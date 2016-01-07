@@ -1409,7 +1409,7 @@ public class OutImportManagerImpl implements OutImportManager
             if (customerVO!= null){
                 String customerCity = customerVO.getCityName();
                 String[] cities = city.split(";");
-                if (!this.contains(cities, city)){
+                if (!this.contains(cities, customerCity)){
                     _logger.info(customerCity+" is not suitable:"+city);
                     return -1;
                 } else{
