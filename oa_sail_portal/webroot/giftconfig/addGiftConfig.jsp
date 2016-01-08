@@ -91,27 +91,27 @@ function clears(idx)
             </p:cell>
 
             <p:cell title="适用银行">
-                <input type="text" name="bank" id="bank" placeholder="可多选，以分号;分割">
+                <input type="text" name="bank" id="bank" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:cell title="事业部">
-                <input type="text" name="industryName" id="industryName" placeholder="可多选，以分号;分割">
+                <input type="text" name="industryName" id="industryName" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:cell title="大区">
-                <input type="text" name="industryName2" id="industryName2" placeholder="可多选，以分号;分割">
+                <input type="text" name="industryName2" id="industryName2" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:cell title="部门">
-                <input type="text" name="industryName3" id="industryName3" placeholder="可多选，以分号;分割">
+                <input type="text" name="industryName3" id="industryName3" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:cell title="人员">
-                <input type="text" name="stafferName" id="stafferName" placeholder="可多选，以分号;分割">
+                <input type="text" name="stafferName" id="stafferName" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:cell title="城市">
-                <input type="text" name="city" id="city" placeholder="可多选，以分号;分割">
+                <input type="text" name="city" id="city" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:pro field="beginDate" />
@@ -125,7 +125,7 @@ function clears(idx)
                         class="button_class" onclick="clears(1)">&nbsp;&nbsp;
 			</p:pro>
 
-            <p:pro field="sailAmount" value="0" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="sailAmount" value="0" innerString="oncheck='isMathNumber'"/>
 
             <p:pro field="giftProductId" value="赠送商品品名" innerString="size=60">
                 <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
@@ -134,7 +134,7 @@ function clears(idx)
                        class="button_class" onclick="clears(2)">&nbsp;&nbsp;
             </p:pro>
 
-            <p:pro field="amount" value="0" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="amount" value="0" innerString="oncheck='isMathNumber'"/>
 			
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 

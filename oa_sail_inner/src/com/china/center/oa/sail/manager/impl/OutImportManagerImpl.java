@@ -1344,7 +1344,18 @@ public class OutImportManagerImpl implements OutImportManager
             return -1 ;
         }
 
+		//如果所有条件都不设置，默认都参加活动
+		if (StringTools.isNullOrNone(gift.getStafferName()) &&
+				StringTools.isNullOrNone(gift.getCity()) &&
+				StringTools.isNullOrNone(gift.getIndustryName()) &&
+				StringTools.isNullOrNone(gift.getIndustryName2()) &&
+				StringTools.isNullOrNone(gift.getIndustryName3()) &&
+				StringTools.isNullOrNone(gift.getBank())
+				){
+			_logger.info("gift satisfy default rule ***"+gift);
+			return 100;
 
+		}
 
         //2015/6/14 银行指 客户名中包括“适用银行”字段值
         //2016/1/5 银行可多选，用分号；分割
