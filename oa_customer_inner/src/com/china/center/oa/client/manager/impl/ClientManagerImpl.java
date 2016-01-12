@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.china.center.oa.client.vo.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,15 +75,6 @@ import com.china.center.oa.client.dao.DestStafferVSCustomerDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.listener.ClientListener;
 import com.china.center.oa.client.manager.ClientManager;
-import com.china.center.oa.client.vo.CiticBranchVO;
-import com.china.center.oa.client.vo.CustomerCorporationApplyVO;
-import com.china.center.oa.client.vo.CustomerCorporationVO;
-import com.china.center.oa.client.vo.CustomerDepartApplyVO;
-import com.china.center.oa.client.vo.CustomerDepartVO;
-import com.china.center.oa.client.vo.CustomerDistAddrApplyVO;
-import com.china.center.oa.client.vo.CustomerDistAddrVO;
-import com.china.center.oa.client.vo.CustomerIndividualApplyVO;
-import com.china.center.oa.client.vo.CustomerIndividualVO;
 import com.china.center.oa.client.vs.DestStafferVSCustomerBean;
 import com.china.center.oa.client.vs.StafferVSCustomerBean;
 import com.china.center.oa.customer.constant.CustomerConstant;
@@ -2291,8 +2283,35 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
     {
         return stafferVSCustomerDAO.countByStafferIdAndCustomerId(stafferId, customerId) > 0;
     }
-    
-	/**
+
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public void importCustomer(List<CustomerVO> customerVOs) throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        if (!ListTools.isEmptyOrNull(customerVOs)){
+             for (CustomerVO customerVO: customerVOs){
+                 CustomerBean customerBean = new CustomerBean();
+                 BeanUtil.copyProperties(customerBean,customerVO);
+                 //TODO
+                 customerBean.setId("");
+                 customerBean.setType(1);
+
+                 customerBean.setStatus(CustomerConstant.REAL_STATUS_USED);
+                 this.customerMainDAO.saveEntityBean(customerBean);
+
+                 StafferBean stafferBean = this.stafferDAO.findyStafferByName(customerVO.getStafferName());
+                 if (stafferBean!= null){
+                     StafferVSCustomerBean vs = new StafferVSCustomerBean();
+                     vs.setStafferId(stafferBean.getId());
+                     vs.setCustomerId(customerBean.getId());
+                     this.addStafferVSCustomer(vs);
+                 }
+             }
+            _logger.info("import customer size:"+customerVOs.size());
+        }
+    }
+
+    /**
 	 * @return the commonDAO
 	 */
 	public CommonDAO getCommonDAO()

@@ -139,6 +139,9 @@
 	
 	<osgi:reference id="customerDistAddrHisDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrHisDAO" />
 	<osgi:reference id="customerDistAddrApplyDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrApplyDAO" />
-	<osgi:reference id="customerDistAddrDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrDAO" />	
+	<osgi:reference id="customerDistAddrDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrDAO" />
+
+    <osgi:reference id="provinceDAO" interface="com.china.center.oa.publics.dao.ProvinceDAO" />
+    <osgi:reference id="cityDAO" interface="com.china.center.oa.publics.dao.CityDAO" />
 	
 </beans>

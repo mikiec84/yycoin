@@ -12,12 +12,9 @@ import com.china.center.oa.client.bean.CustomerCorporationApplyBean;
 import com.china.center.oa.client.bean.CustomerDepartApplyBean;
 import com.china.center.oa.client.bean.CustomerIndividualApplyBean;
 import com.china.center.oa.client.listener.ClientListener;
-import com.china.center.oa.client.vo.CustomerCorporationApplyVO;
-import com.china.center.oa.client.vo.CustomerCorporationVO;
-import com.china.center.oa.client.vo.CustomerDepartApplyVO;
-import com.china.center.oa.client.vo.CustomerDepartVO;
-import com.china.center.oa.client.vo.CustomerIndividualApplyVO;
-import com.china.center.oa.client.vo.CustomerIndividualVO;
+import com.china.center.oa.client.vo.*;
+
+import java.util.List;
 
 
 public interface ClientManager extends ListenerManager<ClientListener>
@@ -107,4 +104,6 @@ public interface ClientManager extends ListenerManager<ClientListener>
     boolean hasCustomerAuth2(String stafferId, String customerId);
     
     boolean batchTransCustomer(User user, int type) throws MYException;
+
+    void importCustomer(List<CustomerVO> customerVOList) throws MYException;
 }
