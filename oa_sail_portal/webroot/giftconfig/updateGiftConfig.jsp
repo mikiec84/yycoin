@@ -92,6 +92,10 @@ function load()
                 <input type="text" name="stafferName" id="stafferName" placeholder="可多选，以分号;分割" value="${bean.stafferName}">
             </p:cell>
 
+            <p:cell title="省份">
+                <input type="text" name="province" id="province" placeholder="可多选，以分号;分割" value="${bean.province}">
+            </p:cell>
+
             <p:cell title="城市">
                 <input type="text" name="city" id="city" placeholder="可多选，以分号;分割" value="${bean.city}">
             </p:cell>

@@ -1134,6 +1134,7 @@ public class OutImportManagerImpl implements OutImportManager
             _logger.info("giftList size:"+giftList.size());
             //2015/5/2 必须在有效期内才生成赠品订单
             for (ProductVSGiftVO gift: giftList){
+				_logger.info("*************check gift************"+gift);
                 int result = this.satisfy(out, gift);
                 if (result>priority){
                     _logger.info("***update priority from "+priority+" to "+result);
@@ -1306,11 +1307,13 @@ public class OutImportManagerImpl implements OutImportManager
      * @param out
      * @param gift
      * @return 优先级从高到低为人员～城市～部门～大区～事业部～银行
+	 * 2015/1/12 新增“省份”，优先级在城市 和部门 中间
      */
     private int satisfy(OutBean out, ProductVSGiftVO gift) {
         final Map<String,Integer> priority = new HashMap<String ,Integer>();
-        priority.put("人员", 6);
-        priority.put("城市", 5);
+        priority.put("人员", 7);
+        priority.put("城市", 6);
+		priority.put("省份", 5);
         priority.put("部门", 4);
         priority.put("大区", 3);
         priority.put("事业部", 2);
@@ -1412,22 +1415,38 @@ public class OutImportManagerImpl implements OutImportManager
             }
         }
 
-        //城市
-        String city = gift.getCity();
-        if (!StringTools.isNullOrNone(city)){
-            //城市取客户信息表中的城市信息
-            CustomerVO customerVO = this.customerMainDAO.findVO(out.getCustomerId());
-            if (customerVO!= null){
-                String customerCity = customerVO.getCityName();
-                String[] cities = city.split(";");
-                if (!this.contains(cities, customerCity)){
-                    _logger.info(customerCity+" is not suitable:"+city);
-                    return -1;
-                } else{
-                    result = priority.get("城市");
-                }
-            }
-        }
+		CustomerVO customerVO = this.customerMainDAO.findVO(out.getCustomerId());
+		if (customerVO!= null){
+			//省份
+			String province = gift.getProvince();
+			if (!StringTools.isNullOrNone(province)){
+				//省份取客户信息表中的省份信息
+				String customerProvince = customerVO.getProvinceName();
+				String[] provinces = province.split(";");
+				if (!this.contains(provinces, customerProvince)){
+					_logger.info(customerProvince+" is not suitable:"+province);
+					return -1;
+				} else{
+					result = priority.get("省份");
+				}
+			}
+
+			//城市
+			String city = gift.getCity();
+			if (!StringTools.isNullOrNone(city)){
+				//城市取客户信息表中的城市信息
+				//城市
+				String customerCity = customerVO.getCityName();
+				String[] cities = city.split(";");
+				if (!this.contains(cities, customerCity)){
+					_logger.info(customerCity+" is not suitable:"+city);
+					return -1;
+				} else{
+					result = priority.get("城市");
+				}
+			}
+		}
+
 
 
         //人员

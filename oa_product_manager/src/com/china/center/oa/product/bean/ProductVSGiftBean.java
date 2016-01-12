@@ -81,6 +81,12 @@ public class ProductVSGiftBean implements Serializable
     @Html(title = "城市", maxLength = 100)
     private String city = "";
 
+    /**
+     * 省份
+     */
+    @Html(title = "省份", maxLength = 100)
+    private String province = "";
+
     @Html(title = "人员", maxLength = 100)
     private String stafferName = "";
 
@@ -216,6 +222,14 @@ public class ProductVSGiftBean implements Serializable
         this.stafferName = stafferName;
     }
 
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
     @Override
     public String toString() {
         return "ProductVSGiftBean{" +
@@ -233,6 +247,7 @@ public class ProductVSGiftBean implements Serializable
                 ", industryName2='" + industryName2 + '\'' +
                 ", industryName3='" + industryName3 + '\'' +
                 ", city='" + city + '\'' +
+                ", province='" + province + '\'' +
                 ", stafferName='" + stafferName + '\'' +
                 '}';
     }
