@@ -192,9 +192,6 @@ public class PackageManagerImpl implements PackageManager {
 	public void createPackage()
 	{
         synchronized (this.lock){
-            String msg = "*******************createPackage 开始统计***********************";
-            System.out.println(msg);
-            triggerLog.info(msg);
 
             long statsStar = System.currentTimeMillis();
 
@@ -234,35 +231,43 @@ public class PackageManagerImpl implements PackageManager {
 	 */
 	private void processOut() throws MYException
 	{
-		List<PreConsignBean> list = preConsignDAO.listEntityBeans();
-		
+        ConditionParse conditionParse = new ConditionParse();
+
+		List<PreConsignBean> list = preConsignDAO.queryEntityBeansByLimit(conditionParse, 200);
+
+        String msg = "*******************createPackage with size***********************"+list.size();
+        System.out.println(msg);
+        triggerLog.info(msg);
+
+        int count = 0;
 		for (PreConsignBean each : list) {
 			OutVO outBean = outDAO.findVO(each.getOutId());
 			
 			if (null != outBean) {
-				triggerLog.info("======is out======" + each.getOutId());
+				triggerLog.info(count+"======is out======" + each.getOutId());
 				createPackage(each, outBean);
 			} else {
 				InvoiceinsBean insBean = invoiceinsDAO.find(each.getOutId());
 				
 				if (null != insBean) {
-					triggerLog.info("======is invoiceins======" + each.getOutId());
+					triggerLog.info(count+"======is invoiceins======" + each.getOutId());
 					createInsPackage(each, insBean.getId());
 				} else {
                     //2015/3/1 预开票申请也需要进入CK单
                     PreInvoiceApplyVO applyBean = this.preInvoiceApplyDAO.findVO(each.getOutId());
 
                     if (applyBean!= null){
-                        triggerLog.info("======is PreInvoiceApplyBean======" + each.getOutId());
+                        triggerLog.info(count+"======is PreInvoiceApplyBean======" + each.getOutId());
                         this.createPreInsPackage(each, applyBean);
                     } else{
-                        triggerLog.warn("======is other, direct delete, handle nothing======"+each.getOutId());
+                        triggerLog.warn(count+"======is other, direct delete, handle nothing======"+each.getOutId());
                         preConsignDAO.deleteEntityBean(each.getId());
 
                         continue;
                     }
 				}
 			}
+            count++;
 		}
 	}
 
