@@ -2292,9 +2292,12 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
              for (CustomerVO customerVO: customerVOs){
                  CustomerBean customerBean = new CustomerBean();
                  BeanUtil.copyProperties(customerBean,customerVO);
-                 //TODO
-                 customerBean.setId("");
-                 customerBean.setType(1);
+
+				 String id = commonDAO.getSquenceString();
+                 customerBean.setId(id);
+                 customerBean.setType(CustomerConstant.NATURE_CORPORATION);
+				 customerBean.setCreateTime(TimeTools.now());
+				 customerBean.setLogTime(TimeTools.now());
 
                  customerBean.setStatus(CustomerConstant.REAL_STATUS_USED);
                  this.customerMainDAO.saveEntityBean(customerBean);
