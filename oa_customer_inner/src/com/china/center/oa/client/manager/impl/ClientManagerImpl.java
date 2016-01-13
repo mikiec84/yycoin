@@ -2294,7 +2294,11 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
                  BeanUtil.copyProperties(customerBean,customerVO);
 
 				 String id = commonDAO.getSquenceString();
+                 // 自动生成code
+                 String code = commonDAO.getSquenceString20();
                  customerBean.setId(id);
+                 customerBean.setCode(code);
+
                  customerBean.setType(CustomerConstant.NATURE_CORPORATION);
 				 customerBean.setCreateTime(TimeTools.now());
 				 customerBean.setLogTime(TimeTools.now());
