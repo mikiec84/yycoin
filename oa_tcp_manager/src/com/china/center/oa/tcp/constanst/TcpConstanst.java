@@ -151,11 +151,15 @@ public interface TcpConstanst
 
 
     //2015/7/18 新增激励申请流程 “初始--待营销管理审批--待总裁（副总经理）审批--待总经理审批”
+    //2016/1/14 #152: 激励流程改为：初始--大区总监--待营销管理审批--待总经理审批--结束
     /**
      * 营销管理
      */
     @Defined(key = "tcpStatus", value = "待营销管理审批")
     int TCP_STATUS_MARKET_MANAGER = 30;
+
+    @Defined(key = "tcpStatus", value = "大区总监")
+    int TCP_STATUS_REGION_DIRECTOR = 31;
     
     /**
      * 结束
