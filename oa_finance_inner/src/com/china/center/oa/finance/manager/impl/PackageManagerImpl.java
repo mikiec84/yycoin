@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
 import com.china.center.oa.sail.bean.*;
@@ -233,7 +234,13 @@ public class PackageManagerImpl implements PackageManager {
 	{
         ConditionParse conditionParse = new ConditionParse();
 
-		List<PreConsignBean> list = preConsignDAO.queryEntityBeansByLimit(conditionParse, 200);
+        int batchSize = 50;
+        String batchSizeStr = ConfigLoader.getProperty("batchSize");
+        if (!StringTools.isNullOrNone(batchSizeStr)){
+           batchSize = Integer.valueOf(batchSizeStr);
+        }
+
+		List<PreConsignBean> list = preConsignDAO.queryEntityBeansByLimit(conditionParse, batchSize);
 
         String msg = "*******************createPackage with size***********************"+list.size();
         System.out.println(msg);
