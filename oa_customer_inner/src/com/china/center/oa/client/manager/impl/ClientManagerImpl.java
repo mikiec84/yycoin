@@ -2289,22 +2289,33 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
     public void importCustomer(List<CustomerVO> customerVOs) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         if (!ListTools.isEmptyOrNull(customerVOs)){
+            _logger.info("importCustomer with size:"+customerVOs.size());
              for (CustomerVO customerVO: customerVOs){
+                 String id = commonDAO.getSquenceString();
+
                  CustomerBean customerBean = new CustomerBean();
                  BeanUtil.copyProperties(customerBean,customerVO);
-
-				 String id = commonDAO.getSquenceString();
-                 // 自动生成code
                  String code = commonDAO.getSquenceString20();
                  customerBean.setId(id);
                  customerBean.setCode(code);
-
                  customerBean.setType(CustomerConstant.NATURE_CORPORATION);
 				 customerBean.setCreateTime(TimeTools.now());
 				 customerBean.setLogTime(TimeTools.now());
-
                  customerBean.setStatus(CustomerConstant.REAL_STATUS_USED);
                  this.customerMainDAO.saveEntityBean(customerBean);
+
+                 CustomerCorporationBean corpBean = new CustomerCorporationBean();
+//                 corpBean.setId(id);
+//                 corpBean.setName(customerVO.getName());
+//                 corpBean.setProvinceId(customerVO.getProvinceId());
+//                 corpBean.setCityId(customerVO.getCityId());
+//                 corpBean.setAddress(customerVO.getAddress());
+                 BeanUtil.copyProperties(corpBean,customerBean);
+                 corpBean.setLicenseNo("");
+                 corpBean.setSimpleName(corpBean.getName());
+                 corpBean.setEstablishDate("");
+                 customerCorporationDAO.saveEntityBean(corpBean);
+
 
                  StafferBean stafferBean = this.stafferDAO.findyStafferByName(customerVO.getStafferName());
                  if (stafferBean!= null){
