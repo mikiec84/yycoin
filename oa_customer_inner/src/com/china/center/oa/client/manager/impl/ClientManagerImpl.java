@@ -2326,7 +2326,9 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
                  }
              }
             _logger.info("import customer size:"+customerVOs.size());
-        }
+        } else{
+			throw new MYException("导入客户失败，系统错误！");
+		}
     }
 
     /**
