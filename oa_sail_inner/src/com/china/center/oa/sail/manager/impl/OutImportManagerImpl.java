@@ -1141,52 +1141,6 @@ public class OutImportManagerImpl implements OutImportManager
                     priority = result;
                     giftVO = gift;
                 }
-//                _logger.info("gift configuration:"+gift);
-//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//                try{
-//                    Date end = sdf.parse(gift.getEndDate());
-//                    Date begin = sdf.parse(gift.getBeginDate());
-//
-//                    //2015/6/14 compare with PODATE
-//                    if (StringTools.isNullOrNone(out.getPodate())){
-//                        Date now = new Date();
-//                        if (end.before(now) || now.before(begin)){
-//                            _logger.warn(gift+" gift is out of date:"+now);
-//                            continue;
-//                        }
-//                    } else{
-//                        Date poDate = sdf.parse(out.getPodate());
-//                        if (poDate.before(begin) || poDate.after(end)){
-//                            _logger.warn(gift+" gift is out of date:"+poDate);
-//                            continue;
-//                        }
-//                    }
-//
-//                }catch(Exception e){
-//                    _logger.error(productId+" Exception when create gift out:",e);
-//                    continue ;
-//                }
-//
-//                //2015/6/14 银行指 客户名中包括“适用银行”字段值
-//                //2016/1/5 银行可多选，用分号；分割
-//                String bank = gift.getBank();
-//                String customerName = out.getCustomerName();
-//                String[] banks = bank.split(";");
-//                boolean suitable = false;
-//                for (String b: banks){
-//                    if (customerName.contains(b)){
-//                        _logger.info(customerName+" bank is suitable:"+bank);
-//                        suitable = true;
-//                        break;
-//                    } else{
-//                        _logger.warn(customerName+" bank is not suitable:"+bank);
-//                        continue;
-//                    }
-//                }
-//
-//                if (suitable){
-//                    qualifiedGiftList.add(gift);
-//                }
             }
         }
 
@@ -1214,7 +1168,7 @@ public class OutImportManagerImpl implements OutImportManager
             newOutBean.setOutType(OutConstant.OUTTYPE_OUT_PRESENT);
 
             String fullId = out.getFullId();
-            newOutBean.setDescription("自动生成赠品订单，关联销售单：" + fullId);
+            newOutBean.setDescription("自动生成赠品订单，关联销售单：" + fullId+" 关联赠品活动："+giftVO.getActivity());
 
             //2015/9/29 自动导入生成赠品订单时关联refOutFullId
             newOutBean.setRefOutFullId(fullId);
@@ -1346,6 +1300,13 @@ public class OutImportManagerImpl implements OutImportManager
             _logger.error(" Exception when create gift out:"+msg,e);
             return -1 ;
         }
+
+		//2016/1/18 产品数量必须满足
+		BaseBean base = out.getBaseList().get(0);
+		if (base.getAmount()< gift.getSailAmount()){
+			_logger.warn(base+" amount does not reach gift config:"+gift);
+			return -1;
+		}
 
 		//如果所有条件都不设置，默认都参加活动
 		if (StringTools.isNullOrNone(gift.getStafferName()) &&
