@@ -143,6 +143,13 @@ public class PaymentBean implements Serializable
      */
     @Html(title = "资金性质")
     private int ctype = FinanceConstant.PAYMENTCTYPE_EXTERNAL;
+
+
+    /**
+     * #160 2016/1/18 新增POS终端号
+     */
+    @Html(title = "POS终端号")
+    private String posTerminalNumber = "";
     
     /**
      * default constructor
@@ -591,7 +598,15 @@ public class PaymentBean implements Serializable
 		this.ctype = ctype;
 	}
 
-	/**
+    public String getPosTerminalNumber() {
+        return posTerminalNumber;
+    }
+
+    public void setPosTerminalNumber(String posTerminalNumber) {
+        this.posTerminalNumber = posTerminalNumber;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

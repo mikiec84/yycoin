@@ -128,6 +128,8 @@ function clearValues()
                 ${bean.customerName}
             </p:cell>
 
+            <p:pro field="posTerminalNumber" cell="2" />
+
 			<p:pro field="description" cell="2" />
 			
 			<p:cells celspan="2" title="关联凭证">

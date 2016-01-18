@@ -2766,7 +2766,7 @@ public class FinanceAction extends DispatchAction {
 					// 序号 回款来源 回款金额 回款日期 备注
 					int currentNumber = reader.getCurrentLineNumber();
 
-					if (obj.length >= 9) {
+					if (obj.length >= 10) {
 						try {
 							createPayment(user, bankId, obj, batchId, payList);
 						} catch (MYException e) {
@@ -2879,20 +2879,27 @@ public class FinanceAction extends DispatchAction {
 		}
 		
 		if (!StringTools.isNullOrNone(obj[8])) {
-			
-			if (obj[8].trim().equals("外部"))
-			{
-				bean.setCtype(0);	
-			}else if (obj[8].trim().equals("内部"))
-			{
-				bean.setCtype(1);
-			}else{
-				throw new MYException("回款资金性质只能是[外部、内部]");
-			}
-			
-		}else{
-			throw new MYException("缺少回款资金性质(外部、内部)");
-		}
+
+            if (obj[8].trim().equals("外部"))
+            {
+                bean.setCtype(0);
+            }else if (obj[8].trim().equals("内部"))
+            {
+                bean.setCtype(1);
+            }else{
+                throw new MYException("回款资金性质只能是[外部、内部]");
+            }
+
+        }else{
+            throw new MYException("缺少回款资金性质(外部、内部)");
+        }
+
+
+        if (!StringTools.isNullOrNone(obj[9])) {
+            bean.setPosTerminalNumber(obj[9]);
+        }else{
+            throw new MYException("POS终端号必填");
+        }
 
 		PaymentBean oldPay = paymentDAO.findByUnique(bean.getBankId(),
 				bean.getRefId());
@@ -2942,7 +2949,7 @@ public class FinanceAction extends DispatchAction {
 
 			write.openFile(out);
 
-			write.writeLine("日期,系统标识,导入标识,导入批次,帐户,类型,状态,核对状态,回款凭证号,认款凭证号,删除凭证号,认领时间,认领人,回款来源,绑定客户,客户编码,回款金额,手续费,回款时间,备注");
+			write.writeLine("日期,系统标识,导入标识,导入批次,帐户,类型,状态,核对状态,回款凭证号,认款凭证号,删除凭证号,认领时间,认领人,回款来源,绑定客户,客户编码,回款金额,手续费,POS终端号,回款时间,备注");
 
 			ConditionParse condtion = JSONPageSeparateTools.getCondition(
 					request, QUERYPAYMENT);
@@ -3007,6 +3014,8 @@ public class FinanceAction extends DispatchAction {
 							+ ','
 							+ MathTools.formatNum(each.getHandling())
 							+ ','
+                            + each.getPosTerminalNumber()
+                            + ','
 							+ each.getReceiveTime()
 							+ ','
 							+ StringTools.getExportString(each.getDescription()));

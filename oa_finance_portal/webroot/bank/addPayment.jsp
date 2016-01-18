@@ -97,6 +97,8 @@ function clearValues()
 			<p:pro field="money"/>
 			
 			<p:pro field="handling"/>
+
+            <p:pro field="posTerminalNumber"/>
 			
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 

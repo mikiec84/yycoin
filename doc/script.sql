@@ -119,3 +119,6 @@ alter table T_CENTER_VS_GIFT add column province varchar(100) default ''
 --2016/1/13 导入客户
 insert into t_center_oamenuitem values('0231','导入客户','../client/importCustomer.jsp','02',1,'0201',99,'导入客户')
 
+--2016/1/18 导入汇款新增字段POS终端号
+alter table T_CENTER_PAYMENT add column posTerminalNumber varchar(100) default ''
+
