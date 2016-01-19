@@ -318,7 +318,7 @@ public class OutImportAction extends DispatchAction
         
         if (!ListTools.isEmptyOrNull(list))
         {
-            _logger.info("before outImportManager.processAsyn***");
+            _logger.info("before outImportManager.processAsyn***"+list.size());
             outImportManager.processAsyn(list);
         }
         
@@ -1343,14 +1343,18 @@ public class OutImportAction extends DispatchAction
 
             return mapping.findForward("importOut");
         }
-        
+
+		_logger.info("***finish add batchId****"+batchId);
         // 异步处理 - 只针对初始或失败的行项目
         List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
         
         if (!ListTools.isEmptyOrNull(list))
         {
+			_logger.info("***before processAsync****"+list.size());
         	outImportManager.processAsyn(list);
-        }
+        }else{
+			_logger.warn("out import list is empty!!!");
+		}
         
         return mapping.findForward("queryOutImport");
 	}

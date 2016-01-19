@@ -236,7 +236,8 @@ public class OutImportManagerImpl implements OutImportManager
 			throws MYException
 	{
 		JudgeTools.judgeParameterIsNull(list);
-		
+		_logger.info("***begin process imported item***" + list.size());
+
 		OutImportBean bean = list.get(0);
 		
 		check(bean);
@@ -363,6 +364,7 @@ public class OutImportManagerImpl implements OutImportManager
 		logBean.setStatus(status);
 		
 		outImportLogDAO.saveEntityBean(logBean);
+		_logger.info(logBean.getBatchId()+"***create logBean****"+logBean.getId()+"***status***"+status);
 		
 		return true;
 	}
@@ -452,6 +454,7 @@ public class OutImportManagerImpl implements OutImportManager
 					eachOut.setOANo(outBean.getFullId());
 					
 					eachOut.setStatus(OutImportConstant.STATUS_SUCCESSFULL);
+					_logger.info("***update out status to success***"+eachOut.getId());
 					
 					uList.add(eachOut);
 				}
@@ -522,6 +525,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 */
 	private OutBean createOut(List<OutImportBean> list)
 	{
+		_logger.info("***begin create Out***");
 		String newOutId;
 		int itype = 0;
 		
