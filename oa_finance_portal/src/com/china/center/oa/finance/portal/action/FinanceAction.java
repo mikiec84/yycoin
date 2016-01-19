@@ -2897,8 +2897,6 @@ public class FinanceAction extends DispatchAction {
 
         if (!StringTools.isNullOrNone(obj[9])) {
             bean.setPosTerminalNumber(obj[9]);
-        }else{
-            throw new MYException("POS终端号必填");
         }
 
 		PaymentBean oldPay = paymentDAO.findByUnique(bean.getBankId(),
