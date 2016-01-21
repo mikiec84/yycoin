@@ -242,29 +242,34 @@ public class PackageManagerImpl implements PackageManager {
 
 		List<PreConsignBean> list = preConsignDAO.queryEntityBeansByLimit(conditionParse, batchSize);
 
-        String msg = "*******************createPackage with size***********************"+list.size();
+        String msg = "*******************createPackage with size"+list.size();
         System.out.println(msg);
         triggerLog.info(msg);
 
         int count = 0;
 		for (PreConsignBean each : list) {
-			OutVO outBean = outDAO.findVO(each.getOutId());
-			
+//			ConditionParse conditionParse1 = new ConditionParse();
+//			conditionParse1.addWhereStr();
+//			conditionParse1.addCondition("fullId","=",each.getOutId().trim());
+//			List<OutVO> outBean = outDAO.queryEntityVOsByCondition(conditionParse1);
+			OutVO outBean = outDAO.findVO(each.getOutId().trim());
+
 			if (null != outBean) {
-				triggerLog.info(count+"======is out======" + each.getOutId());
+				_logger.info(count+"======is out======" + each.getOutId()+"==="+outBean.getOutType());
 				createPackage(each, outBean);
 			} else {
+				_logger.info(count+"=========is not out=========="+each.getOutId());
 				InvoiceinsBean insBean = invoiceinsDAO.find(each.getOutId());
 				
 				if (null != insBean) {
-					triggerLog.info(count+"======is invoiceins======" + each.getOutId());
+					_logger.info(count+"======is invoiceins======" + each.getOutId());
 					createInsPackage(each, insBean.getId());
 				} else {
                     //2015/3/1 预开票申请也需要进入CK单
                     PreInvoiceApplyVO applyBean = this.preInvoiceApplyDAO.findVO(each.getOutId());
 
                     if (applyBean!= null){
-                        triggerLog.info(count+"======is PreInvoiceApplyBean======" + each.getOutId());
+						_logger.info(count+"======is PreInvoiceApplyBean======" + each.getOutId());
                         this.createPreInsPackage(each, applyBean);
                     } else{
                         triggerLog.warn(count+"======is other, direct delete, handle nothing======"+each.getOutId());
@@ -281,7 +286,7 @@ public class PackageManagerImpl implements PackageManager {
 	private void createNewPackage(OutVO outBean,
 			List<BaseBean> baseList, DistributionVO distVO, String fullAddress, String location)
 	{
-        _logger.info("**************createNewPackage for Out*******************************"+outBean);
+        _logger.info("**************createNewPackage for Out now:"+outBean.getId());
 
         String id = commonDAO.getSquenceString20("CK");
 		
@@ -389,7 +394,7 @@ public class PackageManagerImpl implements PackageManager {
 			packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
 		}
 		packBean.setProductCount(pmap.values().size());
-		
+
 		PackageVSCustomerBean vsBean = new PackageVSCustomerBean();
 		
 		vsBean.setPackageId(id);
@@ -397,13 +402,13 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setCustomerName(outBean.getCustomerName());
 		vsBean.setIndexPos(1);
 
-        packageDAO.saveEntityBean(packBean);
-
+		packageDAO.saveEntityBean(packBean);
 		packageItemDAO.saveAllEntityBeans(itemList);
+		_logger.info(packBean.getId()+"***package created with size***"+itemList.size());
 
 		packageVSCustomerDAO.saveEntityBean(vsBean);
 	}
-	
+
 	/**
 	 * for invoiceins
 	 * @param ins
@@ -637,7 +642,7 @@ public class PackageManagerImpl implements PackageManager {
 		
 		if (ListTools.isEmptyOrNull(distList))
 		{
-			triggerLog.info("======createPackage== (distList is null or empty)====" + fullId);
+			triggerLog.warn("======createPackage== (distList is null or empty)====" + fullId);
 			preConsignDAO.deleteEntityBean(pre.getId());
 			
 			return;
@@ -648,7 +653,7 @@ public class PackageManagerImpl implements PackageManager {
 		// 如果是空发,则不处理
 		if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
 		{
-			triggerLog.info("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + fullId);
+			triggerLog.warn("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + fullId);
 			preConsignDAO.deleteEntityBean(pre.getId());
 			
 			return;
@@ -657,7 +662,7 @@ public class PackageManagerImpl implements PackageManager {
 		// 地址不全,不发
 		if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
 		{
-            triggerLog.info("======address not complete==" + fullId);
+            triggerLog.warn("======address not complete==" + fullId);
 			return;
 		}
 		
@@ -676,7 +681,6 @@ public class PackageManagerImpl implements PackageManager {
 		{
             _logger.info("****create new package now***"+fullId);
 			createNewPackage(out, baseList, distVO, fullAddress, location);
-			
 		}else{
             _logger.info("****package already exist***"+fullId);
             String id = packageList.get(0).getId();
