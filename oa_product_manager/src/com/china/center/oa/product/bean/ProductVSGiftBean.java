@@ -26,6 +26,20 @@ public class ProductVSGiftBean implements Serializable
     @Html(title = "赠送商品数量", must = true, maxLength = 100)
 	private int amount = 0;
 
+    @Html(title = "赠送商品品名2", type = Element.INPUT, name = "giftProductName2", readonly = true)
+    @Join(tagClass = ProductBean.class, type = JoinType.LEFT, alias = "P3")
+    private String giftProductId2 = "";
+
+    @Html(title = "赠送商品数量2", maxLength = 100)
+    private int amount2 = 0;
+
+    @Html(title = "赠送商品品名3", type = Element.INPUT, name = "giftProductName3", readonly = true)
+    @Join(tagClass = ProductBean.class, type = JoinType.LEFT, alias = "P4")
+    private String giftProductId3 = "";
+
+    @Html(title = "赠送商品数量3", maxLength = 100)
+    private int amount3 = 0;
+
     @Html(title = "销售商品数量", must = true, maxLength = 100)
     private int sailAmount = 0;
 
@@ -228,6 +242,38 @@ public class ProductVSGiftBean implements Serializable
 
     public void setProvince(String province) {
         this.province = province;
+    }
+
+    public String getGiftProductId2() {
+        return giftProductId2;
+    }
+
+    public void setGiftProductId2(String giftProductId2) {
+        this.giftProductId2 = giftProductId2;
+    }
+
+    public int getAmount2() {
+        return amount2;
+    }
+
+    public void setAmount2(int amount2) {
+        this.amount2 = amount2;
+    }
+
+    public String getGiftProductId3() {
+        return giftProductId3;
+    }
+
+    public void setGiftProductId3(String giftProductId3) {
+        this.giftProductId3 = giftProductId3;
+    }
+
+    public int getAmount3() {
+        return amount3;
+    }
+
+    public void setAmount3(int amount3) {
+        this.amount3 = amount3;
     }
 
     @Override

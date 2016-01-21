@@ -1200,28 +1200,46 @@ public class OutImportManagerImpl implements OutImportManager
             newBaseBean.setOutId(newOutId);
 
             baseDAO.saveEntityBean(newBaseBean);
-//            for (ProductVSGiftVO each : qualifiedGiftList)
-//            {
-//                BaseBean newBaseBean = new BaseBean();
-//
-//                BeanUtil.copyProperties(newBaseBean, base);
-//
-//                newBaseBean.setId(commonDAO.getSquenceString());
-//
-//                //2015/6/14 检查销售数量与赠品数量
-//                double giftPercentage = ((double)each.getAmount())/each.getSailAmount();
-//                newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
-//
-//                newBaseBean.setProductId(each.getGiftProductId());
-//                newBaseBean.setProductName(each.getGiftProductName());
-//                newBaseBean.setPrice(0);
-//                newBaseBean.setValue(0);
-//                newBaseBean.setProfit(0);
-//                newBaseBean.setProfitRatio(0);
-//                newBaseBean.setOutId(newOutId);
-//
-//                baseDAO.saveEntityBean(newBaseBean);
-//            }
+
+			//2015/1/21 买赠可多个商品
+			if (!StringTools.isNullOrNone(giftVO.getGiftProductId2())){
+				BaseBean newBaseBean2 = new BaseBean();
+				BeanUtil.copyProperties(newBaseBean2, base);
+
+				newBaseBean2.setId(commonDAO.getSquenceString());
+				double giftPercentage2 = ((double)giftVO.getAmount2())/giftVO.getSailAmount();
+				newBaseBean2.setAmount((int)(giftPercentage2*base.getAmount()));
+
+				newBaseBean2.setProductId(giftVO.getGiftProductId2());
+				newBaseBean2.setProductName(giftVO.getGiftProductName2());
+				newBaseBean2.setPrice(0);
+				newBaseBean2.setValue(0);
+				newBaseBean2.setProfit(0);
+				newBaseBean2.setProfitRatio(0);
+				newBaseBean2.setOutId(newOutId);
+
+				baseDAO.saveEntityBean(newBaseBean2);
+			}
+
+			if (!StringTools.isNullOrNone(giftVO.getGiftProductId3())){
+				BaseBean newBaseBean3 = new BaseBean();
+				BeanUtil.copyProperties(newBaseBean3, base);
+
+				newBaseBean3.setId(commonDAO.getSquenceString());
+				double giftPercentage3 = ((double)giftVO.getAmount3())/giftVO.getSailAmount();
+				newBaseBean3.setAmount((int)(giftPercentage3*base.getAmount()));
+
+				newBaseBean3.setProductId(giftVO.getGiftProductId3());
+				newBaseBean3.setProductName(giftVO.getGiftProductName3());
+				newBaseBean3.setPrice(0);
+				newBaseBean3.setValue(0);
+				newBaseBean3.setProfit(0);
+				newBaseBean3.setProfitRatio(0);
+				newBaseBean3.setOutId(newOutId);
+
+				baseDAO.saveEntityBean(newBaseBean3);
+			}
+
 
             // 配送
             List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());

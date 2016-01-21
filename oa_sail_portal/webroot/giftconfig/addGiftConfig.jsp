@@ -32,27 +32,33 @@ function getProduct(oos)
     if (index === 1){
         $O('productName').value = obj.pname;
         $O('productId').value = obj.value;
-//        console.log("index 1*************");
     } else if (index === 2){
         $O('giftProductName').value = obj.pname;
         $O('giftProductId').value = obj.value;
-//        console.log("index 2*************");
+    }  else if (index === 22){
+        $O('giftProductName2').value = obj.pname;
+        $O('giftProductId2').value = obj.value;
+    }   else if (index === 3){
+        $O('giftProductName3').value = obj.pname;
+        $O('giftProductId3').value = obj.value;
     }
 }
 
 function clears(idx)
 {
-//    console.log(idx);
     if (idx === 1){
         $O('productId').value = '';
         $O('productName').value = '公共';
-//        console.log("index 1--------------");
     } else if (idx === 2){
         $O('giftProductId').value = '';
         $O('giftProductName').value = '公共';
-//        console.log("index 2------------------");
+    } else if (idx === 22){
+        $O('giftProductId22').value = '';
+        $O('giftProductName22').value = '公共';
+    } else if (idx === 3){
+        $O('giftProductId3').value = '';
+        $O('giftProductName3').value = '公共';
     }
-
 }
 
 </script>
@@ -131,7 +137,7 @@ function clears(idx)
 
             <p:pro field="sailAmount" value="0" innerString="oncheck='isMathNumber'"/>
 
-            <p:pro field="giftProductId" value="赠送商品品名" innerString="size=60">
+            <p:pro field="giftProductId" value="赠送商品品名1" innerString="size=60">
                 <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
                        class="button_class" onclick="selectProduct(2)">&nbsp;
                 <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
@@ -139,6 +145,24 @@ function clears(idx)
             </p:pro>
 
             <p:pro field="amount" value="0" innerString="oncheck='isMathNumber'"/>
+
+            <p:pro field="giftProductId2" value="赠送商品品名2" innerString="size=60">
+                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
+                       class="button_class" onclick="selectProduct(22)">&nbsp;
+                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
+                       class="button_class" onclick="clears(22)">&nbsp;&nbsp;
+            </p:pro>
+
+            <p:pro field="amount2" value="0" innerString="oncheck='isMathNumber'"/>
+
+            <p:pro field="giftProductId3" value="赠送商品品名3" innerString="size=60">
+                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
+                       class="button_class" onclick="selectProduct(3)">&nbsp;
+                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
+                       class="button_class" onclick="clears(3)">&nbsp;&nbsp;
+            </p:pro>
+
+            <p:pro field="amount3" value="0" innerString="oncheck='isMathNumber'"/>
 			
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 

@@ -122,3 +122,6 @@ insert into t_center_oamenuitem values('0231','导入客户','../client/importCustom
 --2016/1/18 导入汇款新增字段POS终端号
 alter table T_CENTER_PAYMENT add column posTerminalNumber varchar(100) default ''
 
+--2016/1/21 赠品B,C,D
+alter table T_CENTER_VS_GIFT add column giftProductId2 varchar(100) default '', add column amount2 int(11) default 0, add column giftProductId3 varchar(100) default '', add column amount3 int(11) default 0
+

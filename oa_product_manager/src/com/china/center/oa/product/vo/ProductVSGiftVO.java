@@ -14,6 +14,12 @@ public class ProductVSGiftVO extends ProductVSGiftBean
 	@Relationship(relationField = "giftProductId")
 	private String giftProductName = "";
 
+	@Relationship(relationField = "giftProductId2")
+	private String giftProductName2 = "";
+
+	@Relationship(relationField = "giftProductId3")
+	private String giftProductName3 = "";
+
 	public ProductVSGiftVO()
 	{
 	}
@@ -36,5 +42,21 @@ public class ProductVSGiftVO extends ProductVSGiftBean
 	public void setGiftProductName(String giftProductName)
 	{
 		this.giftProductName = giftProductName;
+	}
+
+	public String getGiftProductName2() {
+		return giftProductName2;
+	}
+
+	public void setGiftProductName2(String giftProductName2) {
+		this.giftProductName2 = giftProductName2;
+	}
+
+	public String getGiftProductName3() {
+		return giftProductName3;
+	}
+
+	public void setGiftProductName3(String giftProductName3) {
+		this.giftProductName3 = giftProductName3;
 	}
 }
