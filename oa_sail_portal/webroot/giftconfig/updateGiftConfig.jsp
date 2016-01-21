@@ -114,6 +114,16 @@ function load()
 
             <p:pro field="amount" value="${bean.amount}" innerString="size=60 oncheck='isMathNumber'"/>
 
+            <p:pro field="giftProductId2" value="${bean.giftProductName2}" innerString="size=60">
+            </p:pro>
+
+            <p:pro field="amount2" value="${bean.amount2}" innerString="size=60 oncheck='isMathNumber'"/>
+
+            <p:pro field="giftProductId3" value="${bean.giftProductName3}" innerString="size=60">
+            </p:pro>
+
+            <p:pro field="amount3" value="${bean.amount3}" innerString="size=60 oncheck='isMathNumber'"/>
+
             <p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 
         </p:table>
