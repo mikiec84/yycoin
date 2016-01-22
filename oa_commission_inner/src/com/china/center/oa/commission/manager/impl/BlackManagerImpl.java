@@ -247,284 +247,252 @@ public class BlackManagerImpl implements BlackManager
         List<String> stafferList = outDAO.queryDistinctStafferId(beginDate, statsDate, type);
         
         ConditionParse condition = new ConditionParse();
-        
+
+        triggerLog.info("**processStatsBlack with staffer size***"+stafferList.size());
         for (String each : stafferList)
         {
-            String stafferId = each;
-        
-            setStatsBlackCondition(statsDate, stafferId, condition);
-            
-            List<OutBean> outList = outDAO.queryEntityBeansByCondition(condition);
-            
-            double outValue = 0.0d;
-            
-            double allOutValue = 0.0d;
-            
-            int maxReDate = 0;
-            
-            List<BlackOutWrap> outWrapList = new ArrayList<BlackOutWrap>();
-            
-            List<BlackOutWrap> allOutWrapList = new ArrayList<BlackOutWrap>();
-            
-            List<BlackOutWrap> reDateOutWrapList = new ArrayList<BlackOutWrap>();            
-            
-            boolean exceptStaffer = false;
+            try {
+                String stafferId = each;
 
-            for (OutBean outBean : outList)
-            {
-                boolean exceptOut = false;
-                
-                double perOutValue = 0.0d;
-                
-                int reDate = 0;
-                
-                String outId = outBean.getFullId();
-                
-                List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
-                
-                Set<String> productIdSet = new HashSet<String>();
-                
-                // 刨去例外逻辑，涉及到 事业部，具体单号，销售时间，人员（这些在单据头中），具体商品,品类要涉及到单据行项目
-                if (!ListTools.isEmptyOrNull(ruleList))
-                {
-                    for(BlackRuleBean eachRuleBean : ruleList)
-                    {
-                        if (TimeTools.cdate(outBean.getOutTime(), eachRuleBean.getBeginOutTime())>=0  
-                                && TimeTools.cdate(outBean.getOutTime(), eachRuleBean.getEndOutTime())<=0)
-                        {
-                            String ruleId = eachRuleBean.getId();
-                            
-                            String industryId = outBean.getIndustryId();
-                            
-                            String industryIds = eachRuleBean.getIndustryId();
-                            
-                            String outIds = eachRuleBean.getOutId();
-                            
-                            // 事业部
-                            if (industryIds.indexOf(industryId) != -1)
-                            {
-                                exceptStaffer = true;
-                            }
-                           
-                            // 单号
-                            if (outIds.indexOf(outId) != -1)
-                            {
-                                exceptOut = true;
-                                
-                                break;
-                            }
-                            
-                            // 人员
-                            boolean stafferInBlackRule = stafferIdInBlackRule(stafferId, ruleId);
-                            
-                            if (stafferInBlackRule)
-                            {
-                                exceptStaffer = true;
-                            }
-                            
-                            // 检查品类、单品， 品类 包含单品
-                            List<BlackRuleProductBean> ruleProductList = blackRuleProductDAO.queryEntityBeansByFK(ruleId);
-                            
-                            if (StringTools.isNullOrNone(eachRuleBean.getProductType()) && ListTools.isEmptyOrNull(ruleProductList))
-                            {
+                setStatsBlackCondition(statsDate, stafferId, condition);
+
+                List<OutBean> outList = outDAO.queryEntityBeansByCondition(condition);
+                triggerLog.info(each+"***processStatsBlack out size:" + outList.size());
+
+                double outValue = 0.0d;
+
+                double allOutValue = 0.0d;
+
+                int maxReDate = 0;
+
+                List<BlackOutWrap> outWrapList = new ArrayList<BlackOutWrap>();
+
+                List<BlackOutWrap> allOutWrapList = new ArrayList<BlackOutWrap>();
+
+                List<BlackOutWrap> reDateOutWrapList = new ArrayList<BlackOutWrap>();
+
+                boolean exceptStaffer = false;
+
+                for (OutBean outBean : outList) {
+                    boolean exceptOut = false;
+
+                    double perOutValue = 0.0d;
+
+                    int reDate = 0;
+
+                    String outId = outBean.getFullId();
+
+                    List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+
+                    Set<String> productIdSet = new HashSet<String>();
+
+                    // 刨去例外逻辑，涉及到 事业部，具体单号，销售时间，人员（这些在单据头中），具体商品,品类要涉及到单据行项目
+                    if (!ListTools.isEmptyOrNull(ruleList)) {
+                        triggerLog.info("***black rule size***"+ruleList.size());
+                        for (BlackRuleBean eachRuleBean : ruleList) {
+                            triggerLog.info(outBean+"*** out vs rule ***"+eachRuleBean);
+                            if (TimeTools.cdate(outBean.getOutTime(), eachRuleBean.getBeginOutTime()) >= 0
+                                    && TimeTools.cdate(outBean.getOutTime(), eachRuleBean.getEndOutTime()) <= 0) {
+                                String ruleId = eachRuleBean.getId();
+
+                                String industryId = outBean.getIndustryId();
+
+                                String industryIds = eachRuleBean.getIndustryId();
+
+                                String outIds = eachRuleBean.getOutId();
+
+                                // 事业部
+                                if (industryIds.indexOf(industryId) != -1) {
+                                    exceptStaffer = true;
+                                }
+
+                                // 单号
+                                if (outIds.indexOf(outId) != -1) {
+                                    exceptOut = true;
+
+                                    break;
+                                }
+
+                                // 人员
+                                boolean stafferInBlackRule = stafferIdInBlackRule(stafferId, ruleId);
+
+                                if (stafferInBlackRule) {
+                                    exceptStaffer = true;
+                                }
+
+                                // 检查品类、单品， 品类 包含单品
+                                List<BlackRuleProductBean> ruleProductList = blackRuleProductDAO.queryEntityBeansByFK(ruleId);
+
+                                if (StringTools.isNullOrNone(eachRuleBean.getProductType()) && ListTools.isEmptyOrNull(ruleProductList)) {
+                                    continue;
+                                } else {
+                                    getExceptProduct(outId, productIdSet, eachRuleBean, ruleProductList, baseList);
+                                }
+                            } else {
                                 continue;
                             }
-                            else
-                            {
-                                getExceptProduct(outId, productIdSet, eachRuleBean, ruleProductList, baseList);
-                            }
-                        }
-                        else
-                        {
-                            continue;
                         }
                     }
-                }
-                
-                // 整笔是例外，直接进入下一个
-                if (exceptOut)
-                {
-                    continue;
-                }
-                
-                // 事业部，人员例外，直接跳出
-//                if (exceptStaffer)
-//                {
-//                    break;
-//                }
-                    
-                // ProductIdSet 中是要刨去的商品
-                double excepTotal = 0.0d;
-                double total = 0.0d;
-                
-                if (!productIdSet.isEmpty())
-                {
-                    for (BaseBean eachBase : baseList)
-                    {
-                        String productId = eachBase.getProductId();
-                        
-                        for (String eachItem : productIdSet)
-                        {
-                            if (eachItem.equals(productId))
-                            {
-                                excepTotal += eachBase.getValue();
+
+                    // 整笔是例外，直接进入下一个
+                    if (exceptOut) {
+                        continue;
+                    }
+
+
+                    // ProductIdSet 中是要刨去的商品
+                    double excepTotal = 0.0d;
+                    double total = 0.0d;
+
+                    if (!productIdSet.isEmpty()) {
+                        for (BaseBean eachBase : baseList) {
+                            String productId = eachBase.getProductId();
+
+                            for (String eachItem : productIdSet) {
+                                if (eachItem.equals(productId)) {
+                                    excepTotal += eachBase.getValue();
+                                }
                             }
                         }
                     }
-                }
-                
-                total = outBean.getTotal() - excepTotal;
-                
-                // 非委托代销
-                double outBackValue = sumOutBackValue(outId,productIdSet);
-                
-                // 委托代销
-                double balanceBackValue = 0.0d;
-                
-                if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_CONSIGN)
-                {
-                	List<OutBalanceBean> balanceList = outBalanceDAO.queryExcludeSettleBack(outId, 0);
-                	
-                	for (OutBalanceBean eachBalance : balanceList)
-                	{
-                		if (eachBalance.getStatus() == 99)
-                			balanceBackValue += eachBalance.getTotal();
-                	}
-                }
-                
-                
-                // 其它入库中关联了销售单的
-                double outForceBackValue = sumOutForceBackValue(outId, productIdSet);
-                                
-                // 本单应收款 = 总金额 - 退货 - 坏账 - 折扣 - 已付款
-                perOutValue = total - outBackValue  - balanceBackValue - outForceBackValue - outBean.getBadDebts() - outBean.getPromValue() - outBean.getHadPay() ;
-                
-                reDate = TimeTools.cdate(statsDate, outBean.getRedate());
-                
-                // 超期
-                if (reDate > 0)
-                {
-                    outValue += perOutValue;
-                                        
-                    BlackOutWrap outWrap = new BlackOutWrap();
-                    
-                    outWrap.setOutId(outId);
-                    outWrap.setDays(reDate);
-                    outWrap.setMoney(perOutValue);
-                    outWrap.setCustomerName(outBean.getCustomerName());
-                    
-                    outWrapList.add(outWrap);
-                    
-                    if (reDate >= maxReDate )
-                    {
-                        if (reDate > maxReDate)
-                            reDateOutWrapList.clear();
-                        
-                        BlackOutWrap reDateOutWrap = new BlackOutWrap();
-                        
-                        reDateOutWrap.setOutId(outId);
-                        reDateOutWrap.setDays(reDate);
-                        reDateOutWrap.setMoney(perOutValue);
-                        reDateOutWrap.setCustomerName(outBean.getCustomerName());
-                        
-                        reDateOutWrapList.add(reDateOutWrap);
-                        
-                        maxReDate = reDate;
+                    total = outBean.getTotal() - excepTotal;
+
+                    // 非委托代销
+                    double outBackValue = sumOutBackValue(outId, productIdSet);
+                    // 委托代销
+                    double balanceBackValue = 0.0d;
+
+                    if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_CONSIGN) {
+                        List<OutBalanceBean> balanceList = outBalanceDAO.queryExcludeSettleBack(outId, 0);
+
+                        for (OutBalanceBean eachBalance : balanceList) {
+                            if (eachBalance.getStatus() == 99)
+                                balanceBackValue += eachBalance.getTotal();
+                        }
                     }
-                    
-                }
-                
-                // 所有应收款
-                allOutValue += perOutValue;
-                                
-                BlackOutWrap allOutWrap = new BlackOutWrap();
-                
-                allOutWrap.setOutId(outId);
-                allOutWrap.setDays(reDate);
-                allOutWrap.setMoney(perOutValue);
-                allOutWrap.setCustomerName(outBean.getCustomerName());
-                
-                allOutWrapList.add(allOutWrap);
-            }
-            
-            // 处理下一个人
-//            if (exceptStaffer)
-//            {
-//                continue;
-//            }
-            
-            int blackType = processBlackTypeInner(stafferId, outValue, maxReDate, exceptStaffer);
-            
-            BlackBean blackBean = blackDAO.findByUnique(stafferId);
-            StafferBean sb = stafferDAO.find(stafferId);
-            
-            if (null == blackBean)
-            {
-                String id = commonDAO.getSquenceString20();
-                
-                BlackBean bean = new BlackBean();
-                
-                bean.setId(id);
-                bean.setLogDate(statsDate);
-                bean.setStafferId(stafferId);
-                
-                if(null != sb)
-                {
-                	bean.setIndustryId(sb.getIndustryId());
-                }
-                bean.setMoney(outValue);
-                bean.setDays(maxReDate);
-                bean.setAllMoneys(allOutValue);
-                bean.setCredit(blackType);
-                
-                if (blackType != StafferConstant.BLACK_NO)
-                {
-                    bean.setEntryDate(TimeTools.now_short());
-                }
-                
-                blackDAO.saveEntityBean(bean);
-                
-                saveBlackOutInner(outWrapList, allOutWrapList, reDateOutWrapList, id);
-            }
-            else
-            {
-                String id = blackBean.getId();
-                
-                blackBean.setLogDate(statsDate);
-                blackBean.setMoney(outValue);
-                blackBean.setDays(maxReDate);
-                blackBean.setAllMoneys(allOutValue);
-                
-                if (blackBean.getCredit() == StafferConstant.BLACK_NO 
-                        && blackType != StafferConstant.BLACK_NO)
-                {
-                    blackBean.setEntryDate(TimeTools.now_short());
-                    blackBean.setRemoveDate("");
-                }
-                else if (blackBean.getCredit() != StafferConstant.BLACK_NO 
-                        && blackType == StafferConstant.BLACK_NO)
-                {
-                    blackBean.setRemoveDate(TimeTools.now_short());
-                }
-                
-                blackBean.setCredit(blackType);
-                
-                if(null != sb)
-                {
-                	blackBean.setIndustryId(sb.getIndustryId());
+                    // 其它入库中关联了销售单的
+                    double outForceBackValue = sumOutForceBackValue(outId, productIdSet);
+
+                    // 本单应收款 = 总金额 - 退货 - 坏账 - 折扣 - 已付款
+                    perOutValue = total - outBackValue - balanceBackValue - outForceBackValue - outBean.getBadDebts() - outBean.getPromValue() - outBean.getHadPay();
+
+                    triggerLog.info("***perOutValue***"+perOutValue);
+                    try {
+                        reDate = TimeTools.cdate(statsDate, outBean.getRedate());
+                    }catch(Exception e){
+                        _logger.error("Catch you!",e);
+                    }
+
+                    // 超期
+                    if (reDate > 0) {
+                        outValue += perOutValue;
+
+                        BlackOutWrap outWrap = new BlackOutWrap();
+
+                        outWrap.setOutId(outId);
+                        outWrap.setDays(reDate);
+                        outWrap.setMoney(perOutValue);
+                        outWrap.setCustomerName(outBean.getCustomerName());
+
+                        outWrapList.add(outWrap);
+
+                        if (reDate >= maxReDate) {
+                            if (reDate > maxReDate)
+                                reDateOutWrapList.clear();
+
+                            BlackOutWrap reDateOutWrap = new BlackOutWrap();
+
+                            reDateOutWrap.setOutId(outId);
+                            reDateOutWrap.setDays(reDate);
+                            reDateOutWrap.setMoney(perOutValue);
+                            reDateOutWrap.setCustomerName(outBean.getCustomerName());
+
+                            reDateOutWrapList.add(reDateOutWrap);
+
+                            maxReDate = reDate;
+                        }
+
+                    }
+
+                    // 所有应收款
+                    allOutValue += perOutValue;
+
+                    BlackOutWrap allOutWrap = new BlackOutWrap();
+
+                    allOutWrap.setOutId(outId);
+                    allOutWrap.setDays(reDate);
+                    allOutWrap.setMoney(perOutValue);
+                    allOutWrap.setCustomerName(outBean.getCustomerName());
+
+                    allOutWrapList.add(allOutWrap);
                 }
 
-                // 先删 
-                blackDAO.deleteEntityBean(id);
-                
-                blackDAO.saveEntityBean(blackBean);
-                
-                blackOutDAO.deleteEntityBeansByFK(id);
-                
-                saveBlackOutInner(outWrapList, allOutWrapList, reDateOutWrapList, id);
+                int blackType = processBlackTypeInner(stafferId, outValue, maxReDate, exceptStaffer);
+                BlackBean blackBean = blackDAO.findByUnique(stafferId);
+                StafferBean sb = stafferDAO.find(stafferId);
+
+                if (null == blackBean) {
+                    String id = commonDAO.getSquenceString20();
+
+                    BlackBean bean = new BlackBean();
+
+                    bean.setId(id);
+                    bean.setLogDate(statsDate);
+                    bean.setStafferId(stafferId);
+
+                    if (null != sb) {
+                        bean.setIndustryId(sb.getIndustryId());
+                    }
+                    bean.setMoney(outValue);
+                    bean.setDays(maxReDate);
+                    bean.setAllMoneys(allOutValue);
+                    bean.setCredit(blackType);
+
+                    if (blackType != StafferConstant.BLACK_NO) {
+                        bean.setEntryDate(TimeTools.now_short());
+                    }
+
+                    blackDAO.saveEntityBean(bean);
+
+                    saveBlackOutInner(outWrapList, allOutWrapList, reDateOutWrapList, id);
+                } else {
+                    String id = blackBean.getId();
+
+                    blackBean.setLogDate(statsDate);
+                    blackBean.setMoney(outValue);
+                    blackBean.setDays(maxReDate);
+                    blackBean.setAllMoneys(allOutValue);
+
+                    if (blackBean.getCredit() == StafferConstant.BLACK_NO
+                            && blackType != StafferConstant.BLACK_NO) {
+                        blackBean.setEntryDate(TimeTools.now_short());
+                        blackBean.setRemoveDate("");
+                    } else if (blackBean.getCredit() != StafferConstant.BLACK_NO
+                            && blackType == StafferConstant.BLACK_NO) {
+                        blackBean.setRemoveDate(TimeTools.now_short());
+                    }
+
+                    blackBean.setCredit(blackType);
+
+                    if (null != sb) {
+                        blackBean.setIndustryId(sb.getIndustryId());
+                    }
+
+                    // 先删
+                    blackDAO.deleteEntityBean(id);
+
+                    blackDAO.saveEntityBean(blackBean);
+
+                    blackOutDAO.deleteEntityBeansByFK(id);
+
+                    saveBlackOutInner(outWrapList, allOutWrapList, reDateOutWrapList, id);
+                }
+                _logger.info("***finish processStatsBlack:"+stafferId);
+            }catch(Exception e){
+                _logger.error("Exception when processStatsBlack:",e);
             }
         }
-        
+
         // delete logDate 不是statsDate，人员信息更新为正常
         List<BlackBean> needDelBlackList = blackDAO.queryByLogDate(statsDate);
         
@@ -1071,7 +1039,7 @@ public class BlackManagerImpl implements BlackManager
     
     /**
      * 须在 statsBlack 统计结束后，执行此操作
-     * @see statsBlack
+     *  check statsBlack()
      * {@inheritDoc}
      */
     public void statsBlackOutDetail()

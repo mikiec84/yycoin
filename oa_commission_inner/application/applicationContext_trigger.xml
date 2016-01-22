@@ -139,7 +139,7 @@
     <bean id="statsBlackOutPayChangedTrigger"
         class="org.springframework.scheduling.quartz.CronTriggerBean" >
         <property name="jobDetail" ref="statsBlackOutPayChangedJob" />
-        <property name="cronExpression" value="0 0/30 9-17 * * ?" />
+        <property name="cronExpression" value="0 0/5 9-17 * * ?" />
     </bean >
    
     
