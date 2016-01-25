@@ -1201,8 +1201,11 @@ public class OutImportManagerImpl implements OutImportManager
 
             baseDAO.saveEntityBean(newBaseBean);
 
+			_logger.info("***giftVO product2**"+giftVO.getGiftProductId2()+"**prod3***"+ giftVO.getGiftProductId3());
 			//2015/1/21 买赠可多个商品
-			if (!StringTools.isNullOrNone(giftVO.getGiftProductId2())){
+			if (!StringTools.isNullOrNone(giftVO.getGiftProductId2())
+					&& giftVO.getAmount2()> 0){
+				_logger.info("***create extra base bean for gift2***");
 				BaseBean newBaseBean2 = new BaseBean();
 				BeanUtil.copyProperties(newBaseBean2, base);
 
@@ -1221,7 +1224,9 @@ public class OutImportManagerImpl implements OutImportManager
 				baseDAO.saveEntityBean(newBaseBean2);
 			}
 
-			if (!StringTools.isNullOrNone(giftVO.getGiftProductId3())){
+			if (!StringTools.isNullOrNone(giftVO.getGiftProductId3())
+					&& giftVO.getAmount3()>0){
+				_logger.info("***create extra base bean for gift3***");
 				BaseBean newBaseBean3 = new BaseBean();
 				BeanUtil.copyProperties(newBaseBean3, base);
 

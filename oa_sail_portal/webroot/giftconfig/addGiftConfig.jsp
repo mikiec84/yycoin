@@ -69,6 +69,8 @@ function clears(idx)
 <input type="hidden" name="method" value="addGiftConfig">
 <input type="hidden" name="productId" value="0">
 <input type="hidden" name="giftProductId" value="0">
+<input type="hidden" name="giftProductId2" value="0">
+<input type="hidden" name="giftProductId3" value="0">
 
 
 <p:navigation
