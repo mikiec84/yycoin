@@ -4684,10 +4684,23 @@ public class OutAction extends ParentOutAction
     	request.setAttribute("baseList", baseList);
     	
     	request.setAttribute("distributionBean", distributionVO);
-    	
-    	OutVO outVO = outDAO.findVO(distributionVO.getOutId());
+
+        String outId = distributionVO.getOutId();
+    	OutVO outVO = outDAO.findVO(outId);
     	
     	request.setAttribute("outBean", outVO);
+
+        //find CK
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.outId= '" + outId + "')");
+
+        String ck = "";
+        List<PackageBean> packageBeans = this.packageDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(packageBeans)){
+            ck = packageBeans.get(0).getId();
+        }
+        request.setAttribute("ck", ck);
     	
     	return mapping.findForward("detailDistribution");
     

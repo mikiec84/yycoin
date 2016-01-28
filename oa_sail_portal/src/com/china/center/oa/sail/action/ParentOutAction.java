@@ -314,6 +314,8 @@ public class ParentOutAction extends DispatchAction
 
     protected ProductFacade productFacade = null;
 
+	protected PackageDAO packageDAO = null;
+
 	protected static String QUERYSELFOUT = "querySelfOut";
 
 	protected static String QUERYSELFOUTBALANCE = "querySelfOutBalance";
@@ -10934,4 +10936,12 @@ public class ParentOutAction extends DispatchAction
     public void setProductExchangeConfigDAO(ProductExchangeConfigDAO productExchangeConfigDAO) {
         this.productExchangeConfigDAO = productExchangeConfigDAO;
     }
+
+	public PackageDAO getPackageDAO() {
+		return packageDAO;
+	}
+
+	public void setPackageDAO(PackageDAO packageDAO) {
+		this.packageDAO = packageDAO;
+	}
 }

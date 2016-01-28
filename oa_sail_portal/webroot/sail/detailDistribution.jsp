@@ -173,7 +173,11 @@ function pagePrint()
              ${distributionBean.transportNo}&nbsp;&nbsp;
             <input type=button name="view_bu"
 				            value="查看物流" class=button_class onclick="viewTr()">&nbsp;
-          </p:cell> 			
+          </p:cell>
+
+			<p:cell title="CK单号" end="true">
+				<a href="../sail/ship.do?method=findPackage&packageId=${ck}">${ck}</a>
+			</p:cell>
 						
 		</p:table>
 
