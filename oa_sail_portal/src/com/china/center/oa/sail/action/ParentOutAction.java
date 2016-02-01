@@ -8848,19 +8848,20 @@ public class ParentOutAction extends DispatchAction
 				&& StringTools.isNullOrNone(outTime1))
 		{
 
-			condtion.addCondition("OutBean.outTime", ">=",
-					TimeTools.now_short(-7));
+			//#162 商务审批、库管、往来核对、总部核对里边开始时间设置为当天
+			String beginTime = TimeTools.now_short();
+			condtion.addCondition("OutBean.outTime", ">=", beginTime);
 
-			request.setAttribute("outTime", TimeTools.now_short(-7));
+			request.setAttribute("outTime", beginTime);
 
-			queryOutCondtionMap.put("outTime", TimeTools.now_short(-7));
+			queryOutCondtionMap.put("outTime", beginTime);
 
-			condtion.addCondition("OutBean.outTime", "<=",
-					TimeTools.now_short());
+			String endTime = TimeTools.now_short();
+			condtion.addCondition("OutBean.outTime", "<=",endTime);
 
-			request.setAttribute("outTime1", TimeTools.now_short());
+			request.setAttribute("outTime1", endTime);
 
-			queryOutCondtionMap.put("outTime1", TimeTools.now_short());
+			queryOutCondtionMap.put("outTime1", endTime);
 
 		}
 
@@ -9109,16 +9110,17 @@ public class ParentOutAction extends DispatchAction
 		// 总部核对(已经付款的销售单)
 		else if ("6".equals(queryType))
 		{
-			if (OldPageSeparateTools.isMenuLoad(request))
-			{
-				condtion.addIntCondition("OutBean.status", "=",
-						OutConstant.STATUS_PASS);
-
-				request.setAttribute("status", OutConstant.STATUS_PASS);
-
-				queryOutCondtionMap.put("status",
-						String.valueOf(OutConstant.STATUS_PASS));
-			}
+			//				//#162 总部核对 默认查询状态“已出库” 置空
+//			if (OldPageSeparateTools.isMenuLoad(request))
+//			{
+//				condtion.addIntCondition("OutBean.status", "=",
+//						OutConstant.STATUS_PASS);
+//
+//				request.setAttribute("status", OutConstant.STATUS_PASS);
+//
+//				queryOutCondtionMap.put("status",
+//						String.valueOf(OutConstant.STATUS_PASS));
+//			}
 
             //Filter by product name
             String productName = request.getParameter("product_name");
