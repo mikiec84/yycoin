@@ -103,17 +103,30 @@
         <property name="cronExpression" value="0 30 4 * * ?" />
     </bean>
    
-    <bean id="statsBlackJob"
+    <bean id="statsBlackJob12"
         class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
         <property name="targetObject" ref="blackManager" />
         <property name="targetMethod" value="statsBlack" />
         <property name="concurrent" value="false" />
     </bean >
    
-    <bean id="statsBlackTrigger"
+    <bean id="statsBlackTrigger12"
         class="org.springframework.scheduling.quartz.CronTriggerBean" >
+        <property name="jobDetail" ref="statsBlackJob12" />
+        <property name="cronExpression" value="0 0 12 * * ?" />
+    </bean >
+
+    <bean id="statsBlackJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+        <property name="targetObject" ref="blackManager" />
+        <property name="targetMethod" value="statsBlack" />
+        <property name="concurrent" value="false" />
+    </bean >
+
+    <bean id="statsBlackTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean" >
         <property name="jobDetail" ref="statsBlackJob" />
-        <property name="cronExpression" value="0 30 2 * * ?" />
+        <property name="cronExpression" value="0 10 17 * * ?" />
     </bean >
     
     <bean id="statsBlackDetailJob"
@@ -129,18 +142,18 @@
         <property name="cronExpression" value="0 30 3 * * ?" />
     </bean >    
     
-    <bean id="statsBlackOutPayChangedJob"
-        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
-        <property name="targetObject" ref="blackManager" />
-        <property name="targetMethod" value="statsBlackWhenOutPayChanged" />
-        <property name="concurrent" value="false" />
-    </bean >
+    <!--<bean id="statsBlackOutPayChangedJob"-->
+        <!--class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >-->
+        <!--<property name="targetObject" ref="blackManager" />-->
+        <!--<property name="targetMethod" value="statsBlackWhenOutPayChanged" />-->
+        <!--<property name="concurrent" value="false" />-->
+    <!--</bean >-->
    
-    <bean id="statsBlackOutPayChangedTrigger"
-        class="org.springframework.scheduling.quartz.CronTriggerBean" >
-        <property name="jobDetail" ref="statsBlackOutPayChangedJob" />
-        <property name="cronExpression" value="0 0/5 9-17 * * ?" />
-    </bean >
+    <!--<bean id="statsBlackOutPayChangedTrigger"-->
+        <!--class="org.springframework.scheduling.quartz.CronTriggerBean" >-->
+        <!--<property name="jobDetail" ref="statsBlackOutPayChangedJob" />-->
+        <!--<property name="cronExpression" value="0 0/30 9-17 * * ?" />-->
+    <!--</bean >-->
    
     
     <bean
@@ -154,9 +167,10 @@
 <!--                         <ref bean="statsFeeAndNetProfitTrigger" />-->
 <!--                         <ref bean="rollbackFeeAndNetProfitTrigger" />-->
                          <ref bean="backupBlackTrigger" />
+                       <ref bean="statsBlackTrigger12" />
                          <ref bean="statsBlackTrigger" />
                          <ref bean="statsBlackDetailTrigger" />
-                         <ref bean="statsBlackOutPayChangedTrigger" />
+                         <!--<ref bean="statsBlackOutPayChangedTrigger" />-->
                    </list>
              </property>
        </bean>
