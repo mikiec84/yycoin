@@ -1679,7 +1679,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 检查日志核对
         int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
-        System.out.println("**********************outStatusInLog*********************"+outStatusInLog);
+        System.out.println("**********************outStatusInLog*********************" + outStatusInLog);
 
         if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
             && outStatusInLog != outBean.getStatus())
@@ -3297,11 +3297,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         _logger.info(fullId+"*********pass111111111111*************"+nextStatus+"***getType**"+outBean.getType());
         checkPass(outBean);
-        _logger.info("*********pass222222222222222*************");
         final int oldStatus = outBean.getStatus();
 
         final DepotBean depot = checkDepotInPass(nextStatus, outBean);
-        _logger.info("*********pass333333333333333*************");
         // LOCK 销售单/入库单通过(这里是销售单库存变动的核心)
         synchronized (PublicLock.PRODUCT_CORE)
         {
@@ -3386,13 +3384,31 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if (user != null){
                             stafferName = user.getStafferName();
                         }
+
                         _logger.info(outBean.getFullId() + ":" + stafferName + ":"
-                                       + newNextStatus + ":redrectFrom:" + oldStatus);
+                                + newNextStatus + ":redirectFrom:" + oldStatus);
+
+                        // #162 发货方式为“空发”的订单，在通过库管审批时，状态更新为“已发货”
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                && oldStatus == OutConstant.STATUS_FLOW_PASS
+                                && newNextStatus == OutConstant.STATUS_PASS){
+                            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
+
+                            if (!ListTools.isEmptyOrNull(distList))
+                            {
+                                DistributionBean distributionBean = distList.get(0);
+                                if (distributionBean!= null && distributionBean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                                    newNextStatus = OutConstant.STATUS_SEC_PASS;
+                                }
+                            }
+                        }
+
+                        _logger.info(outBean.getFullId() + ":" + stafferName + ":"
+                                + newNextStatus + ":redirectFrom:" + oldStatus);
 
                         // 修改状态
                         outDAO.modifyOutStatus(outBean.getFullId(), newNextStatus);
 
-                        _logger.info("outBean.getType()****"+outBean.getType());
                         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
                         {
                             handerPassOut(fullId, user, outBean, depot, newNextStatus);
@@ -6828,7 +6844,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private void handerPassOut(final String fullId, final User user, final OutBean outBean,
                                final DepotBean depot, int newNextStatus)
     {
-        _logger.info("*****newNextStatus************"+newNextStatus);
         // 从分公司经理审核通过到提交
         if (newNextStatus == OutConstant.STATUS_SUBMIT)
         {
