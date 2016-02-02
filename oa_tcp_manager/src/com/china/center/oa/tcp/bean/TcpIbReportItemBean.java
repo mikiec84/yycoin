@@ -176,4 +176,38 @@ public class TcpIbReportItemBean implements Serializable
                 ", motivationMoney=" + motivationMoney +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TcpIbReportItemBean that = (TcpIbReportItemBean) o;
+
+        if (amount != that.amount) return false;
+        if (Double.compare(that.ibMoney, ibMoney) != 0) return false;
+        if (Double.compare(that.motivationMoney, motivationMoney) != 0) return false;
+        if (type != that.type) return false;
+        if (!customerName.equals(that.customerName)) return false;
+        if (!fullId.equals(that.fullId)) return false;
+        if (!productName.equals(that.productName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = type;
+        result = 31 * result + customerName.hashCode();
+        result = 31 * result + fullId.hashCode();
+        result = 31 * result + productName.hashCode();
+        result = 31 * result + amount;
+        temp = Double.doubleToLongBits(ibMoney);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(motivationMoney);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

@@ -3536,7 +3536,9 @@ public class TravelApplyAction extends DispatchAction
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
 
-        Set<String> orders = new HashSet<String>();
+        //#138 导出重复
+//        Set<String> orders = new HashSet<String>();
+        Map<String,TcpIbReportItemBean> orders = new HashMap<String, TcpIbReportItemBean>();
         List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(con);
 
         if (ListTools.isEmptyOrNull(ibReportList))
@@ -3576,9 +3578,17 @@ public class TravelApplyAction extends DispatchAction
             {
                 TcpIbReportItemBean ib = iter.next();
                 String fullId = ib.getFullId();
-                if (orders.contains(fullId)){
-                    continue;
+                //#166同1SO单的只导出了一行
+                TcpIbReportItemBean ibInMap = orders.get(fullId);
+                if (ibInMap == null){
+                    orders.put(fullId, ib);
+                } else{
+                    if (ibInMap.equals(ib)){
+                        _logger.info(ibInMap+"***duplicate IB report item***"+ib);
+                        continue;
+                    }
                 }
+
                 if (StringTools.isNullOrNone(customerName)|| ib.getCustomerName().contains(customerName))  {
                     line.writeColumn(ib.getCustomerName());
                     line.writeColumn(fullId);
@@ -3596,7 +3606,7 @@ public class TravelApplyAction extends DispatchAction
                     }
                     line.writeLine();
 
-                    orders.add(fullId);
+//                    orders.add(fullId);
                 } else{
                     _logger.info("ib.getCustomerName() not match:"+ib.getCustomerName());
                 }
