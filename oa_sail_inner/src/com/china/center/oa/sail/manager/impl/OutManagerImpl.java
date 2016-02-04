@@ -3388,23 +3388,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         _logger.info(outBean.getFullId() + ":" + stafferName + ":"
                                 + newNextStatus + ":redirectFrom:" + oldStatus);
 
-                        // #162 发货方式为“空发”的订单，在通过库管审批时，状态更新为“已发货”
-                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-                                && oldStatus == OutConstant.STATUS_FLOW_PASS
-                                && newNextStatus == OutConstant.STATUS_PASS){
-                            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
-
-                            if (!ListTools.isEmptyOrNull(distList))
-                            {
-                                DistributionBean distributionBean = distList.get(0);
-                                if (distributionBean!= null && distributionBean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING){
-                                    newNextStatus = OutConstant.STATUS_SEC_PASS;
-                                }
-                            }
-                        }
-
-                        _logger.info(outBean.getFullId() + ":" + stafferName + ":"
-                                + newNextStatus + ":redirectFrom:" + oldStatus);
 
                         // 修改状态
                         outDAO.modifyOutStatus(outBean.getFullId(), newNextStatus);
@@ -3419,8 +3402,30 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         		handerPassBuy(fullId, user, outBean, newNextStatus);
                         }
 
-                        addOutLog(fullId, user, outBean, reason, SailConstant.OPR_OUT_PASS,
-                            newNextStatus);
+                        //#162 2016/2/4 空发检查
+                        boolean isKf = false;
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                && oldStatus == OutConstant.STATUS_FLOW_PASS
+                                && newNextStatus == OutConstant.STATUS_PASS){
+                            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
+                            if (!ListTools.isEmptyOrNull(distList))
+                            {
+                                DistributionBean distributionBean = distList.get(0);
+                                if (distributionBean!= null && distributionBean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                                    _logger.info(outBean.getFullId()+"***isKf***");
+                                    isKf = true;
+                                }
+                            }
+                        }
+
+                        if (isKf){
+                            addOutLog(fullId, user, outBean, reason, SailConstant.OPR_OUT_PASS,
+                                    OutConstant.STATUS_SEC_PASS);
+                        } else {
+                            addOutLog(fullId, user, outBean, reason, SailConstant.OPR_OUT_PASS,
+                                    newNextStatus);
+                        }
+
 
                         // 把状态放到最新的out里面
                         outBean.setStatus(newNextStatus);
@@ -3441,6 +3446,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
 
                         notifyOut(outBean, user, 0);
+
+                        // #162 发货方式为“空发”的订单，在通过库管审批时，状态更新为“已发货”
+                        // 原处理逻辑不变，修改状态放到最后进行
+                        if (isKf){
+                            newNextStatus = OutConstant.STATUS_SEC_PASS;
+                            // 修改状态
+                            outBean.setStatus(newNextStatus);
+                            outDAO.modifyOutStatus(outBean.getFullId(), newNextStatus);
+                            _logger.info(outBean.getFullId()+"***update status to STATUS_SEC_PASS");
+                        }
 
                         return Boolean.TRUE;
                     }
@@ -3566,6 +3581,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             String msg = "严重错误,当前单据的状态应该是:" + OutHelper.getStatus(outStatusInLog) + ",而不是"
                          + OutHelper.getStatus(oldStatus) + ".请联系管理员确认此单的正确状态!";
 
+            _logger.error(outBean.getFullId()+ ":" + msg);
             loggerError(outBean.getFullId() + ":" + msg);
 
             throw new MYException(msg);
