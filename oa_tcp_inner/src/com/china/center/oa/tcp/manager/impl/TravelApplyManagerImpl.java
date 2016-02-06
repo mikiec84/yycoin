@@ -2543,7 +2543,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         JudgeTools.judgeParameterIsNull(user, bean);
 
         TravelApplyBean old = travelApplyDAO.find(bean.getId());
-        
+
         if (old == null)
         {
             throw new MYException("数据错误,请确认操作");
@@ -2553,6 +2553,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         {
             throw new MYException("只能修改自己的申请");
         }
+
+        //2016/2/5 #170
+        bean.setImportFlag(old.isImportFlag());
+        bean.setIbType(old.getIbType());
 
 //        bean.setStatus(TcpConstanst.TCP_STATUS_INIT);
 

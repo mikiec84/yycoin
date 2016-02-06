@@ -171,6 +171,12 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
             .append("qingJiapurpose = ")
             .append(this.qingJiapurpose)
             .append(TAB)
+            .append("importFlag = ")
+            .append(this.importFlag)
+            .append(TAB)
+            .append("ibType = ")
+            .append(this.ibType)
+            .append(TAB)
             .append(" )");
 
         return retValue.toString();
