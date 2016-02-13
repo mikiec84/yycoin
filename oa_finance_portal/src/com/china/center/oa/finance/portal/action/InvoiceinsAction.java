@@ -3745,6 +3745,665 @@ public class InvoiceinsAction extends DispatchAction
         
         return mapping.findForward("queryInvoiceinsImport");
 	}
+
+
+    public ActionForward importInvoiceinsApply(ActionMapping mapping, ActionForm form,
+                                          HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<InvoiceinsImportBean> importItemList = new ArrayList<InvoiceinsImportBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    InvoiceinsImportBean bean = new InvoiceinsImportBean();
+
+                    // 销售单
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String value = obj[0].trim();
+
+                        bean.setOutId(value);
+
+                        OutBean outBean = this.outDAO.find(value);
+                        if (outBean!= null ){
+                            //判断销售单据状态必须为“待库管审批”、“已出库”、“已发货”三种状态之一
+                            int status = outBean.getStatus();
+                            if (status == OutConstant.STATUS_FLOW_PASS || status == OutConstant.STATUS_PASS ||
+                                    status == OutConstant.STATUS_SEC_PASS){
+                                _logger.info(value+" OUT status pass import****"+status);
+                            } else{
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("销售单必须为'待库管审批'、'已出库'、'已发货'三种状态之一")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售单不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 开票金额
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        double value = MathTools.parseDouble(obj[1].trim());
+
+                        if (value <= 0) {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("开票金额不能小于0")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else {
+                            bean.setInvoiceMoney(value);
+                        }
+                    }
+                    else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("开票金额不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 发票号
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setInvoiceNum(obj[2].trim());
+                    }
+                    else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 发票类型
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String name = obj[3].trim();
+
+                        // 特殊类型
+                        if (name.equals("混合")){
+                            bean.setInvoiceId("9999999999");
+                        }else {
+                            InvoiceBean invoice = invoiceDAO.findByUnique(name);
+
+                            if (null == invoice)
+                            {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("发票类型不存在")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                            else{
+
+                                if (invoice.getForward() == InvoiceConstant.INVOICE_FORWARD_IN)
+                                {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("发票类型不是销货发票")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }else{
+                                    List<DutyVSInvoiceBean> list = dutyVSInvoiceDAO.queryEntityBeansByCondition("where dutytype = 4 and invoiceid=?", invoice.getId());
+
+                                    if (ListTools.isEmptyOrNull(list)) {
+                                        builder
+                                                .append("第[" + currentNumber + "]错误:")
+                                                .append("发票类型不是永银文化纳税实体下的发票")
+                                                .append("<br>");
+
+                                        importError = true;
+                                    } else {
+                                        bean.setInvoiceId(invoice.getId());
+                                    }
+                                }
+                            }
+                        }
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票类型不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 开票抬头
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        String name = obj[4].trim();
+
+                        bean.setInvoiceHead(name);
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("开票抬头不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 先判断地址类型  - 必填 [1:同销售单一致;2:新配送地址]
+                    if ( !StringTools.isNullOrNone(obj[16])) {
+                        if (!obj[16].trim().equals("同销售单一致") && !obj[16].trim().equals("新配送地址")) {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("地址类型只能是 [同销售单一致]或[新配送地址]")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else {
+                            if (obj[16].trim().equals("新配送地址")) {
+                                bean.setAddrType(2);
+                            }
+
+                            if (obj[16].trim().equals("同销售单一致")) {
+                                bean.setAddrType(1);
+                            }
+                        }
+
+                    } else {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("地址类型不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 只有当是新配送地址时 才 需要校验
+                    if (bean.getAddrType() == 2) {
+                        // 发货方式
+                        if ( !StringTools.isNullOrNone(obj[10]))
+                        {
+                            boolean has = false;
+
+                            String shipping = obj[10].trim();
+
+                            for (int i = 0 ; i < OutImportConstant.shipping.length; i++)
+                            {
+                                if (OutImportConstant.shipping[i].equals(shipping))
+                                {
+                                    has = true;
+
+                                    bean.setShipping(OutImportConstant.ishipping[i]);
+
+                                    break;
+                                }
+                            }
+
+                            if (!has)
+                            {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                        .append("<br>");
+
+                                importError = true;
+                            } else {
+                                if (bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING) {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("发货方式不能为空发")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }
+                        }else
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+
+                        if (bean.getShipping() == 2 || bean.getShipping() == 4)
+                        {
+                            // 如果发货方式是快递或快递+货运 ,则快递须为必填
+                            if ( !StringTools.isNullOrNone(obj[11]))
+                            {
+                                String transport1 = obj[11].trim();
+
+                                ExpressBean express = expressDAO.findByUnique(transport1);
+
+                                if (null == express)
+                                {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("快递方式"+ transport1 +"不存在")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }else{
+                                    bean.setTransport1(MathTools.parseInt(express.getId()));
+                                }
+                            }else
+                            {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("快递方式不能为空")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+
+                            // 快递支付方式也不能为空
+                            if ( !StringTools.isNullOrNone(obj[12]))
+                            {
+                                String expressPay = obj[12].trim();
+
+                                boolean isexists = false;
+
+                                for (int i = 0; i < OutImportConstant.expressPay.length; i++)
+                                {
+                                    if (expressPay.equals(OutImportConstant.expressPay[i]))
+                                    {
+                                        isexists = true;
+
+                                        bean.setExpressPay(OutImportConstant.iexpressPay[i]);
+
+                                        break;
+                                    }
+                                }
+
+                                if (!isexists)
+                                {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("快递支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }else
+                            {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("快递支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+
+                        if (bean.getShipping() == 3 || bean.getShipping() == 4)
+                        {
+                            // 如果发货方式是快递或快递+货运 ,则快递须为必填
+                            if ( !StringTools.isNullOrNone(obj[13]))
+                            {
+                                String transport1 = obj[13].trim();
+
+                                ExpressBean express = expressDAO.findByUnique(transport1);
+
+                                if (null == express)
+                                {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("货运方式"+ transport1 +"不存在")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }else{
+                                    bean.setTransport2(MathTools.parseInt(express.getId()));
+                                }
+                            }else
+                            {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("货运方式不能为空")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+
+                            // 快递支付方式也不能为空
+                            if ( !StringTools.isNullOrNone(obj[14]))
+                            {
+                                String expressPay = obj[14].trim();
+
+                                boolean isexists = false;
+
+                                for (int i = 0; i < OutImportConstant.expressPay.length; i++)
+                                {
+                                    if (expressPay.equals(OutImportConstant.expressPay[i]))
+                                    {
+                                        isexists = true;
+
+                                        bean.setTransportPay(OutImportConstant.iexpressPay[i]);
+
+                                        break;
+                                    }
+                                }
+
+                                if (!isexists)
+                                {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("货运支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }else
+                            {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("货运支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+
+                        // 省
+                        if ( !StringTools.isNullOrNone(obj[5]))
+                        {
+                            String name = obj[5].trim();
+
+                            ProvinceBean province = provinceDAO.findByUnique(name);
+
+                            if (null != province)
+                                bean.setProvinceId(province.getId());
+                            else {
+                                if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("快递、货运时省不存在")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }
+                        } else {
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("快递、货运时省不能为空")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+
+                        // 市
+                        if ( !StringTools.isNullOrNone(obj[6]))
+                        {
+                            String name = obj[6].trim();
+
+                            CityBean city = cityDAO.findByUnique(name);
+
+                            if (null != city)
+                                bean.setCityId(city.getId());
+                            else {
+                                if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("快递、货运时市不存在")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }
+                        } else {
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("快递、货运时市不能为空")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+
+                        // 详细地址
+                        if ( !StringTools.isNullOrNone(obj[7]))
+                        {
+                            bean.setAddress(obj[7].trim());
+
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                if (bean.getAddress().length() < 5) {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("快递、货运时详细地址不能少于5个字")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }
+
+                        } else {
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("快递、货运时详细地址不能为空")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+
+                        // 收货人
+                        if ( !StringTools.isNullOrNone(obj[8]))
+                        {
+                            bean.setReceiver(obj[8].trim());
+
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                if (bean.getReceiver().length() < 2) {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("快递、货运时收货人不能少于2个字")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }
+                        } else {
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("快递、货运时收货人不能为空")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+
+                        // 收货人手机
+                        if ( !StringTools.isNullOrNone(obj[9]))
+                        {
+                            bean.setMobile(obj[9].trim());
+
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                if (bean.getMobile().length() < 11) {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("快递、货运时收货人手机不能少于11位")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+                            }
+                        } else {
+                            if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("快递、货运时收货人手机不能为空")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+                    }
+
+
+                    // 票随货发
+                    if ( !StringTools.isNullOrNone(obj[17]))
+                    {
+                        String invoiceFollowOut = obj[17].trim();
+                        _logger.info(bean.getInvoiceNum()+"*****invoiceFollowOut*****"+invoiceFollowOut);
+                        bean.setInvoiceFollowOut(invoiceFollowOut);
+                    } else {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("票随货发不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    bean.setDescription(obj[15].trim());
+                    bean.setInvoiceDate(TimeTools.now_short());
+                    bean.setStafferName(user.getStafferName());
+                    bean.setLogTime(TimeTools.now());
+
+                    importItemList.add(bean);
+
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足17格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importInvoiceins");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        String batchId = "";
+
+        try
+        {
+            invoiceinsManager.checkImportIns(importItemList, builder);
+
+            if (!StringTools.isNullOrNone(builder.toString())) {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+                return mapping.findForward("importInvoiceins");
+            }
+
+            batchId = invoiceinsManager.importInvoiceins(user, importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        // 异步处理 - 只针对初始或失败的行项目
+        List<InvoiceinsImportBean> list = invoiceinsImportDAO.queryEntityBeansByFK(batchId);
+
+        if (!ListTools.isEmptyOrNull(list))
+        {
+            invoiceinsManager.processAsyn(list);
+        }
+
+        return mapping.findForward("queryInvoiceinsImport");
+    }
     
     /**
      * 
