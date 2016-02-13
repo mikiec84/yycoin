@@ -20,7 +20,9 @@ import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.manager.PriceConfigManager;
+import com.china.center.oa.publics.bean.EnumBean;
 import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
@@ -57,10 +59,6 @@ import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
 import com.china.center.oa.publics.bean.StafferBean;
-import com.china.center.oa.publics.dao.AreaDAO;
-import com.china.center.oa.publics.dao.CityDAO;
-import com.china.center.oa.publics.dao.ProvinceDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.dao.BankSailDAO;
@@ -152,6 +150,8 @@ public class OutImportAction extends DispatchAction
     private PriceConfigDAO priceConfigDAO = null;
 
     private InvoiceinsDAO invoiceinsDAO = null;
+
+    private EnumDAO enumDAO = null;
 
     private PriceConfigManager priceConfigManager = null;
 
@@ -4521,6 +4521,209 @@ public class OutImportAction extends DispatchAction
 
         return mapping.findForward("importOutAutoApprove");
     }
+
+    /**
+     * 2016/2/13 #171:批量更新未审批原因
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchUpdateReason(ActionMapping mapping, ActionForm form,
+                                              HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        final String url = "batchUpdateReason";
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<AutoApproveBean> importItemList = new ArrayList<AutoApproveBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    //TODO
+                    AutoApproveBean bean = new AutoApproveBean();
+
+                    // 销售单号
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String outId = obj[0].trim();
+                        bean.setFullId(outId);
+
+                        // 须为销售单
+                        OutBean out = outDAO.find(outId);
+
+                        if (null == out)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("销售单" + outId + "不存在")
+                                    .append("<br>");
+                            importError = true;
+                        } else {
+                            if (out.getType() == OutConstant.OUT_TYPE_OUTBILL) {
+//                                if (out.getStatus() != OutConstant.STATUS_SUBMIT)
+//                                {
+//                                    builder
+//                                            .append("第[" + currentNumber + "]错误:")
+//                                            .append("销售单状态必须是待商务审批.")
+//                                            .append("<br>");
+//                                    importError = true;
+//                                }
+                                //TODO
+                            } else {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("销售单号须是销售单，不能为入库单.")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售单号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 原因
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String reason = obj[1];
+                        //检查符合配置项
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("type", "=", "310");
+                        conditionParse.addCondition("val", "=", reason);
+
+                        List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(enumBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("原因与标准名称不符.")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("原因不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    importItemList.add(bean);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足26格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward(url);
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward(url);
+        }
+
+        try
+        {
+            //TODO
+            this.outManager.importOutAutoApprove(importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "批量导入成功");
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+            return mapping.findForward(url);
+        }
+
+        return mapping.findForward(url);
+    }
     
     /**
      * importOutDepot 
@@ -5941,5 +6144,13 @@ public class OutImportAction extends DispatchAction
 
     public void setSailConfigManager(SailConfigManager sailConfigManager) {
         this.sailConfigManager = sailConfigManager;
+    }
+
+    public EnumDAO getEnumDAO() {
+        return enumDAO;
+    }
+
+    public void setEnumDAO(EnumDAO enumDAO) {
+        this.enumDAO = enumDAO;
     }
 }

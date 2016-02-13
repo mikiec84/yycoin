@@ -155,13 +155,9 @@ public class ShipAction extends DispatchAction
         // TEMPLATE 在action里面默认查询条件
         Map<String, String> initMap = initLogTime(request, condtion, true);
 
-//        System.out.println("**************condition1111"+condtion);
-
         ActionTools.processJSONDataQueryCondition(QUERYPACKAGE, request, condtion, initMap);
-//        System.out.println("**************condition222222222222222222"+condtion);
 
         String temp = condtion.toString();
-        _logger.info("***SQL generated*************"+temp);
         if (!StringTools.isNullOrNone(productName) && temp.indexOf("PackageItemBean") !=-1){
             int index2 = temp.lastIndexOf("AND");
             String prefix = temp.substring(0,index2);
@@ -204,9 +200,7 @@ public class ShipAction extends DispatchAction
 //            }
 //        }
 
-        _logger.info("**************SQL to be executed***"+condtion.toString());
-
-        //2015/3/22 按照单据时间排序，时间最老的最先显示
+               //2015/3/22 按照单据时间排序，时间最老的最先显示
         condtion.addCondition("order by PackageBean.billsTime asc");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
                 new HandleResult<PackageVO>()
@@ -217,8 +211,6 @@ public class ShipAction extends DispatchAction
                     }
 
                 });
-
-        _logger.info("**************jsonstr****************"+jsonstr);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
@@ -843,7 +835,6 @@ public class ShipAction extends DispatchAction
 
     private boolean checkBankPackages(List<PackageVO> packages){
         for (PackageVO vo : packages){
-            System.out.println("getIndustryName***************"+vo.getIndustryName());
             if (vo.getIndustryName().indexOf("银行业务部") ==-1){
                 return false;
             }
@@ -1415,7 +1406,6 @@ public class ShipAction extends DispatchAction
 
             con1.addCondition("PackageVSCustomerBean.packageId", "=", vo.getId());
             con1.addIntCondition("PackageVSCustomerBean.indexPos", "=", 1);
-            //System.out.println("=======con1========" + con1.toString());
             List<PackageVSCustomerBean> vsList1 = packageVSCustomerDAO.queryEntityBeansByCondition(con1);
 
             if (!ListTools.isEmptyOrNull(vsList1))
@@ -1859,6 +1849,8 @@ public class ShipAction extends DispatchAction
 
     private void setProductInfoForNb(PackageItemBean item, ProductBean product){
         if(item != null && product!= null){
+            _logger.info("****product amount***"+item.getAmount()+"***"+product.getProductAmount()+"***"+product.getPackageAmount()+"***");
+            int amount = Math.abs(item.getAmount());
             item.setProductAmount(item.getAmount()*product.getProductAmount());
             item.setPackageAmount(item.getAmount()*product.getPackageAmount());
             item.setCertificateAmount(item.getAmount()*product.getCertificateAmount());
@@ -2571,7 +2563,7 @@ public class ShipAction extends DispatchAction
 
         for (PackageItemBean each : itemList)
         {
-            _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId());
+            _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId()+"***"+each.getAmount());
             if (!each.getCustomerId().equals(vo.getCustomerId()))
             {
                 _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
@@ -2703,10 +2695,7 @@ public class ShipAction extends DispatchAction
         {
             PackageItemBean item = each.getValue();
             this.convertProductNameForNb(item);
-
-//            this.getProductCode(item);
             itemList1.add(item);
-            _logger.info("**********get product code******"+item.getProductCode());
         }
 
         //2015/11/13 中原银行回执单：调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
