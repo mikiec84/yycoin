@@ -119,7 +119,14 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
 
         return true;
     }
-    
+
+    @Override
+    public boolean modifyReason(String fullId, String reason) {
+        jdbcOperation.updateField("reason", reason, fullId, this.claz);
+
+        return true;
+    }
+
     public List<OutBean> queryOutByConditions(String cid,String pid)
     {
     	String sql = "select BaseBean.* from T_CENTER_BASE BaseBean,  t_center_out O  " +

@@ -34,7 +34,9 @@ import com.china.center.oa.sail.wrap.CreditWrap;
 public interface OutDAO extends DAO<OutBean, OutVO>
 {
     boolean modifyOutStatus(String fullId, int status);
-    
+
+    boolean modifyReason(String fullId, String reason);
+
     List<OutBean> queryOutByConditions(String cid,String pid);
     
     List<OutBean> queryOutByConditions1(String cid,String pid);

@@ -220,10 +220,16 @@ function checkBean()
 					</tr>
 					
 					<tr id="presentTR" class="content1" >
-						<td align="right" id="outd">赠送类型：</td>
-						<td colspan="3"><select name="presentFlag" class="select_class" values="${bean.presentFlag}">
+						<td width="15%" align="right" id="outd">赠送类型：</td>
+						<td width="35%">
+                            <select name="presentFlag" class="select_class" values="${bean.presentFlag}">
 								<p:option type="presentFlag" empty="true"></p:option>
-							</select></td>
+							</select>
+                        </td>
+                        <td width="15%" align="right">未审批原因：</td>
+                        <td width="35%">
+                            <input type="text" name="reason" maxlength="30" value="${bean.reason}" readonly="readonly">
+                        </td>
 					</tr>
 
 					<tr class="content1">
