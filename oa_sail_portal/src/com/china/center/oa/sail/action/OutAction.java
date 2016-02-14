@@ -1726,7 +1726,7 @@ public class OutAction extends ParentOutAction
 //                                throw new RuntimeException(e.getErrorContent(), e);
 //                            }
                         } else if (statuss == OutConstant.STATUS_PASS){
-                            //TODO 20115/11/2 库管审批通过时，检查行项目商品如在转换表的 商品名 范围内，数量则必须为配置数量的倍数，否则报错提示
+                            //#120 2015/11/2 库管审批通过时，检查行项目商品如在转换表的 商品名 范围内，数量则必须为配置数量的倍数，否则报错提示
                             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
                             if (!ListTools.isEmptyOrNull(baseBeans)){
                                 for (BaseBean item : baseBeans){

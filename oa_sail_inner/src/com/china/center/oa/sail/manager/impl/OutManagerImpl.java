@@ -11865,8 +11865,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 		
 		return true;
 	}
-	
-	/**
+
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public boolean batchUpdateReason(List<OutBean> list) throws MYException {
+        for (OutBean bean : list){
+            OutBean out = this.outDAO.find(bean.getFullId());
+            if (out!= null){
+                out.setReason(bean.getReason());
+                this.outDAO.updateEntityBean(out);
+            }
+        }
+        return true;
+    }
+
+    /**
 	 * 批量领样转销售
 	 * {@inheritDoc}
 	 */

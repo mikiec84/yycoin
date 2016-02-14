@@ -4540,7 +4540,7 @@ public class OutImportAction extends DispatchAction
 
         boolean importError = false;
 
-        List<AutoApproveBean> importItemList = new ArrayList<AutoApproveBean>();
+        List<OutBean> importItemList = new ArrayList<OutBean>();
 
         StringBuilder builder = new StringBuilder();
 
@@ -4589,8 +4589,7 @@ public class OutImportAction extends DispatchAction
 
                 if (obj.length >= 2 )
                 {
-                    //TODO
-                    AutoApproveBean bean = new AutoApproveBean();
+                    OutBean bean = new OutBean();
 
                     // 销售单号
                     if ( !StringTools.isNullOrNone(obj[0]))
@@ -4643,6 +4642,8 @@ public class OutImportAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String reason = obj[1];
+						bean.setReason(reason);
+
                         //检查符合配置项
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addWhereStr();
@@ -4711,7 +4712,7 @@ public class OutImportAction extends DispatchAction
         try
         {
             //TODO
-            this.outManager.importOutAutoApprove(importItemList);
+            this.outManager.batchUpdateReason(user, importItemList);
 
             request.setAttribute(KeyConstant.MESSAGE, "批量导入成功");
         }

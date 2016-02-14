@@ -461,6 +461,11 @@ public class OutBean implements Serializable
 
     //2015/8/5 异地调拨标志: 1-需异地调拨 0-否
     private int remoteAllocate = 0;
+
+    /**
+     * 2016/2/14 #171：未审批原因
+     */
+    private String reason = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2042,6 +2047,14 @@ public class OutBean implements Serializable
 
     public void setMotivationFlag(int motivationFlag) {
         this.motivationFlag = motivationFlag;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     /**

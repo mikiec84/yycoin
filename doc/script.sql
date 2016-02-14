@@ -128,4 +128,6 @@ alter table T_CENTER_VS_GIFT add column giftProductId2 varchar(100) default '', 
 --2016/2/13 批量更新未审批原因
 insert into t_center_oamenuitem values(1494,'批量更新未审批原因','../sailImport/batchUpdateReason.jsp',14,1,1402,99,'批量更新未审批原因')
 insert into T_CENTER_ENUMDEFINE values(118, '310','销售_批量更新未审批原因','',0)
+alter table t_center_out add column reason varchar(100) DEFAULT ''
+
 

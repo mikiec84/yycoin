@@ -733,4 +733,12 @@ public interface OutManager extends ListenerManager<OutListener>
      * @return
      */
     public int autoApprove(String fullId, User user, int nextStatus,String reason) throws MYException;
+
+    /**
+     * 2016/2/14 #171
+     * @param list
+     * @return
+     * @throws MYException
+     */
+    boolean batchUpdateReason(List<OutBean> list) throws MYException;
 }
