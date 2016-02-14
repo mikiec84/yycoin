@@ -4711,8 +4711,7 @@ public class OutImportAction extends DispatchAction
 
         try
         {
-            //TODO
-            this.outManager.batchUpdateReason(user, importItemList);
+           this.outManager.batchUpdateReason(importItemList);
 
             request.setAttribute(KeyConstant.MESSAGE, "批量导入成功");
         }

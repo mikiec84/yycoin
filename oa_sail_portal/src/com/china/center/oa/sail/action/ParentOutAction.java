@@ -2451,6 +2451,10 @@ public class ParentOutAction extends DispatchAction
 
 			line.writeColumn("单据标识");
 			line.writeColumn("类型");
+
+			//#171 2016/2/14
+			line.writeColumn("未审批原因");
+
 			line.writeColumn("促销活动");
 			line.writeColumn("绑定单号");
 			line.writeColumn("折扣金额");
@@ -2617,6 +2621,8 @@ public class ParentOutAction extends DispatchAction
 					line.writeColumn(element.getFullId());
 
 					line.writeColumn(OutHelper.getOutType(element));
+
+					line.writeColumn(element.getReason());
 
 					line.writeColumn(element.getEventName());
 					if (StringTools.isNullOrNone(element.getEventName()))
