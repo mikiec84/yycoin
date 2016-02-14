@@ -113,7 +113,8 @@ function lverify()
                 return false;
             }
 
-            if ($O('providerName_' + i).value == '' || $O('providerId_' + i).value == '' )
+            var providerId = $O('providerId_' + i).value;
+            if ($O('providerName_' + i).value == '' || providerId == '' )
             {
                 alert('供应商不能为空');
                 return false;
@@ -137,13 +138,25 @@ function lverify()
                 return false;
             }
 
-            if (imap[$O('productId_' + i).value] == $O('productId_' + i).value)
+            //if (imap[$O('productId_' + i).value] == $O('productId_' + i).value)
+            //{
+            //    alert('选择的产品不能重复');
+            //    return false;
+            //}
+            //imap[$O('productId_' + i).value] = $O('productId_' + i).value;
+
+
+            //#172 2016/2/14 将现在的一张采购单上产品不能重复的规则改为 供应商+产品 不能重复
+            var productId = $O('productId_' + i).value;
+            var key = productId+providerId;
+            //console.log(key);
+            if (imap[key] == key)
             {
                 alert('选择的产品不能重复');
                 return false;
             }
 
-            imap[$O('productId_' + i).value] = $O('productId_' + i).value;
+            imap[key] = key;
         }
     }
 
