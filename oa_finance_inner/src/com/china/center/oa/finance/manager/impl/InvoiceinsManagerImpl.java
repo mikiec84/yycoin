@@ -2010,7 +2010,78 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		}
     	}
     }
-    
+
+    @Override
+    public boolean process2(final List<InvoiceinsImportBean> list) throws MYException {
+
+        _logger.info("***process step1***");
+        JudgeTools.judgeParameterIsNull(list);
+
+        StringBuilder sb = new StringBuilder();
+
+        // check again
+        checkImportIns(list, sb);
+
+        _logger.info("***process step2***" + sb.toString());
+
+        if (!StringTools.isNullOrNone(sb.toString())) {
+            throw new MYException(sb.toString());
+        }
+
+        final String batchId = list.get(0).getBatchId();
+
+        try
+        {
+            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+            tran.execute(new TransactionCallback()
+            {
+                public Object doInTransaction(TransactionStatus status)
+                {
+                    try
+                    {
+                        processInner(list);
+                        _logger.info("***process step3***");
+                    }
+                    catch (MYException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+
+                    //saveLog
+                    saveLogInnerWithoutTransaction(batchId, OutImportConstant.LOGSTATUS_SUCCESSFULL, "成功");
+
+                    _logger.info("***process step4***");
+                    return Boolean.TRUE;
+                }
+            }
+            );
+        }
+        catch (TransactionException e)
+        {
+            saveLogInner(batchId, OutImportConstant.LOGSTATUS_FAIL, "处理失败,数据库内部错误");
+
+            operationLog.error("批量开票数据处理错误：", e);
+            throw new MYException("数据库内部错误");
+        }
+        catch (DataAccessException e)
+        {
+            saveLogInner(batchId, OutImportConstant.LOGSTATUS_FAIL, "处理失败,数据访问异常");
+
+            operationLog.error("批量开票数据处理错误：", e);
+            throw new MYException(e.getCause().toString());
+        }
+        catch (Exception e)
+        {
+            saveLogInner(batchId, OutImportConstant.LOGSTATUS_FAIL, "处理失败,系统错误，请联系管理员");
+
+            operationLog.error("批量开票数据处理错误：", e);
+            throw new MYException("系统错误，请联系管理员:" + e);
+        }
+
+        return true;
+    }
+
     public boolean process(final List<InvoiceinsImportBean> list)
 	throws MYException
 	{
@@ -2539,7 +2610,28 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	}
 	}
 
-	public boolean processAsyn(final List<InvoiceinsImportBean> list)
+    @Override
+    public boolean processAsyn2(final List<InvoiceinsImportBean> invoiceinsImportBeans) {
+        Thread ithread = new Thread() {
+            public void run() {
+                try
+                {
+                    _logger.info("*** start processAsyn2 ***");
+                    process2(invoiceinsImportBeans);
+                }
+                catch (MYException e)
+                {
+                    operationLog.warn(e, e);
+                }
+            };
+        };
+
+        ithread.start();
+
+        return true;
+    }
+
+    public boolean processAsyn(final List<InvoiceinsImportBean> list)
 	{
 		Thread ithread = new Thread() {
 			public void run() {

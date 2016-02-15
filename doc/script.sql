@@ -130,4 +130,6 @@ insert into t_center_oamenuitem values(1494,'批量更新未审批原因','../sailImport/
 insert into T_CENTER_ENUMDEFINE values(118, '310','销售_批量更新未审批原因','',0)
 alter table t_center_out add column reason varchar(100) DEFAULT ''
 
+--2016/2/15 发票流程变更
+alter table T_CENTER_INVOICEINS_IMPORT add column virtualInvoiceNum varchar(100) default ''
 

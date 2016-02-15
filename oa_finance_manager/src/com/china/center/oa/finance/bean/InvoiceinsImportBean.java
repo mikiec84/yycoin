@@ -46,6 +46,11 @@ public class InvoiceinsImportBean implements Serializable
 	 * 1发票号： 1开票申请单 ： N 销售单
 	 */
 	private String invoiceNum = "";
+
+    /**
+     * #169 虚拟发票号
+     */
+    private String virtualInvoiceNum = "";
 	
 	/**
 	 * 纳税实体全部为 永银文化， 开票人 为 纳税实体对应的人
@@ -510,5 +515,13 @@ public class InvoiceinsImportBean implements Serializable
      */
     public void setInvoiceFollowOut(String invoiceFollowOut) {
         this.invoiceFollowOut = invoiceFollowOut;
+    }
+
+    public String getVirtualInvoiceNum() {
+        return virtualInvoiceNum;
+    }
+
+    public void setVirtualInvoiceNum(String virtualInvoiceNum) {
+        this.virtualInvoiceNum = virtualInvoiceNum;
     }
 }

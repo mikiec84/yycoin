@@ -3747,11 +3747,21 @@ public class InvoiceinsAction extends DispatchAction
 	}
 
 
+    /**
+     * #169 开票流程变更
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
     public ActionForward importInvoiceinsApply(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
         User user = Helper.getUser(request);
+        String url = "importInvoiceinsApply";
 
         RequestDataStream rds = new RequestDataStream(request);
 
@@ -3771,14 +3781,14 @@ public class InvoiceinsAction extends DispatchAction
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("importInvoiceins");
+            return mapping.findForward(url);
         }
 
         if ( !rds.haveStream())
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("importInvoiceins");
+            return mapping.findForward(url);
         }
 
         ReaderFile reader = ReadeFileFactory.getXLSReader();
@@ -3867,19 +3877,12 @@ public class InvoiceinsAction extends DispatchAction
                         importError = true;
                     }
 
-                    // 发票号
+                    // 虚拟发票号
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
-                        bean.setInvoiceNum(obj[2].trim());
+                        bean.setVirtualInvoiceNum(obj[2].trim());
                     }
-                    else{
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("发票号不能为空")
-                                .append("<br>");
 
-                        importError = true;
-                    }
 
                     // 发票类型
                     if ( !StringTools.isNullOrNone(obj[3]))
@@ -4348,7 +4351,7 @@ public class InvoiceinsAction extends DispatchAction
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
 
-            return mapping.findForward("importInvoiceins");
+            return mapping.findForward(url);
         }
         finally
         {
@@ -4368,7 +4371,7 @@ public class InvoiceinsAction extends DispatchAction
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
-            return mapping.findForward("importInvoiceins");
+            return mapping.findForward(url);
         }
 
         String batchId = "";
@@ -4380,7 +4383,7 @@ public class InvoiceinsAction extends DispatchAction
             if (!StringTools.isNullOrNone(builder.toString())) {
                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
-                return mapping.findForward("importInvoiceins");
+                return mapping.findForward(url);
             }
 
             batchId = invoiceinsManager.importInvoiceins(user, importItemList);
@@ -4391,7 +4394,7 @@ public class InvoiceinsAction extends DispatchAction
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
 
-            return mapping.findForward("importInvoiceins");
+            return mapping.findForward(url);
         }
 
         // 异步处理 - 只针对初始或失败的行项目
@@ -4402,7 +4405,7 @@ public class InvoiceinsAction extends DispatchAction
             invoiceinsManager.processAsyn(list);
         }
 
-        return mapping.findForward("queryInvoiceinsImport");
+        return mapping.findForward(url);
     }
     
     /**

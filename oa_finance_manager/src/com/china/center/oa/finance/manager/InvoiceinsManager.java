@@ -90,7 +90,17 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
     boolean process(List<InvoiceinsImportBean> list)
 	throws MYException;
 
+    boolean process2(List<InvoiceinsImportBean> list)
+            throws MYException;
+
     boolean processAsyn(List<InvoiceinsImportBean> list);
+
+    /**
+     * #169 开票流程变更
+     * @param list
+     * @return
+     */
+    boolean processAsyn2(List<InvoiceinsImportBean> list);
     
     void checkImportIns(List<InvoiceinsImportBean> list, StringBuilder sb);
 
