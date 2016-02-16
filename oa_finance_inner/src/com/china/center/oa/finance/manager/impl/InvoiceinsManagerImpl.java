@@ -725,7 +725,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 .getValue()) <= 0)
             {
                 baseDAO.updateInvoice(base.getId(), (insVSOutBean.getMoneys() + base
-                    .getInvoiceMoney()));
+						.getInvoiceMoney()));
             }
 
             // 更新主单据
@@ -754,7 +754,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             if (MathTools.compare(insVSOutBean.getMoneys() + bbb.getInvoiceMoney(), baseTotal) <= 0)
             {
                 baseBalanceDAO.updateInvoice(bbb.getId(), (insVSOutBean.getMoneys() + bbb
-                    .getInvoiceMoney()));
+						.getInvoiceMoney()));
             }
 
             updateOutBalance(balance);
@@ -845,7 +845,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         {
             // 更新开票状态-结束
             outDAO.updateInvoiceStatus(out.getFullId(), out.getTotal(),
-                OutConstant.INVOICESTATUS_END);
+					OutConstant.INVOICESTATUS_END);
         }
         else
         {
@@ -1820,7 +1820,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	
     	invoiceinsImportDAO.saveAllEntityBeans(list);
 
-		_logger.info("importInvoiceins for batchId:"+batchId);
+		_logger.info("importInvoiceins for batchId:" + batchId);
     	
 		return batchId;
 	}
@@ -2040,7 +2040,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 {
                     try
                     {
-                        processInner(list);
+                        processInner2(list);
                         _logger.info("***process step3***");
                     }
                     catch (MYException e)
@@ -2204,7 +2204,128 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		
 		return true;
 	}
-    
+
+	private boolean processInner2(List<InvoiceinsImportBean> list) throws MYException
+	{
+		try {
+			//  同一个虚拟发票号生成一张开票申请
+			Map<String, List<InvoiceinsImportBean>> map = new HashMap<String, List<InvoiceinsImportBean>>();
+
+			for (InvoiceinsImportBean each : list) {
+				OutBean out = outDAO.find(each.getOutId());
+
+				if (out == null) {
+					OutBalanceBean balance = outBalanceDAO.find(each.getOutId());
+
+					if (null == balance) {
+						throw new MYException("库单[%s]不存在", each.getOutId());
+					} else {
+						if (each.getInvoiceId().equals("9999999999")) {
+							outBalanceDAO.updateInvoiceStatus(balance.getId(), each.getInvoiceMoney(), OutConstant.INVOICESTATUS_END);
+
+							continue;
+						} else {
+							each.setCustomerId(balance.getCustomerId());
+							each.setType(FinanceConstant.INSVSOUT_TYPE_BALANCE);
+							each.setStafferId(balance.getStafferId());
+						}
+					}
+
+				} else {
+					if (each.getInvoiceId().equals("9999999999")) {
+						outDAO.updateInvoiceStatus(out.getFullId(), each.getInvoiceMoney(), OutConstant.INVOICESTATUS_END);
+
+						continue;
+					} else {
+						each.setCustomerId(out.getCustomerId());
+						each.setType(FinanceConstant.INSVSOUT_TYPE_OUT);
+						each.setStafferId(out.getStafferId());
+					}
+				}
+
+				String key = each.getVirtualInvoiceNum();
+
+				if (!map.containsKey(key)) {
+					List<InvoiceinsImportBean> mlist = new ArrayList<InvoiceinsImportBean>();
+
+					mlist.add(each);
+
+					map.put(key, mlist);
+				} else {
+					List<InvoiceinsImportBean> mlist = map.get(key);
+
+					mlist.add(each);
+				}
+			}
+
+			List<InvoiceinsBean> invoiceinsList = new ArrayList<InvoiceinsBean>();
+
+			saveInner(map, invoiceinsList);
+
+			// 调用审批通过
+			for (InvoiceinsBean bean : invoiceinsList) {
+
+				InvoiceinsBean obean = invoiceinsDAO.find(bean.getId());
+
+				if (obean == null) {
+					throw new MYException("数据错误,请确认操作");
+				}
+
+				List<InsVSOutBean> vsList = insVSOutDAO.queryEntityBeansByFK(obean.getId(), AnoConstant.FK_FIRST);
+
+				List<InvoiceinsItemBean> itemList = invoiceinsItemDAO.queryEntityBeansByFK(obean.getId());
+
+				// 单据的开票状态需要更新
+				if (!ListTools.isEmptyOrNull(vsList)) {
+					if (StringTools.isNullOrNone(vsList.get(0).getBaseId())) {
+						for (InsVSOutBean insVSOutBean : vsList) {
+							handlerEachInAdd(insVSOutBean);
+						}
+					}
+					// 0新模式标记 @@see InvoiceinsAction.createInsInNavigation1
+					else if (vsList.get(0).getBaseId().equals("0")) {
+
+						for (InvoiceinsItemBean item : itemList) {
+							// 新的开单规则
+							handlerEachInAdd3(item);
+						}
+					} else {
+						for (InsVSOutBean insVSOutBean : vsList) {
+							handlerEachInAdd2(insVSOutBean);
+						}
+					}
+				}
+
+				// 处理票款纳税实体一致  结束开票时打的标记
+				for (InsVSOutBean vs : vsList) {
+					if (vs.getType() == FinanceConstant.INSVSOUT_TYPE_OUT) {
+						outDAO.updatePayInvoiceData(vs.getOutId(), OutConstant.OUT_PAYINS_TYPE_INVOICE, PublicConstant.MANAGER_TYPE_COMMON, PublicConstant.DEFAULR_DUTY_ID, 1);
+					} else {
+						outBalanceDAO.updatePayInvoiceData(vs.getOutBalanceId(), OutConstant.OUT_PAYINS_TYPE_INVOICE, PublicConstant.MANAGER_TYPE_COMMON, PublicConstant.DEFAULR_DUTY_ID, 1);
+					}
+				}
+
+				FlowLogBean log = new FlowLogBean();
+
+				log.setActor("系统");
+				log.setActorId(StafferConstant.SUPER_STAFFER);
+				log.setFullId(obean.getId());
+				log.setDescription("系统自动结束");
+				log.setLogTime(TimeTools.now());
+				log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_SAVE);
+				log.setAfterStatus(bean.getStatus());
+				log.setOprMode(PublicConstant.OPRMODE_PASS);
+
+				flowLogDAO.saveEntityBean(log);
+			}
+		}catch(Exception e){
+			_logger.error(e);
+			return false;
+		}
+
+		return true;
+	}
+
 	private boolean processInner(List<InvoiceinsImportBean> list) throws MYException
 	{
 		try {
@@ -2325,6 +2446,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
         return true;
 	}
+
+
 
 	private void saveInner(Map<String, List<InvoiceinsImportBean>> map,
 			List<InvoiceinsBean> invoiceinsList) throws MYException
@@ -2610,7 +2733,293 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	}
 	}
 
-    @Override
+	private void saveInner2(Map<String, List<InvoiceinsImportBean>> map,
+						   List<InvoiceinsBean> invoiceinsList) throws MYException
+	{
+		DutyBean duty = dutyDAO.find(PublicConstant.DEFAULR_DUTY_ID);
+
+		for (Map.Entry<String, List<InvoiceinsImportBean>> each : map.entrySet()) {
+			List<InvoiceinsImportBean> elist = each.getValue();
+
+			InvoiceinsImportBean first = elist.get(0);
+
+			// Assemble invoiceinsBean/invoiceinsItemBean/insVSOutBean/InsVSInvoiceNumBean
+			InvoiceinsBean bean = new InvoiceinsBean();
+
+			bean.setId(commonDAO.getSquenceString20());
+			bean.setInvoiceDate(first.getInvoiceDate());
+			bean.setHeadType(0);
+			bean.setHeadContent(first.getInvoiceHead());
+			bean.setInvoiceId(first.getInvoiceId());
+			bean.setDutyId(PublicConstant.DEFAULR_DUTY_ID);
+			bean.setCustomerId(first.getCustomerId());
+			bean.setDescription("批量导入生成开票申请");
+			bean.setInsAmount(1);
+			bean.setLogTime(TimeTools.now());
+			bean.setLocationId("999");
+			//2015/2/1 票随货发
+			_logger.info("****saveInner***"+first.getInvoiceFollowOut());
+			bean.setInvoiceFollowOut(first.getInvoiceFollowOut());
+			//
+			bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+			bean.setOperator(StafferConstant.SUPER_STAFFER);
+			bean.setOperatorName("系统");
+			bean.setProcesser(duty.getInvoicer());
+			//
+			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM); // 待财务确认
+			bean.setStafferId(first.getStafferId());
+			bean.setType(0);
+			bean.setOtype(0);
+
+			List<InvoiceinsItemBean> itemList = new ArrayList<InvoiceinsItemBean>();
+
+			List<InsVSOutBean> vsList = new ArrayList<InsVSOutBean>();
+
+			List<InsVSInvoiceNumBean> numList = new ArrayList<InsVSInvoiceNumBean>();
+
+			bean.setItemList(itemList);
+			bean.setVsList(vsList);
+			bean.setNumList(numList);
+
+			double invoicemoney = 0.0d;
+			StringBuilder sb = new StringBuilder();
+
+			for (InvoiceinsImportBean eachb : elist) {
+
+				invoicemoney += eachb.getInvoiceMoney();
+				sb.append(eachb.getOutId());
+				sb.append(";");
+
+				if (eachb.getType() == FinanceConstant.INSVSOUT_TYPE_OUT) {
+					List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(eachb.getOutId());
+
+					// eliminate return
+					ConditionParse con = new ConditionParse();
+
+					con.addWhereStr();
+
+					con.addCondition("OutBean.refOutFullId", "=", eachb.getOutId());
+
+					con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
+
+					con.addIntCondition("OutBean.outType", "=", OutConstant.OUTTYPE_IN_OUTBACK);
+
+					List<OutBean> refOutList = outDAO.queryEntityBeansByCondition(con);
+
+					for (OutBean eacho : refOutList)
+					{
+						List<BaseBean> blist = baseDAO.queryEntityBeansByFK(eacho.getFullId());
+
+						eacho.setBaseList(blist);
+					}
+
+					// 计算出已经退货的数量
+					for (BaseBean baseBean : baseList)
+					{
+						int hasBack = 0;
+
+						// 退库
+						for (OutBean ref : refOutList)
+						{
+							for (BaseBean refBase : ref.getBaseList())
+							{
+								if (refBase.equals2(baseBean))
+								{
+									hasBack += refBase.getAmount();
+								}
+							}
+						}
+
+						baseBean.setAmount(baseBean.getAmount() - hasBack);
+					}
+
+					double vsMoney = 0.0d;
+					for (BaseBean eachitem : baseList) {
+						if (eachitem.getAmount() > 0) {
+							InvoiceinsItemBean item = new InvoiceinsItemBean();
+
+							item.setId(commonDAO.getSquenceString20());
+							item.setParentId(bean.getId());
+							item.setShowId("10201103130001000189");
+							item.setShowName("纪念品");
+							item.setUnit("8874797");
+							item.setAmount(eachitem.getAmount());
+							item.setPrice(eachitem.getPrice());
+							item.setMoneys(item.getAmount() * item.getPrice());
+							item.setOutId(eachitem.getOutId());
+							item.setBaseId(eachitem.getId());
+							item.setProductId(eachitem.getProductId());
+							item.setType(eachb.getType());
+							item.setCostPrice(eachitem.getCostPrice());
+
+							itemList.add(item);
+
+							vsMoney += item.getMoneys();
+						}
+					}
+
+					InsVSOutBean vsBean = new InsVSOutBean();
+
+					vsBean.setId(commonDAO.getSquenceString20());
+					vsBean.setInsId(bean.getId());
+					vsBean.setOutId(eachb.getOutId());
+					vsBean.setType(eachb.getType());
+					vsBean.setMoneys(vsMoney);
+					vsBean.setBaseId("0"); // 标记
+
+					vsList.add(vsBean);
+
+				} else {
+					// 结算单
+					OutBalanceBean balance = outBalanceDAO.find(eachb.getOutId());
+
+					List<BaseBalanceBean> baseBalanceList = baseBalanceDAO.queryEntityBeansByFK(balance.getId());
+
+					List<BaseBean> baseList = new ArrayList<BaseBean>();
+
+					for (BaseBalanceBean eachba : baseBalanceList)
+					{
+						String baseId = eachba.getBaseId();
+
+						BaseBean baseBean = baseDAO.find(baseId);
+
+						if (null != baseBean)
+						{
+							baseBean.setId(eachba.getId());
+							baseBean.setOutId(eachba.getParentId());
+							baseBean.setAmount(eachba.getAmount());
+							baseBean.setPrice(eachba.getSailPrice());
+							baseBean.setMtype(1);
+							baseBean.setDescription("");
+							baseBean.setLocationId(eachba.getBaseId());
+
+							baseList.add(baseBean);
+						}
+					}
+
+					// 结算单退货明细
+					List<BaseBalanceBean> refList = new ArrayList<BaseBalanceBean>();
+
+					List<OutBalanceBean> balanceList = outBalanceDAO.queryEntityBeansByFK(eachb.getId(), AnoConstant.FK_FIRST);
+
+					for (OutBalanceBean eachob : balanceList)
+					{
+						List<BaseBalanceBean> bbList = baseBalanceDAO.queryEntityBeansByFK(eachob.getId());
+
+						refList.addAll(bbList);
+					}
+
+					for (BaseBean baseBean : baseList)
+					{
+						int hasBack = 0;
+
+						// 申请开票除外
+						for (BaseBalanceBean eachbb : refList)
+						{
+							if (eachbb.getBaseId().equals(baseBean.getLocationId()))
+							{
+								hasBack += eachbb.getAmount();
+							}
+						}
+
+						baseBean.setAmount(baseBean.getAmount() - hasBack);
+					}
+
+					double vsMoney = 0.0d;
+					for (BaseBean eachitem : baseList) {
+						if (eachitem.getAmount() > 0) {
+							InvoiceinsItemBean item = new InvoiceinsItemBean();
+
+							item.setId(commonDAO.getSquenceString20());
+							item.setParentId(bean.getId());
+							item.setShowId("10201103130001000189");
+							item.setShowName("纪念品");
+							item.setUnit("8874797");
+							item.setAmount(eachitem.getAmount());
+							item.setPrice(eachitem.getPrice());
+							item.setMoneys(item.getAmount() * item.getPrice());
+							item.setOutId(eachitem.getOutId());
+							item.setBaseId(eachitem.getId());
+							item.setProductId(eachitem.getProductId());
+							item.setType(eachb.getType());
+							item.setCostPrice(eachitem.getCostPrice());
+
+							itemList.add(item);
+
+							vsMoney += item.getMoneys();
+						}
+					}
+
+					InsVSOutBean vsBean = new InsVSOutBean();
+
+					vsBean.setId(commonDAO.getSquenceString20());
+					vsBean.setInsId(bean.getId());
+					vsBean.setOutId(balance.getOutId());
+					vsBean.setOutBalanceId(balance.getId());
+					vsBean.setType(eachb.getType());
+					vsBean.setMoneys(vsMoney);
+					vsBean.setBaseId("0"); // 标记
+
+					vsList.add(vsBean);
+				}
+
+				eachb.setRefInsId(bean.getId());
+
+				invoiceinsImportDAO.updateEntityBean(eachb);
+			}
+
+			bean.setMoneys(invoicemoney);
+			bean.setRefIds(sb.toString());
+			bean.setFillType(0);
+
+			bean.setDescription(first.getDescription());
+			// fill distribution
+			if (first.getAddrType() == InvoiceinsConstants.INVOICEINS_DIST_NEW) {
+				bean.setShipping(first.getShipping());
+				bean.setTransport1(first.getTransport1());
+				bean.setTransport2(first.getTransport2());
+				bean.setProvinceId(first.getProvinceId());
+				bean.setCityId(first.getCityId());
+				bean.setAreaId(first.getAreaId());
+				bean.setAddress(first.getAddress());
+				bean.setReceiver(first.getReceiver());
+				bean.setMobile(first.getMobile());
+				bean.setTelephone(first.getTelephone());
+				bean.setExpressPay(first.getExpressPay());
+				bean.setTransportPay(first.getTransportPay());
+			} else {
+				bean.setFillType(InvoiceinsConstants.INVOICEINS_DIST_SAME);
+			}
+
+			setDistFromDist(bean);
+
+			// numList
+			InsVSInvoiceNumBean num = new InsVSInvoiceNumBean();
+
+			num.setInsId(bean.getId());
+			num.setMoneys(bean.getMoneys());
+			num.setInvoiceNum(first.getInvoiceNum());
+
+			numList.add(num);
+
+			invoiceinsDAO.saveEntityBean(bean);
+
+			invoiceinsItemDAO.saveAllEntityBeans(itemList);
+
+			insVSOutDAO.saveAllEntityBeans(vsList);
+
+			insVSInvoiceNumDAO.saveAllEntityBeans(numList);
+
+			// package
+			//2016/2/16 DO NOT create package
+//			createPackage(bean);
+
+			invoiceinsList.add(bean);
+		}
+	}
+
+
+	@Override
     public boolean processAsyn2(final List<InvoiceinsImportBean> invoiceinsImportBeans) {
         Thread ithread = new Thread() {
             public void run() {

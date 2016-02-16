@@ -1331,7 +1331,7 @@ public class InvoiceinsAction extends DispatchAction
                     ws.addCell(new Label(j++ , i, eachVS.getInvoiceNum()));
                     ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys())));
                     // 税额
-                    ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys()/(1 + element.getVal()/100) * element.getVal()/100)));
+                    ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys() / (1 + element.getVal() / 100) * element.getVal() / 100)));
                     
                 }
 
@@ -3088,6 +3088,7 @@ public class InvoiceinsAction extends DispatchAction
      * @return
      * @throws ServletException
      */
+    @Deprecated
     public ActionForward importInvoiceins(ActionMapping mapping, ActionForm form,
             HttpServletRequest request, HttpServletResponse response)
 	throws ServletException
@@ -3745,6 +3746,153 @@ public class InvoiceinsAction extends DispatchAction
         
         return mapping.findForward("queryInvoiceinsImport");
 	}
+
+    /**
+     * #169 财务导入发票号
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchUpdateInvoiceins(ActionMapping mapping, ActionForm form,
+                                          HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<InvoiceinsImportBean> importItemList = new ArrayList<InvoiceinsImportBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext()) {
+                String[] obj = fillObj((String[]) reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1) {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0])) {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2) {
+                    InvoiceinsImportBean bean = new InvoiceinsImportBean();
+
+                    // 开票申请号
+                    if (!StringTools.isNullOrNone(obj[0])) {
+                        String invoiceId = obj[0].trim();
+
+                        bean.setId(invoiceId);
+
+                        InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(invoiceId);
+                        if (invoiceinsBean == null) {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("开票申请号不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    } else {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("开票申请号不能为空")
+                                .append("<br>");
+                        importError = true;
+                    }
+
+                    // 发票号
+                    if (!StringTools.isNullOrNone(obj[2])) {
+                        bean.setInvoiceNum(obj[2].trim());
+                    } else {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importInvoiceins");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        try
+        {
+            invoiceinsManager.importInvoiceins(user, importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+            return mapping.findForward("importInvoiceins");
+        }
+
+        return mapping.findForward("queryInvoiceinsImport");
+    }
 
 
     /**
