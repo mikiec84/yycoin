@@ -1716,6 +1716,53 @@ public class ShipAction extends DispatchAction
 
             return mapping.findForward("printNbReceipt");
         }
+        //#173 2016/2/17 兴业银行
+        else if(vo.getCustomerName().indexOf("兴业银行") != -1)
+        {
+            request.setAttribute("packageId", vo.getId());
+
+            request.setAttribute("title", "永银文化贵金属产品收货回执单");
+
+            ConditionParse con2 = new ConditionParse();
+            con2.addWhereStr();
+            con2.addCondition("PackageBean.pickupId", "=", pickupId);
+
+            List<PackageVO> allPackages = packageDAO.queryVOsByCondition(con2);
+            if (!ListTools.isEmptyOrNull(allPackages)){
+                _logger.info("****allPackages size****"+allPackages.size());
+                request.setAttribute("allPackages", allPackages.size());
+
+                //2015/3/30 批量打印最后一张回执单时，因定向到交接单打印，需要此时把最后一张CK单状态设置为“已打印"
+                if ("0".equals(batchPrint) && allPackages.size() == index_pos){
+                    // 更新状态
+                    try
+                    {
+                        shipManager.updatePrintStatus(pickupId, index_pos);
+                        _logger.info(pickupId+":"+index_pos+" print finished***");
+                    }
+                    catch (MYException e)
+                    {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印出错." + e.getErrorContent());
+
+                        return mapping.findForward("error");
+                    }
+                }
+            }
+
+            try{
+                String msg5 = "**********before prepareForBankPrint****";
+                _logger.info(msg5);
+                prepareForBankPrint(request, vo, itemList, compose);
+                String msg6 = "**********after prepareForBankPrint****";
+                _logger.info(msg6);
+            }catch(Exception e){
+                e.printStackTrace();
+                _logger.error("****printBankReceipt exception***",e);
+            }
+
+            return mapping.findForward("printBankReceipt");
+
+        }
         else{  // 打印发货单
             //request.setAttribute("packageId", "None");
             request.setAttribute("packageId", vo.getId());
