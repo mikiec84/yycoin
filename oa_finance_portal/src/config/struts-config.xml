@@ -48,6 +48,7 @@
             <forward name="refConfirmInvoice" path="/invoiceins/refConfirmInvoice.jsp" />
             <forward name="refInvoice" path="/invoiceins/refInvoice.jsp" />
             <forward name="importInvoiceins" path="/invoiceins/importInvoiceins.jsp" />
+            <forward name="importInvoiceinsApply" path="/invoiceins/importInvoiceinsApply.jsp" />
             <forward name="queryInsImportLog" path="/invoiceins/queryInsImportLog.jsp" />
             <forward name="queryInvoiceinsImport" path="/invoiceins/queryInvoiceinsImport.jsp" />
             <forward name="importInvoiceinsForCheck" path="/invoiceins/importInvoiceinsForCheck.jsp" />

@@ -1857,11 +1857,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	
     	for (Map.Entry<String, List<InvoiceinsImportBean>> each : map.entrySet()) {
     		List<InvoiceinsImportBean> ilist = each.getValue();
-    		
-    		List<InsVSInvoiceNumBean> numList = insVSInvoiceNumDAO.queryEntityBeansByFK(each.getKey());
+
+			String insId = each.getKey();
+    		List<InsVSInvoiceNumBean> numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insId);
     		
     		if (ilist.size() != numList.size()) {
-    			throw new MYException("开票标识[%s]发票号码条数是[%s],导入的发票号码条数[%s],两者条数须一致。", each.getKey(), numList.size(), ilist.size());
+    			throw new MYException("开票标识[%s]发票号码条数是[%s],导入的发票号码条数[%s],两者条数须一致。", insId, numList.size(), ilist.size());
     		}
     		
     		// 不得有与现有的重复的发票号
@@ -1871,7 +1872,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     			List<InsVSInvoiceNumBean> cList = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", newnum.getInvoiceNum());
     			
     			if (!ListTools.isEmptyOrNull(cList)) {
-    				throw new MYException("开票标识[%s]发票号码[%s]已使用过,原发票标识[%s]", each.getKey(), newnum.getInvoiceNum(), cList.get(0).getInsId());
+    				throw new MYException("开票标识[%s]发票号码[%s]已使用过,原发票标识[%s]", insId, newnum.getInvoiceNum(), cList.get(0).getInsId());
     			}
     			
     			InsVSInvoiceNumBean insNum = insVSInvoiceNumDAO.find(numList.get(i).getId());
@@ -1879,6 +1880,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     			insNum.setInvoiceNum(newnum.getInvoiceNum());
     			
     			insVSInvoiceNumDAO.updateEntityBean(insNum);
+
+				//2016/2/17 #169 生成CK单
+				InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
+				if (bean!= null) {
+					this.createPackage(bean);
+				}
     		}
     	}
     	
