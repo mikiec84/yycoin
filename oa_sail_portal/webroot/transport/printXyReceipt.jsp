@@ -94,17 +94,6 @@ function callBackPrintFun()
 		<td colspan='2' align='center'>
 		<table width="100%" border="0" cellpadding="0" cellspacing="0">
 			<tr>
-			<td>
-			<table width="100%" cellspacing='0' cellpadding="0" >
-			<tr><td>
-			制表日期：${year} / ${month} / ${day} </td> 
-			<td align="right">页次：&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;</td>
-			</tr>
-			</table>
-			</td>
-			</tr>
-			
-			<tr>
 				<td>
 				<table width="100%" cellspacing='0' cellpadding="0">
 					<tr class="content2">
@@ -120,7 +109,7 @@ function callBackPrintFun()
 						<td><table><tr><td>电话：${phone}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>今收到订单编号为( ${item.refId})的以下产品::</td></tr></table></td>
+						<td colspan="4"><table><tr><td>今收到订单编号为( ${bean.refId})的以下产品:</td></tr></table></td>
 					</tr>
 				</table>
 				</td>
@@ -141,7 +130,7 @@ function callBackPrintFun()
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
 						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-                        <td><table class="border1"><tr><td>TODO</td></tr></table></td>
+                        <td><table class="border1"><tr><td>${item.productCode}</td></tr></table></td>
                         <td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 						<td><table class="border1"><tr><td></td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
@@ -157,7 +146,6 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 					<tr class="content2">
@@ -166,10 +154,9 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center">-</td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="7">
+						<td colspan="6">
                             <table class="border1"><tr><td align="center">注："此收货回执单仅做为收货确认所用，其价格不作为对帐与结算的依据”</td></tr></table>
                         </td>
 					</tr>
@@ -194,15 +181,11 @@ function callBackPrintFun()
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td>电话：${bean.mobile}</td></tr></table></td>
-						<td><table><tr><td>传真：</td></tr></table></td>
+						<td><table><tr><td></td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td>邮编：</td></tr></table></td>
 						<td><table><tr><td>地址：</td></tr></table></td>
-					</tr>
-					<tr class="content2">
-						<td colspan="3"><table><tr><td></td></tr></table></td>
-						<td><table><tr><td></td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td>收货人签字：</td></tr></table></td>

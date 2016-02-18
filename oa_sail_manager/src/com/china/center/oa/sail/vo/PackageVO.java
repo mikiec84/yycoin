@@ -45,6 +45,10 @@ public class PackageVO extends PackageBean
 	@Ignore
 	private List<PackageWrap> wrapList = null;
 
+	//#173 2016/2/18
+	@Ignore
+	private String refId = "";
+
 	public PackageVO()
 	{
 	}
@@ -141,5 +145,13 @@ public class PackageVO extends PackageBean
 	public void setPay(String pay)
 	{
 		this.pay = pay;
+	}
+
+	public String getRefId() {
+		return refId;
+	}
+
+	public void setRefId(String refId) {
+		this.refId = refId;
 	}
 }
