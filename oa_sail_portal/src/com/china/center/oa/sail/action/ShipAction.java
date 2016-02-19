@@ -2067,14 +2067,11 @@ public class ShipAction extends DispatchAction
     }
 
     private String[] getStafferNameAndPhone(String outId){
-        _logger.info("*****getStafferNameAndPhone*****"+outId);
         String stafferName = "永银商务部";
         String phone = "4006518859";
         OutBean out = outDAO.find(outId);
-        _logger.info("*****getStafferNameAndPhone out*****" + out);
         if (out!= null){
             String stafferId = out.getStafferId();
-            _logger.info("*****getStafferNameAndPhone stafferId*****"+stafferId);
             StafferBean staffer = this.stafferDAO.find(stafferId);
             if (staffer!= null){
                 if (!StringTools.isNullOrNone(staffer.getName())){
@@ -2117,7 +2114,7 @@ public class ShipAction extends DispatchAction
             _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
                 _logger.warn("****Empty OutId***********"+first.getId());
-            }else if (outId.startsWith("SO")){
+            }else if (this.isOut(outId)){
                 String[] result = this.getStafferNameAndPhone(outId);
                 if (result.length>=2){
                     stafferName = result[0];
@@ -2257,7 +2254,8 @@ public class ShipAction extends DispatchAction
                     String refId = this.getRefId(out, each.getOutId());
                     if (!StringTools.isNullOrNone(refId))
                     {
-                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+//                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
                         _logger.info("**********refId3**********"+refId3);
                         itemBean.setRefId(refId3);
                     }
@@ -2274,7 +2272,8 @@ public class ShipAction extends DispatchAction
                 {
                     if (!StringTools.isNullOrNone(each.getDescription()))
                     {
-                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+//                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
                         _logger.info("**********description2**********"+description);
                         itemBean.setDescription(description);
                     }
@@ -2295,10 +2294,7 @@ public class ShipAction extends DispatchAction
             PackageItemBean item = each.getValue();
             this.convertProductName(item);
 
-            //2015/9/29 增加客户姓名栏位
-//            this.getCustomerName(item);
             itemList1.add(item);
-            _logger.debug("**********getDescription******" + each.getValue().getDescription());
 
             if (!StringTools.isNullOrNone(item.getRefId()) && !refIdSet.contains(item.getRefId())){
                 refIdSet.add(item.getRefId());
@@ -2324,6 +2320,10 @@ public class ShipAction extends DispatchAction
     }
 
 
+    private boolean isOut(String outId){
+        return outId.startsWith("SO") || outId.startsWith("ZS") || outId.startsWith("XZ");
+    }
+
     private void prepareForBankPrint(HttpServletRequest request, PackageVO vo,
                                      List<PackageItemBean> itemList, String compose)
     {
@@ -2343,7 +2343,7 @@ public class ShipAction extends DispatchAction
             _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
                 _logger.warn("****Empty OutId***********"+first.getId());
-            }else if (outId.startsWith("SO")){
+            }else if (this.isOut(outId)){
                 String[] result = this.getStafferNameAndPhone(outId);
                 if (result.length>=2){
                     stafferName = result[0];
@@ -2480,7 +2480,8 @@ public class ShipAction extends DispatchAction
                     String refId = this.getRefId(out, each.getOutId());
                     if (!StringTools.isNullOrNone(refId))
                     {
-                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+//                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
                         _logger.info("**********refId3**********"+refId3);
                         itemBean.setRefId(refId3);
                     }
@@ -2497,7 +2498,8 @@ public class ShipAction extends DispatchAction
                 {
                     if (!StringTools.isNullOrNone(each.getDescription()))
                     {
-                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+//                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
                         _logger.info("**********description2**********"+description);
                         itemBean.setDescription(description);
                     }
@@ -2526,6 +2528,16 @@ public class ShipAction extends DispatchAction
         vo.setItemList(itemList1);
 
         request.setAttribute("total", totalAmount);
+    }
+
+    private String concat(String str1, String str2, String deliminator){
+        if (!StringTools.isNullOrNone(str1) && str1.equals(str2)){
+            return str1;
+        } else if (!StringTools.isNullOrNone(str1) && !StringTools.isNullOrNone(str2)){
+            return str1+deliminator+str2;
+        } else{
+            return "";
+        }
     }
 
     /**
@@ -2695,10 +2707,6 @@ public class ShipAction extends DispatchAction
                 if (!StringTools.isNullOrNone(refId)){
                     each.setRefId(refId);
                 }
-
-                //2015/1/25 注释掉
-//				each.setDescription("");
-
                 map1.put(each.getProductId(), each);
             }else{
                 PackageItemBean itemBean = map1.get(key);
@@ -2712,7 +2720,8 @@ public class ShipAction extends DispatchAction
                     String refId = this.getRefId(out, each.getOutId());
                     if (!StringTools.isNullOrNone(refId))
                     {
-                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+//                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
                         _logger.info("**********refId3**********"+refId3);
                         itemBean.setRefId(refId3);
                     }
@@ -2729,7 +2738,8 @@ public class ShipAction extends DispatchAction
                 {
                     if (!StringTools.isNullOrNone(each.getDescription()))
                     {
-                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+//                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
                         _logger.info("**********description2**********"+description);
                         itemBean.setDescription(description);
                     }
@@ -2787,7 +2797,7 @@ public class ShipAction extends DispatchAction
             _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
                 _logger.warn("****Empty OutId***********"+first.getId());
-            }else if (outId.startsWith("SO")){
+            }else if (this.isOut(outId)){
                 String[] result = this.getStafferNameAndPhone(outId);
                 if (result.length>=2){
                     stafferName = result[0];
@@ -2923,7 +2933,8 @@ public class ShipAction extends DispatchAction
                     String refId = this.getRefId(out, each.getOutId());
                     if (!StringTools.isNullOrNone(refId))
                     {
-                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+//                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
                         _logger.info("**********refId3**********"+refId3);
                         itemBean.setRefId(refId3);
                     }
@@ -2940,7 +2951,8 @@ public class ShipAction extends DispatchAction
                 {
                     if (!StringTools.isNullOrNone(each.getDescription()))
                     {
-                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+//                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
                         _logger.info("**********description2**********"+description);
                         itemBean.setDescription(description);
                     }
