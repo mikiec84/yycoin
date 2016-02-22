@@ -2013,11 +2013,7 @@ public class ShipAction extends DispatchAction
      */
     private String getBranchNameFromOutImport(String outId){
         String branchName = "";
-        ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addWhereStr();
-        conditionParse.addCondition("OANo", "=", outId);
-        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByCondition(conditionParse);
-
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
         if (!ListTools.isEmptyOrNull(importBeans))
         {
             for (OutImportBean outImportBean: importBeans){
@@ -2563,7 +2559,7 @@ public class ShipAction extends DispatchAction
             String outId = first.getOutId();
             String stafferName = "永银商务部";
             String phone = "4006518859";
-            String firstOutId = "";
+            String firstOutId = outId;
             String branchName = "";
             _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
@@ -2601,8 +2597,7 @@ public class ShipAction extends DispatchAction
                     }
                 }
             }
-            _logger.info("*****stafferName***********"+stafferName);
-            _logger.info("*******phone*************"+phone);
+            _logger.info("*****stafferName***********"+stafferName+"***phone***"+phone);
 
             branchName = this.getBranchNameFromOutImport(firstOutId);
             _logger.info("***branchName***" + branchName);
