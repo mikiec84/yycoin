@@ -1984,7 +1984,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     				if (StringTools.isNullOrNone(out.getPiDutyId()) || (out.getPiMtype() == 1 && out.getPiStatus() == 1)) {
     					// 检查 导入的开票金额是全部的可开票金额
     					double retTotal = outDAO.sumOutBackValueIgnoreStatus(out.getFullId());
-    					
     					if (MathTools.compare(each.getInvoiceMoney(), out.getTotal() - retTotal - out.getInvoiceMoney()) != 0) {
     						sb.append("销售单");
             				sb.append(each.getOutId());
@@ -2267,7 +2266,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 			List<InvoiceinsBean> invoiceinsList = new ArrayList<InvoiceinsBean>();
 
-			saveInner(map, invoiceinsList);
+			saveInner2(map, invoiceinsList);
 
 			// 调用审批通过
 			for (InvoiceinsBean bean : invoiceinsList) {
