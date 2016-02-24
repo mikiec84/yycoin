@@ -274,6 +274,31 @@ function showDiv(id)
 	<p:subBody width="100%">
 		<table width="100%" border="0" cellspacing='1' id="tables">
 			<tr align="center" class="content0">
+				<td width="30%" align="center">采购产品</td>
+				<td width="20%" align="center">拿货数量</td>
+				<td width="30%" align="center">出货日期</td>
+				<td width="20%" align="center">预计到货日期</td>
+			</tr>
+
+			<c:forEach items="${bean.stockItemArrivalVOs}" var="item" varStatus="vs">
+				<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
+					<td align="center">${item.productName}</td>
+
+					<td align="center">${item.amount}</td>
+
+					<td align="center">${item.deliveryDate}</td>
+
+					<td align="center">${item.arrivalDate}</td>
+				</tr>
+			</c:forEach>
+		</table>
+	</p:subBody>
+
+	<p:tr />
+
+	<p:subBody width="100%">
+		<table width="100%" border="0" cellspacing='1' id="tables">
+			<tr align="center" class="content0">
 				<td width="10%" align="center">审批人</td>
 				<td width="10%" align="center">审批动作</td>
 				<td width="10%" align="center">前状态</td>
