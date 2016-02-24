@@ -3097,6 +3097,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             	}
             }
 
+            //#177 2016/2/14
+            if (outBean.getIbFlag()==1 || outBean.getMotivationFlag()==1){
+                throw new MYException("销售单已提交中收或激励申请，无法驳回");
+            }
+
             final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(fullId);
 
             // 仓库
