@@ -4550,7 +4550,7 @@ public class InvoiceinsAction extends DispatchAction
 
         if (!ListTools.isEmptyOrNull(list))
         {
-            invoiceinsManager.processAsyn(list);
+            invoiceinsManager.processAsyn2(list);
         }
 
         return mapping.findForward(url);
