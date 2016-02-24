@@ -21,6 +21,7 @@ import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.stock.bean.*;
 import com.china.center.oa.stock.dao.*;
+import com.china.center.oa.stock.vo.StockItemArrivalVO;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -406,6 +407,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         StockVO vo = stockDAO.findVO(id);
 
         List<StockItemVO> itemVO = stockItemDAO.queryEntityVOsByFK(id);
+        List<StockItemArrivalVO> arrivalVOs = stockItemArrivalDAO.queryEntityVOsByFK(id);
 
         Map divMap = new HashMap();
         Map outTimeMap = new HashMap();
@@ -454,6 +456,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         vo.setDivMap(divMap);
         vo.setItemVO(itemVO);
+        vo.setStockItemArrivalVOs(arrivalVOs);
 
         if (StringTools.isNullOrNone(vo.getOwerName()))
         {
