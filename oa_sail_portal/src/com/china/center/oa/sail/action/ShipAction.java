@@ -133,6 +133,8 @@ public class ShipAction extends DispatchAction
     {
         String customerName = request.getParameter("customerName");
         String productName = request.getParameter("productName");
+        String notProductName = request.getParameter("notProductName");
+        String outId = request.getParameter("outId");
         String stafferName = request.getParameter("stafferName");
         String insFollowOut = request.getParameter("insFollowOut");
         _logger.info("***queryPackage with parameter customer:"+customerName+"***stafferName***"+stafferName+"***productName***"+productName+"***insFollowOut**"+insFollowOut);
@@ -149,12 +151,31 @@ public class ShipAction extends DispatchAction
 
         ActionTools.processJSONDataQueryCondition(QUERYPACKAGE, request, condtion, initMap);
 
-        String temp = condtion.toString();
-        if (!StringTools.isNullOrNone(productName) && temp.indexOf("PackageItemBean") !=-1){
-            int index2 = temp.lastIndexOf("AND");
-            String prefix = temp.substring(0,index2);
-            String sql = prefix+"and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
-            condtion.setCondition(sql);
+        String rawSql = condtion.toString();
+        _logger.info("****condtion***"+rawSql);
+        if ((!StringTools.isNullOrNone(productName) ||!StringTools.isNullOrNone(notProductName) || !StringTools.isNullOrNone(outId))
+                && rawSql.indexOf("PackageItemBean") !=-1){
+            int index2 = rawSql.lastIndexOf("AND");
+            String prefix = rawSql.substring(0, index2);
+//            String sql = prefix+"and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
+            StringBuilder sb = new StringBuilder();
+            sb.append(prefix)
+                    .append("and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id ");
+            if (!StringTools.isNullOrNone(productName)){
+                sb.append("and PackageItemBean.productName like '%"+productName+"%'");
+            }
+
+            if (!StringTools.isNullOrNone(notProductName)){
+                sb.append("and PackageItemBean.productName not like '%"+notProductName+"%'");
+            }
+
+            if (!StringTools.isNullOrNone(outId)){
+                sb.append("and PackageItemBean.outId = '"+outId+"'");
+            }
+
+            sb.append(")");
+
+            condtion.setCondition(sb.toString());
         }
 
 //        if (!StringTools.isNullOrNone(insFollowOut)){

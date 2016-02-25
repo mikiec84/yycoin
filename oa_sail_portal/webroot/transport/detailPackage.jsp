@@ -80,8 +80,10 @@ function load()
 					</tr>
 					
 					<tr class="content1">
+						<td width="15%" align="right">发货单号：</td>
+						<td width="35%">${bean.transportNo}</td>
 						<td width="15%" align="right">地址：</td>
-						<td width="85%" colspan="3">${bean.address}</td>
+						<td width="35%" colspan="3">${bean.address}</td>
                     </tr>
 					
 					<tr class="content2">

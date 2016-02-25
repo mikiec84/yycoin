@@ -298,6 +298,16 @@
             <type>text</type>
             <inner></inner>
         </condtion>
+        <condtion name="notProductName" caption="不包含产品" pfix="PackageItemBean">
+            <opr>like</opr>
+            <type>text</type>
+            <inner></inner>
+        </condtion>
+        <condtion name="outId" caption="销售单或发票号" pfix="PackageItemBean">
+            <opr>like</opr>
+            <type>text</type>
+            <inner></inner>
+        </condtion>
         <condtion name="stafferName" caption="业务员">
             <opr>=</opr>
             <type>text</type>
