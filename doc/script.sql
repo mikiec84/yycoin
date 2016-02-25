@@ -132,4 +132,4 @@ alter table t_center_out add column reason varchar(100) DEFAULT ''
 
 --2016/2/15 发票流程变更
 alter table T_CENTER_INVOICEINS_IMPORT add column virtualInvoiceNum varchar(100) default ''
-insert into t_center_oamenuitem values(9036,'批量导入开票申请','../invoiceins/importInvoiceinsApply.jsp',90,1,9030,99,'批量导入开票申请')
+insert into t_center_oamenuitem values(9037,'批量导入开票申请','../invoiceins/importInvoiceinsApply.jsp',90,1,9031,99,'批量导入开票申请')
