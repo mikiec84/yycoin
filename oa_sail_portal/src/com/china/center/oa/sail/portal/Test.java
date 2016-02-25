@@ -26,6 +26,10 @@ import java.util.*;
  */
 public class Test {
     public String getProductName(String original){
+        String test ="AND PackageBean.status =0 AND PackageBean.logTime >= '2016-02-18 00:00:00' AND PackageItemBean.productName like '%a%'";
+        test = test.replace("AND PackageItemBean.productName like '%a%'","");
+//        test = test.replace("d","haha");
+        System.out.println(test);
         System.out.println(6*6/9);
         System.out.println(6*6%9);
         String name = "";
