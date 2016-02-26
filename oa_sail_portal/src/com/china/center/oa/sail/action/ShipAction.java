@@ -160,30 +160,36 @@ public class ShipAction extends DispatchAction
 //            String prefix = rawSql.substring(0, index2);
 //            String sql = prefix+"and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
             StringBuilder sb = new StringBuilder();
-//            AND PackageItemBean.outId like '%c%' AND PackageItemBean.notProductName like '%b%'
-//            AND PackageItemBean.productName like '%a%'
-            sb.append("and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id ");
-            if (!StringTools.isNullOrNone(productName)){
+//            sb.append("and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id ");
+
+//            StringBuilder sb1 = new StringBuilder();
+//            sb1.append("and not exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id ");
+
+            //销售单号/产品名/不包含产品这三个条件只能选其一
+            if (!StringTools.isNullOrNone(outId)){
+                sb.append("and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id ");
+
+                String template = "AND PackageItemBean.outId like '%"+outId+"%'";
+                rawSql = rawSql.replace(template,"");
+                sb.append("and PackageItemBean.outId = '"+outId+"'");
+            } else if (!StringTools.isNullOrNone(productName)){
+                sb.append("and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id ");
+
                 String template = "AND PackageItemBean.productName like '%"+productName+"%'";
 //                _logger.info("**template***"+template+"***index***"+rawSql.indexOf(template));
                 rawSql = rawSql.replace(template,"");
 //                _logger.info("***raw1***"+rawSql);
                 sb.append("and PackageItemBean.productName like '%"+productName+"%'");
-            }
+            } else if (!StringTools.isNullOrNone(notProductName)){
+                sb.append("and not exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id ");
 
-            if (!StringTools.isNullOrNone(notProductName)){
                 String template = "AND PackageItemBean.notProductName like '%"+notProductName+"%'";
                 rawSql = rawSql.replace(template,"");
-                sb.append("and PackageItemBean.productName not like '%"+notProductName+"%'");
-            }
-
-            if (!StringTools.isNullOrNone(outId)){
-                String template = "AND PackageItemBean.outId like '%"+outId+"%'";
-                rawSql = rawSql.replace(template,"");
-                sb.append("and PackageItemBean.outId = '"+outId+"'");
+                sb.append("and PackageItemBean.productName like '%"+notProductName+"%'");
             }
 
             sb.append(")");
+//            sb1.append(")");
 
 //            _logger.info("***converted raw sql***"+rawSql);
             String newSql = rawSql+sb.toString();
