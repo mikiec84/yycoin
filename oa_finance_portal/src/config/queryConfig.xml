@@ -132,6 +132,12 @@
             <type>select</type>
             <option>$invoiceinsType</option>
         </condtion>
+        <condtion name="status" caption="状态">
+            <opr>=</opr>
+            <datatype>0</datatype>
+            <type>select</type>
+            <option>$invoiceinsStatus</option>
+        </condtion>
         <condtion name="unit" caption="开票单位">
             <opr>like</opr>
             <type>text</type>

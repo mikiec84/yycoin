@@ -905,7 +905,7 @@ public class InvoiceinsAction extends DispatchAction
         {
             condtion.addCondition("InvoiceinsBean.stafferId", "=", user.getStafferId());
         }
-        // 出纳审核
+        // 出纳审核(确认开票页面)
         else if ("1".equals(mode))
         {
             condtion.addCondition("InvoiceinsBean.processer", "=", user.getStafferId());
@@ -913,10 +913,11 @@ public class InvoiceinsAction extends DispatchAction
             condtion.addIntCondition("InvoiceinsBean.status", "=",
                 FinanceConstant.INVOICEINS_STATUS_SUBMIT);
         }
+        //开票管理
         else if ("2".equals(mode))
         {
         }
-        // 稽核
+        // 稽核 (开票审核)
         else if ("3".equals(mode))
         {
             condtion.addIntCondition("InvoiceinsBean.status", "=",

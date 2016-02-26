@@ -2772,7 +2772,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setOperatorName("系统");
 			bean.setProcesser(duty.getInvoicer());
 			//
-			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM); // 待财务确认
+			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT); // 待财务开票 ?
 			bean.setStafferId(first.getStafferId());
 			bean.setType(0);
 			bean.setOtype(0);
