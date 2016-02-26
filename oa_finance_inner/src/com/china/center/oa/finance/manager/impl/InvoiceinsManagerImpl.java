@@ -1885,6 +1885,10 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
 				if (bean!= null) {
 					this.createPackage(bean);
+
+					//状态变成结束
+					bean.setStatus(FinanceConstant.INVOICEINS_STATUS_END);
+					this.invoiceinsDAO.updateEntityBean(bean);
 				}
     		}
     	}
