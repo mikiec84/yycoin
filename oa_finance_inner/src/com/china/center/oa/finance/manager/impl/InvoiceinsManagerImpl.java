@@ -157,6 +157,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     private PackageDAO packageDAO = null;
 
+    private StafferDAO stafferDAO = null;
+
     /*
      * (non-Javadoc)
      * 
@@ -2774,7 +2776,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
 			bean.setOperator(StafferConstant.SUPER_STAFFER);
 			bean.setOperatorName("系统");
-			bean.setProcesser(duty.getInvoicer());
+
+            //处理人员默认为”杨静“
+            StafferBean staffer = this.stafferDAO.findyStafferByName("杨静");
+            if (staffer == null){
+			    bean.setProcesser(duty.getInvoicer());
+            } else{
+                bean.setProcesser(staffer.getId());
+            }
 			//
 			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT); // 待财务开票 ?
 			bean.setStafferId(first.getStafferId());
@@ -3724,5 +3733,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     public void setPackageDAO(PackageDAO packageDAO) {
         this.packageDAO = packageDAO;
+    }
+
+    public StafferDAO getStafferDAO() {
+        return stafferDAO;
+    }
+
+    public void setStafferDAO(StafferDAO stafferDAO) {
+        this.stafferDAO = stafferDAO;
     }
 }
