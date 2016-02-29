@@ -133,3 +133,60 @@ alter table t_center_out add column reason varchar(100) DEFAULT ''
 --2016/2/15 发票流程变更
 alter table T_CENTER_INVOICEINS_IMPORT add column virtualInvoiceNum varchar(100) default ''
 insert into t_center_oamenuitem values(9037,'批量导入开票申请','../invoiceins/importInvoiceinsApply.jsp',90,1,9031,99,'批量导入开票申请')
+
+--2016/2/29 stored function 获取销售单类型
+drop function get_out_type
+CREATE FUNCTION get_out_type(out_type int, type2 int) returns varchar(100)
+  DETERMINISTIC
+BEGIN
+  DECLARE result varchar(100);
+  /*销售单*/
+  if type2 = 0 then
+    if out_type = 0 then
+       set result = '销售出库';
+    elseif out_type = 1 then
+       set result = '个人领样';
+    elseif out_type = 2 then
+       set result = '零售';
+    elseif out_type = 3 then
+       set result = '委托代销';
+    elseif out_type = 4 then
+       set result = '赠送';  
+    elseif out_type = 5 then
+       set result = '客户铺货'; 
+    elseif out_type = 6 then
+       set result = '巡展领样'; 
+    elseif out_type = 7 then
+       set result = '银行领样';     
+    END if;
+  /*出库单*/
+  elseif type2 = 1 then
+    if out_type = 0 then
+       set result = '采购入库';
+    elseif out_type = 1 then
+       set result = '调拨';
+    elseif out_type = 2 then
+       set result = '报废';
+    elseif out_type = 3 then
+       set result = '系统纠正';
+    elseif out_type = 4 then
+       set result = '领样退库';  
+    elseif out_type = 5 then
+       set result = '销售退库'; 
+    elseif out_type = 6 then
+       set result = '采购退货'; 
+    elseif out_type = 7 then
+       set result = '赠品退货';  
+    elseif out_type = 8 then
+       set result = '商品调换';  
+    elseif out_type = 99 then
+       set result = '其他入库'; 
+    elseif out_type = 25 then
+       set result = '调拨申请'; 
+    elseif out_type = 98 then
+       set result = '委托退货';    
+    END if;
+  END if;
+  return (result);
+END 
+
