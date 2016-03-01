@@ -1071,6 +1071,12 @@ public class InvoiceinsAction extends DispatchAction
             ws.addCell(new Label(j++ , i, "经办人", format));
             
             ws.addCell(new Label(j++ , i, "销售单号", format));
+
+            //#169 2016/3/1 导出商品/数量/单价
+            ws.addCell(new Label(j++ , i, "商品", format));
+            ws.addCell(new Label(j++ , i, "数量", format));
+            ws.addCell(new Label(j++ , i, "单价", format));
+
             ws.addCell(new Label(j++ , i, "开票金额", format));
             ws.addCell(new Label(j++ , i, "对应税额", format));
             ws.addCell(new Label(j++ , i, "业务员", format));
@@ -1095,86 +1101,101 @@ public class InvoiceinsAction extends DispatchAction
                 
                 for (InsVSOutBean eachVS : insVoList)
                 {
-                    j = 0;
-                    i++ ;
-
-                    ws.addCell(new Label(j++ , i, element.getLogTime()));
-                    ws.addCell(new Label(j++ , i, element.getId()));
-                    ws.addCell(new Label(j++ , i, element.getDutyName()));
-                    ws.addCell(new Label(j++ , i, element.getHeadContent()));
-                    ws.addCell(new Label(j++ , i, element.getCustomerName()));
-                    ws.addCell(new Label(j++ , i, element.getInvoiceName()));
-                    ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getVal())));
-                    ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getMoneys())));
-                    ws.addCell(new Label(j++ , i, element.getDescription()));
-                    ws.addCell(new Label(j++ , i, element.getOperatorName()));
-                    
                     OutBean outBean = null;
+                    List<BaseBean> baseBeans = null;
                     BaseBean base = null;
-                    
+                    int length = 1;
+
                     if (!StringTools.isNullOrNone(eachVS.getOutId()))
                     {
-                    	outBean = outDAO.find(eachVS.getOutId());
-                        
-                    	if (null == outBean){
-                    		
-                    		OutBalanceBean obean = outBalanceDAO.find(eachVS.getOutId());
-                    		
-                    		if (null != obean)
-                    		{
-                    			outBean = outDAO.find(obean.getOutId());
-                    		}
-                    	}
-                    	
-                    	if (null != outBean){
-                    		base  = baseDAO.queryEntityBeansByFK(outBean.getFullId()).get(0);
-                    	}
+                        outBean = outDAO.find(eachVS.getOutId());
+
+                        if (null == outBean){
+
+                            OutBalanceBean obean = outBalanceDAO.find(eachVS.getOutId());
+
+                            if (null != obean)
+                            {
+                                outBean = outDAO.find(obean.getOutId());
+                            }
+                        }
+
+                        if (null != outBean){
+                            baseBeans = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+                            base  = baseBeans.get(0);
+                            length = baseBeans.size();
+                        }
                     }
-                    
-                    if (eachVS.getType() == FinanceConstant.INSVSOUT_TYPE_OUT)
-                    {
-                    	ws.addCell(new Label(j++ , i, eachVS.getOutId()));
-                    }
-                    else{
-                    	if (StringTools.isNullOrNone(eachVS.getOutBalanceId()))
-                    		ws.addCell(new Label(j++ , i, eachVS.getOutId()));	
-                    	else
-                    		ws.addCell(new Label(j++ , i, eachVS.getOutBalanceId()));
-                    }
-                    
-                    ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys())));
-                    // 税额
-                    ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys()/(1 + element.getVal()/100) * element.getVal()/100)));
-                    ws.addCell(new Label(j++ , i, element.getStafferName()));
-                    
-                    if (null != outBean)
-                    	ws.addCell(new Label(j++ , i, outBean.getChangeTime()));
-                    else
-                    	ws.addCell(new Label(j++ , i, ""));
-                    
-                    StringBuffer sb = new StringBuffer();
-                    if(!ListTools.isEmptyOrNull(insVSNumList))
-                    {
-                    	for(int k = 0; k < insVSNumList.size() ; k++)
-                    	{
-                    		sb.append(insVSNumList.get(k).getInvoiceNum());
-                    		
-                    		if((k+1) < insVSNumList.size())
-                    		{
-                    			sb.append(",\n\n");
-                    		}
-                    	}
-                    }
-                    
-                    ws.addCell(new Label(j++ , i, sb.toString()));
-                    
-                    if (null != outBean)
-                    {
-                    	ws.addCell(new Label(j++ , i, base.getOldGoods()== 9522152 ? "旧货" : "非旧货"));
-                        ws.addCell(new Label(j++ , i, outBean.getMtype() == 1 ? "普通" : "管理"));
-                    }else{
-                    	ws.addCell(new Label(j++ , i, ""));
-                    	ws.addCell(new Label(j++ , i, ""));
+
+                    for (int l=0;l<length;l++){
+                        j = 0;
+                        i++ ;
+
+                        ws.addCell(new Label(j++ , i, element.getLogTime()));
+                        ws.addCell(new Label(j++ , i, element.getId()));
+                        ws.addCell(new Label(j++ , i, element.getDutyName()));
+                        ws.addCell(new Label(j++ , i, element.getHeadContent()));
+                        ws.addCell(new Label(j++ , i, element.getCustomerName()));
+                        ws.addCell(new Label(j++ , i, element.getInvoiceName()));
+                        ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getVal())));
+                        ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getMoneys())));
+                        ws.addCell(new Label(j++ , i, element.getDescription()));
+                        ws.addCell(new Label(j++ , i, element.getOperatorName()));
+
+
+                        if (eachVS.getType() == FinanceConstant.INSVSOUT_TYPE_OUT)
+                        {
+                            ws.addCell(new Label(j++ , i, eachVS.getOutId()));
+                            BaseBean baseBean = baseBeans.get(l);
+                            //#169 商品/数量/价格
+                            ws.addCell(new Label(j++ , i, baseBean.getProductName()));
+                            ws.addCell(new Label(j++ , i, String.valueOf(baseBean.getAmount())));
+                            ws.addCell(new Label(j++ , i, String.valueOf(baseBean.getPrice())));
+                        }
+                        else{
+                            if (StringTools.isNullOrNone(eachVS.getOutBalanceId()))
+                                ws.addCell(new Label(j++ , i, eachVS.getOutId()));
+                            else
+                                ws.addCell(new Label(j++ , i, eachVS.getOutBalanceId()));
+                            ws.addCell(new Label(j++ , i, ""));
+                            ws.addCell(new Label(j++ , i, ""));
+                            ws.addCell(new Label(j++ , i, ""));
+                        }
+
+                        ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys())));
+                        // 税额
+                        ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys()/(1 + element.getVal()/100) * element.getVal()/100)));
+                        ws.addCell(new Label(j++ , i, element.getStafferName()));
+
+                        if (null != outBean)
+                            ws.addCell(new Label(j++ , i, outBean.getChangeTime()));
+                        else
+                            ws.addCell(new Label(j++ , i, ""));
+
+                        StringBuffer sb = new StringBuffer();
+                        if(!ListTools.isEmptyOrNull(insVSNumList))
+                        {
+                            for(int k = 0; k < insVSNumList.size() ; k++)
+                            {
+                                sb.append(insVSNumList.get(k).getInvoiceNum());
+
+                                if((k+1) < insVSNumList.size())
+                                {
+                                    sb.append(",\n\n");
+                                }
+                            }
+                        }
+
+                        ws.addCell(new Label(j++ , i, sb.toString()));
+
+                        if (null != outBean)
+                        {
+                            ws.addCell(new Label(j++ , i, base.getOldGoods()== 9522152 ? "旧货" : "非旧货"));
+                            ws.addCell(new Label(j++ , i, outBean.getMtype() == 1 ? "普通" : "管理"));
+                        }else{
+                            ws.addCell(new Label(j++ , i, ""));
+                            ws.addCell(new Label(j++ , i, ""));
+                        }
                     }
                     
                 }
