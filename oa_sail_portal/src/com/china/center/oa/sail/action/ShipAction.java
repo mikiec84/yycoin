@@ -1314,9 +1314,8 @@ public class ShipAction extends DispatchAction
 
         String batchPrint =  RequestTools.getValueFromRequest(request, "batchPrint");
         String print2 = (String)request.getSession().getAttribute("printMode");
-        _logger.info("**************batchPrint******"+batchPrint+"****print2****"+print2);
 
-        String msg1 = "**********pickupId****"+pickupId+"****packageId*****"+packageId+"***index_pos***"+index_pos+"***printMode***"+printMode+"***printSmode***"+printSmode;
+        String msg1 = "***batchPrint***"+batchPrint+"***print2***"+print2+"***pickupId***"+pickupId+"***packageId***"+packageId+"***index_pos***"+index_pos+"***printMode***"+printMode+"***printSmode***"+printSmode;
         _logger.info(msg1);
         //2015/3/25 批量打印标志
         request.setAttribute("batchPrint", batchPrint);
@@ -1563,7 +1562,7 @@ public class ShipAction extends DispatchAction
             //2015/12/14 把浦发银行的回执单抬头改成：永银文化贵金属产品发货清单
             request.setAttribute("title", "永银文化贵金属产品发货清单");
 
-            //for (PackageItemBean each : itemList)
+            Map<String,String> aToOutMap = new HashMap<String,String>();
             for (Iterator<PackageItemBean> iterator = itemList.iterator(); iterator.hasNext();)
             {
                 PackageItemBean each = iterator.next();
@@ -1575,12 +1574,16 @@ public class ShipAction extends DispatchAction
                     continue;
                 }
 
-                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
+                String outId = each.getOutId();
+                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
                 if (!ListTools.isEmptyOrNull(outiList))
                 {
                     each.setRefId(outiList.get(0).getCiticNo());
                     each.setOutTime(outiList.get(0).getCiticOrderDate());
+                    aToOutMap.put(outId, each.getRefId());
+                } else if (outId.startsWith("A")){
+                    each.setRefId(this.getCiticNoFromA(aToOutMap,outId));
                 }
 
                 if (each.getDescription().indexOf("赠品") != -1)
@@ -1636,8 +1639,7 @@ public class ShipAction extends DispatchAction
                         phone = result[1];
                     }
                 }
-                _logger.info("*****stafferName***********"+stafferName);
-                _logger.info("*******phone*************"+phone);
+                _logger.info("***stafferName****"+stafferName+"****phone****"+phone);
                 request.setAttribute("stafferName", stafferName);
                 request.setAttribute("phone",phone);
             }
@@ -1645,7 +1647,6 @@ public class ShipAction extends DispatchAction
             request.setAttribute("total", totalAmount);
 
             return mapping.findForward("printPufaReceipt");
-
         }
         //2015/11/13 新增中原银行客户
         else if (vo.getCustomerName().indexOf("中原银行") != -1)
@@ -1821,6 +1822,37 @@ public class ShipAction extends DispatchAction
         }
     }
 
+    private String getCiticNoFromA(Map<String,String> aToOutMap,String a){
+        //#181 回执单需要打印发票和赠品对应的客户姓名及对应的银行订单号
+        if (aToOutMap!= null && aToOutMap.containsKey(a)){
+            return aToOutMap.get(a);
+        }
+        String citicNo = "";
+        InvoiceinsBean bean = this.invoiceinsDAO.find(a);
+        if (bean!= null){
+            String refIds = bean.getRefIds();
+            if (!StringTools.isNullOrNone(refIds)){
+                String[] temp = refIds.split(";");
+                String refOutId = null;
+                for (String out: temp){
+                    if (out.startsWith("SO")){
+                        refOutId = out;
+                        _logger.info(a+"*****refIds found********"+refOutId);
+                        break;
+                    }
+                }
+
+                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(refOutId, AnoConstant.FK_FIRST);
+
+                if (!ListTools.isEmptyOrNull(outiList))
+                {
+                    citicNo = outiList.get(0).getCiticNo();
+                }
+            }
+        }
+        return citicNo;
+    }
+
 //    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
     private void convertProductName(PackageItemBean item, String customerName){
         ProductBean product = productDAO.find(item.getProductId());
@@ -1976,7 +2008,48 @@ public class ShipAction extends DispatchAction
         String outId = item.getOutId();
         if (StringTools.isNullOrNone(outId)){
             _logger.warn("****Empty OutId***********"+outId);
-        }else if (outId.startsWith("SO")){
+        } else if (outId.startsWith("SO")){
+            item.setCustomerName(this.getCustomerNameFromOutImport(outId));
+        } else if(outId.startsWith("ZS")){
+            OutBean out = outDAO.find(outId);
+            if (out!= null){
+                String sourceOutId = out.getRefOutFullId();
+                if (!StringTools.isNullOrNone(sourceOutId)){
+                    item.setCustomerName(this.getCustomerNameFromOutImport(sourceOutId));
+                }
+
+                if (StringTools.isNullOrNone(item.getCustomerName())) {
+                    //#181默认就读取out表中客户名
+                    item.setCustomerName(out.getCustomerName());
+                }
+
+            }
+        } else if(outId.startsWith("A")){
+            InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
+            if (bean!= null){
+                String refIds = bean.getRefIds();
+                if (!StringTools.isNullOrNone(refIds)){
+                    String[] temp = refIds.split(";");
+                    String refOutId = null;
+                    for (String out: temp){
+                        if (out.startsWith("SO")){
+                            refOutId = out;
+                            _logger.info(outId+"*****refIds found********"+refOutId);
+                            break;
+                        }
+                    }
+
+                    item.setCustomerName(this.getCustomerNameFromOutImport(refOutId));
+                }
+            }
+        }
+    }
+
+    private void getCustomerNameForXy(PackageItemBean item){
+        String outId = item.getOutId();
+        if (StringTools.isNullOrNone(outId)){
+            _logger.warn("****Empty OutId***********"+outId);
+        } else if (outId.startsWith("SO")){
             item.setCustomerName(this.getCustomerNameFromOutImport(outId));
         } else if(outId.startsWith("ZS")){
             OutBean out = outDAO.find(outId);
@@ -2185,7 +2258,7 @@ public class ShipAction extends DispatchAction
             }
 
             //2015/12/26 #145:回执单打印CK单合并多客户名称问题
-            this.getCustomerName(each);
+            this.getCustomerNameForXy(each);
 
             //2015/12/26 #152: 产品编码要在此处获取，因为相同的产品会合并，在后边处理会有问题。
             this.getProductCode(each);
@@ -2398,8 +2471,7 @@ public class ShipAction extends DispatchAction
                     }
                 }
             }
-            _logger.info("*****stafferName***********"+stafferName);
-            _logger.info("*******phone*************"+phone);
+            _logger.info("*****stafferName***********"+stafferName+"*******phone*************"+phone);
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
         }
@@ -2443,6 +2515,10 @@ public class ShipAction extends DispatchAction
             //2015/10/13 销售时间取out表中的podate
             if (out!= null){
                 each.setPoDate(out.getPodate());
+            }
+            //#169
+            else if(out == null && outId.startsWith("A")){
+                each.setPoDate(each.getOutTime());
             }
 
             if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
@@ -2507,9 +2583,8 @@ public class ShipAction extends DispatchAction
                     String refId = this.getRefId(out, each.getOutId());
                     if (!StringTools.isNullOrNone(refId))
                     {
-//                        String refId3 = itemBean.getRefId() + "<br>" + refId;
                         String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
-                        _logger.info("**********refId3**********"+refId3);
+                        _logger.info("*****refId3*******"+refId3);
                         itemBean.setRefId(refId3);
                     }
                 }else{
@@ -2525,7 +2600,6 @@ public class ShipAction extends DispatchAction
                 {
                     if (!StringTools.isNullOrNone(each.getDescription()))
                     {
-//                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
                         String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
                         _logger.info("**********description2**********"+description);
                         itemBean.setDescription(description);
@@ -2546,10 +2620,8 @@ public class ShipAction extends DispatchAction
             PackageItemBean item = each.getValue();
             this.convertProductName(item);
 
-            //2015/9/29 增加客户姓名栏位
-//            this.getCustomerName(item);
             itemList1.add(item);
-            _logger.debug("**********getDescription******" + each.getValue().getDescription());
+            _logger.debug("*****getDescription*****" + each.getValue().getDescription());
         }
 
         vo.setItemList(itemList1);
