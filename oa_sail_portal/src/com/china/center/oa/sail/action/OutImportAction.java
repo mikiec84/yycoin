@@ -3170,20 +3170,11 @@ public class OutImportAction extends DispatchAction
             			throw new MYException("中信银行订单号不能为空");
             		}
 
-                   System.out.println("**************check price************"+bean.getOutId());
                     //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                     List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(bean.getOutId());
                     if (!ListTools.isEmptyOrNull(baseBeans)){
-                        System.out.println("**************baseBeans size ************"+baseBeans.size());
-                        _logger.info("**************baseBeans size ************"+baseBeans.size());
+                        _logger.info(bean.getOutId()+"**************baseBeans size ************"+baseBeans.size());
                         for (BaseBean base : baseBeans){
-//                            if (base.getInputPrice() == 0)
-//                            {
-//                                String msg = base.getProductName() + " 业务员结算价不能为0";
-//                                _logger.warn(msg);
-//                                throw new RuntimeException(msg);
-//                            }
-
                             // 业务员结算价，总部结算价
                             ProductBean product = productDAO.find(base.getProductId());
 
@@ -3219,6 +3210,10 @@ public class OutImportAction extends DispatchAction
                             // 获取销售配置
                             SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
                                     product);
+
+							if (sailConf == null){
+								throw new RuntimeException("销售配置不存在:"+base.getProductId());
+							}
 
                             // 总部结算价(产品结算价 * (1 + 总部结算率))
                             base.setPprice(sailPrice

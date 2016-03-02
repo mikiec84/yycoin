@@ -1003,13 +1003,6 @@ public class InvoiceinsAction extends DispatchAction
 
         ConditionParse condition = PageSeparateTools.getCondition(request, QUERYINVOICEINS);
 
-//        if (pageSeparate.getRowCount() > 1500)
-//        {
-//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导出的记录数不能超过1500");
-//
-//            return mapping.findForward("error");
-//        }
-
         if (pageSeparate.getRowCount() == 0)
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导出的记录数为0");
@@ -1090,11 +1083,7 @@ public class InvoiceinsAction extends DispatchAction
             for (Iterator iter = beanList.iterator(); iter.hasNext();)
             {
                 element = (InvoiceinsVO)iter.next();
-                
-                // 只导结束态的数据
-//                if (element.getStatus() != FinanceConstant.INVOICEINS_STATUS_END)
-//                	continue;
-                
+
                 List<InsVSInvoiceNumBean> insVSNumList = insVSInvoiceNumDAO.queryEntityBeansByFK(element.getId());
                 
                 List<InsVSOutBean> insVoList = insVSOutDAO.queryEntityBeansByFK(element.getId(),AnoConstant.FK_FIRST);
@@ -1103,8 +1092,12 @@ public class InvoiceinsAction extends DispatchAction
                 {
                     OutBean outBean = null;
                     List<BaseBean> baseBeans = null;
+                    List<InvoiceinsItemVO> itemList = invoiceinsItemDAO.queryEntityVOsByFK(eachVS.getInsId());
                     BaseBean base = null;
                     int length = 1;
+                    if (!ListTools.isEmptyOrNull(itemList)){
+                        length = itemList.size();
+                    }
 
                     if (!StringTools.isNullOrNone(eachVS.getOutId()))
                     {
@@ -1123,7 +1116,6 @@ public class InvoiceinsAction extends DispatchAction
                         if (null != outBean){
                             baseBeans = baseDAO.queryEntityBeansByFK(outBean.getFullId());
                             base  = baseBeans.get(0);
-                            length = baseBeans.size();
                         }
                     }
 
@@ -1146,11 +1138,11 @@ public class InvoiceinsAction extends DispatchAction
                         if (eachVS.getType() == FinanceConstant.INSVSOUT_TYPE_OUT)
                         {
                             ws.addCell(new Label(j++ , i, eachVS.getOutId()));
-                            BaseBean baseBean = baseBeans.get(l);
+                            InvoiceinsItemVO itemBean = itemList.get(l);
                             //#169 商品/数量/价格
-                            ws.addCell(new Label(j++ , i, baseBean.getProductName()));
-                            ws.addCell(new Label(j++ , i, String.valueOf(baseBean.getAmount())));
-                            ws.addCell(new Label(j++ , i, String.valueOf(baseBean.getPrice())));
+                            ws.addCell(new Label(j++ , i, itemBean.getProductName()));
+                            ws.addCell(new Label(j++ , i, String.valueOf(itemBean.getAmount())));
+                            ws.addCell(new Label(j++ , i, String.valueOf(itemBean.getPrice())));
                         }
                         else{
                             if (StringTools.isNullOrNone(eachVS.getOutBalanceId()))
@@ -4050,7 +4042,8 @@ public class InvoiceinsAction extends DispatchAction
                     // 虚拟发票号
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
-                        bean.setVirtualInvoiceNum(obj[2].trim());
+//                        bean.setVirtualInvoiceNum(obj[2].trim());
+                        bean.setInvoiceNum(obj[2].trim());
                     }
 
 
