@@ -1906,6 +1906,16 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		if (each.getInvoiceId().equals("9999999999")) {
     			continue;
     		}
+
+            ProductBean product = this.productDAO.findByName(each.getProductName());
+            if (product == null){
+                sb.append("产品不存在:")
+                    .append(each.getProductName())
+                    .append("<br>");
+            }else{
+                each.setProductId(product.getId());
+                each.setSplitFlag(true);
+            }
     		
     		OutBean out = outDAO.find(each.getOutId());
     		
@@ -2936,8 +2946,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             } else{
                 bean.setProcesser(staffer.getId());
             }
-			//
-			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT); // 待财务开票 ?
+
+			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT); // 待财务开票
 			bean.setStafferId(first.getStafferId());
 			bean.setType(0);
 			bean.setOtype(0);
@@ -3005,29 +3015,62 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					}
 
 					double vsMoney = 0.0d;
-					for (BaseBean eachitem : baseList) {
-						if (eachitem.getAmount() > 0) {
-							InvoiceinsItemBean item = new InvoiceinsItemBean();
+                    //#169 2016/3/2 对于拆分开票，根据导入模板中商品+数量来生成item表
+                    if (eachb.isSplitFlag()){
+                        BaseBean baseBean = this.getBaseBeanByProduct(baseList, eachb.getProductId());
+                        InvoiceinsItemBean item = new InvoiceinsItemBean();
 
-							item.setId(commonDAO.getSquenceString20());
-							item.setParentId(bean.getId());
-							item.setShowId("10201103130001000189");
-							item.setShowName("纪念品");
-							item.setUnit("8874797");
-							item.setAmount(eachitem.getAmount());
-							item.setPrice(eachitem.getPrice());
-							item.setMoneys(item.getAmount() * item.getPrice());
-							item.setOutId(eachitem.getOutId());
-							item.setBaseId(eachitem.getId());
-							item.setProductId(eachitem.getProductId());
-							item.setType(eachb.getType());
-							item.setCostPrice(eachitem.getCostPrice());
+                        item.setId(commonDAO.getSquenceString20());
+                        item.setParentId(bean.getId());
+                        item.setShowId("10201103130001000189");
+                        item.setShowName("纪念品");
+                        item.setUnit("8874797");
+                        item.setAmount(eachb.getAmount());
+                        if (baseBean!= null){
+                            item.setPrice(baseBean.getPrice());
+                        }
+                        item.setMoneys(item.getAmount() * item.getPrice());
+                        item.setOutId(eachb.getOutId());
+                        if (baseBean!= null){
+                            item.setBaseId(baseBean.getId());
+                        }
+                        item.setProductId(eachb.getProductId());
+                        item.setType(eachb.getType());
+                        if (baseBean!= null){
+                            item.setCostPrice(baseBean.getCostPrice());
+                        }
 
-							itemList.add(item);
+                        _logger.info("***create ins item***"+item);
+                        itemList.add(item);
 
-							vsMoney += item.getMoneys();
-						}
-					}
+                        vsMoney += item.getMoneys();
+                    } else{
+                        //其他根据base表获取
+                        for (BaseBean eachitem : baseList) {
+                            if (eachitem.getAmount() > 0) {
+                                InvoiceinsItemBean item = new InvoiceinsItemBean();
+
+                                item.setId(commonDAO.getSquenceString20());
+                                item.setParentId(bean.getId());
+                                item.setShowId("10201103130001000189");
+                                item.setShowName("纪念品");
+                                item.setUnit("8874797");
+                                item.setAmount(eachitem.getAmount());
+                                item.setPrice(eachitem.getPrice());
+                                item.setMoneys(item.getAmount() * item.getPrice());
+                                item.setOutId(eachitem.getOutId());
+                                item.setBaseId(eachitem.getId());
+                                item.setProductId(eachitem.getProductId());
+                                item.setType(eachb.getType());
+                                item.setCostPrice(eachitem.getCostPrice());
+
+                                itemList.add(item);
+
+                                vsMoney += item.getMoneys();
+                            }
+                        }
+                    }
+
 
 					InsVSOutBean vsBean = new InsVSOutBean();
 
@@ -3188,6 +3231,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			invoiceinsList.add(bean);
 		}
 	}
+
+    private BaseBean getBaseBeanByProduct(List<BaseBean> baseBeans, String productId){
+        for (BaseBean baseBean : baseBeans){
+            if (baseBean.getProductId().equals(productId)){
+                return baseBean;
+            }
+        }
+        return null;
+    }
 
 
 	@Override

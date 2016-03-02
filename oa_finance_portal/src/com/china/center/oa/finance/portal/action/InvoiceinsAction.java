@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.china.center.oa.sail.bean.*;
 import jxl.Workbook;
 import jxl.write.Label;
@@ -4042,7 +4041,6 @@ public class InvoiceinsAction extends DispatchAction
                     // 虚拟发票号
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
-//                        bean.setVirtualInvoiceNum(obj[2].trim());
                         bean.setInvoiceNum(obj[2].trim());
                     }
 
@@ -4488,6 +4486,18 @@ public class InvoiceinsAction extends DispatchAction
                                 .append("<br>");
 
                         importError = true;
+                    }
+
+                    // 商品
+                    if ( !StringTools.isNullOrNone(obj[18]))
+                    {
+                        bean.setProductName(obj[18].trim());
+                    }
+
+                    // 数量
+                    if ( !StringTools.isNullOrNone(obj[19]))
+                    {
+                        bean.setAmount(Integer.valueOf(obj[19]));
                     }
 
                     bean.setDescription(obj[15].trim());
@@ -6123,4 +6133,5 @@ public class InvoiceinsAction extends DispatchAction
 	public void setCityDAO(CityDAO cityDAO) {
 		this.cityDAO = cityDAO;
 	}
+
 }

@@ -132,6 +132,7 @@ alter table t_center_out add column reason varchar(100) DEFAULT ''
 
 --2016/2/15 发票流程变更
 alter table T_CENTER_INVOICEINS_IMPORT add column virtualInvoiceNum varchar(100) default ''
+alter table T_CENTER_INVOICEINS_IMPORT add column productId varchar(100) default '',add column productName varchar(100) default '',add column amount int(11) default 0, add column splitFlag int(11) default 0
 insert into t_center_oamenuitem values(9037,'批量导入开票申请','../invoiceins/importInvoiceinsApply.jsp',90,1,9031,99,'批量导入开票申请')
 
 --2016/2/29 stored function 获取销售单类型

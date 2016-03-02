@@ -3,10 +3,9 @@ package com.china.center.oa.finance.bean;
 import java.io.Serializable;
 
 import com.china.center.jdbc.annosql.constant.AnoConstant;
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
+import com.china.center.jdbc.annotation.enums.JoinType;
+import com.china.center.oa.product.bean.ProductBean;
 
 @SuppressWarnings("serial")
 @Entity
@@ -146,6 +145,21 @@ public class InvoiceinsImportBean implements Serializable
      */
     private String invoiceFollowOut = "";
 
+    /** 2016/3/2 #169
+     * 产品
+     */
+    @Join(tagClass = ProductBean.class, type = JoinType.LEFT)
+    private String productId = "";
+
+    private String productName = "";
+
+    private int amount = 0;
+
+    /**
+     * 是否拆分开票
+     */
+    private boolean splitFlag = false;
+
 	/**
 	 * 
 	 */
@@ -153,7 +167,39 @@ public class InvoiceinsImportBean implements Serializable
 	{
 	}
 
-	/**
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public boolean isSplitFlag() {
+        return splitFlag;
+    }
+
+    public void setSplitFlag(boolean splitFlag) {
+        this.splitFlag = splitFlag;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    /**
 	 * @return the id
 	 */
 	public String getId()
