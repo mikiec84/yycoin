@@ -2886,6 +2886,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		
     		num.setInsId(bean.getId());
     		num.setMoneys(bean.getMoneys());
+            //TODO 导入开票申请时，如果输入虚拟发票号，还需要当作是发票号码吗？
     		num.setInvoiceNum(first.getInvoiceNum());
     		
     		numList.add(num);
@@ -3370,7 +3371,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			//#169 只把已导入发票号关联的销售单审批过去
 			ConditionParse condition = new ConditionParse();
 			condition.addWhereStr();
-			condition.addCondition("insId", "=", outId);
+			condition.addCondition("insId", "=", insId);
 			List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition(condition);
 			if (ListTools.isEmptyOrNull(insVSInvoiceNumBeans)
 					|| StringTools.isNullOrNone(insVSInvoiceNumBeans.get(0).getInvoiceNum())){
