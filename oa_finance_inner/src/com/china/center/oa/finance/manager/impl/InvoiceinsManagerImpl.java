@@ -1886,6 +1886,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					//状态变成结束
 					bean.setStatus(FinanceConstant.INVOICEINS_STATUS_END);
 					this.invoiceinsDAO.updateEntityBean(bean);
+
+					FlowLogBean log = new FlowLogBean();
+
+					log.setActor(user.getStafferName());
+					log.setActorId(user.getStafferId());
+					log.setFullId(bean.getId());
+					log.setDescription("导入发票自动结束");
+					log.setLogTime(TimeTools.now());
+					log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM);
+					log.setAfterStatus(FinanceConstant.INVOICEINS_STATUS_END);
+					log.setOprMode(PublicConstant.OPRMODE_PASS);
+
+					flowLogDAO.saveEntityBean(log);
 				}
     		}
     	}
@@ -2359,20 +2372,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				}
 			}
 
-//			for (String key : outToInsMap.keySet()){
-//				List<InvoiceinsImportBean> beans = outToInsMap.get(key);
-//				if (beans.size()>1){
-//					int count =0;
-//					for (InvoiceinsImportBean each: beans){
-//						List<InvoiceinsImportBean> temp = new ArrayList<InvoiceinsImportBean>();
-//						temp.add(each);
-//						map.put(key + "_" + count, temp);
-//						count++;
-//					}
-//				}else{
-//					outToInsMap.remove(key);
-//				}
-//			}
 			_logger.info("***outToInsMap size2***"+outToInsMap.keySet().size());
 			_logger.info("***map size2***"+map.keySet().size());
 
@@ -3307,8 +3306,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 if (!ListTools.isEmptyOrNull(insVSOutBeans)){
                     _logger.info(insId+"****with InsVSOutBean size****"+insVSOutBeans.size());
                     for (InsVSOutBean vs : insVSOutBeans){
-                       String outId = vs.getOutId();
-                       boolean result = this.passOut(outId);
+						String outId = vs.getOutId();
+                       boolean result = this.passOut(insId, outId);
                        _logger.info(outId+"*****passOut result****"+result);
                        if (result){
                            _logger.info("****outId to be packaged***"+outId);
@@ -3324,16 +3323,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                            String invoiceAddress = bean.getAddress();
                            ConditionParse con1 = new ConditionParse();
                            con1.addWhereStr();
-                           con1.addIntCondition("OutBean.status","=", OutConstant.STATUS_FLOW_PASS);
-                           con1.addCondition(" and exists (select dis.* from t_center_distribution dis where dis.outId=OutBean.fullId and dis.address='"+invoiceAddress+"')");
-                           _logger.info("******condition11111111111****"+con1);
+                           con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
+                           con1.addCondition(" and exists (select dis.* from t_center_distribution dis where dis.outId=OutBean.fullId and dis.address='" + invoiceAddress + "')");
                            List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
                            if (ListTools.isEmptyOrNull(outBeans)){
                                _logger.info("****No same address SO exists****");
                            } else{
                                for (OutBean o: outBeans){
                                    String fullId = o.getFullId();
-                                   boolean pass = this.passOut(fullId);
+                                   boolean pass = this.passOut(insId, fullId);
                                    if (pass && !outIdList.contains(fullId)){
 //                                       outIdList.add(fullId);
                                        _logger.info("****same address outId to be packaged***"+fullId);
@@ -3341,14 +3339,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                }
                            }
                        }
-
                     }
                 }
 
                 //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单-->2015/2/15 改为写入中间表
-                if (ListTools.isEmptyOrNull(outIdList)){
-                   _logger.info("****No OUT to do******");
-                } else{
+                if (!ListTools.isEmptyOrNull(outIdList)){
                     _logger.info(insId+"****createPackage with OUT size******"+outIdList.size());
                     //2015/2/15 更新InvoiceinsBean.packaged状态
                     this.packageManager.createPackage(outIdList);
@@ -3358,7 +3353,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     }
 
     //若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
-    private boolean passOut(String outId){
+    private boolean passOut(String insId, String outId){
         boolean result = false;
         OutBean out = this.outDAO.find(outId);
 
@@ -3372,15 +3367,17 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
             _logger.info("****自动库管审批通过*****" + outId);
 
-			//#169 只把导入发票号关联的销售单审批过去
+			//#169 只把已导入发票号关联的销售单审批过去
 			ConditionParse condition = new ConditionParse();
 			condition.addWhereStr();
-			condition.addCondition("outId", "=", outId);
-			List<InsVSOutBean> insVSOutBeans = insVSOutDAO.queryEntityBeansByCondition(condition);
-			if (ListTools.isEmptyOrNull(insVSOutBeans)){
-				_logger.warn("***No InsVSOutBean found***"+outId);
+			condition.addCondition("insId", "=", outId);
+			List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition(condition);
+			if (ListTools.isEmptyOrNull(insVSInvoiceNumBeans)
+					|| StringTools.isNullOrNone(insVSInvoiceNumBeans.get(0).getInvoiceNum())){
+				_logger.warn(insId+"***No InsVSInvoiceNumBean found***"+outId);
 				return false;
 			}
+
             final int statuss = 3;
             if (statuss == OutConstant.STATUS_MANAGER_PASS
                     || statuss == OutConstant.STATUS_FLOW_PASS
