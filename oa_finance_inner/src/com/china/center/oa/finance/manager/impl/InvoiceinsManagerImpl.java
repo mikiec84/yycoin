@@ -828,7 +828,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
      */
     private void updateOut(OutBean out)
     {
-        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
+		String outId = out.getFullId();
+        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
 
         double total = 0.0d;
 
@@ -837,6 +838,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             total += baseBean.getInvoiceMoney();
         }
 
+		_logger.info(outId+"**total**"+total+"***getTotal()***"+out.getTotal());
         // 全部开票
         if (MathTools.compare(total, out.getTotal()) >= 0)
         {
@@ -2449,14 +2451,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 				// 单据的开票状态需要更新
 				if (!ListTools.isEmptyOrNull(vsList)) {
-					if (StringTools.isNullOrNone(vsList.get(0).getBaseId())) {
+					String baseId = vsList.get(0).getBaseId();
+					_logger.info("*********baseId*****"+baseId);
+					if (StringTools.isNullOrNone(baseId)) {
 						for (InsVSOutBean insVSOutBean : vsList) {
 							handlerEachInAdd(insVSOutBean);
 						}
 					}
 					// 0新模式标记 @@see InvoiceinsAction.createInsInNavigation1
-					else if (vsList.get(0).getBaseId().equals("0")) {
-
+					else if ("0".equals(baseId)) {
 						for (InvoiceinsItemBean item : itemList) {
 							// 新的开单规则
 							handlerEachInAdd3(item);
@@ -2934,7 +2937,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			//2015/2/1 票随货发
 			_logger.info("****saveInner***"+first.getInvoiceFollowOut());
 			bean.setInvoiceFollowOut(first.getInvoiceFollowOut());
-			//
 			bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
 			bean.setOperator(StafferConstant.SUPER_STAFFER);
 			bean.setOperatorName("系统");
@@ -3212,7 +3214,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 			num.setInsId(bean.getId());
 			num.setMoneys(bean.getMoneys());
-			num.setInvoiceNum(first.getInvoiceNum());
+			//2016/3/4 导入时虚拟发票号不能再写入发票表了
+//			num.setInvoiceNum(first.getInvoiceNum());
 
 			numList.add(num);
 
