@@ -1914,6 +1914,42 @@ public class ShipAction extends DispatchAction
         }
     }
 
+    //#183 2016/6
+
+    /**
+     * 招行的回执单上品名的取值逻辑要改下：按销售订单号到out_import表中取对应行中的productcode,
+     * 再到t_center_vs_citic_product 表中拿productcode对应相同的citicproductcode字段行，取citicproductname
+     * @param item
+     */
+    private void convertProductNameForBank(PackageItemBean item){
+        String productName = "";
+        String outId = item.getOutId();
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+
+        _logger.info("***importBeans size***"+importBeans.size());
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            OutImportBean bean = importBeans.get(0);
+            String productCode = bean.getProductCode();
+            ConditionParse conditionParse =  new ConditionParse();
+            conditionParse.addCondition("citicProductCode", "=", productCode);
+            List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(beans)){
+                productName = beans.get(0).getCiticProductName();
+                _logger.info("***getCiticProductName***"+productName);
+            }
+        }
+
+        //default pick from package item table
+        if (StringTools.isNullOrNone(productName)){
+            productName = this.getProductName(item.getProductName());
+        }
+
+        if (!StringTools.isNullOrNone(productName)){
+            item.setProductName(productName);
+        }
+    }
+
     /**
      * 2015/11/23 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
      * @param item
@@ -2618,10 +2654,10 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            this.convertProductName(item);
+            this.convertProductNameForBank(item);
 
             itemList1.add(item);
-            _logger.debug("*****getDescription*****" + each.getValue().getDescription());
+            _logger.info("***convertProductNameForBank***" + item.getProductName());
         }
 
         vo.setItemList(itemList1);
