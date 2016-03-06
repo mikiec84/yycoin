@@ -416,7 +416,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			        			outDAO.updatePayInvoiceData(out.getFullId(), OutConstant.OUT_PAYINS_TYPE_INVOICE, duty.getMtype(), duty.getId(), 0);
 			        		}
 		        		}
-		        		else if (type == 1) // 驳回/退票
+                        //#169 驳回时清除销售单开票状态及金额
+                        else if (type == FinanceConstant.INVOICEINS_STATUS_REJECT){
+                            if (out.getPiType() == OutConstant.OUT_PAYINS_TYPE_INVOICE && out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
+                                outDAO.initPayInvoiceData(out.getFullId());
+                            outDAO.updateInvoiceStatus(out.getFullId(), 0,OutConstant.INVOICESTATUS_INIT);
+                        }
+		        		else if (type == 1) // 退票
 		        		{
 		        			if (out.getPiType() == OutConstant.OUT_PAYINS_TYPE_INVOICE && out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
 		        				outDAO.initPayInvoiceData(out.getFullId());
@@ -761,6 +767,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private void handlerEachInAdd3(InvoiceinsItemBean item)
     throws MYException
 	{
+        _logger.info("***handlerEachInAdd3***");
 	    if (item.getType() == FinanceConstant.INSVSOUT_TYPE_OUT)
 	    {
 	        // 销售单
@@ -1235,7 +1242,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         //insVSOutDAO.deleteEntityBeansByFK(id, AnoConstant.FK_FIRST);
         
         // 开票打的标记清除
-        processInvoicePay(null, vsList, 1);
+        processInvoicePay(null, vsList, FinanceConstant.INVOICEINS_STATUS_REJECT);
 
         FlowLogBean log = new FlowLogBean();
 
@@ -1911,25 +1918,26 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     public void checkImportIns(List<InvoiceinsImportBean> list, StringBuilder sb){
 		//同一个SO可对应多个开票申请
 		Map<String ,List<InvoiceinsImportBean>> outToInvoicesMap = new HashMap<String, List<InvoiceinsImportBean>>();
-		Map<String ,List<InvoiceinsImportBean>> balanceToInvoicesMap = new HashMap<String, List<InvoiceinsImportBean>>();
 
     	//1.没有发生过开票，可开票部分 = 原单 - 退货
     	//2.须符合票、款一致原则
     	for (InvoiceinsImportBean each : list) {
     		String fullId = "";
-    		// 特殊类型,该类型不生成开票申请
+            // 特殊类型,该类型不生成开票申请
     		if (each.getInvoiceId().equals("9999999999")) {
     			continue;
     		}
 
-            ProductBean product = this.productDAO.findByName(each.getProductName());
-            if (product == null){
-                sb.append("产品不存在:")
-                    .append(each.getProductName())
-                    .append("<br>");
-            }else{
-                each.setProductId(product.getId());
-                each.setSplitFlag(true);
+            if(!StringTools.isNullOrNone(each.getProductName())) {
+                ProductBean product = this.productDAO.findByName(each.getProductName());
+                if (product == null){
+                    sb.append("产品不存在:")
+                            .append(each.getProductName())
+                            .append("<br>");
+                }else{
+                    each.setProductId(product.getId());
+                    each.setSplitFlag(true);
+                }
             }
     		
     		OutBean out = outDAO.find(each.getOutId());
@@ -1969,14 +1977,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         				}
         				
         				if (StringTools.isNullOrNone(balance.getPiDutyId()) || (balance.getPiMtype() == 1 && balance.getPiStatus() == 1)) {
-//							String key = each.getId();
-//							if (balanceToInvoicesMap.containsKey(key)){
-//								balanceToInvoicesMap.get(key).add(each);
-//							} else{
-//								List<InvoiceinsImportBean> beans = new ArrayList<InvoiceinsImportBean>();
-//								beans.add(each);
-//								balanceToInvoicesMap.put(key, beans);
-//							}
 							//TODO each.getId()应该为空，这段代码有问题！
         					double refMoneys = outBalanceDAO.sumByOutBalanceId(each.getId());
 
@@ -2030,15 +2030,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 							beans.add(each);
 							outToInvoicesMap.put(key, beans);
 						}
-						//deprecated #169 2016/3/2
-//    					double retTotal = outDAO.sumOutBackValueIgnoreStatus(out.getFullId());
-//    					if (MathTools.compare(each.getInvoiceMoney(), out.getTotal() - retTotal - out.getInvoiceMoney()) != 0) {
-//    						sb.append("销售单");
-//            				sb.append(each.getOutId());
-//            				sb.append("导入的开票金额须等于可开票金额");
-//            				sb.append("<br>");
-//    					}
-    					
     				} else {
     					sb.append("销售单");
         				sb.append(each.getOutId());
@@ -2082,32 +2073,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				}
 			}
 		}
-
-//		for (String key : balanceToInvoicesMap.keySet()){
-//			_logger.info("****check key2***"+key);
-//			List<InvoiceinsImportBean> beans = outToInvoicesMap.get(key);
-//			OutBalanceBean balance = outBalanceDAO.find(key);
-//			if (balance!= null){
-//				double refMoneys = outBalanceDAO.sumByOutBalanceId(key);
-//
-//				double invoiceMoneyTotal = 0;
-//				for (InvoiceinsImportBean bean: beans){
-//					invoiceMoneyTotal += bean.getInvoiceMoney();
-//				}
-//				if (MathTools.compare(invoiceMoneyTotal, balance.getTotal() - refMoneys - balance.getInvoiceMoney()) != 0) {
-//					sb.append("销售单");
-//					sb.append(key);
-//					sb.append("导入的开票金额须等于可开票金额");
-//					sb.append("<br>");
-//				}
-//			}
-//		}
     }
 
     @Override
     public boolean process2(final List<InvoiceinsImportBean> list) throws MYException {
-
-        _logger.info("***process step1***");
+        _logger.info("***begin process2***");
         JudgeTools.judgeParameterIsNull(list);
 
         StringBuilder sb = new StringBuilder();
@@ -2436,6 +2406,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 			saveInner2(map, invoiceinsList);
 
+            _logger.info("***invoiceinsList***"+invoiceinsList.size());
 			// 调用审批通过
 			for (InvoiceinsBean bean : invoiceinsList) {
 
@@ -2469,7 +2440,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 							handlerEachInAdd2(insVSOutBean);
 						}
 					}
-				}
+				}else{
+                    _logger.info("****no VS List found***");
+                }
 
 				// 处理票款纳税实体一致  结束开票时打的标记
 				for (InsVSOutBean vs : vsList) {
@@ -3049,6 +3022,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     } else{
                         //其他根据base表获取
                         for (BaseBean eachitem : baseList) {
+                            _logger.info("***baseBean***"+eachitem);
                             if (eachitem.getAmount() > 0) {
                                 InvoiceinsItemBean item = new InvoiceinsItemBean();
 
@@ -3226,10 +3200,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			insVSOutDAO.saveAllEntityBeans(vsList);
 
 			insVSInvoiceNumDAO.saveAllEntityBeans(numList);
-
-			// package
-			//2016/2/16 DO NOT create package
-//			createPackage(bean);
 
 			invoiceinsList.add(bean);
 		}
