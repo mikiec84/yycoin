@@ -3258,6 +3258,57 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	}
 
     @Override
+    public void autoApproveJob() throws MYException {
+        String msg = "***autoApproveJob running***";
+        System.out.println(msg);
+        _logger.info(msg);
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("status", "=", OutConstant.STATUS_FLOW_PASS);
+        List<OutBean> beans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(beans)){
+            _logger.info("********autoApproveJob with out size******"+beans.size());
+            for (OutBean bean : beans){
+                String outId = bean.getFullId();
+                boolean result = this.passOut(null, outId);
+                _logger.info(outId+"*****passOut result****"+result);
+                if (result){
+                    _logger.info("****outId to be packaged***"+outId);
+
+                    //并检查与上述自动审批的SO单配送信息一致的订单，如有，则一并自动审批通过
+                    //TODO 可否用customerId+PS表上的receiver+mobile一致即可？
+                    List<DistributionBean> distributionBeans = distributionDAO.queryEntityBeansByFK(outId);
+                    if (!ListTools.isEmptyOrNull(distributionBeans)) {
+                        DistributionBean distributionBean = distributionBeans.get(0);
+                        String receiver = distributionBean.getReceiver();
+                        String mobile = distributionBean.getMobile();
+                        ConditionParse con1 = new ConditionParse();
+                        con1.addWhereStr();
+                        con1.addCondition("OutBean.customerId", "=", bean.getCustomerId());
+                        con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+                        con1.addCondition("OutBean.outtype not in (0,2) ");
+                        con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
+                        con1.addCondition(" and exists (select dis.* from t_center_distribution dis " +
+                                "where dis.outId=OutBean.fullId and " +
+                                "dis.receiver='" + receiver + "'" +
+                                "dis.mobile='" + mobile + "')");
+                        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+                        if (ListTools.isEmptyOrNull(outBeans)){
+                            _logger.info("****No same address SO exists****");
+                        } else{
+                            _logger.info("****same address SO need to auto approve****"+outBeans.size());
+                            for (OutBean o: outBeans){
+                                String fullId = o.getFullId();
+                                boolean pass = this.passOut(null, fullId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public void insFollowOutJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         String msg = "*****票随货发insFollowOutJob running***************";

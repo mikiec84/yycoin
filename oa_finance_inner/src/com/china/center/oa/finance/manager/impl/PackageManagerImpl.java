@@ -1146,6 +1146,7 @@ public class PackageManagerImpl implements PackageManager {
      * @throws MYException
      */
     @Override
+    @Deprecated
     public void createPackage(final List<String> outIdList) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         if (!ListTools.isEmptyOrNull(outIdList)){
@@ -1180,35 +1181,15 @@ public class PackageManagerImpl implements PackageManager {
     }
 
     private void processOut2(List<String> outIdList) throws MYException{
-            for (int i=0;i<outIdList.size();i++) {
-                String outId = outIdList.get(i);
-                InvoiceinsBean insBean = invoiceinsDAO.find(outId);
-                if (insBean!= null){
-                    insBean.setPackaged(1);
-                    this.invoiceinsDAO.updateEntityBean(insBean);
-                    _logger.info("InsVSOutBean updated to packaged***"+outId);
-                }
-
-
-//                OutVO outBean = outDAO.findVO(outId);
-//                InvoiceinsBean insBean = null;
-//                List<BaseBean> baseList = new ArrayList<BaseBean>();
-//                List<InsVSInvoiceNumBean> numList = new ArrayList<InsVSInvoiceNumBean>();
-//                Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
-//                _logger.info("****processOut22222222222222222222***********");
-//                if (outBean == null){
-//                    _logger.error("****OutBean not found:"+outId);
-////                    insBean = invoiceinsDAO.find(outId);
-////                    if (insBean!= null){
-////                        numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insBean.getId());
-////                        insBeans.add(insBean);
-////                        _logger.info("****insBean found***********"+outId);
-////                    }
-//                } else{
-//                    this.outManager.createPackage(outBean);
-//                }
-//            }
-    }
+        for (int i=0;i<outIdList.size();i++) {
+            String outId = outIdList.get(i);
+            InvoiceinsBean insBean = invoiceinsDAO.find(outId);
+            if (insBean!= null){
+                insBean.setPackaged(1);
+                this.invoiceinsDAO.updateEntityBean(insBean);
+                _logger.info("InsVSOutBean updated to packaged***"+outId);
+            }
+        }
     }
 
 //    private void processOut2(List<String> outIdList) throws MYException{
