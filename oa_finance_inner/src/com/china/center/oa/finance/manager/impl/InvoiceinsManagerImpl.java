@@ -1875,7 +1875,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		for (int i = 0; i < ilist.size(); i++) {
     			InvoiceinsImportBean newnum = ilist.get(i);
     			
-    			List<InsVSInvoiceNumBean> cList = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", newnum.getInvoiceNum());
+//    			List<InsVSInvoiceNumBean> cList = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", newnum.getInvoiceNum());
     			
 //    			if (!ListTools.isEmptyOrNull(cList)) {
 //    				throw new MYException("开票标识[%s]发票号码[%s]已使用过,原发票标识[%s]", insId, newnum.getInvoiceNum(), cList.get(0).getInsId());
@@ -3271,36 +3271,35 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             _logger.info("********autoApproveJob with out size******"+beans.size());
             for (OutBean bean : beans){
                 String outId = bean.getFullId();
-                boolean result = this.passOut(null, outId);
+                boolean result = this.autoApproveOut(true, outId);
                 _logger.info(outId+"*****passOut result****"+result);
                 if (result){
-                    _logger.info("****outId to be packaged***"+outId);
-
                     //并检查与上述自动审批的SO单配送信息一致的订单，如有，则一并自动审批通过
-                    //根据SO单customerId+PS表上的receiver+mobile一致即可
+                    //根据SO单customerId+PS表上的receiver+mobile一致即可，ZS单不需要已开票
                     List<DistributionBean> distributionBeans = distributionDAO.queryEntityBeansByFK(outId);
                     if (!ListTools.isEmptyOrNull(distributionBeans)) {
                         DistributionBean distributionBean = distributionBeans.get(0);
                         String receiver = distributionBean.getReceiver();
                         String mobile = distributionBean.getMobile();
-                        ConditionParse con1 = new ConditionParse();
+						ConditionParse con1 = new ConditionParse();
                         con1.addWhereStr();
                         con1.addCondition("OutBean.customerId", "=", bean.getCustomerId());
                         con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
-                        con1.addCondition("OutBean.outtype not in (0,2) ");
+                        con1.addCondition(" and OutBean.outtype not in (0,2) ");
                         con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
-                        con1.addCondition(" and exists (select dis.* from t_center_distribution dis " +
-                                "where dis.outId=OutBean.fullId and " +
-                                "dis.receiver='" + receiver + "'" +
-                                "dis.mobile='" + mobile + "')");
-                        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+                        con1.addCondition(" and exists (select dis.id from t_center_distribution dis " +
+								"where dis.outId=OutBean.fullId and " +
+								"dis.receiver='" + receiver + "' and " +
+								"dis.mobile='" + mobile + "')");
+						List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
                         if (ListTools.isEmptyOrNull(outBeans)){
                             _logger.info("****No same address SO exists****");
                         } else{
                             _logger.info("****same address SO need to auto approve****"+outBeans.size());
                             for (OutBean o: outBeans){
                                 String fullId = o.getFullId();
-                                boolean pass = this.passOut(null, fullId);
+                                boolean pass = this.autoApproveOut(false, fullId);
+								_logger.info(fullId+"*****passOut result****"+pass);
                             }
                         }
                     }
@@ -3377,6 +3376,82 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             }
         }
     }
+
+	//若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
+	private boolean autoApproveOut(boolean checkInvoiceStatus, String outId){
+		boolean result = false;
+		OutBean out = this.outDAO.find(outId);
+
+		if (out == null){
+			_logger.warn("****no SO found****"+outId);
+			return false;
+		} else{
+			_logger.info(outId+"****try to passOut with status****"+out.getStatus());
+		}
+
+		if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
+			_logger.info("****autoApproveOut outId*****" + outId);
+
+			if (checkInvoiceStatus){
+				//#169 只把已导入发票号关联的销售单审批过去
+				ConditionParse condition = new ConditionParse();
+				condition.addWhereStr();
+				condition.addCondition(" and exists ( select InsVSOutBean.* from T_CENTER_VS_INSOUT InsVSOutBean " +
+						"where InsVSOutBean.insId=InsVSInvoiceNumBean.insId and InsVSOutBean.outId='" +
+						outId+"')");
+				List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition(condition);
+				if (ListTools.isEmptyOrNull(insVSInvoiceNumBeans)
+						|| StringTools.isNullOrNone(insVSInvoiceNumBeans.get(0).getInvoiceNum())){
+					_logger.warn("***No InsVSInvoiceNumBean found***"+outId);
+					return false;
+				}
+			}
+
+			final int statuss = 3;
+			if (statuss == OutConstant.STATUS_MANAGER_PASS
+					|| statuss == OutConstant.STATUS_FLOW_PASS
+					|| statuss == OutConstant.STATUS_PASS)
+			{
+				// 这里需要计算客户的信用金额-是否报送物流中心经理审批
+				boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
+
+				// 如果是黑名单的客户(且没有付款)
+				if (outCredit && out.getReserve3() == OutConstant.OUT_SAIL_TYPE_MONEY
+						&& out.getType() == OutConstant.OUT_TYPE_OUTBILL
+						&& out.getPay() == OutConstant.PAY_NOT)
+				{
+					try
+					{
+						outManager.payOut(null, outId, "结算中心确定已经回款");
+					}
+					catch (MYException e)
+					{
+						_logger.error(outId+"****自动库管审批出错****",e);
+						return result;
+					}
+				}
+
+				int resultStatus = -1;
+				try
+				{
+					resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
+					OutBean newOut = outDAO.find(outId);
+					if(resultStatus == OutConstant.STATUS_PASS)
+					{
+						outManager.updateCusAndBusVal(newOut,"票随货发Job");
+					}
+					result = true;
+
+				}
+				catch (MYException e)
+				{
+					_logger.warn(e, e);
+				}
+			}
+
+		}
+		return result;
+	}
 
     //若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
     private boolean passOut(String insId, String outId){
