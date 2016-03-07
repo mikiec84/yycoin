@@ -1877,9 +1877,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     			
     			List<InsVSInvoiceNumBean> cList = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", newnum.getInvoiceNum());
     			
-    			if (!ListTools.isEmptyOrNull(cList)) {
-    				throw new MYException("开票标识[%s]发票号码[%s]已使用过,原发票标识[%s]", insId, newnum.getInvoiceNum(), cList.get(0).getInsId());
-    			}
+//    			if (!ListTools.isEmptyOrNull(cList)) {
+//    				throw new MYException("开票标识[%s]发票号码[%s]已使用过,原发票标识[%s]", insId, newnum.getInvoiceNum(), cList.get(0).getInsId());
+//    			}
     			
     			InsVSInvoiceNumBean insNum = insVSInvoiceNumDAO.find(numList.get(i).getId());
     			
@@ -3264,6 +3264,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         _logger.info(msg);
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
+		conditionParse.addCondition("type", "=", OutConstant.OUT_TYPE_OUTBILL);
         conditionParse.addCondition("status", "=", OutConstant.STATUS_FLOW_PASS);
         List<OutBean> beans = this.outDAO.queryEntityBeansByCondition(conditionParse);
         if (!ListTools.isEmptyOrNull(beans)){
@@ -3276,7 +3277,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     _logger.info("****outId to be packaged***"+outId);
 
                     //并检查与上述自动审批的SO单配送信息一致的订单，如有，则一并自动审批通过
-                    //TODO 可否用customerId+PS表上的receiver+mobile一致即可？
+                    //根据SO单customerId+PS表上的receiver+mobile一致即可
                     List<DistributionBean> distributionBeans = distributionDAO.queryEntityBeansByFK(outId);
                     if (!ListTools.isEmptyOrNull(distributionBeans)) {
                         DistributionBean distributionBean = distributionBeans.get(0);
