@@ -3579,15 +3579,16 @@ public class TravelApplyAction extends DispatchAction
                 TcpIbReportItemBean ib = iter.next();
                 String fullId = ib.getFullId();
                 //#166同1SO单的只导出了一行
-                TcpIbReportItemBean ibInMap = orders.get(fullId);
-                if (ibInMap == null){
-                    orders.put(fullId, ib);
-                } else{
-                    if (ibInMap.equals(ib)){
-                        _logger.info(ibInMap+"***duplicate IB report item***"+ib);
-                        continue;
-                    }
-                }
+                //2016/3/7 #166 同一SO单导出重复是正常情况，因为正好SO单两个商品行的商品和数量是一样的。
+//                TcpIbReportItemBean ibInMap = orders.get(fullId);
+//                if (ibInMap == null){
+//                    orders.put(fullId, ib);
+//                } else{
+//                    if (ibInMap.equals(ib)){
+//                        _logger.info(ibInMap+"***duplicate IB report item***"+ib);
+//                        continue;
+//                    }
+//                }
 
                 if (StringTools.isNullOrNone(customerName)|| ib.getCustomerName().contains(customerName))  {
                     line.writeColumn(ib.getCustomerName());
