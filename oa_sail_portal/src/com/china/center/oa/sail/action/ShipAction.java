@@ -1931,12 +1931,14 @@ public class ShipAction extends DispatchAction
         {
             OutImportBean bean = importBeans.get(0);
             String productCode = bean.getProductCode();
-            ConditionParse conditionParse =  new ConditionParse();
-            conditionParse.addCondition("citicProductCode", "=", productCode);
-            List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
-            if (!ListTools.isEmptyOrNull(beans)){
-                productName = beans.get(0).getCiticProductName();
-                _logger.info("***getCiticProductName***"+productName);
+            if (!StringTools.isNullOrNone(productCode)){
+                ConditionParse conditionParse =  new ConditionParse();
+                conditionParse.addCondition("citicProductCode", "=", productCode);
+                List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(beans)){
+                    productName = beans.get(0).getCiticProductName();
+                    _logger.info("***getCiticProductName***"+productName);
+                }
             }
         }
 
