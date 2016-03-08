@@ -5830,7 +5830,6 @@ public class ParentOutAction extends DispatchAction
             return mapping.findForward("error");
         }
 
-        _logger.info("addBuyExchange 111111111111111");
         CommonTools.saveParamers(request);
 
         User user = (User) request.getSession().getAttribute("user");
@@ -5857,7 +5856,6 @@ public class ParentOutAction extends DispatchAction
         {
             saves = "提交";
         }
-        _logger.info("addBuyExchange 22222222222222222222222");
         ParamterMap map = new ParamterMap(request);
 
         ActionForward action = null;
@@ -5868,6 +5866,8 @@ public class ParentOutAction extends DispatchAction
         outBean.setOutType(OutConstant.OUTTYPE_IN_EXCHANGE);
 
         outBean.setLocationId(locationId);
+		//#188 TH单默认紧急
+		outBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
 
         // 增加职员的ID
         outBean.setStafferId(user.getStafferId());
