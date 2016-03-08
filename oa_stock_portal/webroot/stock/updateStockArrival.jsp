@@ -293,7 +293,7 @@
                             <input type="hidden" name="itemId" value="${item.id}">
                         </td>
 
-                        <c:if test="${item.fechProduct == 0}">
+                        <c:if test="${item.fechProduct == 0 ||item.fechProduct == 2}">
                             <td align="center"><input type="number" name="amount" value="${item.amount}" required></td>
 
                             <td align="center"><input type="text" name="deliveryDate" value="${item.deliveryDate}" ><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "deliveryDate");' height='20px' width='20px'/></td>

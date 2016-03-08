@@ -227,10 +227,7 @@ function updatePrice()
 						<td align="center">${item.stafferName}</td>
 
 						<td align="center">
-							<!-- 2015/10/26 去掉staffer的判断 -->
-								<%--<c:if test="${item.fechProduct == 0 && item.stafferId == user.stafferId}">--%>
-								<%--<c:if test="${item.totalWarehouseNum <item.amount && item.stafferId == user.stafferId}">--%>
-							<c:if test="${item.fechProduct == 0}">
+							<c:if test="${item.fechProduct == 0 || item.fechProduct == 2}">
 								<a title="拿货"
 								   href="javascript:fech('${item.id}','${item.amount}','${item.totalWarehouseNum}')">
 									<img src="../images/opr/change.gif" border="0" height="15" width="15"></a>

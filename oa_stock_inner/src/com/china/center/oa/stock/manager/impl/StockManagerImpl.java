@@ -1430,10 +1430,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             //本次入库数量大于待入库数量
             _logger.error(arrivalItemId+" 本次入库数量大于待入库数量");
             throw new MYException("本次入库数量大于待入库数量");
-        }   else if (warehouseNum == toBeWarehouse){
+        } else if (warehouseNum == toBeWarehouse){
             //如果本次入库数量==待入库数量，则本产品入库结束
             item.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
             _logger.info(arrivalItemId + " set to STOCK_ITEM_FECH_YES****");
+        } else{
+            item.setFechProduct(StockConstant.STOCK_ITEM_FECH_PART);
         }
 
         try{
