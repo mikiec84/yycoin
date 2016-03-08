@@ -27,6 +27,7 @@ import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.stock.bean.StockBean;
+import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.bean.StockItemBean;
 import com.china.center.oa.stockvssail.listener.FechProductListener;
 import com.china.center.oa.tax.bean.FinanceBean;
@@ -188,7 +189,12 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         // 科目拷贝
         FinanceHelper.copyTax(productTax, itemIn1);
 
-        double money = each.getAmount() * each.getPrice();
+        double money = 0;
+        if (each instanceof StockItemArrivalBean){
+            money = each.getWarehouseNum() * each.getPrice();
+        } else{
+            money = each.getAmount() * each.getPrice();
+        }
 
         itemIn1.setInmoney(FinanceHelper.doubleToLong(money));
 
@@ -201,7 +207,11 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         itemIn1.setProductId(each.getProductId());
 
         // 采购数量
-        itemIn1.setProductAmountIn(each.getAmount());
+        if (each instanceof StockItemArrivalBean){
+            itemIn1.setProductAmountIn(each.getWarehouseNum());
+        }else{
+            itemIn1.setProductAmountIn(each.getAmount());
+        }
 
         itemList.add(itemIn1);
 
@@ -229,7 +239,12 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         // 科目拷贝
         FinanceHelper.copyTax(outTax, itemOut1);
 
-        double outMoney = each.getAmount() * each.getPrice();
+        double outMoney = 0;
+        if (each instanceof StockItemArrivalBean){
+           outMoney = each.getWarehouseNum() * each.getPrice();
+        }else{
+            outMoney = each.getAmount() * each.getPrice();
+        }
 
         itemOut1.setInmoney(0);
 
@@ -251,7 +266,6 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
      * @param each
      * @param out
      * @param financeBean
-     * @param name
      * @param itemList
      * @throws MYException
      */
@@ -289,7 +303,12 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         FinanceHelper.copyTax(productTax, itemIn);
 
         // 供应商税点*库存商品价值
-        double money = each.getAmount() * each.getPrice() * provider.getDues() / 1000.0d;
+        double money = 0;
+        if (each instanceof  StockItemArrivalBean){
+            money = each.getWarehouseNum() * each.getPrice() * provider.getDues() / 1000.0d;
+        } else{
+            money = each.getAmount() * each.getPrice() * provider.getDues() / 1000.0d;
+        }
 
         itemIn.setInmoney(FinanceHelper.doubleToLong(money));
 
@@ -333,7 +352,12 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         // 科目拷贝
         FinanceHelper.copyTax(outTax, itemOut);
 
-        double outMoney = each.getAmount() * each.getPrice() * provider.getDues() / 1000.0d;
+        double outMoney = 0;
+        if (each instanceof StockItemArrivalBean){
+            outMoney= each.getWarehouseNum() * each.getPrice() * provider.getDues() / 1000.0d;
+        }else{
+            outMoney= each.getAmount() * each.getPrice() * provider.getDues() / 1000.0d;
+        }
 
         itemOut.setInmoney(0);
 

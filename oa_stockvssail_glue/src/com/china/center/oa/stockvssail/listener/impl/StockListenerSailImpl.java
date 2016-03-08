@@ -341,7 +341,8 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             // 目的仓库通过仓区自动获取
             out.setLocation(depotpartBean.getLocationId());
 
-            out.setTotal(item.getTotal());
+//            out.setTotal(item.getTotal());
+            out.setTotal(item.getPrice()*each.getWarehouseNum());
 
             out.setInway(OutConstant.IN_WAY_NO);
 
@@ -366,7 +367,7 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             baseBean.setLocationId(out.getLocation());
 
             //2014/12/14 入库单根据实际入库数量分批次生成
-            _logger.info("*************autoToOut getWarehouseNum************"+each.getWarehouseNum());
+            _logger.info("***autoToOut getWarehouseNum****"+each.getWarehouseNum());
             baseBean.setAmount(each.getWarehouseNum());
             baseBean.setProductName(item.getProductName());
             baseBean.setUnit("套");

@@ -1401,7 +1401,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
      */
     @Transactional(rollbackFor = {MYException.class})
     @Override
-    public boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
+    public boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId,
+                                             int warehouseNum, int toBeWarehouse) throws MYException {
         StockItemArrivalBean item = this.stockItemArrivalDAO.find(arrivalItemId);
 
         if (item == null)
@@ -1412,7 +1413,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         String stockId = item.getStockId();
         StockBean stock = stockDAO.findVO(stockId);
 
-        _logger.info("fetchProduct with stockId:" + stockId + ";itemId:" + arrivalItemId + ";depotpartId:" + depotpartId + ";warehouseNum:" + warehouseNum + ";toBeWarehouse:" + toBeWarehouse);
+        _logger.info("fetchProduct with stockId:" + stockId + ";itemId:" + arrivalItemId + ";depotpartId:" + depotpartId +
+                ";warehouseNum:" + warehouseNum + ";toBeWarehouse:" + toBeWarehouse);
 
         if (stock == null)
         {
@@ -1447,7 +1449,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             Collection<StockListener> listenerMapValues = this.listenerMapValues();
             for (StockListener stockListener : listenerMapValues)
             {
-                _logger.info("*************create stock in bean***********"+item);
+                _logger.info("***create stock in bean***"+item);
                 stockListener.onEndStockItem(user, stock, item);
             }
             List<StockItemArrivalBean> items = this.stockItemArrivalDAO.queryEntityBeansByFK(stockId);
