@@ -1839,14 +1839,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	
     	Map<String, List<InvoiceinsImportBean>> map = new HashMap<String, List<InvoiceinsImportBean>>();
     	
-    	Set<String> dset = new HashSet<String>();
+//    	Set<String> dset = new HashSet<String>();
     	
     	for (InvoiceinsImportBean each : list) {
-    		if (dset.contains(each.getInvoiceNum())) {
-    			throw new MYException("导入的发票号中有重复");
-    		} else {
-    			dset.add(each.getInvoiceNum());
-    		}
+//    		if (dset.contains(each.getInvoiceNum())) {
+//    			throw new MYException("导入的发票号中有重复");
+//    		} else {
+//    			dset.add(each.getInvoiceNum());
+//    		}
     		
     		if (!map.containsKey(each.getId())) {
     			List<InvoiceinsImportBean> ilist = new ArrayList<InvoiceinsImportBean>();
