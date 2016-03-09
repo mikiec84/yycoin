@@ -146,7 +146,7 @@
     <bean id="autoApproveJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="autoApproveJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/5 * * * ?" />
     </bean>
 
 

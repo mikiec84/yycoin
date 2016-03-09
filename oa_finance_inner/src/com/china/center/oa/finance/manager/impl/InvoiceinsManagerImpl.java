@@ -902,7 +902,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         // 驳回
         conditionParse.addIntCondition("status", "=", FinanceConstant.INVOICEINS_STATUS_REJECT);
 
-        conditionParse.addCondition("logTime", "<=", TimeTools.now( -60));
+        conditionParse.addCondition("logTime", "<=", TimeTools.now(-60));
 
         List<InvoiceinsBean> beanList = invoiceinsDAO.queryEntityBeansByCondition(conditionParse
             .toString());
@@ -3514,6 +3514,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     }
                     result = true;
 
+					// #187 紫金订单zjrcout的状态自动变为3
+					if ("ZJRC".equals(out.getFlowId())){
+						String zjrcFullId = out.getZjrcFullId();
+						if (StringTools.isNullOrNone(zjrcFullId)){
+							_logger.warn(out.getFullId() + "***can not get ZJRC ID***");
+						} else{
+							this.outManager.updateZjrcOutStatus(zjrcFullId);
+						}
+					}
                 }
                 catch (MYException e)
                 {

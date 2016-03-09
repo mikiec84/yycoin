@@ -21,6 +21,7 @@ import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 
 
@@ -2055,6 +2056,21 @@ public class OutBean implements Serializable
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    /**
+     * get ZJRC fullId from description
+     * @return
+     */
+    public String getZjrcFullId(){
+        String zjrcFullId = "";
+        if (!StringTools.isNullOrNone(description)){
+            String[] temp1 = description.split("\\.");
+            if (temp1.length>=2){
+                zjrcFullId = temp1[1].trim();
+            }
+        }
+        return zjrcFullId;
     }
 
     /**
