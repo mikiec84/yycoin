@@ -1522,7 +1522,6 @@ public class ShipAction extends DispatchAction
 
             List<PackageVO> allPackages = packageDAO.queryVOsByCondition(con2);
             if (!ListTools.isEmptyOrNull(allPackages)){
-                _logger.info("****allPackages size****"+allPackages.size());
                 request.setAttribute("allPackages", allPackages.size());
 
                 //2015/3/30 批量打印最后一张回执单时，因定向到交接单打印，需要此时把最后一张CK单状态设置为“已打印"
@@ -1531,7 +1530,7 @@ public class ShipAction extends DispatchAction
                     try
                     {
                         shipManager.updatePrintStatus(pickupId, index_pos);
-                        _logger.info(pickupId+":"+index_pos+" print finished***");
+//                        _logger.info(pickupId+":"+index_pos+" print finished***");
                     }
                     catch (MYException e)
                     {
@@ -1550,11 +1549,9 @@ public class ShipAction extends DispatchAction
                 _logger.info(msg6);
             }catch(Exception e){
                 e.printStackTrace();
-                _logger.error("****printBankReceipt exception***",e);
             }
 
             return mapping.findForward("printBankReceipt");
-
         }else if (vo.getCustomerName().indexOf("浦发银行") != -1)
         {
             request.setAttribute("packageId", vo.getId());
@@ -2469,16 +2466,16 @@ public class ShipAction extends DispatchAction
 
         List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
 
+        //#189 <productId_itemType,PackageItemBean>
         Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
 
         //2015/1/25 取商务联系人及电话
         if (!ListTools.isEmptyOrNull(itemList)){
-            _logger.info("******itemList size****"+itemList.size());
             PackageItemBean first = itemList.get(0);
             String outId = first.getOutId();
             String stafferName = "永银商务部";
             String phone = "4006518859";
-            _logger.info(first+"******first****"+outId);
+//            _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
                 _logger.warn("****Empty OutId***********"+first.getId());
             }else if (this.isOut(outId)){
@@ -2587,7 +2584,8 @@ public class ShipAction extends DispatchAction
                 }
             }
 
-            String key = each.getProductId();
+//            String key = each.getProductId();
+            String key = each.getProductId()+"_"+each.getItemType();
 
             if (!map1.containsKey(key))
             {
@@ -2601,7 +2599,7 @@ public class ShipAction extends DispatchAction
                 //2015/1/25 注释掉
 //				each.setDescription("");
 
-                map1.put(each.getProductId(), each);
+                map1.put(key, each);
             }else{
                 PackageItemBean itemBean = map1.get(key);
 
