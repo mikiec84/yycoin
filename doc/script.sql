@@ -191,3 +191,5 @@ BEGIN
   return (result);
 END 
 
+--2016/3/10 批量更新产品名
+insert into t_center_oamenuitem values(9038,'批量更新销售单品名','../sailImport/batchUpdateProductName.jsp',90,1,9031,99,'批量更新销售单品名')

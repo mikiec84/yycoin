@@ -10,6 +10,13 @@ public class BaseVO extends BaseBean
 	@Relationship(relationField = "locationId")
 	private String depotName = "";
 
+	/**
+	 * #190 批量修改品名
+	 */
+	private String destProductName = "";
+
+	private String destProductId = "";
+
 	public String getDepotName()
 	{
 		return depotName;
@@ -19,6 +26,20 @@ public class BaseVO extends BaseBean
 	{
 		this.depotName = depotName;
 	}
-	
-	
+
+	public String getDestProductName() {
+		return destProductName;
+	}
+
+	public void setDestProductName(String destProductName) {
+		this.destProductName = destProductName;
+	}
+
+	public String getDestProductId() {
+		return destProductId;
+	}
+
+	public void setDestProductId(String destProductId) {
+		this.destProductId = destProductId;
+	}
 }

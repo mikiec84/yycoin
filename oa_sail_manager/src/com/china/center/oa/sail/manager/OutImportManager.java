@@ -5,6 +5,7 @@ import java.util.List;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.vo.BaseVO;
 
 public interface OutImportManager
 {
@@ -70,5 +71,7 @@ public interface OutImportManager
 	
 	boolean batchUpdateDepot(List<BaseBean> list)
 			throws MYException;
+
+	boolean batchUpdateProductName(List<BaseVO> list) throws MYException;
 	
 }

@@ -158,7 +158,7 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     /**
      * 统计一个产品在系统的销售单没有发货单据数量
      * 
-     * @param stafferId
+     * @param productId
      * @param beginDate
      * @param endDate
      * @return
@@ -188,9 +188,9 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     /**
      * 统计一个具体库存的产品被单据占据多少配额(销售单里面)
      * 
-     * @param stafferId
-     * @param beginDate
-     * @param endDate
+     * @param productId
+     * @param depotpartId
+     * @param priceKey
      * @return
      */
     Integer sumNotEndProductInOutByStorageRelation(String productId, String depotpartId,
@@ -202,9 +202,9 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     /**
      * 统计一个具体库存的产品被单据占据多少配额(入库单里面)
      * 
-     * @param stafferId
-     * @param beginDate
-     * @param endDate
+     * @param productId
+     * @param depotpartId
+     * @param priceKey
      * @return
      */
     Integer sumNotEndProductInInByStorageRelation(String productId, String depotpartId,
@@ -216,7 +216,7 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     /**
      * 统计一个产品在系统的入库单在途的数量
      * 
-     * @param stafferId
+     * @param productId
      * @param beginDate
      * @param endDate
      * @return
@@ -248,7 +248,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
      * sumNoPayAndAvouchBusinessByManagerId2(不区分事业部)
      * 
      * @param stafferId
-     * @param industryId
      * @param beginDate
      * @param endDate
      * @return
@@ -315,7 +314,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
      * 查询共计担保他人
      * 
      * @param stafferId
-     * @param industryId
      * @param beginDate
      * @param endDate
      * @return

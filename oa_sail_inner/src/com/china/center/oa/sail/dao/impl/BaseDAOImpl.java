@@ -158,4 +158,13 @@ public class BaseDAOImpl extends com.china.center.jdbc.inter.impl.BaseDAO<BaseBe
 
         return i != 0;
 	}
+
+    @Override
+    public boolean updateProductIdAndPrice(String destProductId, double price, String outId, String productId) {
+        String sql = "update t_center_base set productId = ?, price =  ? where outid = ? and productid = ?";
+
+        int i = jdbcOperation.update(sql, destProductId, price, outId, productId);
+
+        return i != 0;
+    }
 }

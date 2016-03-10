@@ -58,4 +58,6 @@ public interface BaseDAO extends DAO<BaseBean, BaseVO>
 
     boolean updateLocationIdAndDepotpartByOutIdAndProductId(String locationId, String depotpartId, String depotpartName,
     		String outId, String productId);
+
+    boolean updateProductIdAndPrice(String destProductId, double price, String outId, String productId);
 }

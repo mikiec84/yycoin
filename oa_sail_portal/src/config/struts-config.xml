@@ -158,6 +158,7 @@
             <forward name="importEmergencyOut" path="/sailImport/importEmergencyOut.jsp" />
             <forward name="importOutAutoApprove" path="/sailImport/importOutAutoApprove.jsp" />
             <forward name="batchUpdateReason" path="/sailImport/batchUpdateReason.jsp" />
+            <forward name="batchUpdateProductName" path="/sailImport/batchUpdateProductName.jsp" />
         </action>
         
         <action path="/sail/ship" parameter="method"

@@ -8,6 +8,7 @@ import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.vo.BaseVO;
 import com.china.center.oa.sail.vo.PackageVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -364,7 +365,7 @@ public class OutImportManagerImpl implements OutImportManager
 		logBean.setStatus(status);
 		
 		outImportLogDAO.saveEntityBean(logBean);
-		_logger.info(logBean.getBatchId()+"***create logBean****"+logBean.getId()+"***status***"+status);
+		_logger.info(logBean.getBatchId() + "***create logBean****" + logBean.getId() + "***status***" + status);
 		
 		return true;
 	}
@@ -2619,7 +2620,49 @@ public class OutImportManagerImpl implements OutImportManager
 		return true;
 	}
 
-    /***
+	@Transactional(rollbackFor = MYException.class)
+	@Override
+	public boolean batchUpdateProductName(List<BaseVO> list) throws MYException {
+		Set<String> outIds = new HashSet<String>();
+		for(BaseVO each : list)
+		{
+			ConditionParse conditionParse = new ConditionParse();
+			conditionParse.addWhereStr();
+			conditionParse.addCondition("outId", "=", each.getOutId());
+			conditionParse.addCondition("productId", "=", each.getProductId());
+			List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
+			if (!ListTools.isEmptyOrNull(baseBeans)){
+				for (BaseBean bean : baseBeans){
+					bean.setProductId(each.getDestProductId());
+					bean.setProductName(each.getDestProductName());
+					bean.setPrice(each.getPrice());
+					bean.setValue(each.getPrice()*bean.getAmount());
+					this.baseDAO.updateEntityBean(bean);
+				}
+//				this.baseDAO.updateProductIdAndPrice(each.getDestProductId(), each.getPrice(),
+//						each.getOutId(), each.getProductId());
+			}
+
+			if (!outIds.contains(each.getOutId())){
+				outIds.add(each.getOutId());
+			}
+		}
+
+		//update OutBean's total
+		for (String outId : outIds){
+			List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outId);
+			double total = 0.0;
+			for (BaseBean baseBean: baseBeans){
+				total += baseBean.getAmount()*baseBean.getPrice();
+			}
+			_logger.info(outId+"****update total***"+total);
+			this.outDAO.updateTotal(outId, total);
+		}
+
+		return true;
+	}
+
+	/***
 	 * 批量更新销售单的 仓库、仓区
 	 */
 	@Transactional(rollbackFor = MYException.class)
@@ -2664,10 +2707,10 @@ public class OutImportManagerImpl implements OutImportManager
 			if (out.getStatus() != OutConstant.STATUS_SUBMIT) {
 				throw new MYException("[%s]状态不是待商务审批。", each.getOutId());
 			}
-			
+
 			outDAO.updateLocation(each.getOutId(), each.getLocationId());
-			
-			baseDAO.updateLocationIdAndDepotpartByOutIdAndProductId(each.getLocationId(), each.getDepotpartId(), 
+
+			baseDAO.updateLocationIdAndDepotpartByOutIdAndProductId(each.getLocationId(), each.getDepotpartId(),
 					each.getDepotpartName(), each.getOutId(), each.getProductId());
 			
 			operationLog.info("仓库更新，销售单：" + each.getOutId());
