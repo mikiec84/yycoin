@@ -1091,12 +1091,9 @@ public class InvoiceinsAction extends DispatchAction
                 {
                     OutBean outBean = null;
                     List<BaseBean> baseBeans = null;
-                    List<InvoiceinsItemVO> itemList = invoiceinsItemDAO.queryEntityVOsByFK(eachVS.getInsId());
+                    List<InvoiceinsItemVO> itemList = null;
                     BaseBean base = null;
                     int length = 1;
-                    if (!ListTools.isEmptyOrNull(itemList)){
-                        length = itemList.size();
-                    }
 
                     if (!StringTools.isNullOrNone(eachVS.getOutId()))
                     {
@@ -1115,6 +1112,15 @@ public class InvoiceinsAction extends DispatchAction
                         if (null != outBean){
                             baseBeans = baseDAO.queryEntityBeansByFK(outBean.getFullId());
                             base  = baseBeans.get(0);
+
+                            ConditionParse conditionParse = new ConditionParse();
+                            conditionParse.addWhereStr();
+                            conditionParse.addCondition("parentId","=", eachVS.getInsId());
+                            conditionParse.addCondition("outId","=", eachVS.getOutId());
+                            itemList = invoiceinsItemDAO.queryEntityVOsByCondition(conditionParse);
+                            if (!ListTools.isEmptyOrNull(itemList)){
+                                length = itemList.size();
+                            }
                         }
                     }
 
