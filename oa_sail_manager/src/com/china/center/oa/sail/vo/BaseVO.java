@@ -1,6 +1,7 @@
 package com.china.center.oa.sail.vo;
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.sail.bean.BaseBean;
 
@@ -13,8 +14,10 @@ public class BaseVO extends BaseBean
 	/**
 	 * #190 批量修改品名
 	 */
+	@Ignore
 	private String destProductName = "";
 
+	@Ignore
 	private String destProductId = "";
 
 	public String getDepotName()
