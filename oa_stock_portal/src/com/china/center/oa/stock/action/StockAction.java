@@ -3021,6 +3021,13 @@ public class StockAction extends DispatchAction
         	if ("0".equals(extraStatus))
         		condtion.addIntCondition("StockBean.extraStatus", "=", 0);
         }
+
+        String productName = request.getParameter("productName");
+        if (!StringTools.isNullOrNone(productName)){
+             condtion.addCondition(" and exists (select StockItemBean.id from t_center_stockitem StockItemBean " +
+                     "left outer join t_center_product ProductBean on ProductBean.id=StockItemBean.productId " +
+                     "where StockItemBean.stockId=StockBean.id and ProductBean.name like '%"+productName+"%')");
+        }
         
         condtion.addCondition("order by StockBean.logTime desc");
     }

@@ -419,6 +419,14 @@ function exports()
                 </select>
                 </td>
 			</tr>
+
+            <tr align=center class="content0">
+                <td align="center">商品名</td>
+                <td align="center" width="35%">
+                    <input type="ext" name="productName" id="productName" placeholder="商品名">
+                </td>
+                <td colspan="2"></td>
+            </tr>
 			
 			<tr align=center class="content0">
                 <td align="right" colspan="4"><input type="button" id="b_query"
