@@ -689,7 +689,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
             for (StockItemBean stockItemBean : itemList)
             {
-                if (stockItemBean.getFechProduct() == StockConstant.STOCK_ITEM_FECH_NO)
+                int fetched = stockItemBean.getFechProduct();
+                if (fetched == StockConstant.STOCK_ITEM_FECH_NO ||
+                        fetched == StockConstant.STOCK_ITEM_FECH_PART)
                 {
                     all = false;
 
@@ -1462,11 +1464,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 _logger.info(stockId+" found item size*****"+items.size());
                 for (StockItemBean stockItemBean : items)
                 {
-                    _logger.info(stockItemBean.getId()+"**stockItemBean.getFechProduct()*"+stockItemBean.getFechProduct());
-                    if (stockItemBean.getFechProduct() == StockConstant.STOCK_ITEM_FECH_NO)
+                    int fetched = stockItemBean.getFechProduct();
+                    _logger.info(stockItemBean.getId()+"**stockItemBean.getFechProduct()*"+fetched);
+                    //未拿货或部分拿货
+                    if (fetched == StockConstant.STOCK_ITEM_FECH_NO || fetched == StockConstant.STOCK_ITEM_FECH_PART)
                     {
                         all = false;
-
                         break;
                     }
                 }
