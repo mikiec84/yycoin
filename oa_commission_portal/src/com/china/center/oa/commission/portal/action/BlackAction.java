@@ -11,6 +11,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.vo.DistributionVO;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -67,17 +71,7 @@ import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBalanceBean;
 import com.china.center.oa.sail.constanst.OutConstant;
-import com.china.center.oa.sail.dao.BaseBalanceDAO;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.OutBalanceDAO;
-import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.vo.OutVO;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
-import com.china.center.tools.WriteFileBuffer;
 
 public class BlackAction extends DispatchAction 
 {
@@ -104,6 +98,8 @@ public class BlackAction extends DispatchAction
     private OutDAO outDAO = null;
     
     private BaseDAO baseDAO = null;
+
+    private DistributionDAO distributionDAO = null;
     
     private OutBalanceDAO outBalanceDAO = null;
 
@@ -1076,7 +1072,7 @@ public class BlackAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("单号,结算单号,类型,状态,客户,业务员,超期天数,全部应收金额(成本),全部应收金额(成交价),事业部名称");
+            write.writeLine("单号,结算单号,类型,状态,客户,省,市,地址,收货人,收货人电话,业务员,超期天数,全部应收金额(成本),全部应收金额(成交价),事业部名称");
 
             WriteFileBuffer line = new WriteFileBuffer(write);
             
@@ -1094,6 +1090,24 @@ public class BlackAction extends DispatchAction
             	line.writeColumn(DefinedCommon.getValue("outType_out", outVO.getOutType()));
             	line.writeColumn("其它");
             	line.writeColumn(outVO.getCustomerName());
+
+                //2016/3/14 #194
+                List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(outId);
+                if (ListTools.isEmptyOrNull(distList)){
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                } else{
+                    DistributionVO distributionBean = distList.get(0);
+                    line.writeColumn(distributionBean.getProvinceName());
+                    line.writeColumn(distributionBean.getCityName());
+                    line.writeColumn(distributionBean.getAddress());
+                    line.writeColumn(distributionBean.getReceiver());
+                    line.writeColumn(distributionBean.getMobile());
+                }
+
             	line.writeColumn(outVO.getStafferName());
             	line.writeColumn(each.getDays());
             	
@@ -1196,6 +1210,24 @@ public class BlackAction extends DispatchAction
             	line.writeColumn("销售出库");
             	line.writeColumn("已付款未发货");
             	line.writeColumn(each.getCustomerName());
+
+                //2016/3/14 #194
+                List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(each.getFullId());
+                if (ListTools.isEmptyOrNull(distList)){
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                    line.writeColumn("N/A");
+                } else{
+                    DistributionVO distributionBean = distList.get(0);
+                    line.writeColumn(distributionBean.getProvinceName());
+                    line.writeColumn(distributionBean.getCityName());
+                    line.writeColumn(distributionBean.getAddress());
+                    line.writeColumn(distributionBean.getReceiver());
+                    line.writeColumn(distributionBean.getMobile());
+                }
+
             	line.writeColumn(each.getStafferName());
             	line.writeColumn("N/A");
             	line.writeColumn("N/A");
@@ -1504,7 +1536,7 @@ public class BlackAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("单号,结算单号,类型,客户,业务员,事业部名称,产品,数量,单价,成本");
+            write.writeLine("单号,结算单号,类型,客户,省,市,地址,收货人,收货人电话,业务员,事业部名称,产品,数量,单价,成本");
 
             WriteFileBuffer line = new WriteFileBuffer(write);
             
@@ -1525,6 +1557,25 @@ public class BlackAction extends DispatchAction
                 	line.writeColumn(eachd.getOutBalanceId());
                 	line.writeColumn(DefinedCommon.getValue("outType_out", outVO.getOutType()));
                 	line.writeColumn(outVO.getCustomerName());
+
+                    //2016/3/14 #194
+                    List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(outId);
+                    if (ListTools.isEmptyOrNull(distList)){
+                        line.writeColumn("N/A");
+                        line.writeColumn("N/A");
+                        line.writeColumn("N/A");
+                        line.writeColumn("N/A");
+                        line.writeColumn("N/A");
+                    } else{
+                        DistributionVO distributionBean = distList.get(0);
+                        line.writeColumn(distributionBean.getProvinceName());
+                        line.writeColumn(distributionBean.getCityName());
+                        line.writeColumn(distributionBean.getAddress());
+                        line.writeColumn(distributionBean.getReceiver());
+                        line.writeColumn(distributionBean.getMobile());
+                    }
+
+
                 	line.writeColumn(outVO.getStafferName());
                 	line.writeColumn(outVO.getIndustryName());
                 	
@@ -1892,4 +1943,12 @@ public class BlackAction extends DispatchAction
 	{
 		this.hisBlackOutDetailDAO = hisBlackOutDetailDAO;
 	}
+
+    public DistributionDAO getDistributionDAO() {
+        return distributionDAO;
+    }
+
+    public void setDistributionDAO(DistributionDAO distributionDAO) {
+        this.distributionDAO = distributionDAO;
+    }
 }
