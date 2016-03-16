@@ -3405,7 +3405,7 @@ public class TravelApplyAction extends DispatchAction
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next());
+                String[] obj = fillObj4((String[])reader.next());
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -4010,6 +4010,25 @@ public class TravelApplyAction extends DispatchAction
     private String[] fillObj(String[] obj)
     {
         String[] result = new String[3];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
+
+    private String[] fillObj4(String[] obj)
+    {
+        String[] result = new String[4];
 
         for (int i = 0; i < result.length; i++ )
         {
