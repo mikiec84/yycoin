@@ -41,7 +41,7 @@
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../tcp/apply.do?method=importShare" enctype="multipart/form-data" method="post">
+<form name="formEntry" action="../tcp/apply.do?method=batchUpdateIbMoney" enctype="multipart/form-data" method="post">
     <p:navigation
             height="22">
         <td width="550" class="navigation"><span>批量修改中收激励金额</span></td>
