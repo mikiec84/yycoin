@@ -57,6 +57,7 @@
             <forward name="importIb" path="/tcp/importIb.jsp" />
             <forward name="ibReport" path="/tcp/ibReport.jsp" />
             <forward name="ibReportDetail" path="/tcp/ibReportDetail.jsp" />
+            <forward name="batchUpdateIbMoney" path="/tcp/batchUpdateIbMoney.jsp" />
 		</action>
 		
 		<action path="/tcp/expense" parameter="method"

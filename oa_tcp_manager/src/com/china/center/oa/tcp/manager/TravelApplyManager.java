@@ -9,6 +9,7 @@
 package com.china.center.oa.tcp.manager;
 
 
+import com.china.center.oa.tcp.bean.TcpIbBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.center.china.osgi.publics.ListenerManager;
@@ -19,6 +20,8 @@ import com.china.center.oa.tcp.bean.TravelApplyBean;
 import com.china.center.oa.tcp.listener.TcpPayListener;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
+
+import java.util.List;
 
 
 /**
@@ -159,4 +162,6 @@ public interface TravelApplyManager extends ListenerManager<TcpPayListener>
      * @throws MYException
      */
     public void ibReportJobMonthly() throws MYException;
+
+    public void batchUpdateIbMoney(User user, List<TcpIbBean> list) throws MYException;
 }

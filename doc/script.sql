@@ -193,3 +193,6 @@ END
 
 --2016/3/10 批量更新产品名
 insert into t_center_oamenuitem values(9038,'批量更新销售单品名','../sailImport/batchUpdateProductName.jsp',90,1,9031,99,'批量更新销售单品名')
+
+--2016/3/16 批量更新中收激励金额
+insert into t_center_oamenuitem values(1495,'批量更新中收激励金额','../tcp/batchUpdateIbMoney.jsp',14,1,1402,99,'批量更新中收激励金额')

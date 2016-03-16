@@ -9,10 +9,7 @@
 package com.china.center.oa.tcp.bean;
 
 
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 
 import java.io.Serializable;
@@ -47,6 +44,9 @@ public class TcpIbBean implements Serializable
     private String fullId = "";
 
     private String productName = "";
+
+    @Ignore
+    private String productId = "";
 
     private int amount = 0;
 
@@ -159,6 +159,14 @@ public class TcpIbBean implements Serializable
 
     public void setRefId(String refId) {
         this.refId = refId;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     @Override

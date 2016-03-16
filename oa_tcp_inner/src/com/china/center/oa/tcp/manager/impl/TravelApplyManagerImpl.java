@@ -19,6 +19,8 @@ import java.util.*;
 
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
+import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
@@ -54,17 +56,9 @@ import com.china.center.oa.group.dao.GroupVSStafferDAO;
 import com.china.center.oa.group.vs.GroupVSStafferBean;
 import com.china.center.oa.mail.bean.MailBean;
 import com.china.center.oa.mail.manager.MailMangaer;
-import com.china.center.oa.publics.bean.AttachmentBean;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.bean.PrincipalshipBean;
-import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
-import com.china.center.oa.publics.dao.AttachmentDAO;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.helper.UserHelper;
 import com.china.center.oa.publics.manager.NotifyManager;
 import com.china.center.oa.publics.manager.OrgManager;
@@ -127,6 +121,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     private BankDAO bankDAO = null;
 
     private TcpHandleHisDAO tcpHandleHisDAO = null;
+
+    private LogDAO logDAO          = null;
 
     private MailMangaer mailMangaer = null;
 
@@ -1827,7 +1823,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             int nextStatus = lastLog.getAfterStatus();
 
             int newStatus = saveApprove(user, actorId, bean, nextStatus,
-                TcpConstanst.TCP_POOL_COMMON);
+                    TcpConstanst.TCP_POOL_COMMON);
 
             int oldStatus = bean.getStatus();
 
@@ -3154,6 +3150,58 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void batchUpdateIbMoney(User user, List<TcpIbBean> list) throws MYException {
+        _logger.info("***batchUpdateIbMoney***");
+        for (TcpIbBean each: list){
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            String outId = each.getFullId();
+            String productId = each.getProductId();
+            conditionParse.addCondition("outId", "=", outId);
+            conditionParse.addCondition("productId", "=", productId);
+            _logger.info("***oudId***"+outId+"***productId***"+productId);
+            List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(baseBeans)){
+                for (BaseBean bean : baseBeans){
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("商品:").append(each.getProductName());
+                    if (each.getType() == TcpConstanst.IB_TYPE){
+                        bean.setIbMoney(each.getIbMoney());
+                        sb.append("中收金额从").append(each.getIbMoney())
+                                .append("修改为").append(each.getIbMoney());
+                    } else if (each.getType() == TcpConstanst.MOTIVATION_TYPE){
+                        bean.setMotivationMoney(each.getMotivationMoney());
+                        sb.append("激励金额从").append(each.getMotivationMoney())
+                                .append("修改为").append(each.getMotivationMoney());
+                    }
+                    this.baseDAO.updateEntityBean(bean);
+                    _logger.info("***update base bean***" + bean);
+
+                    //日志
+                    this.log(user, outId,"修改",sb.toString());
+                }
+            }
+        }
+    }
+
+    private void log(User user, String id, String operation, String reason) {
+        // 记录审批日志
+        LogBean log = new LogBean();
+
+        log.setFkId(id);
+
+        log.setLocationId(user.getLocationId());
+        log.setStafferId(user.getStafferId());
+        log.setLogTime(TimeTools.now());
+        log.setModule("中收激励");
+        log.setOperation(operation);
+        log.setLog(reason);
+
+        logDAO.saveEntityBean(log);
+    }
+
     /**
      * @return the tcpApplyDAO
      */
@@ -3540,5 +3588,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     public void setTcpIbReportItemDAO(TcpIbReportItemDAO tcpIbReportItemDAO) {
         this.tcpIbReportItemDAO = tcpIbReportItemDAO;
+    }
+
+    public LogDAO getLogDAO() {
+        return logDAO;
+    }
+
+    public void setLogDAO(LogDAO logDAO) {
+        this.logDAO = logDAO;
     }
 }

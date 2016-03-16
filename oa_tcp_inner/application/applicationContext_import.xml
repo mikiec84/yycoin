@@ -37,6 +37,8 @@
 	<osgi:reference id="parameterDAO" interface="com.china.center.oa.publics.dao.ParameterDAO" />
 	
 	<osgi:reference id="commonDAO" interface="com.china.center.oa.publics.dao.CommonDAO" />
+
+	<osgi:reference id="logDAO" interface="com.china.center.oa.publics.dao.LogDAO" />
 	
 	<osgi:reference id="orgManager" interface="com.china.center.oa.publics.manager.OrgManager" />
 	

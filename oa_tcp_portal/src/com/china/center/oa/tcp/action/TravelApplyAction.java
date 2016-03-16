@@ -38,6 +38,7 @@ import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.helper.OutHelper;
+import com.china.center.oa.sail.vo.BaseVO;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
@@ -1974,7 +1975,7 @@ public class TravelApplyAction extends DispatchAction
             while (page.nextPage())
             {
                 List<TravelApplyVO> voFList = travelApplyDAO.queryEntityVOsByCondition(condtion,
-                    page);
+                        page);
 
                 for (TravelApplyVO vo : voFList)
                 {
@@ -3349,6 +3350,237 @@ public class TravelApplyAction extends DispatchAction
 
         return null;
     }
+
+    /**
+     * 2016/3/16 #195
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchUpdateIbMoney(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        String url = "batchUpdateIbMoney";
+        _logger.info("*************batchUpdateIbMoney*************");
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<TcpIbBean> importItemList = new ArrayList<TcpIbBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    TcpIbBean bean = new TcpIbBean();
+
+                    //类型
+                    if (!StringTools.isNullOrNone(obj[0])){
+                        String name = obj[0].trim();
+                        if (TcpConstanst.IB_TYPE_STR.equals(name)){
+                            bean.setType(TcpConstanst.IB_TYPE);
+                        } else if (TcpConstanst.MOTIVATION_TYPE_STR.equals(name)){
+                            bean.setType(TcpConstanst.MOTIVATION_TYPE);
+                        } else{
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("申请类型只能为中收或激励")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
+                    }
+
+                    // 销售单号
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String outId = obj[1].trim();
+
+                        OutBean out = outDAO.find(outId);
+
+                        if (null == out)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("销售单" + outId + "不存在")
+                                    .append("<br>");
+                            importError = true;
+                        } else {
+                            //中收或激励申请标识为1的，不允许再更改对应金额
+                            bean.setFullId(outId);
+                            if (out.getIbFlag() == 1 ||
+                                    out.getMotivationFlag() == 1 ){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append(outId + "中收或激励申请标识为1的，不允许再更改对应金额")
+                                        .append("<br>");
+                                importError = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售单号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 商品名
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String productName = obj[2].trim();
+                        bean.setProductName(productName);
+
+                        ProductBean productBean = this.productDAO.findByName(productName);
+                        if (productBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("商品名不存在:" + productName)
+                                    .append("<br>");
+
+                            importError = true;
+                        }else{
+                            bean.setProductId(productBean.getId());
+                        }
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("商品名不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 金额
+                    if ( !StringTools.isNullOrNone(obj[3])) {
+                        String price = obj[3].trim();
+                        if (TcpConstanst.IB_TYPE == bean.getType()){
+                            bean.setIbMoney(Double.valueOf(price));
+                        } else if (TcpConstanst.MOTIVATION_TYPE == bean.getType()){
+                            bean.setMotivationMoney(Double.valueOf(price));
+                        }
+                    } else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("金额不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    importItemList.add(bean);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足26格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward(url);
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward(url);
+        }
+
+        try
+        {
+            travelApplyManager.batchUpdateIbMoney(user, importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "批量修改中收激励金额成功");
+        }
+        catch(Exception e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getStackTrace());
+
+            return mapping.findForward(url);
+        }
+
+        return mapping.findForward(url);
+    }
+
 
     /**
      * 2015/4/13 中收激励统计
