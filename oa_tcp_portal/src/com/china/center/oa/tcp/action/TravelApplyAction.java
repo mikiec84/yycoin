@@ -3458,11 +3458,16 @@ public class TravelApplyAction extends DispatchAction
                         } else {
                             //中收或激励申请标识为1的，不允许再更改对应金额
                             bean.setFullId(outId);
-                            if (out.getIbFlag() == 1 ||
-                                    out.getMotivationFlag() == 1 ){
+                            if (out.getIbFlag() == 1 && bean.getType() == TcpConstanst.IB_TYPE){
                                 builder
                                         .append("第[" + currentNumber + "]错误:")
-                                        .append(outId + "中收或激励申请标识为1的，不允许再更改对应金额")
+                                        .append(outId + "中收申请标识为1的，不允许再更改对应金额")
+                                        .append("<br>");
+                                importError = true;
+                            } else if (out.getMotivationFlag() == 1 && bean.getType() == TcpConstanst.MOTIVATION_TYPE){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append(outId + "激励申请标识为1的，不允许再更改对应金额")
                                         .append("<br>");
                                 importError = true;
                             }

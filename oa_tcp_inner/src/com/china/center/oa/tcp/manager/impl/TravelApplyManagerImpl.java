@@ -3165,27 +3165,30 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             if (!ListTools.isEmptyOrNull(baseBeans)){
                 for (BaseBean bean : baseBeans){
                     StringBuilder sb = new StringBuilder();
-                    sb.append("商品:").append(each.getProductName());
+                    String module = "中收";
+                    sb.append("修改人:").append(user.getStafferName())
+                            .append(".商品:").append(each.getProductName());
                     if (each.getType() == TcpConstanst.IB_TYPE){
-                        bean.setIbMoney(each.getIbMoney());
                         sb.append("中收金额从").append(bean.getIbMoney())
                                 .append("修改为").append(each.getIbMoney());
+                        bean.setIbMoney(each.getIbMoney());
                     } else if (each.getType() == TcpConstanst.MOTIVATION_TYPE){
-                        bean.setMotivationMoney(each.getMotivationMoney());
                         sb.append("激励金额从").append(bean.getMotivationMoney())
                                 .append("修改为").append(each.getMotivationMoney());
+                        bean.setMotivationMoney(each.getMotivationMoney());
+                        module = "激励";
                     }
                     this.baseDAO.updateEntityBean(bean);
                     _logger.info("***update base bean***" + bean);
 
                     //日志
-                    this.log(user, outId,"修改",sb.toString());
+                    this.log(user, outId, module, "修改",sb.toString());
                 }
             }
         }
     }
 
-    private void log(User user, String id, String operation, String reason) {
+    private void log(User user, String id, String module, String operation, String reason) {
         // 记录审批日志
         LogBean log = new LogBean();
 
@@ -3194,7 +3197,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         log.setLocationId(user.getLocationId());
         log.setStafferId(user.getStafferId());
         log.setLogTime(TimeTools.now());
-        log.setModule("中收激励");
+        log.setModule(module);
         log.setOperation(operation);
         log.setLog(reason);
 
