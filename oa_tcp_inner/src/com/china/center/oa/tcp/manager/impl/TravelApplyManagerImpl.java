@@ -3161,7 +3161,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             String productId = each.getProductId();
             conditionParse.addCondition("outId", "=", outId);
             conditionParse.addCondition("productId", "=", productId);
-            _logger.info("***oudId***"+outId+"***productId***"+productId);
             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
             if (!ListTools.isEmptyOrNull(baseBeans)){
                 for (BaseBean bean : baseBeans){
@@ -3169,11 +3168,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     sb.append("商品:").append(each.getProductName());
                     if (each.getType() == TcpConstanst.IB_TYPE){
                         bean.setIbMoney(each.getIbMoney());
-                        sb.append("中收金额从").append(each.getIbMoney())
+                        sb.append("中收金额从").append(bean.getIbMoney())
                                 .append("修改为").append(each.getIbMoney());
                     } else if (each.getType() == TcpConstanst.MOTIVATION_TYPE){
                         bean.setMotivationMoney(each.getMotivationMoney());
-                        sb.append("激励金额从").append(each.getMotivationMoney())
+                        sb.append("激励金额从").append(bean.getMotivationMoney())
                                 .append("修改为").append(each.getMotivationMoney());
                     }
                     this.baseDAO.updateEntityBean(bean);
