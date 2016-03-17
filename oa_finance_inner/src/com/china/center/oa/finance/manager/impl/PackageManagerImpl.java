@@ -878,15 +878,10 @@ public class PackageManagerImpl implements PackageManager {
 		setInnerCondition(distVO, location, con);
 		
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
-		
-//		if (packageList.size() > 1){
-//			throw new MYException("数据异常,生成发货单出错.");
-//		}
-		
+
 		if (ListTools.isEmptyOrNull(packageList))
 		{
 			createNewInsPackage(ins, numList, distVO, fullAddress, location);
-			
 		}else{
 			String id = packageList.get(0).getId();
 			
@@ -898,6 +893,8 @@ public class PackageManagerImpl implements PackageManager {
 				createNewInsPackage(ins, numList, distVO, fullAddress, location);
 			}else
 			{
+				//#200 合并入现有CK单时检查是否有重复outId
+
 				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 				
 				int allAmount = 0;
@@ -909,6 +906,10 @@ public class PackageManagerImpl implements PackageManager {
 				
 				for (InsVSInvoiceNumBean base : numList)
 				{
+					if (this.contains(itemList, insId)){
+						_logger.warn(insId+"***insId already packaged***"+packBean.getId());
+						continue;
+					}
 					PackageItemBean item = new PackageItemBean();
 					
 					item.setPackageId(id);
@@ -939,8 +940,10 @@ public class PackageManagerImpl implements PackageManager {
 				packBean.setProductCount(packBean.getProductCount() + numList.size());
 				
 				packageDAO.updateEntityBean(packBean);
-				
-				packageItemDAO.saveAllEntityBeans(itemList);
+
+				if (!ListTools.isEmptyOrNull(itemList)) {
+					packageItemDAO.saveAllEntityBeans(itemList);
+				}
 				
 				// 包与客户关系
 				PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, ins.getCustomerId());
@@ -964,6 +967,14 @@ public class PackageManagerImpl implements PackageManager {
 		preConsignDAO.deleteEntityBean(pre.getId());
 	}
 
+	private boolean contains(List<PackageItemBean> items, String insId){
+		for (PackageItemBean item : items){
+			if (item.getOutId().equals(insId)){
+				return true;
+			}
+		}
+		return false;
+	}
     /**
      *  2015/3/1 预开票也需要进入CK单
      * @param pre

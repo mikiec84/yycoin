@@ -1889,7 +1889,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 				//2016/2/17 #169 生成CK单
 				InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
-				if (bean!= null) {
+				if (bean!= null && bean.getStatus()!= FinanceConstant.INVOICEINS_STATUS_END) {
 					this.createPackage(bean);
 
 					//状态变成结束
