@@ -1057,6 +1057,7 @@ public class InvoiceinsAction extends DispatchAction
             ws.addCell(new Label(j++ , i, "发票抬头", format));
             ws.addCell(new Label(j++ , i, "客户", format));
             ws.addCell(new Label(j++ , i, "发票类型", format));
+            ws.addCell(new Label(j++ , i, "增值税开票信息", format));
             ws.addCell(new Label(j++ , i, "税率", format));
             ws.addCell(new Label(j++ , i, "金额", format));
             ws.addCell(new Label(j++ , i, "备注", format));
@@ -1134,6 +1135,7 @@ public class InvoiceinsAction extends DispatchAction
                         ws.addCell(new Label(j++ , i, element.getHeadContent()));
                         ws.addCell(new Label(j++ , i, element.getCustomerName()));
                         ws.addCell(new Label(j++ , i, element.getInvoiceName()));
+                        ws.addCell(new Label(j++ , i, element.getZzsInfo()));
                         ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getVal())));
                         ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getMoneys())));
                         ws.addCell(new Label(j++ , i, element.getDescription()));
@@ -1251,12 +1253,6 @@ public class InvoiceinsAction extends DispatchAction
 
         ConditionParse condition = PageSeparateTools.getCondition(request, QUERYINVOICEINS);
 
-//        if (pageSeparate.getRowCount() > 1500)
-//        {
-//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导出的记录数不能超过1500");
-//
-//            return mapping.findForward("error");
-//        }
 
         if (pageSeparate.getRowCount() == 0)
         {
@@ -1313,6 +1309,7 @@ public class InvoiceinsAction extends DispatchAction
             ws.addCell(new Label(j++ , i, "发票抬头", format));
             ws.addCell(new Label(j++ , i, "客户", format));
             ws.addCell(new Label(j++ , i, "发票类型", format));
+            ws.addCell(new Label(j++ , i, "增值税发票信息", format));
             ws.addCell(new Label(j++ , i, "税率", format));
             ws.addCell(new Label(j++ , i, "金额", format));
             ws.addCell(new Label(j++ , i, "经办人", format));
@@ -1322,14 +1319,10 @@ public class InvoiceinsAction extends DispatchAction
             ws.addCell(new Label(j++ , i, "发票税额", format));
             
             //导出关联的销售单号 
-            for (Iterator iter = beanList.iterator(); iter.hasNext();)
+            for (Iterator<InvoiceinsVO> iter = beanList.iterator(); iter.hasNext();)
             {
-                element = (InvoiceinsVO)iter.next();
-                
-                // 只导结束态的数据
-//                if (element.getStatus() != FinanceConstant.INVOICEINS_STATUS_END)
-//                	continue;
-                
+                element = iter.next();
+
                 List<InsVSInvoiceNumBean> insVSNumList = insVSInvoiceNumDAO.queryEntityBeansByFK(element.getId());
                 
                 for (InsVSInvoiceNumBean eachVS : insVSNumList)
@@ -1343,6 +1336,7 @@ public class InvoiceinsAction extends DispatchAction
                     ws.addCell(new Label(j++ , i, element.getHeadContent()));
                     ws.addCell(new Label(j++ , i, element.getCustomerName()));
                     ws.addCell(new Label(j++ , i, element.getInvoiceName()));
+                    ws.addCell(new Label(j++ , i, element.getZzsInfo()));
                     ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getVal())));
                     ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getMoneys())));
                     ws.addCell(new Label(j++ , i, element.getOperatorName()));
@@ -4057,8 +4051,14 @@ public class InvoiceinsAction extends DispatchAction
                         String name = obj[3].trim();
 
                         // 特殊类型
-                        if (name.equals("混合")){
-                            bean.setInvoiceId("9999999999");
+                        if ("混合".equals(name)){
+//                            bean.setInvoiceId("9999999999");
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("不允许导入混合开票类型")
+                                    .append("<br>");
+
+                            importError = true;
                         }else {
                             InvoiceBean invoice = invoiceDAO.findByUnique(name);
 
