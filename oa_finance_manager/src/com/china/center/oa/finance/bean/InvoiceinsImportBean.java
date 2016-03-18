@@ -155,6 +155,11 @@ public class InvoiceinsImportBean implements Serializable
 
     private int amount = 0;
 
+	/**#197
+	 * 增值税开票信息
+	 */
+	private String zzsInfo = "";
+
     /**
      * 是否拆分开票
      */
@@ -570,4 +575,12 @@ public class InvoiceinsImportBean implements Serializable
     public void setVirtualInvoiceNum(String virtualInvoiceNum) {
         this.virtualInvoiceNum = virtualInvoiceNum;
     }
+
+	public String getZzsInfo() {
+		return zzsInfo;
+	}
+
+	public void setZzsInfo(String zzsInfo) {
+		this.zzsInfo = zzsInfo;
+	}
 }

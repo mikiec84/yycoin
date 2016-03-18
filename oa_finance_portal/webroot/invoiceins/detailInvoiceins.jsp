@@ -164,6 +164,10 @@ function load()
 			<p:pro field="dutyId" innerString="onchange=loadShow()">
 				<p:option type="dutyList" />
 			</p:pro>
+
+            <p:cell title="增值税发票信息">
+                ${bean.zzsInfo}
+            </p:cell>
 			
 			<p:cell title="客户/分公司">
                ${bean.customerName}

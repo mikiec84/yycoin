@@ -375,7 +375,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			}
 			
 			if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_YES) {
-				if (!invoiceId.equals("90000000000000000003")) {
+				if (!(invoiceId.equals("90000000000000000003") || "90000000000000000034".equals(invoiceId))) {
 					throw new MYException("普通且是非旧货的商品 只能开具 增值税专用发票17 类型发票");
 				}
 			}
@@ -2907,6 +2907,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setInsAmount(1);
 			bean.setLogTime(TimeTools.now());
 			bean.setLocationId("999");
+			bean.setZzsInfo(first.getZzsInfo());
 			//2015/2/1 票随货发
 			_logger.info("****saveInner***"+first.getInvoiceFollowOut());
 			bean.setInvoiceFollowOut(first.getInvoiceFollowOut());

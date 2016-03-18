@@ -267,6 +267,11 @@ public class InvoiceinsBean implements Serializable
      * 0 未打包 1： 已打包
      */
     private int packaged = 0;
+
+    /**#197
+     * 增值税开票信息
+     */
+    private String zzsInfo = "";
     
 	//-----------------------------------distribution------------------------------
 	
@@ -1060,6 +1065,14 @@ public class InvoiceinsBean implements Serializable
      */
     public void setPackaged(int packaged) {
         this.packaged = packaged;
+    }
+
+    public String getZzsInfo() {
+        return zzsInfo;
+    }
+
+    public void setZzsInfo(String zzsInfo) {
+        this.zzsInfo = zzsInfo;
     }
 
     /**

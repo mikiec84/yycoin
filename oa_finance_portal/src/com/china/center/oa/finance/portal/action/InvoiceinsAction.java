@@ -4506,6 +4506,22 @@ public class InvoiceinsAction extends DispatchAction
                         bean.setAmount(Integer.valueOf(obj[19]));
                     }
 
+                    // 增值税开票信息
+                    if ( !StringTools.isNullOrNone(obj[20]))
+                    {
+                        String zzsInfo = obj[20].trim();
+                        bean.setZzsInfo(zzsInfo);
+                    } else{
+                        if ("增值税专用发票17%".equals(obj[3].trim())){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("增值税专用发票17%增值税发票信息不能为空")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }
+
                     bean.setDescription(obj[15].trim());
                     bean.setInvoiceDate(TimeTools.now_short());
                     bean.setStafferName(user.getStafferName());
