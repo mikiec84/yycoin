@@ -1046,6 +1046,8 @@ public class ProductApplyAction extends DispatchAction {
             return ProductConstant.PRODUCT_TYPE_NUMISMATICS;
         } else if ("邮票".equals(type)){
             return ProductConstant.PRODUCT_TYPE_MONCE;
+        } else if ("其他".equals(type)){
+            return ProductConstant.PRODUCT_TYPE_MONCE;
         } else {
             return -1;
         }
