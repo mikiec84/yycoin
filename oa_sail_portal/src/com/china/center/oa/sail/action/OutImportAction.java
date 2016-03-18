@@ -27,6 +27,7 @@ import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.BaseVO;
+import com.china.center.oa.tcp.constanst.TcpConstanst;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -2245,7 +2246,6 @@ public class OutImportAction extends DispatchAction
     		HttpServletRequest request, HttpServletResponse response)
     throws ServletException
     {
-        System.out.println("1111111111111111111111111111");
         RequestDataStream rds = new RequestDataStream(request);
         
         boolean importError = false;
@@ -2547,8 +2547,7 @@ public class OutImportAction extends DispatchAction
         
         try
         {
-            System.out.println("222222222222222222222222");
-        	outImportManager.batchUpdateDistAddr(importItemList);
+            outImportManager.batchUpdateDistAddr(importItemList);
         	
         	request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
         }
@@ -3230,7 +3229,6 @@ public class OutImportAction extends DispatchAction
 
                             //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                             _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
-                            System.out.println(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
                             if (base.getInputPrice() == 0)
                             {
                                 String msg = base.getProductName() + " 业务员结算价不能为0";
@@ -3247,8 +3245,6 @@ public class OutImportAction extends DispatchAction
                                 }
                             }
                         }
-                    } else{
-                        System.out.println("**************check price not found************");
                     }
 
             		// 申请人

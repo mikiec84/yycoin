@@ -217,6 +217,13 @@ function getStaffers(oos)
                         </select><font color="#FF0000">*</font>
                        </td>
             </tr>
+
+			<tr class="content2">
+				<td align="left">快递单号：</td>
+				<td colspan="3">
+					<input type="text" oncheck="notNone" name="transportNo"><font color="#FF0000">*</font>
+				</td>
+			</tr>
             
           	<p:cell title="时间限制（只限销售出库）" end="true">
             	<select name="timeLimit" style="width: 300px" values="${timeLimit}" class="select_class">

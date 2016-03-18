@@ -3846,6 +3846,8 @@ public class ParentOutAction extends DispatchAction
 
 		String adescription = request.getParameter("adescription");
 
+		String transportNo = request.getParameter("transportNo");
+
 		ActionForward error = checkAddOutBack(mapping, request, outId);
 
 		if (error != null)
@@ -3916,6 +3918,8 @@ public class ParentOutAction extends DispatchAction
 		out.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
 		
 		out.setRefOutFullId(outId);
+
+		out.setTransportNo(transportNo);
 
 		if (oldOut.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT) {
 			out.setOutType(OutConstant.OUTTYPE_IN_PRESENT);

@@ -2628,8 +2628,11 @@ public class OutImportManagerImpl implements OutImportManager
 		{
 			ConditionParse conditionParse = new ConditionParse();
 			conditionParse.addWhereStr();
-			conditionParse.addCondition("outId", "=", each.getOutId());
-			conditionParse.addCondition("productId", "=", each.getProductId());
+			String outId = each.getOutId();
+			String productId = each.getProductId();
+			conditionParse.addCondition("outId", "=", outId);
+			conditionParse.addCondition("productId", "=", productId);
+			_logger.info("***oudId***"+outId+"***productId***"+productId);
 			List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
 			if (!ListTools.isEmptyOrNull(baseBeans)){
 				for (BaseBean bean : baseBeans){
@@ -2638,9 +2641,8 @@ public class OutImportManagerImpl implements OutImportManager
 					bean.setPrice(each.getPrice());
 					bean.setValue(each.getPrice()*bean.getAmount());
 					this.baseDAO.updateEntityBean(bean);
+					_logger.info("***update base bean***"+bean);
 				}
-//				this.baseDAO.updateProductIdAndPrice(each.getDestProductId(), each.getPrice(),
-//						each.getOutId(), each.getProductId());
 			}
 
 			if (!outIds.contains(each.getOutId())){

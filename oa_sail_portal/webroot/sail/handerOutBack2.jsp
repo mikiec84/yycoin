@@ -291,8 +291,16 @@ function outBack()
                         </select><font color="#FF0000">*</font>
                        </td>
                     </tr>
-                    
+
                     <tr class="content1">
+                        <td align="right">快递单号：</td>
+                        <td colspan="3">
+                           <input type="text" oncheck="notNone;" name="transportNo">
+                                <font color="#FF0000">*</font>
+                        </td>
+                    </tr>
+                    
+                    <tr class="content2">
                         <td align="right">退货备注：</td>
                         <td colspan="3">
                        <textarea rows="3" cols="55" oncheck="notNone;"

@@ -196,3 +196,10 @@ insert into t_center_oamenuitem values(9038,'批量更新销售单品名','../sailImport/
 
 --2016/3/16 批量更新中收激励金额
 insert into t_center_oamenuitem values(1495,'批量更新中收激励金额','../tcp/batchUpdateIbMoney.jsp',14,1,1402,99,'批量更新中收激励金额')
+
+
+--2016/3/18 新增增值税发票17
+insert into T_CENTER_INVOICE values('90000000000000000034','增值税专用发票17%',0,1,1,17,'增值税专用发票17%')
+insert into T_CENTER_VS_DUTYINV values('16',4, '90000000000000000034')
+alter table T_CENTER_INVOICEINS_IMPORT add column zzsInfo varchar(200) default '';
+alter table T_CENTER_INVOICEINS add column zzsInfo varchar(200) default '';

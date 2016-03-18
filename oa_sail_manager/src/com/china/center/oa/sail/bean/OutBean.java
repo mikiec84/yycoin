@@ -467,6 +467,11 @@ public class OutBean implements Serializable
      * 2016/2/14 #171：未审批原因
      */
     private String reason = "";
+
+    /**
+     * 2016/3/18 #202: 销售退单时必填
+     */
+    private String transportNo = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2071,6 +2076,14 @@ public class OutBean implements Serializable
             }
         }
         return zjrcFullId;
+    }
+
+    public String getTransportNo() {
+        return transportNo;
+    }
+
+    public void setTransportNo(String transportNo) {
+        this.transportNo = transportNo;
     }
 
     /**
