@@ -819,6 +819,15 @@ public interface OutConstant
      */
     @Defined(key = "outbackStatus", value = "已入库")
     int OUTBACK_STATUS_FINISH = 4;
+
+    /**  #205
+     * 在入库管理--收货验货 环节后，增加两个环节，验货交接，商务确认
+     */
+    @Defined(key = "outbackStatus", value = "验货交接")
+    int OUTBACK_STATUS_CHECK_HANDOVER = 5;
+
+    @Defined(key = "outbackStatus", value = "商务确认")
+    int OUTBACK_STATUS_CONFIRM = 6;
     
     /**
      * 勾款

@@ -193,6 +193,8 @@
             <forward name="updateOutBack" path="/sail/updateOutBack.jsp" />
             <forward name="claimOutBack" path="/sail/claimOutBack.jsp" />
             <forward name="checkOutBack" path="/sail/checkOutBack.jsp" />
+            <forward name="checkAndHandOverBack" path="/sail/checkAndHandOverBack.jsp" />
+            <forward name="confirmOutBack" path="/sail/confirmOutBack.jsp" />
             <forward name="detailOutBack" path="/sail/detailOutBack.jsp" />
         </action>
         

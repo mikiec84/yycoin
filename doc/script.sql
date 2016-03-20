@@ -203,3 +203,12 @@ insert into T_CENTER_INVOICE values('90000000000000000034','增值税专用发票17%',0
 insert into T_CENTER_VS_DUTYINV values('16',4, '90000000000000000034')
 alter table T_CENTER_INVOICEINS_IMPORT add column zzsInfo varchar(200) default '';
 alter table T_CENTER_INVOICEINS add column zzsInfo varchar(200) default '';
+
+--2016/3/19 退库时增加栏位快递单号
+alter table t_center_out add column transportNo varchar(100) default ''
+
+--2016/3/20 收货登记流程变更
+alter table T_CENTER_OUTBACK add column note varchar(1024) default '',add column handoverReason varchar(100) default ''
+insert into t_center_oamenuitem values(1519,'验货交接','../sail/queryOutBack.jsp?mode=4',15,1,1501,12,'验货交接')
+insert into t_center_oamenuitem values(1520,'商务确认','../sail/queryOutBack.jsp?mode=5',15,1,1501,13,'验货交接')
+update t_center_oamenuitem set indexPos = indexPos+2 where id in ('1516','1517','1518')

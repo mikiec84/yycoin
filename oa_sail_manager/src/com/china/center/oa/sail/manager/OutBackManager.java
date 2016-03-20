@@ -16,7 +16,11 @@ public interface OutBackManager
 	
 	boolean claimOutBack(User user, OutBackBean bean) throws MYException;
 	
-	boolean checkOutBack(User user, String id, String reason) throws MYException;
+	boolean checkOutBack(User user, OutBackBean bean, String reason) throws MYException;
+
+    boolean checkAndHandOverBack(User user, String id, String reason) throws MYException;
+
+    boolean confirmOutBack(User user, String id, String reason) throws MYException;
 	
 	boolean finishOutBack(User user, String id) throws MYException;
 }

@@ -101,14 +101,7 @@ public class OutBackAction extends DispatchAction
         
         if (mode.equals("1"))
         {
-//        	String status = request.getParameter("status");
-//        	
-//        	if (StringTools.isNullOrNone(status))
-//        	{
-//        		initMap.put("status", String.valueOf(OutConstant.OUTBACK_STATUS_CLAIM));
-//        		
-//        		condtion.addIntCondition("OutBackBean.status", "=", OutConstant.OUTBACK_STATUS_CLAIM);
-//        	}
+
         }	
         else if (mode.equals("2"))
         {
@@ -121,6 +114,14 @@ public class OutBackAction extends DispatchAction
         else if (mode.equals("3"))
         {
         	condtion.addIntCondition("OutBackBean.status", "=", OutConstant.OUTBACK_STATUS_IN);
+        }
+        else if (mode.equals("4"))
+        {
+            condtion.addIntCondition("OutBackBean.status", "=", OutConstant.OUTBACK_STATUS_CHECK_HANDOVER);
+        }
+        else if (mode.equals("5"))
+        {
+            condtion.addIntCondition("OutBackBean.status", "=", OutConstant.OUTBACK_STATUS_CONFIRM);
         }
         	
 		ActionTools.processJSONDataQueryCondition(QUERYOUTBACK, request, condtion, initMap);
@@ -340,16 +341,16 @@ public class OutBackAction extends DispatchAction
         
         bean.setAttachmentList(attachmentList);
         
-        if ("1".equals(update))
-        {
+        if ("1".equals(update)) {
             return mapping.findForward("updateOutBack");
-        }
-        else if ("2".equals(update))
-        {
+        } else if ("2".equals(update)) {
         	return mapping.findForward("claimOutBack");
-        }
-        else if ("3".equals(update))
-        	return mapping.findForward("checkOutBack");
+        } else if ("3".equals(update)){
+            return mapping.findForward("checkOutBack");
+        } else if ("4".equals(update)){
+            return mapping.findForward("checkAndHandOverBack");
+        } else if ("5".equals(update))
+            return mapping.findForward("confirmOutBack");
 
         return mapping.findForward("detailOutBack");
 	}
@@ -406,9 +407,97 @@ public class OutBackAction extends DispatchAction
             HttpServletResponse response)
 	throws ServletException
 	{
-		CommonTools.saveParamers(request);
+        CommonTools.saveParamers(request);
 		
 		// 模板最多3M
+//        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 3L);
+//
+//        try
+//        {
+//            rds.parser();
+//        }
+//        catch (FileUploadBase.SizeLimitExceededException e)
+//        {
+//            _logger.error(e, e);
+//
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过3M");
+//
+//            return mapping.findForward("queryOutBack");
+//        }
+//        catch (Exception e)
+//        {
+//            _logger.error(e, e);
+//
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加附件失败");
+//
+//            return mapping.findForward("queryOutBack");
+//        }
+
+//		String id = rds.getParameter("id");
+
+        String id = request.getParameter("id");
+
+		OutBackBean bean = outBackDAO.find(id);
+        if (null == bean)
+		{
+			return ActionTools.toError("数据异常,请重新操作", "queryOutBack", mapping, request);
+		}
+		
+		if (bean.getStatus() != OutConstant.OUTBACK_STATUS_CLAIM)
+		{
+			return ActionTools.toError("不是待认领状态,请确认", "queryOutBack", mapping, request);
+		}
+
+//        ActionForward afor = parserAttachment(mapping, request, rds, bean);
+//
+//        if (afor != null)
+//        {
+//            return afor;
+//        }
+//
+//        rds.close();
+		
+        try
+        {
+        	User user = Helper.getUser(request);
+        	
+            bean.setClaimer(user.getStafferName());
+            
+            bean.setClaimTime(TimeTools.now());
+
+            bean.setStatus(OutConstant.OUTBACK_STATUS_CHECK);
+            outBackManager.claimOutBack(user, bean);
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功认领");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "认领失败:" + e.getErrorContent());
+        }
+		
+        request.setAttribute("mode", 1);
+        return mapping.findForward("queryOutBack");
+	}
+	
+	/**
+	 * checkOutBack
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward checkOutBack(ActionMapping mapping, ActionForm form,
+            HttpServletRequest request,
+            HttpServletResponse response)
+	throws ServletException
+	{
+		CommonTools.saveParamers(request);
+
         RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 3L);
 
         try
@@ -432,75 +521,10 @@ public class OutBackAction extends DispatchAction
             return mapping.findForward("queryOutBack");
         }
 
+		
 		String id = rds.getParameter("id");
-
-		OutBackBean bean = outBackDAO.find(id);
 		
-		if (null == bean)
-		{
-			return ActionTools.toError("数据异常,请重新操作", "queryOutBack", mapping, request);
-		}
-		
-		if (bean.getStatus() != OutConstant.OUTBACK_STATUS_CLAIM)
-		{
-			return ActionTools.toError("不是待认领状态,请确认", "queryOutBack", mapping, request);
-		}
-        
-        ActionForward afor = parserAttachment(mapping, request, rds, bean);
-
-        if (afor != null)
-        {
-            return afor;
-        }
-
-        rds.close();
-		
-        try
-        {
-        	User user = Helper.getUser(request);
-        	
-            bean.setClaimer(user.getStafferName());
-            
-            bean.setClaimTime(TimeTools.now());
-
-            bean.setStatus(OutConstant.OUTBACK_STATUS_CHECK);
-
-            outBackManager.claimOutBack(user, bean);
-
-            request.setAttribute(KeyConstant.MESSAGE, "成功认领");
-        }
-        catch (MYException e)
-        {
-            _logger.warn(e, e);
-
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "认领失败:" + e.getErrorContent());
-        }
-		
-        request.setAttribute("mode", 1);
-        
-		return mapping.findForward("queryOutBack");
-	}
-	
-	/**
-	 * checkOutBack
-	 * 
-	 * @param mapping
-	 * @param form
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws ServletException
-	 */
-	public ActionForward checkOutBack(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request,
-            HttpServletResponse response)
-	throws ServletException
-	{
-		CommonTools.saveParamers(request);
-		
-		String id = request.getParameter("id");
-		
-		String reason = request.getParameter("reason");
+		String reason = rds.getParameter("reason");
 		
 		OutBackBean oldBean = outBackDAO.find(id);
 		
@@ -513,12 +537,21 @@ public class OutBackAction extends DispatchAction
 		{
 			return ActionTools.toError("不是待验货状态,请确认", "queryOutBack", mapping, request);
 		}
+
+        ActionForward afor = parserAttachment(mapping, request, rds, oldBean);
+
+        if (afor != null)
+        {
+            return afor;
+        }
+
+        rds.close();
 		
         User user = Helper.getUser(request);
         
         try
         {
-            outBackManager.checkOutBack(user, id, reason);
+            outBackManager.checkOutBack(user, oldBean, reason);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功验货");
         }
@@ -531,6 +564,88 @@ public class OutBackAction extends DispatchAction
 		
 		return mapping.findForward("queryOutBack");
 	}
+
+    public ActionForward checkAndHandOverBack(ActionMapping mapping, ActionForm form,
+                                      HttpServletRequest request,
+                                      HttpServletResponse response)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        String id = request.getParameter("id");
+
+        String reason = request.getParameter("reason");
+
+        OutBackBean oldBean = outBackDAO.find(id);
+
+        if (null == oldBean)
+        {
+            return ActionTools.toError("数据异常,请重新操作", "queryOutBack", mapping, request);
+        }
+
+        if (oldBean.getStatus() != OutConstant.OUTBACK_STATUS_CHECK_HANDOVER)
+        {
+            return ActionTools.toError("不是待验货交接状态,请确认", "queryOutBack", mapping, request);
+        }
+
+        User user = Helper.getUser(request);
+
+        try
+        {
+            outBackManager.checkAndHandOverBack(user, id, reason);
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功验货交接");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "验货交接失败:" + e.getErrorContent());
+        }
+
+        return mapping.findForward("queryOutBack");
+    }
+
+    public ActionForward confirmOutBack(ActionMapping mapping, ActionForm form,
+                                      HttpServletRequest request,
+                                      HttpServletResponse response)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        String id = request.getParameter("id");
+
+        String note = request.getParameter("note");
+
+        OutBackBean oldBean = outBackDAO.find(id);
+
+        if (null == oldBean)
+        {
+            return ActionTools.toError("数据异常,请重新操作", "queryOutBack", mapping, request);
+        }
+
+        if (oldBean.getStatus() != OutConstant.OUTBACK_STATUS_CONFIRM)
+        {
+            return ActionTools.toError("不是待商务确认状态,请确认", "queryOutBack", mapping, request);
+        }
+
+        User user = Helper.getUser(request);
+
+        try
+        {
+            outBackManager.confirmOutBack(user, id, note);
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功商务确认");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "商务确认失败:" + e.getErrorContent());
+        }
+
+        return mapping.findForward("queryOutBack");
+    }
 	
 	/**
      * parserAttachment
@@ -538,7 +653,7 @@ public class OutBackAction extends DispatchAction
      * @param mapping
      * @param request
      * @param rds
-     * @param bean
+     * @param outBackBean
      * @return
      */
     private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,

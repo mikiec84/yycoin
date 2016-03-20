@@ -196,6 +196,12 @@ public class OutBackBean implements Serializable
 	
 	@Html(title = "描述", maxLength = 100, type = Element.TEXTAREA)
     private String description = "";
+
+    @Html(title = "备注", maxLength = 1024, type = Element.TEXTAREA)
+    private String note = "";
+
+    @Html(title = "验货交接意见", maxLength = 100, type = Element.TEXTAREA)
+    private String handoverReason = "";
 	
 	 /**
      * 附件列表
@@ -718,4 +724,20 @@ public class OutBackBean implements Serializable
 	{
 		this.attachmentList = attachmentList;
 	}
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getHandoverReason() {
+        return handoverReason;
+    }
+
+    public void setHandoverReason(String handoverReason) {
+        this.handoverReason = handoverReason;
+    }
 }

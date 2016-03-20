@@ -295,7 +295,7 @@ function outBack()
                     <tr class="content1">
                         <td align="right">快递单号：</td>
                         <td colspan="3">
-                           <input type="text" oncheck="notNone;" name="transportNo">
+                           <input type="text" oncheck="notNone;" name="transportNo" style="WIDTH: 300px;">
                                 <font color="#FF0000">*</font>
                         </td>
                     </tr>

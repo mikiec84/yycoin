@@ -371,6 +371,12 @@ function checkBean()
                         </td>
                     </tr>
 
+                    <tr class="content2">
+                        <td align="right">退库单快递单号：</td>
+                        <td colspan="3">${bean.transportNo}
+                        </td>
+                    </tr>
+
 				</table>
 				</td>
 			</tr>

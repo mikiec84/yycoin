@@ -58,9 +58,15 @@ function load()
              <c:if test="${mode == 2}">
              {id: 'update3', bclass: 'update', caption : '验货', onpress : checkBean},
 			 </c:if>
+             <c:if test="${mode == 4}">
+             {id: 'update5', bclass: 'update', caption : '验货交接', onpress : checkAndHandOverBack},
+             </c:if>
+             <c:if test="${mode == 5}">
+             {id: 'update6', bclass: 'update', caption : '商务确认', onpress : confirmOutBack},
+             </c:if>
              <c:if test="${mode == 3}">
              {id: 'update4', bclass: 'update', caption : '结束入库', onpress : finishBean},
-			 </c:if>
+             </c:if>
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],         
          <p:conf/>
@@ -165,6 +171,40 @@ function checkBean()
 	}
 	else
 	$error('不能操作');
+}
+
+function checkAndHandOverBack()
+{
+    if (getRadio('checkb') && getRadioValue('checkb'))
+    {
+        if (getRadio('checkb').lstatus == 5)
+        {
+            $l(gurl + 'find' + ukey + '&update=4&id=' + getRadioValue('checkb'));
+        }
+        else
+        {
+            $error('不是待验货交接状态,不可认领');
+        }
+    }
+    else
+        $error('不能操作');
+}
+
+function confirmOutBack()
+{
+    if (getRadio('checkb') && getRadioValue('checkb'))
+    {
+        if (getRadio('checkb').lstatus == 6)
+        {
+            $l(gurl + 'find' + ukey + '&update=5&id=' + getRadioValue('checkb'));
+        }
+        else
+        {
+            $error('不是待商务确认状态,不可认领');
+        }
+    }
+    else
+        $error('不能操作');
 }
 
 function finishBean(opr, grid)

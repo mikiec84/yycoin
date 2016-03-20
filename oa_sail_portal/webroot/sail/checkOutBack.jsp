@@ -22,7 +22,26 @@ var pList = window.top.topFrame.pList;
 
 function addBean()
 {
-	submit('确定验货完成?', null, null);
+	submit('确定验货完成?', null, checkValue);
+}
+
+function checkValue()
+{
+    var fileName = $O('atts').value;
+
+    if ("" == fileName)
+    {
+        alert("请输入要上传的文件名");
+        return false;
+    }
+
+    if (fileName.indexOf('xls') == -1)
+    {
+        alert("只支持XLS文件格式!");
+        return false;
+    }
+
+    return true;
 }
 
 function changes(obj)
@@ -91,7 +110,7 @@ function getStaffers(oos)
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../sail/outback.do?method=checkOutBack" method="post">
+<form name="formEntry" action="../sail/outback.do?method=checkOutBack" enctype="multipart/form-data"  method="post">
 <input type="hidden" name="receiverId" value="${bean.receiverId}">
 <input type="hidden" name="id" value="${bean.id}">
 <input type="hidden" name="mode" value="2">
@@ -173,7 +192,8 @@ function getStaffers(oos)
     </p:title>
 
     <p:line flag="0" />
-	
+
+
 	<tr>
         <td colspan='2' align='center'>
         <table width="98%" border="0" cellpadding="0" cellspacing="0"
@@ -192,7 +212,38 @@ function getStaffers(oos)
         </td>
     </tr>
 
-	<p:line flag="1" />
+
+    <p:title>
+        <td class="caption">
+            <strong>入库清单附件</strong>
+        </td>
+    </p:title>
+
+    <p:line flag="1" />
+
+    <tr>
+        <td colspan='2' align='center'>
+            <table width="98%" border="0" cellpadding="0" cellspacing="0"
+                   class="border">
+                <tr>
+                    <td>
+                        <table width="100%" border="0" cellspacing='1' id="tables2">
+                            <p:cell title="导入模板" end="true">
+                                <a target="_blank"
+                                   href="../admin/down.do?method=downTemplateFileByName&fileName=outBackTemplate.xls">下载入库清单模板</a>
+                            </p:cell>
+
+                            <p:cell title="附件" width="8" end="true">
+                                <input type="file" name="atts" size="70" >
+                            </p:cell>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+	<p:line flag="2" />
 
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right"><input type="button" class="button_class" id="ok_b"

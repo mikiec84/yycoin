@@ -5022,6 +5022,8 @@ public class ParentOutAction extends DispatchAction
 		String description = request.getParameter("description");
 
 		String dirDepot = request.getParameter("dirDeport");
+
+        String transportNo = request.getParameter("transportNo");
 		
 		DepotpartBean okDepotpart = depotpartDAO
 		.findDefaultOKDepotpart(dirDepot);
@@ -5055,6 +5057,8 @@ public class ParentOutAction extends DispatchAction
 		bean.setStafferName(oriOut.getStafferName());
 
 		bean.setStafferId(oriOut.getStafferId());
+
+        bean.setTransportNo(transportNo);
 
 		StafferVSCustomerVO vsCus = stafferVSCustomerDAO.findVOByUnique(oriOut.getCustomerId());
 		

@@ -125,6 +125,7 @@ public class OutBackManagerImpl implements OutBackManager
 	@Transactional(rollbackFor = MYException.class)
 	public boolean claimOutBack(User user, OutBackBean bean) throws MYException
 	{
+        System.out.println("**************claimOutBack*******1111");
 		JudgeTools.judgeParameterIsNull(user, bean, bean.getId());
 		
 		OutBackBean old = outBackDAO.find(bean.getId());
@@ -143,14 +144,14 @@ public class OutBackManagerImpl implements OutBackManager
 		old.setClaimTime(bean.getClaimTime());
 		old.setStatus(bean.getStatus());
 		
-		List<AttachmentBean> attachmentList = bean.getAttachmentList();
-
-        for (AttachmentBean attachmentBean : attachmentList) {
-            attachmentBean.setId(commonDAO.getSquenceString20());
-            attachmentBean.setRefId(bean.getId());
-        }
-
-        attachmentDAO.saveAllEntityBeans(attachmentList);
+//		List<AttachmentBean> attachmentList = bean.getAttachmentList();
+//
+//        for (AttachmentBean attachmentBean : attachmentList) {
+//            attachmentBean.setId(commonDAO.getSquenceString20());
+//            attachmentBean.setRefId(bean.getId());
+//        }
+//
+//        attachmentDAO.saveAllEntityBeans(attachmentList);
         
         outBackDAO.updateEntityBean(old);
 		
@@ -158,9 +159,10 @@ public class OutBackManagerImpl implements OutBackManager
 	}
 
 	@Transactional(rollbackFor = MYException.class)
-	public boolean checkOutBack(User user, String id, String reason)
+	public boolean checkOutBack(User user, OutBackBean bean, String reason)
 			throws MYException
 	{
+        String id = bean.getId();
 		JudgeTools.judgeParameterIsNull(user, id);
 		
 		OutBackBean old = outBackDAO.find(id);
@@ -177,15 +179,78 @@ public class OutBackManagerImpl implements OutBackManager
 		
 		old.setChecker(user.getStafferName());
 		old.setCheckTime(TimeTools.now());
-		old.setStatus(OutConstant.OUTBACK_STATUS_IN);
+		old.setStatus(OutConstant.OUTBACK_STATUS_CHECK_HANDOVER);
 		old.setCheckReason(reason);
+
+        List<AttachmentBean> attachmentList = bean.getAttachmentList();
+
+        for (AttachmentBean attachmentBean : attachmentList) {
+            attachmentBean.setId(commonDAO.getSquenceString20());
+            attachmentBean.setRefId(bean.getId());
+        }
+
+        attachmentDAO.saveAllEntityBeans(attachmentList);
 		
 		outBackDAO.updateEntityBean(old);
 		
 		return true;
 	}
-	
-	@Transactional(rollbackFor = MYException.class)
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean checkAndHandOverBack(User user, String id, String reason) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, id);
+
+        OutBackBean old = outBackDAO.find(id);
+
+        if (null == old)
+        {
+            throw new MYException("数据异常");
+        }
+
+        if (old.getStatus() != OutConstant.OUTBACK_STATUS_CHECK_HANDOVER)
+        {
+            throw new MYException("已不是待验货交接状态,不能退领");
+        }
+
+        old.setChecker(user.getStafferName());
+        old.setCheckTime(TimeTools.now());
+        old.setStatus(OutConstant.OUTBACK_STATUS_CONFIRM);
+        old.setHandoverReason(reason);
+
+        outBackDAO.updateEntityBean(old);
+
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean confirmOutBack(User user, String id, String note) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, id);
+
+        OutBackBean old = outBackDAO.find(id);
+
+        if (null == old)
+        {
+            throw new MYException("数据异常");
+        }
+
+        if (old.getStatus() != OutConstant.OUTBACK_STATUS_CONFIRM)
+        {
+            throw new MYException("已不是待商务确认状态,不能退领");
+        }
+
+        old.setChecker(user.getStafferName());
+        old.setCheckTime(TimeTools.now());
+        old.setStatus(OutConstant.OUTBACK_STATUS_IN);
+        old.setNote(note);
+
+        outBackDAO.updateEntityBean(old);
+
+        return true;
+    }
+
+    @Transactional(rollbackFor = MYException.class)
 	public boolean finishOutBack(User user, String id) throws MYException
 	{
 		JudgeTools.judgeParameterIsNull(user, id);
