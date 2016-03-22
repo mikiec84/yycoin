@@ -3028,6 +3028,13 @@ public class StockAction extends DispatchAction
                      "left outer join t_center_product ProductBean on ProductBean.id=StockItemBean.productId " +
                      "where StockItemBean.stockId=StockBean.id and ProductBean.name like '%"+productName+"%')");
         }
+
+        String providerName = request.getParameter("providerName");
+        if (!StringTools.isNullOrNone(providerName)){
+            condtion.addCondition(" and exists (select StockItemBean.id from t_center_stockitem StockItemBean " +
+                    "left outer join T_CENTER_PROVIDE ProviderBean on ProviderBean.id=StockItemBean.providerId " +
+                    "where StockItemBean.stockId=StockBean.id and ProviderBean.name like '%"+providerName+"%')");
+        }
         
         condtion.addCondition("order by StockBean.logTime desc");
     }

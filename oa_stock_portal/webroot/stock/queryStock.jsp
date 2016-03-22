@@ -425,7 +425,10 @@ function exports()
                 <td align="center" width="35%">
                     <input type="ext" name="productName" id="productName" placeholder="商品名">
                 </td>
-                <td colspan="2"></td>
+				<td align="center">供应商</td>
+				<td align="center" width="35%">
+					<input type="ext" name="providerName" id="providerName" placeholder="供应商">
+				</td>
             </tr>
 			
 			<tr align=center class="content0">
