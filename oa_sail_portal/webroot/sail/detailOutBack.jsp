@@ -158,6 +158,14 @@ function getStaffers(oos)
             <p:pro field="checker" />
             <p:pro field="checkTime" />
             <p:pro field="checkReason" cell="0"/>
+
+            <p:pro field="handoverChecker" />
+            <p:pro field="handoverCheckTime" />
+            <p:pro field="handoverReason" cell="0"/>
+
+            <p:pro field="confirmChecker" />
+            <p:pro field="confirmCheckTime" />
+            <p:pro field="note" cell="0"/>
             
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 			
@@ -173,6 +181,38 @@ function getStaffers(oos)
 	</p:subBody>
 
 	<p:line flag="1" />
+
+    <p:subBody width="100%">
+        <table width="100%" border="0" cellspacing='1' id="tables">
+            <tr align="center" class="content0">
+                <td width="10%" align="center">审批人</td>
+                <td width="10%" align="center">审批动作</td>
+                <td width="10%" align="center">前状态</td>
+                <td width="10%" align="center">后状态</td>
+                <td width="45%" align="center">意见</td>
+                <td width="15%" align="center">时间</td>
+            </tr>
+
+            <c:forEach items="${logList}" var="item" varStatus="vs">
+                <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
+                    <td align="center">${item.actor}</td>
+
+                    <td align="center">${my:get('oprMode', item.oprMode)}</td>
+
+                    <td align="center">${my:get('outbackStatus', item.preStatus)}</td>
+
+                    <td align="center">${my:get('outbackStatus', item.afterStatus)}</td>
+
+                    <td align="center">${item.description}</td>
+
+                    <td align="center">${item.logTime}</td>
+
+                </tr>
+            </c:forEach>
+        </table>
+    </p:subBody>
+
+    <p:line flag="2" />
 
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right"><input type="button" class="button_class" id="ok_b"

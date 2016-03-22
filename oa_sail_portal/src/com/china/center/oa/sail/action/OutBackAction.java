@@ -16,6 +16,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.dao.FlowLogDAO;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,6 +66,8 @@ public class OutBackAction extends DispatchAction
 	private OutBackManager outBackManager = null;
 	
 	private AttachmentDAO attachmentDAO = null;
+
+    private FlowLogDAO flowLogDAO = null;
 	
 	private final static String QUERYOUTBACK = "queryOutBack";
 	
@@ -340,6 +344,10 @@ public class OutBackAction extends DispatchAction
         List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByFK(id);
         
         bean.setAttachmentList(attachmentList);
+
+        List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(id);
+
+        request.setAttribute("logList", logs);
         
         if ("1".equals(update)) {
             return mapping.findForward("updateOutBack");
@@ -538,12 +546,12 @@ public class OutBackAction extends DispatchAction
 			return ActionTools.toError("不是待验货状态,请确认", "queryOutBack", mapping, request);
 		}
 
-        ActionForward afor = parserAttachment(mapping, request, rds, oldBean);
-
-        if (afor != null)
-        {
-            return afor;
-        }
+//        ActionForward afor = parserAttachment(mapping, request, rds, oldBean);
+//
+//        if (afor != null)
+//        {
+//            return afor;
+//        }
 
         rds.close();
 		
@@ -893,4 +901,12 @@ public class OutBackAction extends DispatchAction
 	{
 		this.attachmentDAO = attachmentDAO;
 	}
+
+    public FlowLogDAO getFlowLogDAO() {
+        return flowLogDAO;
+    }
+
+    public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
+        this.flowLogDAO = flowLogDAO;
+    }
 }

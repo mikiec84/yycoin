@@ -209,6 +209,7 @@ alter table t_center_out add column transportNo varchar(100) default ''
 
 --2016/3/20 收货登记流程变更
 alter table T_CENTER_OUTBACK add column note varchar(1024) default '',add column handoverReason varchar(100) default ''
+alter table T_CENTER_OUTBACK add column handoverChecker varchar(16) default '',add column handoverCheckTime varchar(100) default '', add column confirmChecker varchar(16) default '',add column confirmCheckTime varchar(100) default ''
 insert into t_center_oamenuitem values(1519,'验货交接','../sail/queryOutBack.jsp?mode=4',15,1,1501,12,'验货交接')
 insert into t_center_oamenuitem values(1520,'商务确认','../sail/queryOutBack.jsp?mode=5',15,1,1501,13,'验货交接')
 update t_center_oamenuitem set indexPos = indexPos+2 where id in ('1516','1517','1518')

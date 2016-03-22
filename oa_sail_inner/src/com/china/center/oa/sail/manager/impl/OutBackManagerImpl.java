@@ -2,6 +2,10 @@ package com.china.center.oa.sail.manager.impl;
 
 import java.util.List;
 
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.sail.constanst.SailConstant;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.center.china.osgi.publics.User;
@@ -25,6 +29,8 @@ public class OutBackManagerImpl implements OutBackManager
 	private CommonDAO commonDAO = null;
 	
 	private AttachmentDAO attachmentDAO = null;
+
+	private FlowLogDAO flowLogDAO = null;
 
 	public OutBackManagerImpl()
 	{
@@ -125,8 +131,7 @@ public class OutBackManagerImpl implements OutBackManager
 	@Transactional(rollbackFor = MYException.class)
 	public boolean claimOutBack(User user, OutBackBean bean) throws MYException
 	{
-        System.out.println("**************claimOutBack*******1111");
-		JudgeTools.judgeParameterIsNull(user, bean, bean.getId());
+        JudgeTools.judgeParameterIsNull(user, bean, bean.getId());
 		
 		OutBackBean old = outBackDAO.find(bean.getId());
 		
@@ -154,6 +159,8 @@ public class OutBackManagerImpl implements OutBackManager
 //        attachmentDAO.saveAllEntityBeans(attachmentList);
         
         outBackDAO.updateEntityBean(old);
+
+		this.log(user, old.getId(), OutConstant.OUTBACK_STATUS_CLAIM, bean.getStatus());
 		
 		return true;
 	}
@@ -182,16 +189,18 @@ public class OutBackManagerImpl implements OutBackManager
 		old.setStatus(OutConstant.OUTBACK_STATUS_CHECK_HANDOVER);
 		old.setCheckReason(reason);
 
-        List<AttachmentBean> attachmentList = bean.getAttachmentList();
-
-        for (AttachmentBean attachmentBean : attachmentList) {
-            attachmentBean.setId(commonDAO.getSquenceString20());
-            attachmentBean.setRefId(bean.getId());
-        }
-
-        attachmentDAO.saveAllEntityBeans(attachmentList);
+//        List<AttachmentBean> attachmentList = bean.getAttachmentList();
+//
+//        for (AttachmentBean attachmentBean : attachmentList) {
+//            attachmentBean.setId(commonDAO.getSquenceString20());
+//            attachmentBean.setRefId(bean.getId());
+//        }
+//
+//        attachmentDAO.saveAllEntityBeans(attachmentList);
 		
 		outBackDAO.updateEntityBean(old);
+
+		this.log(user, old.getId(), OutConstant.OUTBACK_STATUS_CHECK, OutConstant.OUTBACK_STATUS_CHECK_HANDOVER);
 		
 		return true;
 	}
@@ -213,12 +222,14 @@ public class OutBackManagerImpl implements OutBackManager
             throw new MYException("已不是待验货交接状态,不能退领");
         }
 
-        old.setChecker(user.getStafferName());
-        old.setCheckTime(TimeTools.now());
+        old.setHandoverChecker(user.getStafferName());
+		old.setHandoverCheckTime(TimeTools.now());
         old.setStatus(OutConstant.OUTBACK_STATUS_CONFIRM);
         old.setHandoverReason(reason);
 
         outBackDAO.updateEntityBean(old);
+
+		this.log(user, old.getId(), OutConstant.OUTBACK_STATUS_CHECK_HANDOVER, OutConstant.OUTBACK_STATUS_CONFIRM);
 
         return true;
     }
@@ -240,12 +251,14 @@ public class OutBackManagerImpl implements OutBackManager
             throw new MYException("已不是待商务确认状态,不能退领");
         }
 
-        old.setChecker(user.getStafferName());
-        old.setCheckTime(TimeTools.now());
+        old.setConfirmChecker(user.getStafferName());
+		old.setConfirmCheckTime(TimeTools.now());
         old.setStatus(OutConstant.OUTBACK_STATUS_IN);
         old.setNote(note);
 
         outBackDAO.updateEntityBean(old);
+
+		this.log(user, old.getId(), OutConstant.OUTBACK_STATUS_CONFIRM, OutConstant.OUTBACK_STATUS_IN);
 
         return true;
     }
@@ -274,6 +287,23 @@ public class OutBackManagerImpl implements OutBackManager
 		outBackDAO.updateEntityBean(old);
 		
 		return true;
+	}
+
+	private void log(User user, String id, int preStatus, int afterStatus){
+		FlowLogBean log = new FlowLogBean();
+
+		log.setActor(user.getStafferName());
+
+		log.setDescription("通过");
+		log.setFullId(id);
+		log.setOprMode(PublicConstant.OPRMODE_PASS);
+		log.setLogTime(TimeTools.now());
+
+		log.setPreStatus(preStatus);
+
+		log.setAfterStatus(afterStatus);
+
+		flowLogDAO.saveEntityBean(log);
 	}
 
 	/**
@@ -322,5 +352,13 @@ public class OutBackManagerImpl implements OutBackManager
 	public void setAttachmentDAO(AttachmentDAO attachmentDAO)
 	{
 		this.attachmentDAO = attachmentDAO;
+	}
+
+	public FlowLogDAO getFlowLogDAO() {
+		return flowLogDAO;
+	}
+
+	public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
+		this.flowLogDAO = flowLogDAO;
 	}
 }

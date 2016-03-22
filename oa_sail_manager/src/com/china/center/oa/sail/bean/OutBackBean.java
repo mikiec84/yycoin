@@ -200,8 +200,21 @@ public class OutBackBean implements Serializable
     @Html(title = "备注", maxLength = 1024, type = Element.TEXTAREA)
     private String note = "";
 
+	@Html(title = "验货交接人 ")
+	private String handoverChecker = "";
+
+	@Html(title = "验货交接时间 ")
+	private String handoverCheckTime = "";
+
+
     @Html(title = "验货交接意见", maxLength = 100, type = Element.TEXTAREA)
     private String handoverReason = "";
+
+	@Html(title = "商务确认人 ")
+	private String confirmChecker = "";
+
+	@Html(title = "商务确认时间 ")
+	private String confirmCheckTime = "";
 	
 	 /**
      * 附件列表
@@ -740,4 +753,36 @@ public class OutBackBean implements Serializable
     public void setHandoverReason(String handoverReason) {
         this.handoverReason = handoverReason;
     }
+
+	public String getHandoverChecker() {
+		return handoverChecker;
+	}
+
+	public void setHandoverChecker(String handoverChecker) {
+		this.handoverChecker = handoverChecker;
+	}
+
+	public String getHandoverCheckTime() {
+		return handoverCheckTime;
+	}
+
+	public void setHandoverCheckTime(String handoverCheckTime) {
+		this.handoverCheckTime = handoverCheckTime;
+	}
+
+	public String getConfirmChecker() {
+		return confirmChecker;
+	}
+
+	public void setConfirmChecker(String confirmChecker) {
+		this.confirmChecker = confirmChecker;
+	}
+
+	public String getConfirmCheckTime() {
+		return confirmCheckTime;
+	}
+
+	public void setConfirmCheckTime(String confirmCheckTime) {
+		this.confirmCheckTime = confirmCheckTime;
+	}
 }
