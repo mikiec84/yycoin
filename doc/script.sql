@@ -206,6 +206,7 @@ alter table T_CENTER_INVOICEINS add column zzsInfo varchar(200) default '';
 
 --2016/3/19 退库时增加栏位快递单号
 alter table t_center_out add column transportNo varchar(100) default ''
+alter table T_CENTER_BATCHSWATCH add column transportNo varchar(100) default ''
 
 --2016/3/20 收货登记流程变更
 alter table T_CENTER_OUTBACK add column note varchar(1024) default '',add column handoverReason varchar(100) default ''

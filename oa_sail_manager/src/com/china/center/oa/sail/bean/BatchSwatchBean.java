@@ -57,6 +57,8 @@ public class BatchSwatchBean implements Serializable
 	
 	private String description = "";
 
+	private String transportNo = "";
+
 	/**
 	 * @return the id
 	 */
@@ -255,5 +257,13 @@ public class BatchSwatchBean implements Serializable
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getTransportNo() {
+		return transportNo;
+	}
+
+	public void setTransportNo(String transportNo) {
+		this.transportNo = transportNo;
 	}
 }

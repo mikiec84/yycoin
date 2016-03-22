@@ -3658,7 +3658,18 @@ public class OutImportAction extends DispatchAction
             		}
 
 					//2015/10/28 个人或银行领样批量退单备注写错栏位
+					//备注
             		bean.setDescription(obj[6].trim());
+
+					//2016/3/22 #202
+					if ( !StringTools.isNullOrNone(obj[7]))
+					{
+						String transportNo = obj[7].trim();
+						bean.setTransportNo(transportNo);
+					}else
+					{
+						throw new MYException("快递单号不能为空");
+					}
             		
                     importItemList.add(bean);
                     

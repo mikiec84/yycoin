@@ -1121,7 +1121,7 @@ public class OutImportManagerImpl implements OutImportManager
     // 创建赠品订单
     private void createGiftOut(OutBean out)
     {
-        _logger.info("create gift out for out:"+out);
+        _logger.info("create gift out for out:" + out);
     	// 判断产品是否有对应赠品关系 - 中信订单一个订单一个产品
     	BaseBean base = out.getBaseList().get(0);
     	
@@ -1700,17 +1700,15 @@ public class OutImportManagerImpl implements OutImportManager
 		{
 			TransactionTemplate tran = new TransactionTemplate(transactionManager);
 			
-			tran.execute(new TransactionCallback()
-			{
-				public Object doInTransaction(TransactionStatus tstatus)
-				{
-					bean.setResult(result);
-					
-					batchApproveDAO.updateEntityBean(bean);
-					
-					return Boolean.TRUE;
-				}
-			}
+			tran.execute(new TransactionCallback() {
+							 public Object doInTransaction(TransactionStatus tstatus) {
+								 bean.setResult(result);
+
+								 batchApproveDAO.updateEntityBean(bean);
+
+								 return Boolean.TRUE;
+							 }
+						 }
 			);
 		}
         catch (Exception e)
@@ -2376,6 +2374,11 @@ public class OutImportManagerImpl implements OutImportManager
 						each.setResult(result);
 						
 						batchSwatchDAO.updateEntityBean(each);
+
+						//#202
+						if (!StringTools.isNullOrNone(each.getOutId()) && !StringTools.isNullOrNone(each.getTransportNo())){
+							outDAO.updateTransportNo(each.getOutId(), each.getTransportNo());
+						}
 					}
 					
 					return Boolean.TRUE;

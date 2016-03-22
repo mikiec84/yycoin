@@ -380,4 +380,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateHasConfirmMoney(String fullId, double confirmMoney);
     
     boolean updateLocation(String fullId, String location);
+
+    boolean updateTransportNo(String fullId, String transportNo);
 }
