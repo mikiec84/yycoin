@@ -85,7 +85,7 @@ function load()
              {id: 'autoadd1', bclass: 'add', caption: '个人开票', onpress : autoadd1, auth: '1401'},
              {id: 'autoadd2', bclass: 'add', caption: '全部开票', onpress : autoadd, auth: '1604'},
              </c:if>
-             
+             {id: 'batchConfirm', bclass: 'pass', caption: '批量审批', onpress : batchConfirm},
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],
         <p:conf/>
@@ -314,6 +314,22 @@ function confirmEmergency()
     else
         $error('不能操作');
 }
+
+//#207
+function batchConfirm()
+{
+    if (confirm("批量改为'待财务确认?'")){
+        $ajax('../finance/invoiceins.do?method=batchConfirm', function(data){
+            if (data.ret == 0){
+                alert("批量修改成功");
+            } else{
+                alert("批量修改失败"+data.msg);
+            }
+        });
+    }
+}
+
+
 
 function autoadd1(opr, grid)
 {

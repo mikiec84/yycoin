@@ -983,6 +983,35 @@ public class InvoiceinsAction extends DispatchAction
         	}
         }
 	}
+
+    public ActionForward batchConfirm(ActionMapping mapping, ActionForm form,
+                                                 HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        AjaxResult ajax = new AjaxResult();
+
+        PageSeparate pageSeparate = PageSeparateTools.getPageSeparate(request, QUERYINVOICEINS);
+
+        ConditionParse condition = PageSeparateTools.getCondition(request, QUERYINVOICEINS);
+
+        if (pageSeparate.getRowCount() == 0)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "查询结果记录数为0");
+
+            return mapping.findForward("error");
+        }
+
+        // 查询的单据
+        List<InvoiceinsVO> beanList = invoiceinsDAO.queryEntityVOsByCondition(condition);
+        _logger.info("****list***"+beanList.size());
+        try {
+            this.invoiceinsManager.batchConfirm(null, beanList);
+        }catch(Exception e){
+            ajax.setError("操作失败:" + e.getMessage());
+        }
+
+        return JSONTools.writeResponse(response, ajax);
+    }
     
     /**
      * exportInvoiceins

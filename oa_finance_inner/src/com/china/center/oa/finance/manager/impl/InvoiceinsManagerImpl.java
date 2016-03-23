@@ -3399,7 +3399,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				condition.addWhereStr();
 				condition.addCondition(" and exists ( select InsVSOutBean.* from T_CENTER_VS_INSOUT InsVSOutBean " +
 						"where InsVSOutBean.insId=InsVSInvoiceNumBean.insId and InsVSOutBean.outId='" +
-						outId+"')");
+						outId + "')");
 				List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition(condition);
 				if (ListTools.isEmptyOrNull(insVSInvoiceNumBeans)
 						|| StringTools.isNullOrNone(insVSInvoiceNumBeans.get(0).getInvoiceNum())){
@@ -3647,7 +3647,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             }
         }
     }
-    /**
+
+	@Override
+	@Transactional(rollbackFor = MYException.class)
+	public boolean batchConfirm(User user, List<InvoiceinsVO> list) throws MYException {
+		for (InvoiceinsVO vo :list){
+			InvoiceinsBean bean = this.invoiceinsDAO.find(vo.getId());
+			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM);
+			this.invoiceinsDAO.updateEntityBean(bean);
+		}
+		return true;
+	}
+
+	/**
      * @return the commonDAO
      */
     public CommonDAO getCommonDAO()
