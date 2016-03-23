@@ -156,7 +156,8 @@ public class PackageBean implements Serializable
     private int insFollowOut = ShipConstant.INVOICE_SHIP_FOLLOW_OUT;
 
     //2015/6/27 顺丰发货单号
-    private String transportNo = "";
+    private String
+            transportNo = "";
     //2015/6/27 顺丰收货日期
     private String sfReceiveDate = "";
 

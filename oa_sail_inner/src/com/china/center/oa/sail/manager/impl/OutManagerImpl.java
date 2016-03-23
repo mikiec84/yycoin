@@ -4776,7 +4776,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         outBalanceDAO.updateCheck(id, PublicConstant.CHECK_STATUS_END, checks);
 
         addOutLog2(id, user, OutConstant.OUTBALANCE_STATUS_END, "总部核对", SailConstant.OPR_OUT_PASS,
-            OutConstant.OUTBALANCE_STATUS_END);
+                OutConstant.OUTBALANCE_STATUS_END);
 
         return true;
     }
@@ -4833,17 +4833,22 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
                 || outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE))
         {
+//            if ( ! (outBean.getStatus() == OutConstant.STATUS_SAVE
+//                    || outBean.getStatus() == OutConstant.STATUS_REJECT || outBean.getStatus() == OutConstant.BUY_STATUS_SUBMIT))
+//            {
+//                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回,待库管处理");
+//            }
             if ( ! (outBean.getStatus() == OutConstant.STATUS_SAVE
-                    || outBean.getStatus() == OutConstant.STATUS_REJECT || outBean.getStatus() == OutConstant.BUY_STATUS_SUBMIT))
+                    || outBean.getStatus() == OutConstant.STATUS_REJECT))
             {
-                throw new MYException("单据不能被删除,请确认操作");
+                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回");
             }
         }
         else
         {
             if ( !OutHelper.canDelete(outBean))
             {
-                throw new MYException("单据不能被删除,请确认操作");
+                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回");
             }
         }
         
@@ -6120,7 +6125,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public int findOutStatusInLog(String fullId)
     {
-        System.out.println("******************findOutStatusInLog*****************"+fullId);
+        System.out.println("******************findOutStatusInLog*****************" + fullId);
         // 获取日志，正排序
         List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(fullId);
 
@@ -8352,7 +8357,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 distributionDAO.saveEntityBean(distributionBean);
                 _logger.info(distributionBean + " distributionBean created for out:" + outBean.getFullId());
             }else{
-                _logger.warn("distributionBean not created for out:"+outBean.getFullId());
+                _logger.warn("distributionBean not created for out:" + outBean.getFullId());
             }
         }
     }
@@ -8669,7 +8674,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	
     	newOutBean.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
     	
-    	newOutBean.setDescription("空开空退销售退库,销售单号:"+ out.getFullId() +". 销售退库");
+    	newOutBean.setDescription("空开空退销售退库,销售单号:" + out.getFullId() + ". 销售退库");
     	
     	newOutBean.setType(OutConstant.OUT_TYPE_INBILL);
     	
@@ -8976,8 +8981,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
         outBean.setLogTime(TimeTools.now());
 
-        //2014/12/8 add podate,default same as outTime
-        outBean.setPodate(TimeTools.now_short());
         
         // 增加管理员操作在数据库事务中完成
         TransactionTemplate tran = new TransactionTemplate(transactionManager);
@@ -9009,6 +9012,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         {
                             throw new RuntimeException("促销折扣金额不能大于本单总金额");
                         }
+                    }
+
+                    //2014/12/8 add podate,default same as outTime
+                    //2016/3/23 #206
+                    _logger.info("****podate***"+outBean.getPodate());
+                    if (StringTools.isNullOrNone(outBean.getPodate())) {
+                        outBean.setPodate(TimeTools.now_short());
                     }
                     
                     outDAO.updateEntityBean(outBean);

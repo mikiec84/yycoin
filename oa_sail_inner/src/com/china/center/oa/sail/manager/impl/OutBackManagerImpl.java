@@ -189,14 +189,14 @@ public class OutBackManagerImpl implements OutBackManager
 		old.setStatus(OutConstant.OUTBACK_STATUS_CHECK_HANDOVER);
 		old.setCheckReason(reason);
 
-//        List<AttachmentBean> attachmentList = bean.getAttachmentList();
-//
-//        for (AttachmentBean attachmentBean : attachmentList) {
-//            attachmentBean.setId(commonDAO.getSquenceString20());
-//            attachmentBean.setRefId(bean.getId());
-//        }
-//
-//        attachmentDAO.saveAllEntityBeans(attachmentList);
+        List<AttachmentBean> attachmentList = bean.getAttachmentList();
+
+        for (AttachmentBean attachmentBean : attachmentList) {
+            attachmentBean.setId(commonDAO.getSquenceString20());
+            attachmentBean.setRefId(bean.getId());
+        }
+
+        attachmentDAO.saveAllEntityBeans(attachmentList);
 		
 		outBackDAO.updateEntityBean(old);
 

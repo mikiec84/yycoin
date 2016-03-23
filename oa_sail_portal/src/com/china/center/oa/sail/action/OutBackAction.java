@@ -546,12 +546,12 @@ public class OutBackAction extends DispatchAction
 			return ActionTools.toError("不是待验货状态,请确认", "queryOutBack", mapping, request);
 		}
 
-//        ActionForward afor = parserAttachment(mapping, request, rds, oldBean);
-//
-//        if (afor != null)
-//        {
-//            return afor;
-//        }
+        ActionForward afor = parserAttachment(mapping, request, rds, oldBean);
+
+        if (afor != null)
+        {
+            return afor;
+        }
 
         rds.close();
 		
