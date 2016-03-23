@@ -4698,7 +4698,13 @@ public class OutAction extends ParentOutAction
         String ck = "";
         List<PackageBean> packageBeans = this.packageDAO.queryEntityBeansByCondition(conditionParse);
         if (!ListTools.isEmptyOrNull(packageBeans)){
-            ck = packageBeans.get(0).getId();
+            PackageBean packageBean = packageBeans.get(0);
+            ck = packageBean.getId();
+
+            //2016/3/23 #210
+            if (StringTools.isNullOrNone(distributionVO.getTransportNo())){
+                distributionVO.setTransportNo(packageBean.getTransportNo());
+            }
         }
         request.setAttribute("ck", ck);
     	

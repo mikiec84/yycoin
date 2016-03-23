@@ -973,29 +973,32 @@ public class ShipManagerImpl implements ShipManager
     private void checkEmptyTransportNo(List<PackageBean> packageList) throws MYException{
         for (PackageBean each : packageList)
         {
-            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
-
-            for (PackageItemBean eachItem : itemList)
-            {
-                String outId = eachItem.getOutId();
-                OutBean out = outDAO.find(outId);
-                if (out!= null){
-                    List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outId);
-                    if (!ListTools.isEmptyOrNull(distList)){
-                        DistributionBean distBean = distList.get(0);
-                        //发货方式为第三方快递
-                        if (distBean.getShipping() == 2){
-                            // 获取发货单号
-                            String distId = distBean.getId();
-                            ConsignBean consign = consignDAO.findDefaultConsignByDistId(distId);
-                            if (consign == null || StringTools.isNullOrNone(consign.getTransportNo())){
-                                _logger.info(each.getId()+":"+distId+" no ConsignBean related with SO:"+outId);
-                                throw new MYException("第三方快递的CK单[%s]的快递单号不能为空", each.getId()+":"+outId);
-                            }
-                        }
-                    }
-                }
+            if (StringTools.isNullOrNone(each.getTransportNo())){
+                throw new MYException("CK单[%s]的快递单号transportNo不能为空", each.getId());
             }
+//            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+//
+//            for (PackageItemBean eachItem : itemList)
+//            {
+//                String outId = eachItem.getOutId();
+//                OutBean out = outDAO.find(outId);
+//                if (out!= null){
+//                    List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outId);
+//                    if (!ListTools.isEmptyOrNull(distList)){
+//                        DistributionBean distBean = distList.get(0);
+//                        //发货方式为第三方快递
+//                        if (distBean.getShipping() == 2){
+//                            // 获取发货单号
+//                            String distId = distBean.getId();
+//                            ConsignBean consign = consignDAO.findDefaultConsignByDistId(distId);
+//                            if (consign == null || StringTools.isNullOrNone(consign.getTransportNo())){
+//                                _logger.info(each.getId()+":"+distId+" no ConsignBean related with SO:"+outId);
+//                                throw new MYException("第三方快递的CK单[%s]的快递单号不能为空", each.getId()+":"+outId);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 
