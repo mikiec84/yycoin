@@ -2239,13 +2239,14 @@ public class OutImportManagerImpl implements OutImportManager
         newOut.setRefOutFullId(sbean.getOutId());
         newOut.setDutyId(bean.getDutyId());
         newOut.setMtype(bean.getMtype());
-        newOut.setDescription("领样转销售,领样单据（批量导入）:" + sbean.getOutId() + "," + sbean.getDescription() );
+        newOut.setDescription("领样转销售,领样单据（批量导入）:" + sbean.getOutId() + "," + sbean.getDescription());
         newOut.setDepartment(bean.getDepartment());
         newOut.setLocation(bean.getLocation());
         newOut.setLocationId(bean.getLocationId());
         newOut.setDepotpartId(bean.getDepotpartId());
         newOut.setStafferId(bean.getStafferId());
         newOut.setStafferName(bean.getStafferName());
+		newOut.setTransportNo(bean.getTransportNo());
         
         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
                 //2015/3/17 新增银行领样 （与银行铺货类拟）
@@ -2329,6 +2330,7 @@ public class OutImportManagerImpl implements OutImportManager
 		out.setInvoiceId(oldOut.getInvoiceId());
 
 		out.setDescription("个人领样退库(批量导入),领样单号:" + sbean.getOutId() + "," + sbean.getDescription());
+		out.setTransportNo(sbean.getTransportNo());
 
 		out.setOperator(user.getStafferId());
 		out.setOperatorName(user.getStafferName());
