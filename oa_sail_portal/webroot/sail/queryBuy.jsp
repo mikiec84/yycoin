@@ -611,8 +611,8 @@ function hrefAndSelect(obj)
                         <td align="center"><input type="text" name="product_name">
                         </td>
 
-                        <td width="15%" align="center"></td>
-                        <td align="center">
+                        <td width="15%" align="center">退货快递单号</td>
+                        <td align="center"><input type="text" name="transportNo">
                         </td>
                     </tr>
 					

@@ -4828,29 +4828,29 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         // 退库的逻辑比较特殊
-        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-            && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
-                || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-                || outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE))
-        {
+//        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+//            && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
+//                || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
+//                || outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE))
+//        {
+////            if ( ! (outBean.getStatus() == OutConstant.STATUS_SAVE
+////                    || outBean.getStatus() == OutConstant.STATUS_REJECT || outBean.getStatus() == OutConstant.BUY_STATUS_SUBMIT))
+////            {
+////                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回,待库管处理");
+////            }
 //            if ( ! (outBean.getStatus() == OutConstant.STATUS_SAVE
-//                    || outBean.getStatus() == OutConstant.STATUS_REJECT || outBean.getStatus() == OutConstant.BUY_STATUS_SUBMIT))
+//                    || outBean.getStatus() == OutConstant.STATUS_REJECT))
 //            {
-//                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回,待库管处理");
+//                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回");
 //            }
-            if ( ! (outBean.getStatus() == OutConstant.STATUS_SAVE
-                    || outBean.getStatus() == OutConstant.STATUS_REJECT))
-            {
-                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回");
-            }
-        }
-        else
-        {
-            if ( !OutHelper.canDelete(outBean))
-            {
-                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回");
-            }
-        }
+//        }
+//        else
+//        {
+//            if ( !OutHelper.canDelete(outBean))
+//            {
+//                throw new MYException("单据不能被删除,请确认操作.状态不能为保存,驳回");
+//            }
+//        }
         
         if (outBean.getInvoiceMoney() > 0) {
         	throw new MYException("单据不能被删除,原因是已开过发票.");

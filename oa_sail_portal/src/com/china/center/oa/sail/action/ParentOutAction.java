@@ -6438,7 +6438,7 @@ public class ParentOutAction extends DispatchAction
 			HttpServletResponse reponse, User user, String saves,
 			String fullId, OutBean outBean, ParamterMap map, String step)
 	{
-        _logger.info("processCommonOut:**************step***" + step);
+        _logger.info("processCommonOut:****step***" + step+"***fullId***"+fullId);
 		// 增加库单
 		if (!StringTools.isNullOrNone(fullId))
 		{
@@ -6450,6 +6450,11 @@ public class ParentOutAction extends DispatchAction
 				request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在");
 
 				return mapping.findForward("error");
+			} else{
+				//#206
+				if (!StringTools.isNullOrNone(out.getPodate())){
+					outBean.setPodate(out.getPodate());
+				}
 			}
 		}
 
@@ -8392,7 +8397,7 @@ public class ParentOutAction extends DispatchAction
 
         String productName = request.getParameter("product_name");
         if (!StringTools.isNullOrNone(productName)){
-            condtion.addCondition(" and exists (select b.id from t_center_base b where b.outId=OutBean.fullId and b.productName like '%"+productName+"%')");
+            condtion.addCondition(" and exists (select b.id from t_center_base b where b.outId=OutBean.fullId and b.productName like '%" + productName + "%')");
         }
 
 		condtion.addCondition("order by OutBean.id desc");
@@ -9470,6 +9475,11 @@ public class ParentOutAction extends DispatchAction
 		if (!StringTools.isNullOrNone(destinationId))
 		{
 			condtion.addCondition("OutBean.destinationId", "=", destinationId);
+		}
+
+		String transportNo = request.getParameter("transportNo");
+		if (!StringTools.isNullOrNone(transportNo)){
+			condtion.addCondition("OutBean.transportNo", "=", transportNo);
 		}
 
 		String inway = request.getParameter("inway");

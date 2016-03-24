@@ -450,8 +450,8 @@ public class OutBean implements Serializable
      */
     private int presentFlag = 0;
 
-    //2015/2/25 默认为当前时间
-    private String podate = TimeTools.now_short();
+    //2015/2/25 默认为空
+    private String podate = "";
 
     //2015/4/11 中收激励标志位
     //0: 未申请 1：已申请
