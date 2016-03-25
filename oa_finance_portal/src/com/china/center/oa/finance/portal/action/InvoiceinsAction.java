@@ -893,7 +893,7 @@ public class InvoiceinsAction extends DispatchAction
 
         ActionTools.processJSONQueryCondition(QUERYINVOICEINS, request, condtion);
 
-        notQueryFirstTime(condtion);
+//        notQueryFirstTime(condtion);
         
         User user = Helper.getUser(request);
 
@@ -902,25 +902,29 @@ public class InvoiceinsAction extends DispatchAction
         // 自己的
         if ("0".equals(mode))
         {
+            notQueryFirstTime(condtion);
             condtion.addCondition("InvoiceinsBean.stafferId", "=", user.getStafferId());
         }
-        // 出纳审核(确认开票页面)
+        // 确认开票(待财务处理)
         else if ("1".equals(mode))
         {
-            condtion.addCondition("InvoiceinsBean.processer", "=", user.getStafferId());
-
-            condtion.addIntCondition("InvoiceinsBean.status", "=",
-                FinanceConstant.INVOICEINS_STATUS_SUBMIT);
+            if (!this.containsStatusQuery(condtion.toString())){
+                condtion.addIntCondition("InvoiceinsBean.status", "=",
+                        FinanceConstant.INVOICEINS_STATUS_SUBMIT);
+            }
         }
         //开票管理
         else if ("2".equals(mode))
         {
+            notQueryFirstTime(condtion);
         }
-        // 稽核 (开票审核)
+        // 开票审核(待财务确认)
         else if ("3".equals(mode))
         {
-            condtion.addIntCondition("InvoiceinsBean.status", "=",
-                FinanceConstant.INVOICEINS_STATUS_CHECK);
+            if (!this.containsStatusQuery(condtion.toString())){
+                condtion.addIntCondition("InvoiceinsBean.status", "=",
+                        FinanceConstant.INVOICEINS_STATUS_CONFIRM);
+            }
         }
         else
         {
@@ -931,7 +935,7 @@ public class InvoiceinsAction extends DispatchAction
 
 //        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYINVOICEINS, request, condtion,
 //            this.invoiceinsDAO);
-        
+
         String jsonstr = ActionTools.querySelfBeanByJSONAndToString(QUERYINVOICEINS, request, condtion,
                 new CommonQuery()
                 {
@@ -961,6 +965,10 @@ public class InvoiceinsAction extends DispatchAction
                 });
 
         return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    private boolean containsStatusQuery(String sql){
+        return sql.contains("AND InvoiceinsBean.status =");
     }
 
     /**
