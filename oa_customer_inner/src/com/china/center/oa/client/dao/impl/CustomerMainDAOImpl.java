@@ -134,8 +134,9 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
             {
                 public Object doInTransaction(TransactionStatus arg0)
                 {
-                    jdbcOperation.update("set reserve2='线上' where name like'%（银行）' and reserve2=''", claz);
-                    jdbcOperation.update("set reserve2='线下' where name like'%-零售' and reserve2=''", claz);
+                    jdbcOperation.update("set reserve2='线上' where name like'%（银行）%' and reserve2=''", claz);
+                    jdbcOperation.update("set reserve2='线上' where name like'%-银行%' and reserve2=''", claz);
+                    jdbcOperation.update("set reserve2='线下' where name like'%-零售%' and reserve2=''", claz);
 
                     return Boolean.TRUE;
                 }
