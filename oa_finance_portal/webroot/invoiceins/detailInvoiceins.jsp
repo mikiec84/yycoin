@@ -452,7 +452,7 @@ function load()
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right">
 		
-		<c:if test="${(bean.status == 1 || bean.status == 2) && (mode == 1 || mode == 3)}">
+		<c:if test="${(bean.status == 1 || bean.status == 2 || bean.status == 4) && (mode == 1 || mode == 3)}">
                 <input type="button" class="button_class"
                     id="ok_p" style="cursor: pointer" value="&nbsp;&nbsp;通 过&nbsp;&nbsp;"
                     onclick="passBean()">&nbsp;&nbsp;
