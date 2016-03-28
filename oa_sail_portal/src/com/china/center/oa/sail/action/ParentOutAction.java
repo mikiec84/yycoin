@@ -2521,10 +2521,11 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("批量操作人");
 			line.writeColumn("批量操作批次号");
 			line.writeColumn("批量操作时间");
+			line.writeColumn("退货快递单号");
 
 			line.writeLine();
 			// 写outbean
-			for (Iterator iter = outList.iterator(); iter.hasNext();)
+			for (Iterator<OutVO> iter = outList.iterator(); iter.hasNext();)
 			{
 				element = (OutVO) iter.next();
 				if (null != flag && flag.equals("1"))
@@ -2911,6 +2912,7 @@ public class ParentOutAction extends DispatchAction
 						line.writeColumn("");
 					}
 
+					line.writeColumn(element.getTransportNo());
 					line.writeLine();
 				}
 
