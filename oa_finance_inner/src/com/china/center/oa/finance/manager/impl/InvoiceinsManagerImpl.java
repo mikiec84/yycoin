@@ -2096,7 +2096,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         try
         {
             TransactionTemplate tran = new TransactionTemplate(transactionManager);
-
             tran.execute(new TransactionCallback()
             {
                 public Object doInTransaction(TransactionStatus status)
@@ -2104,11 +2103,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     try
                     {
                         processInner2(list);
-                        _logger.info("***process step3***");
                     }
                     catch (MYException e)
                     {
-                        throw new RuntimeException(e);
+						_logger.error("********excpetion get****"+e);
+						throw new RuntimeException(e);
                     }
 
                     //saveLog
@@ -2347,6 +2346,33 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			_logger.info("***outToInsMap size2***"+outToInsMap.keySet().size());
 			_logger.info("***map size2***"+map.keySet().size());
 
+			//#214 同一商品数量不能超过SO单
+			for (String outId : outToInsMap.keySet()){
+				List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+				List<InvoiceinsImportBean> beans = outToInsMap.get(outId);
+				//根据productId汇总
+				Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
+				Map<String, String> productMap = new HashMap<String ,String>();
+				for (InvoiceinsImportBean bean : beans){
+					String productId = bean.getProductId();
+					productMap.put(productId, bean.getProductName());
+					if (productToAmountMap.containsKey(productId)){
+						int amount = bean.getAmount()+productToAmountMap.get(productId);
+						productToAmountMap.put(productId, amount);
+					} else{
+						productToAmountMap.put(productId, bean.getAmount());
+					}
+				}
+
+				for (String productId : productToAmountMap.keySet()){
+					int amount = productToAmountMap.get(productId);
+					int amount2 = this.getProductAmount(baseList, productId);
+					if ( amount > amount2){
+						throw new MYException("商品[%s]数量[%s]不能超过销售单[%s]中对应数量[%s]",
+								productMap.get(productId),String.valueOf(amount), outId, String.valueOf(amount2));
+					}
+				}
+			}
 
 			for (InvoiceinsImportBean each : list) {
 				//同一个SO单已拆单的去掉
@@ -2468,10 +2494,20 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			}
 		}catch(Exception e){
 			_logger.error(e);
-			return false;
+			throw new RuntimeException(e);
 		}
 
 		return true;
+	}
+
+	private int getProductAmount(List<BaseBean> baseList, String productId){
+		int amount = 0;
+		for (BaseBean baseBean: baseList){
+			if (baseBean.getProductId().equals(productId)){
+				amount += baseBean.getAmount();
+			}
+		}
+		return amount;
 	}
 
 	private boolean processInner(List<InvoiceinsImportBean> list) throws MYException
