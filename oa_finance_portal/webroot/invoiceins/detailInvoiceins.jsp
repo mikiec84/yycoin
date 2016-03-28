@@ -452,7 +452,7 @@ function load()
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right">
 		
-		<c:if test="${(bean.status == 1 || bean.status == 2 || bean.status == 4) && (mode == 1 || mode == 3)}">
+		<c:if test="${(bean.status == 1 || bean.status == 2) && (mode == 1 || mode == 3)}">
                 <input type="button" class="button_class"
                     id="ok_p" style="cursor: pointer" value="&nbsp;&nbsp;通 过&nbsp;&nbsp;"
                     onclick="passBean()">&nbsp;&nbsp;
@@ -467,7 +467,13 @@ function load()
 	            onclick="backInvoiceins()"
 	            value="&nbsp;&nbsp;确认退票&nbsp;&nbsp;">&nbsp;&nbsp;    
          </c:if>
-         
+
+        <c:if test="${(bean.status == 4)}">
+            <input type="button" class="button_class"
+                   id="re_b" style="cursor: pointer" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"
+                   onclick="rejectBean()">&nbsp;&nbsp;
+        </c:if>
+
          <c:if test="${bean.status == 99}">
 	        <input
 	            type="button" name="ba" class="button_class"
