@@ -2270,12 +2270,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	private boolean processInner2(List<InvoiceinsImportBean> list) throws MYException
 	{
 		try {
-			// 同一个SO单可拆分多个发票<out,List<InvoiceinsImportBean>>
-			Map<String, List<InvoiceinsImportBean>> outToInsMap = new HashMap<String, List<InvoiceinsImportBean>>();
-
-			//同一个SO单可拆分多个发票
-			//  同一个发票号(虚拟发票) + 客户 组合生成一张开票申请
+			// 同一个发票号(虚拟发票) + 客户 组合生成一张开票申请，此规则优先于拆单
+			// 实际待开票的map
 			Map<String, List<InvoiceinsImportBean>> map = new HashMap<String, List<InvoiceinsImportBean>>();
+
+			// 临时Map, 同一个SO单可拆分多个发票<out,List<InvoiceinsImportBean>>
+			// 待检查开票商品数量
+			Map<String, List<InvoiceinsImportBean>> outToInsMap = new HashMap<String, List<InvoiceinsImportBean>>();
 
 
 			for (InvoiceinsImportBean each : list) {
@@ -2333,9 +2334,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				if (beans.size()>1){
 					int count =0;
 					for (InvoiceinsImportBean each: beans){
-						List<InvoiceinsImportBean> temp = new ArrayList<InvoiceinsImportBean>();
-						temp.add(each);
-						map.put(entry.getKey() + "_" + count, temp);
+						if (StringTools.isNullOrNone(each.getInvoiceNum())){
+							List<InvoiceinsImportBean> temp = new ArrayList<InvoiceinsImportBean>();
+							temp.add(each);
+							//拆单开票的直接进入map,SO_index为key
+							map.put(entry.getKey() + "_" + count, temp);
+						} else{
+							//如果有虚拟发票号则忽略
+							continue;
+						}
 						count++;
 					}
 				}else{
@@ -2343,8 +2350,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				}
 			}
 
-			_logger.info("***outToInsMap size2***"+outToInsMap.keySet().size());
-			_logger.info("***map size2***"+map.keySet().size());
+			_logger.info("***outToInsMap size2***"+outToInsMap.keySet().size()+"***map size2***"+map.keySet().size());
 
 			//#214 同一商品数量不能超过SO单
 			for (String outId : outToInsMap.keySet()){
@@ -2375,7 +2381,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			}
 
 			for (InvoiceinsImportBean each : list) {
-				//同一个SO单已拆单的去掉
+				//TODO 同一个SO单已拆单的并且不带虚拟发票号的要去掉
 				if (outToInsMap.containsKey(each.getOutId())){
 					_logger.info("****continue ***"+each.getOutId());
 					continue;
@@ -2411,6 +2417,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					}
 				}
 
+				//客户名_虚拟发票号作为key
 				String key = each.getCustomerId() + "-" + each.getInvoiceNum();
 				_logger.info("***key2***"+key);
 				if (!map.containsKey(key)) {
