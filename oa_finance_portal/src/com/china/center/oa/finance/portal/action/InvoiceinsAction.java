@@ -4026,14 +4026,16 @@ public class InvoiceinsAction extends DispatchAction
                         OutBean outBean = this.outDAO.find(value);
                         if (outBean!= null ){
                             //判断销售单据状态必须为“待库管审批”、“已出库”、“已发货”三种状态之一
+                            //#217 把开票只能在“待库管审批”状态及以后的限制变为“待商务审批”及之后即可开票
                             int status = outBean.getStatus();
-                            if (status == OutConstant.STATUS_FLOW_PASS || status == OutConstant.STATUS_PASS ||
+                            if (status == OutConstant.STATUS_SUBMIT || status == OutConstant.STATUS_FLOW_PASS
+                                    || status == OutConstant.STATUS_PASS ||
                                     status == OutConstant.STATUS_SEC_PASS){
                                 _logger.info(value+" OUT status pass import****"+status);
                             } else{
                                 builder
                                         .append("第[" + currentNumber + "]错误:")
-                                        .append("销售单必须为'待库管审批'、'已出库'、'已发货'三种状态之一")
+                                        .append("销售单必须为'待商务审批'、'待库管审批'、'已出库'、'已发货'四种状态之一")
                                         .append("<br>");
 
                                 importError = true;
@@ -4079,6 +4081,13 @@ public class InvoiceinsAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
                         bean.setInvoiceNum(obj[2].trim());
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("虚拟发票号不能为空")
+                                .append("<br>");
+
+                        importError = true;
                     }
 
 

@@ -1062,7 +1062,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         		for (InvoiceinsItemBean item : itemList)
                 {
         			 // 新的开单规则
-                    handlerEachInAdd3(item);
+                    //TODO 导入过已更新状态，为何现在又要更新呢？
+//                    handlerEachInAdd3(item);
                 }
         	}else{
         		for (InsVSOutBean insVSOutBean : vsList)
@@ -1934,7 +1935,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     sb.append("产品不存在:")
                             .append(each.getProductName())
                             .append("<br>");
-                }else{
+                }
+                else{
                     each.setProductId(product.getId());
                     each.setSplitFlag(true);
                 }
@@ -2055,22 +2057,50 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		}
     	}
 
+        //#214 同一商品数量不能超过SO单
 		for (String key : outToInvoicesMap.keySet()){
 			_logger.info("****check key***"+key);
 			List<InvoiceinsImportBean> beans = outToInvoicesMap.get(key);
 			OutBean out = outDAO.find(key);
 			if (out!= null){
+                String outId = out.getFullId();
 				double invoiceMoneyTotal = 0;
 				for (InvoiceinsImportBean bean: beans){
 					invoiceMoneyTotal += bean.getInvoiceMoney();
 				}
-				double retTotal = outDAO.sumOutBackValueIgnoreStatus(out.getFullId());
+				double retTotal = outDAO.sumOutBackValueIgnoreStatus(outId);
 				if (MathTools.compare(invoiceMoneyTotal, out.getTotal() - retTotal - out.getInvoiceMoney()) != 0) {
 					sb.append("销售单");
 					sb.append(key);
 					sb.append("导入的开票金额须等于可开票金额");
 					sb.append("<br>");
 				}
+
+                List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+                List<InvoiceinsImportBean> baseBeans = outToInvoicesMap.get(outId);
+                //根据productId汇总
+                Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
+                Map<String, String> productMap = new HashMap<String ,String>();
+                for (InvoiceinsImportBean bean : beans){
+                    String productId = bean.getProductId();
+                    productMap.put(productId, bean.getProductName());
+                    if (productToAmountMap.containsKey(productId)){
+                        int amount = bean.getAmount()+productToAmountMap.get(productId);
+                        productToAmountMap.put(productId, amount);
+                    } else{
+                        productToAmountMap.put(productId, bean.getAmount());
+                    }
+                }
+
+                for (String productId : productToAmountMap.keySet()){
+                    int amount = productToAmountMap.get(productId);
+                    int amount2 = this.getProductAmount(baseList, productId);
+                    if ( amount > amount2){
+                        sb.append("商品").append(productMap.get(productId))
+                                .append("数量").append(amount).append("不能超过销售单").append(outId)
+                                .append("中对应数量").append(amount2).append("<br>");
+                    }
+                }
 			}
 		}
     }
@@ -2327,65 +2357,39 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			}
 
 			_logger.info("***outToInsMap size***"+outToInsMap.keySet().size());
-			Iterator<Map.Entry<String,List<InvoiceinsImportBean>>> iter = outToInsMap.entrySet().iterator();
-			while (iter.hasNext()) {
-				Map.Entry<String,List<InvoiceinsImportBean>> entry = iter.next();
-				List<InvoiceinsImportBean> beans = entry.getValue();
-				if (beans.size()>1){
-					int count =0;
-					for (InvoiceinsImportBean each: beans){
-						if (StringTools.isNullOrNone(each.getInvoiceNum())){
-							List<InvoiceinsImportBean> temp = new ArrayList<InvoiceinsImportBean>();
-							temp.add(each);
-							//拆单开票的直接进入map,SO_index为key
-							map.put(entry.getKey() + "_" + count, temp);
-						} else{
-							//如果有虚拟发票号则忽略
-							continue;
-						}
-						count++;
-					}
-				}else{
-					iter.remove();
-				}
-			}
+//			Iterator<Map.Entry<String,List<InvoiceinsImportBean>>> iter = outToInsMap.entrySet().iterator();
+//			while (iter.hasNext()) {
+//				Map.Entry<String,List<InvoiceinsImportBean>> entry = iter.next();
+//				List<InvoiceinsImportBean> beans = entry.getValue();
+//				if (beans.size()>1){
+//					int count =0;
+//					for (InvoiceinsImportBean each: beans){
+//						if (StringTools.isNullOrNone(each.getInvoiceNum())){
+//							List<InvoiceinsImportBean> temp = new ArrayList<InvoiceinsImportBean>();
+//							temp.add(each);
+//							//拆单开票的直接进入map,SO_index为key
+//							map.put(entry.getKey() + "_" + count, temp);
+//						} else{
+//							//如果有虚拟发票号则忽略
+//							continue;
+//						}
+//						count++;
+//					}
+//				}else{
+//					iter.remove();
+//				}
+//			}
 
-			_logger.info("***outToInsMap size2***"+outToInsMap.keySet().size()+"***map size2***"+map.keySet().size());
+//			_logger.info("***outToInsMap size2***"+outToInsMap.keySet().size()+"***map size2***"+map.keySet().size());
 
-			//#214 同一商品数量不能超过SO单
-			for (String outId : outToInsMap.keySet()){
-				List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
-				List<InvoiceinsImportBean> beans = outToInsMap.get(outId);
-				//根据productId汇总
-				Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
-				Map<String, String> productMap = new HashMap<String ,String>();
-				for (InvoiceinsImportBean bean : beans){
-					String productId = bean.getProductId();
-					productMap.put(productId, bean.getProductName());
-					if (productToAmountMap.containsKey(productId)){
-						int amount = bean.getAmount()+productToAmountMap.get(productId);
-						productToAmountMap.put(productId, amount);
-					} else{
-						productToAmountMap.put(productId, bean.getAmount());
-					}
-				}
 
-				for (String productId : productToAmountMap.keySet()){
-					int amount = productToAmountMap.get(productId);
-					int amount2 = this.getProductAmount(baseList, productId);
-					if ( amount > amount2){
-						throw new MYException("商品[%s]数量[%s]不能超过销售单[%s]中对应数量[%s]",
-								productMap.get(productId),String.valueOf(amount), outId, String.valueOf(amount2));
-					}
-				}
-			}
 
 			for (InvoiceinsImportBean each : list) {
 				//TODO 同一个SO单已拆单的并且不带虚拟发票号的要去掉
-				if (outToInsMap.containsKey(each.getOutId())){
-					_logger.info("****continue ***"+each.getOutId());
-					continue;
-				}
+//				if (outToInsMap.containsKey(each.getOutId())){
+//					_logger.info("****continue ***"+each.getOutId());
+//					continue;
+//				}
 				OutBean out = outDAO.find(each.getOutId());
 
 				if (out == null) {
@@ -2417,18 +2421,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					}
 				}
 
-				//客户名_虚拟发票号作为key
+				//客户ID_虚拟发票号作为key
 				String key = each.getCustomerId() + "-" + each.getInvoiceNum();
-				_logger.info("***key2***"+key);
+				_logger.info("***invoiceins key2***"+key);
 				if (!map.containsKey(key)) {
 					List<InvoiceinsImportBean> mlist = new ArrayList<InvoiceinsImportBean>();
-
 					mlist.add(each);
-
 					map.put(key, mlist);
 				} else {
 					List<InvoiceinsImportBean> mlist = map.get(key);
-
 					mlist.add(each);
 				}
 			}
