@@ -198,6 +198,13 @@ public class BaseBean implements Serializable
      * 关联行项目ID
      */
     private String refId = "";
+
+
+    /**
+     * 2016/3/29 # 导入同一SO单的同一商品行时临时校验用
+     */
+    @Ignore
+    private double tempInvoiceMoney = 0.0d;
     
     /**
      * default constructor
@@ -862,7 +869,15 @@ public class BaseBean implements Serializable
 		this.refId = refId;
 	}
 
-	/**
+    public double getTempInvoiceMoney() {
+        return tempInvoiceMoney;
+    }
+
+    public void setTempInvoiceMoney(double tempInvoiceMoney) {
+        this.tempInvoiceMoney = tempInvoiceMoney;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

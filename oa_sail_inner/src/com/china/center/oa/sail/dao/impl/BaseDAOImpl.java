@@ -130,7 +130,16 @@ public class BaseDAOImpl extends com.china.center.jdbc.inter.impl.BaseDAO<BaseBe
         return true;
     }
 
-	public List<BaseBean> queryBaseByOneCondition(ConditionParse con)
+    @Override
+    public boolean clearInvoice(String outId) {
+        String sql = BeanTools.getUpdateHead(claz) + "set invoiceMoney = ? where outId = ?";
+
+        jdbcOperation.update(sql, 0, outId);
+
+        return true;
+    }
+
+    public List<BaseBean> queryBaseByOneCondition(ConditionParse con)
 	{
 		String sql = "select BaseBean.* from T_CENTER_BASE BaseBean, t_center_out OutBean where BaseBean.outid = OutBean.fullid " + con.toString();
 		

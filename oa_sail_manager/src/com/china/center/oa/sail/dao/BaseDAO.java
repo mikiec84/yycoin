@@ -36,6 +36,8 @@ public interface BaseDAO extends DAO<BaseBean, BaseVO>
     boolean updateCostPricekey(String id, String costPricekey);
 
     boolean updateInvoice(String id, double invoiceMoney);
+
+    boolean clearInvoice(String outId);
     
     List<BaseBean> queryBaseByConditions(String pa1,String pa2,String date)
     throws MYException;

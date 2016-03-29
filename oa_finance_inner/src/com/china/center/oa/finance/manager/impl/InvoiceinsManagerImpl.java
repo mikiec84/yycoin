@@ -421,6 +421,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                             if (out.getPiType() == OutConstant.OUT_PAYINS_TYPE_INVOICE && out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
                                 outDAO.initPayInvoiceData(out.getFullId());
                             outDAO.updateInvoiceStatus(out.getFullId(), 0,OutConstant.INVOICESTATUS_INIT);
+							//TODO 清除base表开票金额
+							baseDAO.clearInvoice(out.getFullId());
                         }
 		        		else if (type == 1) // 退票
 		        		{
@@ -767,7 +769,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private void handlerEachInAdd3(InvoiceinsItemBean item)
     throws MYException
 	{
-        _logger.info("***handlerEachInAdd3***");
+        _logger.info("***handlerEachInAdd3***"+item);
 	    if (item.getType() == FinanceConstant.INSVSOUT_TYPE_OUT)
 	    {
 	        // 销售单
@@ -2984,6 +2986,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 			double invoicemoney = 0.0d;
 			StringBuilder sb = new StringBuilder();
+			//BaseBean cache
+			Map<String, List<BaseBean>> baseMap = new HashMap<String, List<BaseBean>>();
 
 			for (InvoiceinsImportBean eachb : elist) {
 
@@ -2992,7 +2996,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				sb.append(";");
 
 				if (eachb.getType() == FinanceConstant.INSVSOUT_TYPE_OUT) {
-					List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(eachb.getOutId());
+					String outId = eachb.getOutId();
+					List<BaseBean> baseList = null;
+					if (baseMap.containsKey(outId)){
+						baseList = baseMap.get(outId);
+					} else{
+						baseList = baseDAO.queryEntityBeansByFK(eachb.getOutId());
+						baseMap.put(outId, baseList);
+					}
 
 					// eliminate return
 					ConditionParse con = new ConditionParse();
@@ -3037,7 +3048,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					double vsMoney = 0.0d;
                     //#169 2016/3/2 对于拆分开票，根据导入模板中商品+数量来生成item表
                     if (eachb.isSplitFlag()){
-                        BaseBean baseBean = this.getBaseBeanByProduct(baseList, eachb.getProductId());
+                        BaseBean baseBean = this.getBaseBeanByProduct(baseList, eachb);
                         InvoiceinsItemBean item = new InvoiceinsItemBean();
 
                         item.setId(commonDAO.getSquenceString20());
@@ -3048,17 +3059,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                         item.setAmount(eachb.getAmount());
                         if (baseBean!= null){
                             item.setPrice(baseBean.getPrice());
+							item.setBaseId(baseBean.getId());
+							item.setCostPrice(baseBean.getCostPrice());
                         }
                         item.setMoneys(item.getAmount() * item.getPrice());
                         item.setOutId(eachb.getOutId());
-                        if (baseBean!= null){
-                            item.setBaseId(baseBean.getId());
-                        }
                         item.setProductId(eachb.getProductId());
                         item.setType(eachb.getType());
-                        if (baseBean!= null){
-                            item.setCostPrice(baseBean.getCostPrice());
-                        }
 
                         _logger.info("***create ins item***"+item);
                         itemList.add(item);
@@ -3250,12 +3257,25 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 	}
 
-    private BaseBean getBaseBeanByProduct(List<BaseBean> baseBeans, String productId){
+    private BaseBean getBaseBeanByProduct(List<BaseBean> baseBeans, InvoiceinsImportBean bean){
+		//首先根据productId+amount相等的优先
         for (BaseBean baseBean : baseBeans){
-            if (baseBean.getProductId().equals(productId)){
+            if (baseBean.getProductId().equals(bean.getProductId())
+					&& baseBean.getAmount() == bean.getAmount()
+					&& baseBean.getTempInvoiceMoney() <0.1){
+				baseBean.setTempInvoiceMoney(bean.getInvoiceMoney());
                 return baseBean;
             }
         }
+        // 有可能和base表不是一一对应的情况
+		for (BaseBean baseBean : baseBeans){
+			if (baseBean.getProductId().equals(bean.getProductId())
+					&& (bean.getInvoiceMoney() +baseBean.getTempInvoiceMoney() <= baseBean.getValue())){
+				baseBean.setTempInvoiceMoney(baseBean.getTempInvoiceMoney()+bean.getInvoiceMoney());
+				return baseBean;
+			}
+		}
+		_logger.error("can not find base bean***"+bean);
         return null;
     }
 
