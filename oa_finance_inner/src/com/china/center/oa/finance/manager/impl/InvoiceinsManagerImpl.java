@@ -478,7 +478,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private void fillStatus(InvoiceinsBean bean)
     {
         // 全部到稽核
-        bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CHECK);
+		//#169 流程变更，全部到待财务开票
+        bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT);
 
         List<InsVSOutBean> vsList = bean.getVsList();
 
@@ -504,7 +505,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 {
                     bean.setVtype(PublicConstant.VTYPE_SPECIAL);
 
-                    bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CHECK);
+                    bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT);
 
                     break;
                 }
@@ -520,7 +521,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 {
                     bean.setVtype(PublicConstant.VTYPE_SPECIAL);
 
-                    bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CHECK);
+                    bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT);
 
                     break;
                 }

@@ -1020,7 +1020,7 @@ public class InvoiceinsAction extends DispatchAction
 
         return JSONTools.writeResponse(response, ajax);
     }
-    
+
     /**
      * exportInvoiceins
      * 
@@ -1051,9 +1051,7 @@ public class InvoiceinsAction extends DispatchAction
 
         OutputStream out = null;
 
-        String filenName = null;
-
-        filenName = "Invoiceins_" + TimeTools.now("MMddHHmmss") + ".xls";
+        String filenName = "Invoiceins_" + TimeTools.now("MMddHHmmss") + ".xls";
 
         reponse.setContentType("application/x-dbf");
 
@@ -1086,8 +1084,6 @@ public class InvoiceinsAction extends DispatchAction
             
             format.setWrap(true); 
 
-            WritableCellFormat format2 = new WritableCellFormat(font2);
-
             ws.addCell(new Label(j++ , i, "时间", format));
             ws.addCell(new Label(j++ , i, "发票标识", format));
             ws.addCell(new Label(j++ , i, "纳税实体", format));
@@ -1099,72 +1095,49 @@ public class InvoiceinsAction extends DispatchAction
             ws.addCell(new Label(j++ , i, "金额", format));
             ws.addCell(new Label(j++ , i, "备注", format));
             ws.addCell(new Label(j++ , i, "经办人", format));
-            
             ws.addCell(new Label(j++ , i, "销售单号", format));
 
             //#169 2016/3/1 导出商品/数量/单价
             ws.addCell(new Label(j++ , i, "商品", format));
             ws.addCell(new Label(j++ , i, "数量", format));
             ws.addCell(new Label(j++ , i, "单价", format));
-
             ws.addCell(new Label(j++ , i, "开票金额", format));
             ws.addCell(new Label(j++ , i, "对应税额", format));
             ws.addCell(new Label(j++ , i, "业务员", format));
             ws.addCell(new Label(j++ , i, "过单时间", format));
             ws.addCell(new Label(j++ , i, "发票号码", format));
-            
             ws.addCell(new Label(j++ , i, "旧货属性", format));
             ws.addCell(new Label(j++ , i, "管理属性", format));
-            
+
             //导出关联的销售单号 
-            for (Iterator iter = beanList.iterator(); iter.hasNext();)
+            for (Iterator<InvoiceinsVO> iter = beanList.iterator(); iter.hasNext();)
             {
-                element = (InvoiceinsVO)iter.next();
-
+                element = iter.next();
+                List<InvoiceinsItemVO> itemList = invoiceinsItemDAO.queryEntityVOsByFK(element.getId());
                 List<InsVSInvoiceNumBean> insVSNumList = insVSInvoiceNumDAO.queryEntityBeansByFK(element.getId());
-                
-                List<InsVSOutBean> insVoList = insVSOutDAO.queryEntityBeansByFK(element.getId(),AnoConstant.FK_FIRST);
-                
-                for (InsVSOutBean eachVS : insVoList)
+                for (InvoiceinsItemVO eachVS : itemList)
                 {
-                    OutBean outBean = null;
-                    List<BaseBean> baseBeans = null;
-                    List<InvoiceinsItemVO> itemList = null;
-                    BaseBean base = null;
-                    int length = 1;
-
-                    if (!StringTools.isNullOrNone(eachVS.getOutId()))
-                    {
-                        outBean = outDAO.find(eachVS.getOutId());
-
-                        if (null == outBean){
-
-                            OutBalanceBean obean = outBalanceDAO.find(eachVS.getOutId());
-
-                            if (null != obean)
-                            {
-                                outBean = outDAO.find(obean.getOutId());
-                            }
-                        }
-
-                        if (null != outBean){
-                            baseBeans = baseDAO.queryEntityBeansByFK(outBean.getFullId());
-                            base  = baseBeans.get(0);
-
-                            ConditionParse conditionParse = new ConditionParse();
-                            conditionParse.addWhereStr();
-                            conditionParse.addCondition("parentId","=", eachVS.getInsId());
-                            conditionParse.addCondition("outId","=", eachVS.getOutId());
-                            itemList = invoiceinsItemDAO.queryEntityVOsByCondition(conditionParse);
-                            if (!ListTools.isEmptyOrNull(itemList)){
-                                length = itemList.size();
-                            }
-                        }
+                    String outId = eachVS.getOutId();
+                    if (StringTools.isNullOrNone(outId)){
+                        continue;
                     }
+                    OutBean outBean = outDAO.find(outId);
+                    List<BaseBean> baseBeans = baseDAO.queryEntityBeansByFK(outId);
+                    BaseBean base = baseBeans.get(0);
 
-                    for (int l=0;l<length;l++){
                         j = 0;
                         i++ ;
+                        String productName = "";
+                        String amount = "";
+                        String price = "";
+
+                        if (eachVS.getType() == FinanceConstant.INSVSOUT_TYPE_OUT)
+                        {
+                            //#169 商品/数量/价格
+                            productName = eachVS.getProductName();
+                            amount = String.valueOf(eachVS.getAmount());
+                            price = String.valueOf(eachVS.getPrice());
+                        }
 
                         ws.addCell(new Label(j++ , i, element.getLogTime()));
                         ws.addCell(new Label(j++ , i, element.getId()));
@@ -1177,27 +1150,10 @@ public class InvoiceinsAction extends DispatchAction
                         ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getMoneys())));
                         ws.addCell(new Label(j++ , i, element.getDescription()));
                         ws.addCell(new Label(j++ , i, element.getOperatorName()));
-
-
-                        if (eachVS.getType() == FinanceConstant.INSVSOUT_TYPE_OUT)
-                        {
-                            ws.addCell(new Label(j++ , i, eachVS.getOutId()));
-                            InvoiceinsItemVO itemBean = itemList.get(l);
-                            //#169 商品/数量/价格
-                            ws.addCell(new Label(j++ , i, itemBean.getProductName()));
-                            ws.addCell(new Label(j++ , i, String.valueOf(itemBean.getAmount())));
-                            ws.addCell(new Label(j++ , i, String.valueOf(itemBean.getPrice())));
-                        }
-                        else{
-                            if (StringTools.isNullOrNone(eachVS.getOutBalanceId()))
-                                ws.addCell(new Label(j++ , i, eachVS.getOutId()));
-                            else
-                                ws.addCell(new Label(j++ , i, eachVS.getOutBalanceId()));
-                            ws.addCell(new Label(j++ , i, ""));
-                            ws.addCell(new Label(j++ , i, ""));
-                            ws.addCell(new Label(j++ , i, ""));
-                        }
-
+                        ws.addCell(new Label(j++ , i, eachVS.getOutId()));
+                        ws.addCell(new Label(j++ , i, productName));
+                        ws.addCell(new Label(j++ , i, amount));
+                        ws.addCell(new Label(j++ , i, price));
                         ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys())));
                         // 税额
                         ws.addCell(new Label(j++ , i, MathTools.formatNum(eachVS.getMoneys()/(1 + element.getVal()/100) * element.getVal()/100)));
@@ -1233,10 +1189,7 @@ public class InvoiceinsAction extends DispatchAction
                             ws.addCell(new Label(j++ , i, ""));
                         }
                     }
-                    
-                }
-
-            }
+             }
         }
         catch (Exception e)
         {
