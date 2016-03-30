@@ -49,7 +49,7 @@ function load()
              {display: '客户', name : 'customerName', width : '18%'},
              {display: '发票类型', name : 'invoiceName', cc: 'bankType', width : '10%'},
              {display: '状态', name : 'status', cc: 'invoiceinsStatus', width : '8%'},
-             {display: '类型', name : 'type', cc: 'invoiceinsType', width : '8%'},
+             {display: '开票类型', name : 'type', cc: 'invoiceinsType', width : '8%'},
              {display: '金额', name : 'moneys', width : '10%', toFixed: 2},
              {display: '开票人', name : 'stafferName', width : '8%'},
              {display: '时间', name : 'logTime', width : 'auto', sortable : true}
@@ -148,7 +148,7 @@ function backInvoiceins()
 			$l(gurl + 'find' + ukey + '&update=3&id=' + getRadioValue('checkb'));
 		}
 		else
-			$error('不能操作');
+			$error('只有结束状态的开票才能申请退票');
 	}
 	else
 	$error('不能操作');

@@ -114,6 +114,12 @@
             <type>date</type>
             <inner></inner>
         </condtion>
+        <condtion name="otype" caption="类型">
+            <opr>=</opr>
+            <datatype>0</datatype>
+            <type>select</type>
+            <option>$invoiceinsOtype</option>
+        </condtion>
        <condtion name="dutyId" caption="纳税实体">
             <opr>=</opr>
             <datatype>0</datatype>
