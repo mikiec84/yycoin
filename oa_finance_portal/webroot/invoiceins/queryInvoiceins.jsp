@@ -321,7 +321,7 @@ function batchConfirm()
     if (confirm("批量改为'待财务确认?'")){
         $ajax('../finance/invoiceins.do?method=batchConfirm', function(data){
             if (data.ret == 0){
-                alert("批量修改成功");
+                alert("批量修改成功(退票申请不处理!)");
             } else{
                 alert("批量修改失败"+data.msg);
             }

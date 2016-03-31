@@ -996,6 +996,8 @@ public class InvoiceinsAction extends DispatchAction
                                                  HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
+        User user = Helper.getUser(request);
+
         AjaxResult ajax = new AjaxResult();
 
         PageSeparate pageSeparate = PageSeparateTools.getPageSeparate(request, QUERYINVOICEINS);
@@ -1013,7 +1015,7 @@ public class InvoiceinsAction extends DispatchAction
         List<InvoiceinsVO> beanList = invoiceinsDAO.queryEntityVOsByCondition(condition);
         _logger.info("****list***"+beanList.size());
         try {
-            this.invoiceinsManager.batchConfirm(null, beanList);
+            this.invoiceinsManager.batchConfirm(user, beanList);
         }catch(Exception e){
             ajax.setError("操作失败:" + e.getMessage());
         }

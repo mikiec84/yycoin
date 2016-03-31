@@ -3302,7 +3302,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				return baseBean;
 			}
 		}
-		_logger.error("can not find base bean***"+bean);
+		_logger.error("can not find base bean***" + bean);
         return null;
     }
 
@@ -3743,9 +3743,23 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	@Transactional(rollbackFor = MYException.class)
 	public boolean batchConfirm(User user, List<InvoiceinsVO> list) throws MYException {
 		for (InvoiceinsVO vo :list){
-			InvoiceinsBean bean = this.invoiceinsDAO.find(vo.getId());
-			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM);
-			this.invoiceinsDAO.updateEntityBean(bean);
+			if (vo.getOtype() == FinanceConstant.INVOICEINS_TYPE_OUT) {
+				InvoiceinsBean bean = this.invoiceinsDAO.find(vo.getId());
+				bean.setStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM);
+				this.invoiceinsDAO.updateEntityBean(bean);
+
+				FlowLogBean log = new FlowLogBean();
+				log.setActor(user.getStafferName());
+				log.setActorId(user.getStafferId());
+				log.setFullId(vo.getId());
+				log.setDescription("批量审批通过");
+				log.setLogTime(TimeTools.now());
+				log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM);
+				log.setAfterStatus(FinanceConstant.INVOICEINS_STATUS_CONFIRM);
+				log.setOprMode(PublicConstant.OPRMODE_PASS);
+
+				flowLogDAO.saveEntityBean(log);
+			}
 		}
 		return true;
 	}
