@@ -405,10 +405,11 @@ public interface FinanceConstant
     int INVOICEINS_STATUS_SUBMIT = 1;
 
     /**
-     * 待稽核
+     * 待稽核 2016/3/31 此状态已取消
      */
-    @Defined(key = "invoiceinsStatus", value = "待财务稽核")
-    int INVOICEINS_STATUS_CHECK = 2;
+//    @Deprecated
+//    @Defined(key = "invoiceinsStatus", value = "待财务稽核")
+//    int INVOICEINS_STATUS_CHECK = 2;
 
     /**
      * 待财务确认

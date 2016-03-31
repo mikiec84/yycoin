@@ -1911,7 +1911,7 @@ public class InvoiceinsAction extends DispatchAction
         return mapping.findForward("queryInvoiceins");
     }
 
-    /**
+    /** 申请驳回后，重新提交走这个流程
      * 导航结束
      * 
      * @param mapping
@@ -2879,10 +2879,10 @@ public class InvoiceinsAction extends DispatchAction
                 financeFacade.passInvoiceinsBean(user.getId(), invoiceinsBean, reason);
             }
 
-            if (invoiceinsBean.getStatus() == FinanceConstant.INVOICEINS_STATUS_CHECK)
-            {
-                financeFacade.checkInvoiceinsBean(user.getId(), id, reason);
-            }
+//            if (invoiceinsBean.getStatus() == FinanceConstant.INVOICEINS_STATUS_CHECK)
+//            {
+//                financeFacade.checkInvoiceinsBean(user.getId(), id, reason);
+//            }
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
