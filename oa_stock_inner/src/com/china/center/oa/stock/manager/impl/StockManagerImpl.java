@@ -1607,6 +1607,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         // 先删除
         stockItemDAO.deleteEntityBeansByFK(bean.getId());
+        stockItemArrivalDAO.deleteEntityBeansByFK(bean.getId());
 
         List<StockItemBean> items = bean.getItem();
 
@@ -1628,6 +1629,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             stockItemBean.setMtype(bean.getMtype());
 
             stockItemDAO.saveEntityBean(stockItemBean);
+
+            //2016/4/7 重新提交采购单后，默认重新生成到货信息
+            StockItemArrivalBean arrivalBean = new StockItemArrivalBean();
+            BeanUtil.copyProperties(arrivalBean, stockItemBean);
+            arrivalBean.setId("");
+            this.stockItemArrivalDAO.saveEntityBean(arrivalBean);
         }
 
         return true;

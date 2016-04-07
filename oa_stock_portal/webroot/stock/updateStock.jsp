@@ -10,6 +10,7 @@
 <script language="JavaScript" src="../js/cnchina.js"></script>
 <script language="JavaScript" src="../js/jquery/jquery.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
+<script language="JavaScript" src="../stock_js/addStock.js"></script>
 <script language="javascript">
 
 var showJSON = JSON.parse('${showJSON}');
@@ -468,6 +469,9 @@ function natureChange()
                                             </c:if>
                                         </c:forEach>
                                     </select>
+                                    <input type="text" id="deliveryDate_${item}" name="deliveryDate_${item}" value="${item.deliveryDate}"><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "deliveryDate_${item}");' height='20px' width='20px'/>&nbsp;
+                                    <input type="text" id="arrivalDate_${item}" name="arrivalDate_${item}" value="${item.arrivalDate}"><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "arrivalDate_${item}");' height='20px' width='20px'/>&nbsp;
+
                                 </td>
                             </tr>
 

@@ -1504,9 +1504,14 @@ public class StockAction extends DispatchAction
                 bean.setDutyId(request.getParameter("dutyId_" + indexs[i]));
 
                 //2015/11/10 导入发货日期和预计到货日期
-                bean.setDeliveryDate(request.getParameter("deliveryDate_"+indexs[i]));
-                bean.setArrivalDate(request.getParameter("arrivalDate_"+indexs[i]));
-
+                String deliveryDate = request.getParameter("deliveryDate_"+indexs[i]);
+                String arrivalDate = request.getParameter("arrivalDate_" + indexs[i]);
+                if (!StringTools.isNullOrNone(deliveryDate)) {
+                    bean.setDeliveryDate(deliveryDate);
+                }
+                if (!StringTools.isNullOrNone(arrivalDate)){
+                    bean.setArrivalDate(arrivalDate);
+                }
 
                 item.add(bean);
             }
