@@ -2086,7 +2086,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		}
     	}
 
-        //#214 同一商品数量不能超过SO单
+        //#214 同一商品数量必须等于SO单中实际数量
 		for (String key : outToInvoicesMap.keySet()){
 			_logger.info("****check key***"+key);
 			List<InvoiceinsImportBean> beans = outToInvoicesMap.get(key);
@@ -2106,7 +2106,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				}
 
                 List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
-                List<InvoiceinsImportBean> baseBeans = outToInvoicesMap.get(outId);
                 //根据productId汇总
                 Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
                 Map<String, String> productMap = new HashMap<String ,String>();
@@ -2124,9 +2123,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 for (String productId : productToAmountMap.keySet()){
                     int amount = productToAmountMap.get(productId);
                     int amount2 = this.getProductAmount(baseList, productId);
-                    if ( amount > amount2){
+                    if ( amount != amount2){
                         sb.append("商品").append(productMap.get(productId))
-                                .append("数量").append(amount).append("不能超过销售单").append(outId)
+                                .append("数量").append(amount).append("必须等于销售单").append(outId)
                                 .append("中对应数量").append(amount2).append("<br>");
                     }
                 }
