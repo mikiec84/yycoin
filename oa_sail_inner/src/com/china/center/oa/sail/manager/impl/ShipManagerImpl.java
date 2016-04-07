@@ -1439,13 +1439,14 @@ public class ShipManagerImpl implements ShipManager
         }
     }
 
+    //#2 每日十点发货后必须将已发货信息发送至相关支行与分行
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void sendMailForShipping() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         String msg =  "**************run sendMailForShipping job****************";
         System.out.println(msg);
-        _logger.info(msg);
+        triggerLog.info(msg);
 
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
@@ -1466,7 +1467,7 @@ public class ShipManagerImpl implements ShipManager
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
         {
-            _logger.info("****packageList to be sent mail***"+packageList.size());
+            triggerLog.info("****packageList to be sent mail***"+packageList.size());
             for (PackageVO vo : packageList){
                 //First query 分支行对应关系表
                 ConditionParse con2 = new ConditionParse();
@@ -1694,11 +1695,11 @@ public class ShipManagerImpl implements ShipManager
             ws.addCell(new Label(7, i, "快递单号", format3));
             ws.addCell(new Label(8, i, "快递公司", format3));
             ws.addCell(new Label(9, i, "发货时间", format3));
+            ws.addCell(new Label(10, i, "银行产品编码", format3));
 
             for (PackageVO bean :beans){
                 List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
                 if (!ListTools.isEmptyOrNull(itemList)){
-//                    i++;
                     PackageItemBean first = itemList.get(0);
                     first.getOutId();
                     ConditionParse con3 = new ConditionParse();
@@ -1715,18 +1716,19 @@ public class ShipManagerImpl implements ShipManager
                     }
 
                     //First get transportNo for this package
-                    String transportNo = "";
-                    for (PackageItemBean each : itemList){
-                        //快递单号
-                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
-                        if (!ListTools.isEmptyOrNull(consignBeans)){
-                            ConsignBean b = consignBeans.get(0);
-                            if (!StringTools.isNullOrNone(b.getTransportNo())){
-                                transportNo = b.getTransportNo();
-                                break;
-                            }
-                        }
-                    }
+//                    String transportNo = "";
+//                    for (PackageItemBean each : itemList){
+//                        //快递单号
+//                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
+//                        if (!ListTools.isEmptyOrNull(consignBeans)){
+//                            ConsignBean b = consignBeans.get(0);
+//                            if (!StringTools.isNullOrNone(b.getTransportNo())){
+//                                transportNo = b.getTransportNo();
+//                                break;
+//                            }
+//                        }
+//                    }
+
 
                     for (PackageItemBean each : itemList)
                     {
@@ -1746,35 +1748,20 @@ public class ShipManagerImpl implements ShipManager
                         ws.addCell(new Label(j++, i, citicNo, format3));
                         //收货人
                         ws.addCell(new Label(j++, i, bean.getReceiver(), format3));
-                        //快递单号
-//                        String transportNo = "";
-//                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
-//                        if (!ListTools.isEmptyOrNull(consignBeans)){
-//                            ConsignBean b = consignBeans.get(0);
-//                            if (!StringTools.isNullOrNone(b.getTransportNo())){
-//                                transportNo = b.getTransportNo();
-//                            }
-//                        }
+
+                        //2016/4/5 #2 快递单号改取package表的transportNo
+                        String transportNo = bean.getTransportNo();
                         ws.addCell(new Label(j++, i, transportNo, format3));
 
                         //快递公司
                         ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
                         //发货时间默认为前1天
                         ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-//                        List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(each.getOutId());
-//                        if (ListTools.isEmptyOrNull(distList)){
-//                            ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-//                        } else{
-//                            String outboundDate = distList.get(0).getOutboundDate();
-//                            if (StringTools.isNullOrNone(outboundDate)){
-//                                ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-//                            } else{
-//                                ws.addCell(new Label(j++, i, distList.get(0).getOutboundDate(), format3));
-//                            }
-//                        }
+
+                        //银行产品编码，逻辑同回执单的逻辑
+                        ws.addCell(new Label(j++, i, this.getProductCode(each), format3));
 
                         j = 0;
-//                        i++;
                     }
                 }
             }
@@ -1783,7 +1770,6 @@ public class ShipManagerImpl implements ShipManager
         }
         catch (Throwable e)
         {
-//            _logger.error(e, e);
             e.printStackTrace();
         }
         finally
@@ -1810,6 +1796,46 @@ public class ShipManagerImpl implements ShipManager
                 }
             }
         }
+    }
+
+    private String getProductCode(PackageItemBean item){
+        String productId = "";
+        String outId = item.getOutId();
+        if (StringTools.isNullOrNone(outId)){
+            _logger.warn("****Empty OutId***********"+outId);
+        }else if (outId.startsWith("SO")){
+            productId = this.getProductCodeFromOutImport(outId);
+        } else if(outId.startsWith("ZS")){
+            OutBean out = outDAO.find(outId);
+            if (out!= null){
+                String sourceOutId = out.getRefOutFullId();
+                if (!StringTools.isNullOrNone(sourceOutId)){
+                    productId = this.getProductCodeFromOutImport(outId);
+                }
+            }
+        }
+
+        return productId;
+    }
+
+    private String getProductCodeFromOutImport(String outId){
+        String productCode = "";
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("OANo", "=", outId);
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByCondition(conditionParse);
+
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            for (OutImportBean outImportBean: importBeans){
+                if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
+                    productCode = outImportBean.getProductCode();
+                    break;
+                }
+            }
+        }
+        _logger.info(productCode+"getProductCodeFromOutImport****"+conditionParse.toString());
+        return productCode;
     }
 
     @Deprecated
