@@ -84,6 +84,10 @@ public class Test {
         String c2 = "中原银行驻马店分行-零售";
         String c3 = "中原银行驻马店分行1";
 
+        String date ="2015-03-19";
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+        sdf1.parse(date);
+
         Test t = new Test();
         String name = null;
         name = t.getCustomerName(c1);

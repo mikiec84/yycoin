@@ -1884,6 +1884,8 @@ public class ShipAction extends DispatchAction
     // 产品名称取订单对应的导入表中的订单明细行中的productid取对应的CiticProduct表中的CITICNAME字段值，如无对应订单或对应商品则仍取OA品名
     //如果产品在CiticProduct中无对应产品，取其名称的10位以后（字符之前的中间字符
     //YG0021100 2015年1盎司熊猫银币含包装（普17） 这个产品找不到对应的银行品名，则回执单上的名称取 2015年1盎司熊猫银币含包装
+    //2016/4/5 所有银行品名规则都参考中信银行,productcode取自out import表
+    @Deprecated
     private void convertProductName(PackageItemBean item){
         ProductBean product = productDAO.find(item.getProductId());
         String productName = null;
@@ -1918,7 +1920,7 @@ public class ShipAction extends DispatchAction
      * 再到t_center_vs_citic_product 表中拿productcode对应相同的citicproductcode字段行，取citicproductname
      * @param item
      */
-    private void convertProductNameForBank(PackageItemBean item){
+    private String convertProductNameForBank(PackageItemBean item){
         String productName = "";
         String outId = item.getOutId();
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
@@ -1944,15 +1946,14 @@ public class ShipAction extends DispatchAction
             productName = this.getProductName(item.getProductName());
         }
 
-        if (!StringTools.isNullOrNone(productName)){
-            item.setProductName(productName);
-        }
+        return productName;
     }
 
     /**
      * 2015/11/23 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
      * @param item
      */
+    @Deprecated
     private void convertProductNameForNb(PackageItemBean item){
         ProductBean product = productDAO.find(item.getProductId());
         String productName = null;
@@ -2427,7 +2428,12 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            this.convertProductName(item);
+//            this.convertProductName(item);
+//            this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForBank(item);
+            if (!StringTools.isNullOrNone(productName)){
+                item.setProductName(productName);
+            }
 
             itemList1.add(item);
 
@@ -2654,7 +2660,11 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForBank(item);
+            if (!StringTools.isNullOrNone(productName)){
+                item.setProductName(productName);
+            }
+//            this.convertProductNameForBank(item);
 
             itemList1.add(item);
             _logger.info("***convertProductNameForBank***" + item.getProductName());
@@ -2891,9 +2901,12 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            this.convertProductName(item);
-
-//            this.getProductCode(item);
+//            this.convertProductName(item);
+//            this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForBank(item);
+            if (!StringTools.isNullOrNone(productName)){
+                item.setProductName(productName);
+            }
             itemList1.add(item);
             _logger.info("**********get product code******" + item.getProductCode());
         }
@@ -3104,7 +3117,16 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            this.convertProductNameForNb(item);
+//            this.convertProductNameForNb(item);
+            String productName = this.convertProductNameForBank(item);
+            if (!StringTools.isNullOrNone(productName)){
+                item.setProductName(productName);
+            }
+
+            ProductBean product = productDAO.find(item.getProductId());
+            if (product!= null) {
+                this.setProductInfoForNb(item, product);
+            }
             itemList1.add(item);
         }
 

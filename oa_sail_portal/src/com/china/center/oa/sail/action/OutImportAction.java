@@ -2,10 +2,9 @@ package com.china.center.oa.sail.action;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1727,6 +1726,13 @@ public class OutImportAction extends DispatchAction
 			}else{
 				bean.setCiticOrderDate(name);
 			}
+		}else{
+			builder
+					.append("第[" + currentNumber + "]错误:")
+					.append("中信订单日期不能为空")
+					.append("<br>");
+
+			importError = true;
 		}
 		
 		// 仓库
@@ -3924,7 +3930,19 @@ public class OutImportAction extends DispatchAction
                     //2015/6/25 顺丰收货日期必填
                     if ( !StringTools.isNullOrNone(obj[16]))
                     {
-                        bean.setSfReceiveDate(obj[16]);
+						String date = obj[16].trim();
+						try {
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+							sdf.parse(date);
+						}catch(ParseException e){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("顺丰收货日期格式必须如2016-04-01")
+									.append("<br>");
+
+							importError = true;
+						}
+                        bean.setSfReceiveDate(date);
                     }else
                     {
                         builder

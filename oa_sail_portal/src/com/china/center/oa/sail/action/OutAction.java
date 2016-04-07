@@ -3603,9 +3603,8 @@ public class OutAction extends ParentOutAction
         // 需要开票的销售单
         if ("1".equals(mode))
         {
-            condtion.addCondition(" and OutBean.status in (3, 4)");
-            
-            //condtion.addCondition("and OutBean.status not in (0, 2)");
+            //#169 待商务审批、待库管审批、已发货、已出库都允许开票
+            condtion.addCondition(" and OutBean.status in (1, 3, 4, 7)");
 
             // 过滤委托代销
             condtion.addIntCondition("OutBean.outType", "<>", OutConstant.OUTTYPE_OUT_CONSIGN);
