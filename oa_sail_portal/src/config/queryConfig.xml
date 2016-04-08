@@ -371,6 +371,66 @@
             <datatype>3</datatype>
             <inner></inner>
         </condtion>
+         <condtion name="alogTime2" filed="claimTime" caption="认领时间">
+             <opr>&gt;=</opr>
+             <type>date</type>
+             <datatype>2</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="blogTime2" filed="claimTime" caption="到">
+             <opr>&lt;=</opr>
+             <type>date</type>
+             <datatype>3</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="alogTime3" filed="checkTime" caption="验货时间">
+             <opr>&gt;=</opr>
+             <type>date</type>
+             <datatype>2</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="blogTime3" filed="checkTime" caption="到">
+             <opr>&lt;=</opr>
+             <type>date</type>
+             <datatype>3</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="alogTime4" filed="handoverCheckTime" caption="验货交接时间">
+             <opr>&gt;=</opr>
+             <type>date</type>
+             <datatype>2</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="blogTime4" filed="handoverCheckTime" caption="到">
+             <opr>&lt;=</opr>
+             <type>date</type>
+             <datatype>3</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="alogTime5" filed="confirmCheckTime" caption="商务确认时间">
+             <opr>&gt;=</opr>
+             <type>date</type>
+             <datatype>2</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="blogTime5" filed="confirmCheckTime" caption="到">
+             <opr>&lt;=</opr>
+             <type>date</type>
+             <datatype>3</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="alogTime6" filed="stockTime" caption="入库时间">
+             <opr>&gt;=</opr>
+             <type>date</type>
+             <datatype>2</datatype>
+             <inner></inner>
+         </condtion>
+         <condtion name="blogTime6" filed="stockTime" caption="到">
+             <opr>&lt;=</opr>
+             <type>date</type>
+             <datatype>3</datatype>
+             <inner></inner>
+         </condtion>
         <condtion name="status" caption="状态">
             <opr>=</opr>
             <datatype>1</datatype>
