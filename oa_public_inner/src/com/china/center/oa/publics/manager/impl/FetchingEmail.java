@@ -8,6 +8,7 @@ import com.sun.mail.imap.IMAPMessage;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeUtility;
+import javax.mail.search.FlagTerm;
 import java.io.*;
 import java.security.Security;
 import java.util.Enumeration;
@@ -19,11 +20,11 @@ public class FetchingEmail {
     private static final String IMAP = "imap";
 
     public static void main(String[] args) throws Exception{
-        receiveQQEmail("smartman2014@QQ.com", "lazio_2000");
+//        receiveQQEmail("imap.163.com","kingofhawks@163.com", "grace1121");
+        receiveQQEmail("imap.qq.com","kingofhawks@qq.com", "grace_1121");
     }
 
-    public static void receiveQQEmail(String username, String password) throws Exception {
-        String host = "imap.qq.com";
+    public static void receiveQQEmail(String host, String username, String password) throws Exception {
         String port = "993";
 
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
@@ -32,32 +33,46 @@ public class FetchingEmail {
 
         Properties props = System.getProperties();
         props.setProperty("mail.imap.socketFactory.class", SSL_FACTORY);
-  props.setProperty("mail.imap.socketFactory.fallback", "true");
+        props.setProperty("mail.imap.socketFactory.fallback", "false");
         props.setProperty("mail.imap.socketFactory.port", port);
-//        props.setProperty("mail.smtp.starttls.enable", "true");
+        props.setProperty("mail.smtp.starttls.enable", "true");
 
         props.setProperty("mail.store.protocol", "imap");
         props.setProperty("mail.imap.host", host);
         props.setProperty("mail.imap.port", port);
+        props.setProperty("mail.imap.ssl.enable", "true");
+        props.setProperty("mail.imap.auth.plain.disable", "true");
         props.setProperty("mail.imap.auth.login.disable", "true");
         Session session = Session.getDefaultInstance(props, null);
-        session.setDebug(false);
+        session.setDebug(true);
         Store store = session.getStore(IMAP);
-        store.connect(host, username, password);
         Folder inbox = null;
-        try {
 
+        try {
+            store.connect(host, username, password);
             inbox = store.getFolder("Inbox");
             inbox.open(Folder.READ_ONLY);
             FetchProfile profile = new FetchProfile();
             profile.add(FetchProfile.Item.ENVELOPE);
-            Message[] messages = inbox.getMessages();
+//            Message[] messages = inbox.getMessages();
+            //only receive unread mails
+            Message messages[] = inbox.search(new FlagTerm(new Flags(
+                    Flags.Flag.SEEN), false));
             inbox.fetch(messages, profile);
-            System.out.println(" ’º˛œ‰µƒ” º˛ ˝£∫" + messages.length);
+            System.out.println("***mail count***" + messages.length);
+            System.out.println("***unread mail count***" + inbox.getUnreadMessageCount());
 
             IMAPMessage msg;
             for (Message message : messages) {
                 msg = (IMAPMessage) message;
+                Flags flags = message.getFlags();
+                if (flags.contains(Flags.Flag.SEEN)){
+                    System.out.println("ËøôÊòØ‰∏ÄÂ∞ÅÂ∑≤ËØªÈÇÆ‰ª∂");
+                    continue;
+                }
+                else {
+                    System.out.println("Êú™ËØªÈÇÆ‰ª∂");
+                }
                 String from = decodeText(msg.getFrom()[0].toString());
                 InternetAddress ia = new InternetAddress(from);
                 System.out.println("FROM:" + ia.getPersonal() + '(' + ia.getAddress() + ')');
@@ -73,6 +88,8 @@ public class FetchingEmail {
                 parseMultipart((Multipart) msg.getContent());
             }
 
+        } catch(Exception e){
+           e.printStackTrace();
         } finally {
             try {
                 if (inbox != null) {
@@ -99,7 +116,7 @@ public class FetchingEmail {
 
 
     /**
-     * ∂‘∏¥‘”” º˛µƒΩ‚Œˆ
+     * ÔøΩ‘∏ÔøΩÔøΩÔøΩÔøΩ ºÔøΩÔøΩƒΩÔøΩÔøΩÔøΩ
      *
      * @param multipart
      * @throws MessagingException
@@ -107,10 +124,11 @@ public class FetchingEmail {
      */
     public static void parseMultipart(Multipart multipart) throws MessagingException, IOException {
         int count = multipart.getCount();
-        System.out.println("couont =  " + count);
+        System.out.println("***parseMultipart count =  " + count);
         for (int idx = 0; idx < count; idx++) {
             BodyPart bodyPart = multipart.getBodyPart(idx);
             System.out.println(bodyPart.getContentType());
+            System.out.println("***fileName***"+bodyPart.getFileName());
             if (bodyPart.isMimeType("text/plain")) {
                 System.out.println("plain................." + bodyPart.getContent());
             } else if (bodyPart.isMimeType("text/html")) {
@@ -118,12 +136,12 @@ public class FetchingEmail {
             } else if (bodyPart.isMimeType("multipart/*")) {
                 Multipart mpart = (Multipart) bodyPart.getContent();
                 parseMultipart(mpart);
-
             } else if (bodyPart.isMimeType("application/octet-stream")) {
                 String disposition = bodyPart.getDisposition();
-                System.out.println(disposition);
-                if (disposition.equalsIgnoreCase(BodyPart.ATTACHMENT)) {
+                System.out.println("***disposition***"+disposition);
+                if (BodyPart.ATTACHMENT.equalsIgnoreCase(disposition)) {
                     String fileName = bodyPart.getFileName();
+                    System.out.println("****fileName***"+fileName);
                     InputStream is = bodyPart.getInputStream();
                     copy(is, new FileOutputStream("D:\\" + fileName));
                 }
@@ -132,7 +150,7 @@ public class FetchingEmail {
     }
 
     /**
-     * Œƒº˛øΩ±¥£¨‘⁄”√ªßΩ¯––∏Ωº˛œ¬‘ÿµƒ ±∫Ú£¨ø…“‘∞—∏Ωº˛µƒInputStream¥´∏¯”√ªßΩ¯––œ¬‘ÿ
+     * ÔøΩƒºÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ√ªÔøΩÔøΩÔøΩÔøΩ–∏ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÿµÔøΩ ±ÔøΩÚ£¨øÔøΩÔøΩ‘∞—∏ÔøΩÔøΩÔøΩÔøΩÔøΩInputStreamÔøΩÔøΩÔøΩÔøΩÔøΩ√ªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
      *
      * @param is
      * @param os
