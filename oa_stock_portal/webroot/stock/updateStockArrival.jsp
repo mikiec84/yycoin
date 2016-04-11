@@ -193,7 +193,8 @@
                 <tr align="center" class="content0">
                     <td width="10%" align="center">采购产品</td>
                     <td width="5%" align="center">采购数量</td>
-                    <td width="5%" align="center">当前数量</td>
+                    <td width="5%" align="center">已入库数量</td>
+                    <td width="5%" align="center">当前库存</td>
                     <td width="5%" align="center">是否询价</td>
                     <td width="5%" align="center">是否拿货</td>
                     <td width="10%" align="center">参考/实际价格</td>
@@ -213,6 +214,8 @@
                                 ><a href="../product/product.do?method=findProduct&id=${item.productId}&detail=1">${item.productName}</a></td>
 
                         <td align="center">${item.amount}</td>
+
+                        <td align="center">${item.totalWarehouseNum}</td>
 
                         <td align="center">${item.productNum}</td>
 
