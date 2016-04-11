@@ -24,15 +24,13 @@ public class FetchingEmail {
     public static void main(String[] args) throws Exception{
 //        receiveQQEmail("imap.163.com","xxx@163.com", "xxx");
 //        receiveQQEmail("imap.qq.com","xxx@qq.com", "xxx");
-        receiveQQEmail("imap.mail.me.com","xxx@icloud.com", "xxx");
+        receiveEmail("imap.mail.me.com", "xxx@icloud.com", "xxxx");
 //        receiveQQEmail("imap.sina.com","xxx@sina.com", "xxx");
     }
 
-    public static void receiveQQEmail(String host, String username, String password) throws Exception {
+    public static void receiveEmail(String host, String username, String password) throws Exception {
         String port = "993";
-
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
-
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
 
         Properties props = System.getProperties();
@@ -47,6 +45,10 @@ public class FetchingEmail {
         props.setProperty("mail.imap.ssl.enable", "true");
         props.setProperty("mail.imap.auth.plain.disable", "true");
         props.setProperty("mail.imap.auth.login.disable", "true");
+
+        //You must add these two settings, otherwize large attachment will not be downloaded
+        props.put("mail.imap.partialfetch", "true");
+        props.put("mail.imap.fetchsize", "819200");
         Session session = Session.getDefaultInstance(props, null);
 //        session.setDebug(true);
         Store store = session.getStore(IMAP);
@@ -89,10 +91,11 @@ public class FetchingEmail {
                     Header header = (Header) headers.nextElement();
                     System.out.println(header.getName() + " ======= " + header.getValue());
                 }
-//                parseMultipart((Multipart) msg.getContent());
-                String filename = "d:/temp/" + decodeText(msg.getSubject());
-                System.out.println(filename);
-                saveParts(msg.getContent(), filename);
+                parseMultipart((Multipart) msg.getContent());
+                System.out.println("***finished***");
+//                String filename = "d:/temp/" + decodeText(msg.getSubject());
+//                System.out.println(filename);
+//                saveParts(msg.getContent(), filename);
             }
         } catch(Exception e){
            e.printStackTrace();
@@ -152,6 +155,8 @@ public class FetchingEmail {
                 if (BodyPart.ATTACHMENT.equalsIgnoreCase(disposition)) {
                     String fileName = bodyPart.getFileName();
                     System.out.println("****fileName***"+fileName);
+                    fileName = MimeUtility.decodeText(fileName);
+                    System.out.println("****name2***"+fileName+"***size"+bodyPart.getSize());
                     InputStream is = bodyPart.getInputStream();
                     copy(is, new FileOutputStream("D:\\" + fileName));
                 }
@@ -160,12 +165,12 @@ public class FetchingEmail {
     }
 
     public static void copy(InputStream is, OutputStream os) throws IOException {
-        byte[] bytes = new byte[1024];
+        byte[] bytes = new byte[65536];
         int len;
         while ((len = is.read(bytes)) != -1) {
-//            os.write(bytes, 0, len);
+            os.write(bytes, 0, len);
 //            os.write(bytes);
-            os.write(len);
+//            os.write(len);
         }
         if (os != null)
             os.close();
