@@ -5,8 +5,10 @@ package com.china.center.oa.publics.manager.impl;
  */
 import com.sun.mail.imap.IMAPMessage;
 
+import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.search.FlagTerm;
 import java.io.*;
@@ -20,8 +22,10 @@ public class FetchingEmail {
     private static final String IMAP = "imap";
 
     public static void main(String[] args) throws Exception{
-//        receiveQQEmail("imap.163.com","kingofhawks@163.com", "grace1121");
-        receiveQQEmail("imap.qq.com","kingofhawks@qq.com", "grace_1121");
+//        receiveQQEmail("imap.163.com","xxx@163.com", "xxx");
+//        receiveQQEmail("imap.qq.com","xxx@qq.com", "xxx");
+        receiveQQEmail("imap.mail.me.com","xxx@icloud.com", "xxx");
+//        receiveQQEmail("imap.sina.com","xxx@sina.com", "xxx");
     }
 
     public static void receiveQQEmail(String host, String username, String password) throws Exception {
@@ -44,7 +48,7 @@ public class FetchingEmail {
         props.setProperty("mail.imap.auth.plain.disable", "true");
         props.setProperty("mail.imap.auth.login.disable", "true");
         Session session = Session.getDefaultInstance(props, null);
-        session.setDebug(true);
+//        session.setDebug(true);
         Store store = session.getStore(IMAP);
         Folder inbox = null;
 
@@ -85,9 +89,11 @@ public class FetchingEmail {
                     Header header = (Header) headers.nextElement();
                     System.out.println(header.getName() + " ======= " + header.getValue());
                 }
-                parseMultipart((Multipart) msg.getContent());
+//                parseMultipart((Multipart) msg.getContent());
+                String filename = "d:/temp/" + decodeText(msg.getSubject());
+                System.out.println(filename);
+                saveParts(msg.getContent(), filename);
             }
-
         } catch(Exception e){
            e.printStackTrace();
         } finally {
@@ -107,10 +113,13 @@ public class FetchingEmail {
     static String decodeText(String text) throws UnsupportedEncodingException {
         if (text == null)
             return null;
-        if (text.startsWith("=?GB") || text.startsWith("=?gb"))
-            text = MimeUtility.decodeText(text);
+//        if (text.startsWith("=?GB") || text.startsWith("=?gb"))
+        if (text.indexOf("=?GB")!=-1 || text.indexOf("=?gb")!= -1)
+//            text = MimeUtility.decodeText(text);
+            text = MimeUtility.encodeText(text);
         else
             text = new String(text.getBytes("ISO8859_1"));
+        System.out.println("****text***"+text);
         return text;
     }
 
@@ -139,6 +148,7 @@ public class FetchingEmail {
             } else if (bodyPart.isMimeType("application/octet-stream")) {
                 String disposition = bodyPart.getDisposition();
                 System.out.println("***disposition***"+disposition);
+                System.out.println("***disposition***"+bodyPart.getInputStream());
                 if (BodyPart.ATTACHMENT.equalsIgnoreCase(disposition)) {
                     String fileName = bodyPart.getFileName();
                     System.out.println("****fileName***"+fileName);
@@ -149,21 +159,63 @@ public class FetchingEmail {
         }
     }
 
-    /**
-     * �ļ����������û����и������ص�ʱ�򣬿��԰Ѹ�����InputStream�����û���������
-     *
-     * @param is
-     * @param os
-     * @throws IOException
-     */
     public static void copy(InputStream is, OutputStream os) throws IOException {
         byte[] bytes = new byte[1024];
         int len;
         while ((len = is.read(bytes)) != -1) {
-            os.write(bytes, 0, len);
+//            os.write(bytes, 0, len);
+//            os.write(bytes);
+            os.write(len);
         }
         if (os != null)
             os.close();
         is.close();
+    }
+
+    public static void saveParts(Object content, String filename)
+            throws IOException, MessagingException
+    {
+        OutputStream out = null;
+        InputStream in = null;
+        try {
+            if (content instanceof Multipart) {
+                Multipart multi = ((Multipart)content);
+                int parts = multi.getCount();
+                for (int j=0; j < parts; ++j) {
+                    MimeBodyPart part = (MimeBodyPart)multi.getBodyPart(j);
+                    if (part.getContent() instanceof Multipart) {
+                        // part-within-a-part, do some recursion...
+                        saveParts(part.getContent(), filename);
+                    }
+                    else {
+                        String extension = "";
+                        if (part.isMimeType("text/html")) {
+                            extension = "html";
+                        }
+                        else {
+                            if (part.isMimeType("text/plain")) {
+                                extension = "txt";
+                            }
+                            else {
+                                //  Try to get the name of the attachment
+                                extension = part.getDataHandler().getName();
+                            }
+                            filename = filename + "." + extension;
+                            System.out.println("... " + filename);
+                            out = new FileOutputStream(new File(filename));
+                            in = part.getInputStream();
+                            int k;
+                            while ((k = in.read()) != -1) {
+                                out.write(k);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        finally {
+            if (in != null) { in.close(); }
+            if (out != null) { out.flush(); out.close(); }
+        }
     }
 }
