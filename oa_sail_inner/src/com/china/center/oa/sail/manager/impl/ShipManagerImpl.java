@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
@@ -71,6 +73,8 @@ public class ShipManagerImpl implements ShipManager
     private OutImportDAO outImportDAO = null;
 
     private ConsignDAO consignDAO = null;
+
+    private StafferDAO stafferDAO = null;
 
     public ShipManagerImpl()
     {
@@ -1469,6 +1473,20 @@ public class ShipManagerImpl implements ShipManager
         {
             triggerLog.info("****packageList to be sent mail***"+packageList.size());
             for (PackageVO vo : packageList){
+                //2016/4/12 update
+                //自提类的也不在发送邮件范围内
+                if (vo.getShipping() == 0){
+                    continue;
+                }else{
+                    //如果收货人姓名是在oastaffer表的name字段里的，则此销售单不在发送邮件范围内
+                    if(!StringTools.isNullOrNone(vo.getReceiver())){
+                        StafferBean stafferBean = this.stafferDAO.findyStafferByName(vo.getReceiver());
+                        if (stafferBean!= null){
+                            continue;
+                        }
+                    }
+                }
+
                 //First query 分支行对应关系表
                 ConditionParse con2 = new ConditionParse();
                 con2.addWhereStr();
@@ -2439,5 +2457,13 @@ public class ShipManagerImpl implements ShipManager
 
     public void setConsignDAO(ConsignDAO consignDAO) {
         this.consignDAO = consignDAO;
+    }
+
+    public StafferDAO getStafferDAO() {
+        return stafferDAO;
+    }
+
+    public void setStafferDAO(StafferDAO stafferDAO) {
+        this.stafferDAO = stafferDAO;
     }
 }
