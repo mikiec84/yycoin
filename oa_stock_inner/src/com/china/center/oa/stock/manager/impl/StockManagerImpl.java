@@ -413,46 +413,47 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         Map outTimeMap = new HashMap();
 
         //2014/12/14 查询商品对应的入库数量总数
-        if (!ListTools.isEmptyOrNull(itemVO)){
-//            ConditionParse con = new ConditionParse();
-//            con.addCondition("OutBean.description","like","%"+id+"%");
-//            con.addIntCondition("OutBean.status","=",3);
-
-
-//            con.addCondition("left join t_center_out OutBean on BaseBean.outId=OutBean.fullid where OutBean.description like '%'"+id+"%'");
-            for (StockItemVO item : itemVO){
-                int totalWarehouseNum = 0;
-                String outId = item.getRefOutId();
-                if (!StringTools.isNullOrNone(outId)){
-                    ConditionParse con = new ConditionParse();
-                    con.addCondition("BaseBean.productId","=",item.getProductId());
-                    con.addCondition("BaseBean.outId","=",item.getRefOutId());
-
-//                List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con);
-                    List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con);
-                    if (!ListTools.isEmptyOrNull(baseBeans)){
-                        _logger.info("item.getProductId()**"+item.getProductId()+"***item.getRefOutId()***"+item.getRefOutId()+"***baseBeans size***"+baseBeans.size());
-
-                        for (BaseBean base: baseBeans){
-                            totalWarehouseNum += base.getAmount();
-//                         OutBean out = this.outDAO.find(base.getOutId());
-//                         if (out!= null){
-//                            outTimeMap.put(base.getId(), out.getOutTime());
-//                         }
-                        }
-
-                    }
-                }
-
-                item.setTotalWarehouseNum(totalWarehouseNum);
-//                     item.setBaseBeans(baseBeans);
-//                     divMap.put(item.getId(),
-//                             this.createTable(baseBeans, outTimeMap));
-                String msg = item.getId()+"******************totalWarehouseNum******************"+totalWarehouseNum;
-                System.out.println(msg);
-                _logger.info(msg);
-             }
-        }
+        //2016/4/12 commented! totalWarehouseNum will be saved to DB when fetch product by arrival bean
+//        if (!ListTools.isEmptyOrNull(itemVO)){
+////            ConditionParse con = new ConditionParse();
+////            con.addCondition("OutBean.description","like","%"+id+"%");
+////            con.addIntCondition("OutBean.status","=",3);
+//
+//
+////            con.addCondition("left join t_center_out OutBean on BaseBean.outId=OutBean.fullid where OutBean.description like '%'"+id+"%'");
+//            for (StockItemVO item : itemVO){
+//                int totalWarehouseNum = 0;
+//                String outId = item.getRefOutId();
+//                if (!StringTools.isNullOrNone(outId)){
+//                    ConditionParse con = new ConditionParse();
+//                    con.addCondition("BaseBean.productId","=",item.getProductId());
+//                    con.addCondition("BaseBean.outId","=",item.getRefOutId());
+//
+////                List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con);
+//                    List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con);
+//                    if (!ListTools.isEmptyOrNull(baseBeans)){
+//                        _logger.info("item.getProductId()**"+item.getProductId()+"***item.getRefOutId()***"+item.getRefOutId()+"***baseBeans size***"+baseBeans.size());
+//
+//                        for (BaseBean base: baseBeans){
+//                            totalWarehouseNum += base.getAmount();
+////                         OutBean out = this.outDAO.find(base.getOutId());
+////                         if (out!= null){
+////                            outTimeMap.put(base.getId(), out.getOutTime());
+////                         }
+//                        }
+//
+//                    }
+//                }
+//
+//                item.setTotalWarehouseNum(totalWarehouseNum);
+////                     item.setBaseBeans(baseBeans);
+////                     divMap.put(item.getId(),
+////                             this.createTable(baseBeans, outTimeMap));
+//                String msg = item.getId()+"******************totalWarehouseNum******************"+totalWarehouseNum;
+//                System.out.println(msg);
+//                _logger.info(msg);
+//             }
+//        }
 
         vo.setDivMap(divMap);
         vo.setItemVO(itemVO);
@@ -1447,6 +1448,20 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             // 更新item
             this.stockItemArrivalDAO.updateEntityBean(item);
 
+            //2016/4/12 TODO 更新采购行已入库数量
+            // 根据productId和providerId找到对应的采购行<productId,providerId>组合必须唯一
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addCondition("productId","=", item.getProductId());
+            conditionParse.addCondition("providerId", "=", item.getProviderId());
+            List<StockItemBean> itemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(itemBeans)){
+                StockItemBean itemBean = itemBeans.get(0);
+                itemBean.setTotalWarehouseNum(warehouseNum+itemBean.getTotalWarehouseNum());
+                this.stockItemDAO.updateEntityBean(itemBean);
+                _logger.info("***update stock item bean***"+itemBean);
+            } else{
+                _logger.warn("****not found stock item bean***"+item);
+            }
             item.setWarehouseNum(warehouseNum);
 
             // 采购入库
@@ -1527,7 +1542,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         {
             stockItemBean.setStatus(StockConstant.STOCK_ITEM_STATUS_ASK);
             stockItemBean.setTotal(stockItemBean.getAmount() * stockItemBean.getPrice());
-            
+
             if (bean.getMtype() == PublicConstant.MANAGER_TYPE_MANAGER)
             {
             	// 直接完成税务配置  -- 不用再单独录入，直接通过
