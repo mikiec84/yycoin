@@ -879,7 +879,10 @@ public class ZJRCManagerImpl implements ZJRCManager
 			newOutBean.setDutyId(dutyId);
 			
 			newOutBean.setMtype(mtype);
-			
+
+            if(StringTools.isNullOrNone(newOutBean.getPodate())){
+                newOutBean.setPodate(TimeTools.now_short());
+            }
 			outDAO.saveEntityBean(newOutBean);
 	    	
 	    	baseDAO.saveAllEntityBeans(baseList);

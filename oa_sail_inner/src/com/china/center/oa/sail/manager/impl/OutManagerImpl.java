@@ -1273,7 +1273,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                     outBean.setTotal(total);
 
-                    outDAO.saveEntityBean(outBean);
+//                    outDAO.saveEntityBean(outBean);
+                    saveOutWithPodate(outBean);
                     
 //                    try
 //                    {
@@ -7777,7 +7778,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 		
                 		newOutBean.setMtype(mtype);
                 		
-                		outDAO.saveEntityBean(newOutBean);
+//                		outDAO.saveEntityBean(newOutBean);
+                        saveOutWithPodate(newOutBean);
                 		
                 		baseDAO.saveAllEntityBeans(newBaseList);
                 		
@@ -7833,6 +7835,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	
     	
 		return ids;
+    }
+
+    private void saveOutWithPodate(OutBean out){
+        if(StringTools.isNullOrNone(out.getPodate())){
+           out.setPodate(TimeTools.now_short());
+        }
+        outDAO.saveEntityBean(out);
     }
     
     /**
@@ -8334,7 +8343,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if ("0".equals(outBean.getLocation()))
         	outBean.setLocation("");
         
-        outDAO.saveEntityBean(outBean);
+//        outDAO.saveEntityBean(outBean);
+        this.saveOutWithPodate(outBean);
 
         this.saveDistributionForRemoteAllocate(outBean);
 
@@ -8749,7 +8759,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     		baseList.add(newBaseBean);
     	}
     	
-    	outDAO.saveEntityBean(newOutBean);
+//    	outDAO.saveEntityBean(newOutBean);
+        this.saveOutWithPodate(newOutBean);
 
     	baseDAO.saveAllEntityBeans(baseList);
 
@@ -8924,7 +8935,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     		
     	}
     	
-    	outDAO.saveEntityBean(newOutBean);
+//    	outDAO.saveEntityBean(newOutBean);
+        this.saveOutWithPodate(newOutBean);
     	
     	baseDAO.saveAllEntityBeans(baseList);
     	
@@ -11971,7 +11983,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         outBean.setTotal(total);
 
-        outDAO.saveEntityBean(outBean);
+//        outDAO.saveEntityBean(outBean);
+        this.saveOutWithPodate(outBean);
 	}
 	
     /**
