@@ -1501,8 +1501,10 @@ public class ShipAction extends DispatchAction
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
                 PackageItemBean item = each.getValue();
-//                this.convertProductName(item, vo.getCustomerName());
-                this.convertProductNameForBank(item);
+                String productName = this.convertProductNameForBank(item);
+                if (!StringTools.isNullOrNone(productName)){
+                    item.setProductName(productName);
+                }
                 itemList1.add(item);
             }
 
@@ -1594,8 +1596,11 @@ public class ShipAction extends DispatchAction
 
                 totalAmount += each.getAmount();
 
-//                this.convertProductName(each, vo.getCustomerName());
                 this.convertProductNameForBank(each);
+                String productName = this.convertProductNameForBank(each);
+                if (!StringTools.isNullOrNone(productName)){
+                    each.setProductName(productName);
+                }
             }
 
             vo.setItemList(itemList);
@@ -1810,8 +1815,10 @@ public class ShipAction extends DispatchAction
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
                 PackageItemBean item = each.getValue();
-//                this.convertProductName(item, vo.getCustomerName());
-                this.convertProductNameForBank(item);
+                String productName = this.convertProductNameForBank(item);
+                if (!StringTools.isNullOrNone(productName)){
+                    item.setProductName(productName);
+                }
                 itemList1.add(item);
             }
 
