@@ -1501,7 +1501,8 @@ public class ShipAction extends DispatchAction
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
                 PackageItemBean item = each.getValue();
-                this.convertProductName(item, vo.getCustomerName());
+//                this.convertProductName(item, vo.getCustomerName());
+                this.convertProductNameForBank(item);
                 itemList1.add(item);
             }
 
@@ -1593,7 +1594,8 @@ public class ShipAction extends DispatchAction
 
                 totalAmount += each.getAmount();
 
-                this.convertProductName(each, vo.getCustomerName());
+//                this.convertProductName(each, vo.getCustomerName());
+                this.convertProductNameForBank(each);
             }
 
             vo.setItemList(itemList);
@@ -1808,8 +1810,8 @@ public class ShipAction extends DispatchAction
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
                 PackageItemBean item = each.getValue();
-                this.convertProductName(item, vo.getCustomerName());
-
+//                this.convertProductName(item, vo.getCustomerName());
+                this.convertProductNameForBank(item);
                 itemList1.add(item);
             }
 
@@ -1851,6 +1853,7 @@ public class ShipAction extends DispatchAction
     }
 
 //    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
+    @Deprecated
     private void convertProductName(PackageItemBean item, String customerName){
         ProductBean product = productDAO.find(item.getProductId());
         if (product!= null) {
