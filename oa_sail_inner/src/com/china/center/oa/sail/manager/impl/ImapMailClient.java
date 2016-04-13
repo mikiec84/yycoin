@@ -1,11 +1,10 @@
-package com.china.center.oa.publics.manager.impl;
+package com.china.center.oa.sail.manager.impl;
 
 /**
  * Created by user on 2016/4/8.
  */
 import com.sun.mail.imap.IMAPMessage;
 
-import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -17,17 +16,12 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 
-public class FetchingEmail {
+public class ImapMailClient {
 
     private static final String IMAP = "imap";
 
     public static void main(String[] args) throws Exception{
         receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
-//        receiveEmail("imap.163.com", "xxx@163.com", "xxx");
-//        receiveEmail("imap.qq.com","xxx@qq.com", "xxx");
-//        receiveEmail("imap.mail.me.com", "xxx@icloud.com", "xxx");
-//        receiveEmail("imap.sina.com", "xxx@sina.com", "xxx");
-//        receiveEmailWithPop("pop3.qq.com", "xxx@qq.com", "xxx");
     }
 
     public static void receiveEmail(String host, String username, String password) throws Exception {
@@ -104,94 +98,6 @@ public class FetchingEmail {
             }
         } catch(Exception e){
            e.printStackTrace();
-        } finally {
-            try {
-                if (inbox != null) {
-                    inbox.close(false);
-                }
-            } catch (Exception ignored) {
-            }
-            try {
-                store.close();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public static void receiveEmailWithPop(String host, String username, String password) throws Exception {
-        String port = "995";
-        Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
-        final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-
-        Properties props = System.getProperties();
-        props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
-        props.setProperty("mail.pop3.socketFactory.fallback", "false");
-        props.setProperty("mail.pop3.socketFactory.port", port);
-//        props.setProperty("mail.smtp.starttls.enable", "true");
-
-        props.setProperty("mail.store.protocol", "pop3");
-        props.setProperty("mail.pop3.host", host);
-        props.setProperty("mail.pop3.port", port);
-        props.setProperty("mail.pop3.ssl.enable", "true");
-        props.setProperty("mail.pop3.auth.plain.disable", "true");
-        props.setProperty("mail.pop3.auth.login.disable", "true");
-
-        //You must add these two settings, otherwize large attachment will not be downloaded
-        props.put("mail.imap.partialfetch", "true");
-        props.put("mail.imap.fetchsize", "819200");
-        Session session = Session.getDefaultInstance(props, null);
-//        session.setDebug(true);
-        Store store = session.getStore(IMAP);
-        Folder inbox = null;
-
-        try {
-            store.connect(host, username, password);
-            inbox = store.getFolder("Inbox");
-            inbox.open(Folder.READ_ONLY);
-            FetchProfile profile = new FetchProfile();
-            profile.add(FetchProfile.Item.ENVELOPE);
-//            Message[] messages = inbox.getMessages();
-            //only receive unread mails
-            Message messages[] = inbox.search(new FlagTerm(new Flags(
-                    Flags.Flag.SEEN), false));
-            inbox.fetch(messages, profile);
-            System.out.println("***mail count***" + messages.length);
-            System.out.println("***unread mail count***" + inbox.getUnreadMessageCount());
-
-            IMAPMessage msg;
-            for (Message message : messages) {
-                msg = (IMAPMessage) message;
-                Flags flags = message.getFlags();
-                if (flags.contains(Flags.Flag.SEEN)){
-                    System.out.println("这是一封已读邮件");
-                    continue;
-                }
-                else {
-                    System.out.println("未读邮件");
-                }
-                String from = decodeText(msg.getFrom()[0].toString());
-                InternetAddress ia = new InternetAddress(from);
-                System.out.println("FROM:" + ia.getPersonal() + '(' + ia.getAddress() + ')');
-                System.out.println("TITLE:" + msg.getSubject());
-                System.out.println("SIZE:" + msg.getSize());
-                System.out.println("DATE:" + msg.getSentDate());
-                System.out.println("Content:" + msg.getContent());
-                System.out.println("ContentType:" + msg.getContentType());
-                Enumeration headers = msg.getAllHeaders();
-                System.out.println("----------------------allHeaders-----------------------------");
-                while (headers.hasMoreElements()) {
-                    Header header = (Header) headers.nextElement();
-                    System.out.println(header.getName() + " ======= " + header.getValue());
-                }
-                parseMultipart(msg.getContent());
-                msg.setFlag(Flags.Flag.SEEN,true);
-                System.out.println("***finished***");
-//                String filename = "d:/temp/" + decodeText(msg.getSubject());
-//                System.out.println(filename);
-//                saveParts(msg.getContent(), filename);
-            }
-        } catch(Exception e){
-            e.printStackTrace();
         } finally {
             try {
                 if (inbox != null) {
