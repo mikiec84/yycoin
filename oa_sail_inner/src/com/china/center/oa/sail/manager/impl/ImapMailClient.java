@@ -9,6 +9,8 @@ import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.sail.bean.CiticOrderBean;
 import com.china.center.oa.sail.bean.ConsignBean;
 import com.china.center.oa.sail.bean.TransportBean;
+import com.china.center.oa.sail.dao.CiticOrderDAO;
+import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.sun.mail.imap.IMAPMessage;
 
@@ -28,14 +30,24 @@ import java.util.Properties;
 
 
 public class ImapMailClient {
-
     private static final String IMAP = "imap";
 
-    public static void main(String[] args) throws Exception{
-        receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+    private CiticOrderDAO citicOrderDAO = null;
+
+    public CiticOrderDAO getCiticOrderDAO() {
+        return citicOrderDAO;
     }
 
-    public static void receiveEmail(String host, String username, String password) throws Exception {
+    public void setCiticOrderDAO(CiticOrderDAO citicOrderDAO) {
+        this.citicOrderDAO = citicOrderDAO;
+    }
+
+    public static void main(String[] args) throws Exception{
+        ImapMailClient client = new ImapMailClient();
+        client.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+    }
+
+    public void receiveEmail(String host, String username, String password) throws Exception {
         String port = "993";
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
@@ -123,7 +135,7 @@ public class ImapMailClient {
         }
     }
 
-    static String decodeText(String text) throws UnsupportedEncodingException {
+    String decodeText(String text) throws UnsupportedEncodingException {
         if (text == null)
             return null;
 //        if (text.startsWith("=?GB") || text.startsWith("=?gb"))
@@ -144,7 +156,7 @@ public class ImapMailClient {
      * @throws MessagingException
      * @throws IOException
      */
-    public static void parseMultipart(Object content) throws MessagingException, IOException {
+    public void parseMultipart(Object content) throws MessagingException, IOException {
         if (content instanceof Multipart) {
             Multipart multipart = (Multipart) content;
             int count = multipart.getCount();
@@ -170,7 +182,10 @@ public class ImapMailClient {
                         fileName = MimeUtility.decodeText(fileName);
                         System.out.println("****name2***" + fileName + "***size" + bodyPart.getSize());
                         InputStream is = bodyPart.getInputStream();
-                        parse(is);
+                        List<CiticOrderBean> items = parse(is);
+                        if (this.citicOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
+                            this.citicOrderDAO.saveAllEntityBeans(items);
+                        }
 //                        copy(is, new FileOutputStream("D:\\" + fileName));
                     }
                 }

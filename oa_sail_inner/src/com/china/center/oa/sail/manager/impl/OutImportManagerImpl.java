@@ -150,7 +150,7 @@ public class OutImportManagerImpl implements OutImportManager
 	
 	private EstimateProfitDAO estimateProfitDAO = null;
 
-	private CiticOrderDAO citicOrderDAO = null;
+    private ImapMailClient imapMailClient = null;
 
 	private final static String SPLIT = "_";
 	
@@ -3079,7 +3079,7 @@ public class OutImportManagerImpl implements OutImportManager
 	public void downloadOrderFromMailAttachment(){
 		_logger.info("***downloadOrderFromMailAttachment running***");
 		try {
-			ImapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+			this.imapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -3509,11 +3509,11 @@ public class OutImportManagerImpl implements OutImportManager
         this.packageDAO = packageDAO;
     }
 
-	public CiticOrderDAO getCiticOrderDAO() {
-		return citicOrderDAO;
-	}
+    public ImapMailClient getImapMailClient() {
+        return imapMailClient;
+    }
 
-	public void setCiticOrderDAO(CiticOrderDAO citicOrderDAO) {
-		this.citicOrderDAO = citicOrderDAO;
-	}
+    public void setImapMailClient(ImapMailClient imapMailClient) {
+        this.imapMailClient = imapMailClient;
+    }
 }

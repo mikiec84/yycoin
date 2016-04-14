@@ -17,17 +17,9 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "t_center_citic_order")
-public class CiticOrderBean implements Serializable
-{
-	private int id = 0;
-
+public class CiticOrderBean implements Serializable{
 	@Id(autoIncrement = true)
-	private String fullId = "";
-
-	@FK
-	private String batchId = "";
-
-	private int type = 0;
+	private String id = "";
 
 	/**
 	 * 客户号
@@ -57,7 +49,7 @@ public class CiticOrderBean implements Serializable
 	/**
 	 * 提货标志
 	 */
-	private boolean pickupFlag = false;
+	private int pickupFlag = 0;
 
 	/**
 	 * 提货柜员号
@@ -149,7 +141,7 @@ public class CiticOrderBean implements Serializable
 	/**
 	 * 是否现货
 	 */
-	private boolean isSpot = false;
+	private int spotFlag = 0;
 
 	/**
 	 * 中信订单号
@@ -245,11 +237,6 @@ public class CiticOrderBean implements Serializable
 	private String teller = "";
 
 	/**
-	 * 状态 0:初始状态 1：处理中 2：成功 3：异常
-	 */
-	private int status = 0;
-
-	/**
 	 * 时间
 	 */
 	private String logTime = "";
@@ -264,10 +251,6 @@ public class CiticOrderBean implements Serializable
 	 */
 	private String enterpriseName = "";
 
-	private String stafferId = "";
-
-	private String description = "";
-
 
 	/**
 	 *
@@ -276,39 +259,16 @@ public class CiticOrderBean implements Serializable
 	{
 	}
 
-	public int getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getFullId() {
-		return fullId;
-	}
 
-	public void setFullId(String fullId) {
-		this.fullId = fullId;
-	}
-
-	public String getBatchId() {
-		return batchId;
-	}
-
-	public void setBatchId(String batchId) {
-		this.batchId = batchId;
-	}
-
-	public int getType() {
-		return type;
-	}
-
-	public void setType(int type) {
-		this.type = type;
-	}
-
-	public String getCustomerId() {
+    public String getCustomerId() {
 		return customerId;
 	}
 
@@ -346,14 +306,6 @@ public class CiticOrderBean implements Serializable
 
 	public void setPickupDate(String pickupDate) {
 		this.pickupDate = pickupDate;
-	}
-
-	public boolean isPickupFlag() {
-		return pickupFlag;
-	}
-
-	public void setPickupFlag(boolean pickupFlag) {
-		this.pickupFlag = pickupFlag;
 	}
 
 	public String getTellerId() {
@@ -500,13 +452,6 @@ public class CiticOrderBean implements Serializable
 		this.orderOrShow = orderOrShow;
 	}
 
-	public boolean isSpot() {
-		return isSpot;
-	}
-
-	public void setIsSpot(boolean isSpot) {
-		this.isSpot = isSpot;
-	}
 
 	public String getCiticNo() {
 		return citicNo;
@@ -676,13 +621,6 @@ public class CiticOrderBean implements Serializable
 		this.teller = teller;
 	}
 
-	public int getStatus() {
-		return status;
-	}
-
-	public void setStatus(int status) {
-		this.status = status;
-	}
 
 	public String getLogTime() {
 		return logTime;
@@ -708,81 +646,19 @@ public class CiticOrderBean implements Serializable
 		this.enterpriseName = enterpriseName;
 	}
 
-	public String getStafferId() {
-		return stafferId;
-	}
+    public int getPickupFlag() {
+        return pickupFlag;
+    }
 
-	public void setStafferId(String stafferId) {
-		this.stafferId = stafferId;
-	}
+    public void setPickupFlag(int pickupFlag) {
+        this.pickupFlag = pickupFlag;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public int getSpotFlag() {
+        return spotFlag;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@Override
-	public String toString() {
-		return "CiticOrderBean{" +
-				"id=" + id +
-				", fullId='" + fullId + '\'' +
-				", batchId='" + batchId + '\'' +
-				", type=" + type +
-				", customerId='" + customerId + '\'' +
-				", customerName='" + customerName + '\'' +
-				", idCard='" + idCard + '\'' +
-				", dealDate='" + dealDate + '\'' +
-				", pickupDate='" + pickupDate + '\'' +
-				", pickupFlag=" + pickupFlag +
-				", tellerId='" + tellerId + '\'' +
-				", pickupAddress='" + pickupAddress + '\'' +
-				", branchId='" + branchId + '\'' +
-				", branchName='" + branchName + '\'' +
-				", secondBranch='" + secondBranch + '\'' +
-				", comunicationBranch='" + comunicationBranch + '\'' +
-				", comunicatonBranchName='" + comunicatonBranchName + '\'' +
-				", productId='" + productId + '\'' +
-				", productCode='" + productCode + '\'' +
-				", enterpriseProductCode='" + enterpriseProductCode + '\'' +
-				", productName='" + productName + '\'' +
-				", amount=" + amount +
-				", price=" + price +
-				", productWeight=" + productWeight +
-				", value=" + value +
-				", fee=" + fee +
-				", arriveDate='" + arriveDate + '\'' +
-				", orderOrShow='" + orderOrShow + '\'' +
-				", isSpot=" + isSpot +
-				", citicNo='" + citicNo + '\'' +
-				", invoiceNature=" + invoiceNature +
-				", invoiceHead='" + invoiceHead + '\'' +
-				", invoiceCondition='" + invoiceCondition + '\'' +
-				", managerId='" + managerId + '\'' +
-				", manager='" + manager + '\'' +
-				", originator='" + originator + '\'' +
-				", provinceId='" + provinceId + '\'' +
-				", provinceName='" + provinceName + '\'' +
-				", cityId='" + cityId + '\'' +
-				", city='" + city + '\'' +
-				", address='" + address + '\'' +
-				", receiver='" + receiver + '\'' +
-				", receiverMobile='" + receiverMobile + '\'' +
-				", handPhone='" + handPhone + '\'' +
-				", weight=" + weight +
-				", goldPrice=" + goldPrice +
-				", materialType='" + materialType + '\'' +
-				", productType='" + productType + '\'' +
-				", pickupType='" + pickupType + '\'' +
-				", teller='" + teller + '\'' +
-				", status=" + status +
-				", logTime='" + logTime + '\'' +
-				", citicOrderDate='" + citicOrderDate + '\'' +
-				", enterpriseName='" + enterpriseName + '\'' +
-				", stafferId='" + stafferId + '\'' +
-				", description='" + description + '\'' +
-				'}';
-	}
+    public void setSpotFlag(int spotFlag) {
+        this.spotFlag = spotFlag;
+    }
 }

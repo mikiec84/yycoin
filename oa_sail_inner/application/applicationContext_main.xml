@@ -74,6 +74,8 @@
 
 	<bean id="outImportResultDAO" class="com.china.center.oa.sail.dao.impl.OutImportResultDAOImpl" />
 
+    <bean id="imapMailClient" class="com.china.center.oa.sail.manager.impl.ImapMailClient" />
+
 	<bean id="outImportManager" class="com.china.center.oa.sail.manager.impl.OutImportManagerImpl" />
 	
 	<bean id="replenishmentDAO" class="com.china.center.oa.sail.dao.impl.ReplenishmentDAOImpl" />
@@ -133,5 +135,6 @@
 	<bean id="productExchangeConfigManager" class="com.china.center.oa.sail.manager.impl.ProductExchangeConfigManagerImpl" />
 
     <bean id="autoApproveOutDAO" class="com.china.center.oa.sail.dao.impl.AutoApproveOutDAOImpl" />
+
 	
 </beans>
