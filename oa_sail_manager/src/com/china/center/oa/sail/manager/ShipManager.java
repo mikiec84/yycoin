@@ -3,6 +3,7 @@ package com.china.center.oa.sail.manager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.sail.bean.BranchRelationBean;
+import com.china.center.oa.sail.bean.PackageItemBean;
 import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.vo.OutVO;
 
@@ -71,4 +72,11 @@ public interface ShipManager
 //	void createInsPackage(PreConsignBean pre, String insId) throws MYException;
     //2015/2/25 手工合并CK单
     void mergePackages(String user, String packageIds, int shipping, int transport1, int transport2, int expressPay, int transportPay, String cityId, String address, String receiver, String phone) throws MYException;
+
+    /**
+     * get product name from package item
+     * @param item
+     * @return
+     */
+    public String getProductName(PackageItemBean item);
 }

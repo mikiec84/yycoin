@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
+import com.china.center.jdbc.annosql.constant.AnoConstant;
+import com.china.center.oa.product.bean.CiticVSOAProductBean;
+import com.china.center.oa.product.dao.CiticVSOAProductDAO;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
@@ -75,6 +78,8 @@ public class ShipManagerImpl implements ShipManager
     private ConsignDAO consignDAO = null;
 
     private StafferDAO stafferDAO = null;
+
+    private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
     public ShipManagerImpl()
     {
@@ -1733,20 +1738,6 @@ public class ShipManagerImpl implements ShipManager
                         }
                     }
 
-                    //First get transportNo for this package
-//                    String transportNo = "";
-//                    for (PackageItemBean each : itemList){
-//                        //快递单号
-//                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
-//                        if (!ListTools.isEmptyOrNull(consignBeans)){
-//                            ConsignBean b = consignBeans.get(0);
-//                            if (!StringTools.isNullOrNone(b.getTransportNo())){
-//                                transportNo = b.getTransportNo();
-//                                break;
-//                            }
-//                        }
-//                    }
-
 
                     for (PackageItemBean each : itemList)
                     {
@@ -1759,7 +1750,8 @@ public class ShipManagerImpl implements ShipManager
                         //支行名称
                         ws.addCell(new Label(j++, i, bean.getCustomerName(), format3));
                         //产品名称
-                        ws.addCell(new Label(j++, i, each.getProductName(), format3));
+//                        ws.addCell(new Label(j++, i, each.getProductName(), format3));
+                        ws.addCell(new Label(j++, i, this.getProductName(each), format3));
                         //数量
                         ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
                         //银行订单号
@@ -2283,6 +2275,58 @@ public class ShipManagerImpl implements ShipManager
         }
     }
 
+    @Override
+    public String getProductName(PackageItemBean item) {
+            String productName = "";
+            String outId = item.getOutId();
+            List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+
+            _logger.info("***importBeans size***" + importBeans.size());
+            if (!ListTools.isEmptyOrNull(importBeans))
+            {
+                OutImportBean bean = importBeans.get(0);
+                String productCode = bean.getProductCode();
+                if (!StringTools.isNullOrNone(productCode)){
+                    ConditionParse conditionParse =  new ConditionParse();
+                    conditionParse.addCondition("citicProductCode", "=", productCode);
+                    List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
+                    if (!ListTools.isEmptyOrNull(beans)){
+                        productName = beans.get(0).getCiticProductName();
+                        _logger.info("***getCiticProductName***"+productName);
+                    }
+                }
+            }
+
+            //default pick from package item table
+            if (StringTools.isNullOrNone(productName)){
+                productName = this.getProductName2(item.getProductName());
+            }
+
+            return productName;
+    }
+
+    private String getProductName2(String original){
+        String name = "";
+        try {
+            String[] l1 = original.split(" ");
+            if (l1.length == 1) {
+                name = original;
+            } else {
+                String word = l1[1];
+                String[] l2 = word.split("（");
+                if (l2.length == 1) {
+                    name = word;
+                } else {
+                    name = l2[0];
+                }
+            }
+        }catch(Exception e){
+            name = original;
+        }
+
+        return name;
+    }
+
     /**
      * @return the preConsignDAO
      */
@@ -2465,5 +2509,13 @@ public class ShipManagerImpl implements ShipManager
 
     public void setStafferDAO(StafferDAO stafferDAO) {
         this.stafferDAO = stafferDAO;
+    }
+
+    public CiticVSOAProductDAO getCiticVSOAProductDAO() {
+        return citicVSOAProductDAO;
+    }
+
+    public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO) {
+        this.citicVSOAProductDAO = citicVSOAProductDAO;
     }
 }
