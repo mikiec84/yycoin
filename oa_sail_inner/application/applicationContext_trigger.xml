@@ -146,6 +146,20 @@
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
+    <!--#222 2016/4/14 下载邮件自动生成SO单 -->
+    <bean id="downloadOrderFromMailAttachmentJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outImportManager" />
+        <property name="targetMethod" value="downloadOrderFromMailAttachment" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="downloadOrderFromMailAttachmentJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="downloadOrderFromMailAttachmentJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -160,6 +174,7 @@
                 <ref bean="sendMailForNbShippingTrigger"/>
                 <ref bean="sortPackagesTrigger"/>
                 <ref bean="autoApproveOutJobTrigger"/>
+                <ref bean="downloadOrderFromMailAttachmentJobTrigger"/>
             </list>
         </property>
     </bean>

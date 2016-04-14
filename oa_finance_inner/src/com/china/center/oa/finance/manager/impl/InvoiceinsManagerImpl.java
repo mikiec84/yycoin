@@ -792,13 +792,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	
 	        BaseBean base = baseDAO.find(item.getBaseId());
 	
-	        // 溢出的
-	        if (MathTools.compare(item.getMoneys() + base.getInvoiceMoney(), base
-	            .getValue()) > 0)
-	        {
-	            throw new MYException("单据[%s]开票溢出,开票金额[%.2f],销售项金额[%.2f]", out.getFullId(),
-	                (item.getMoneys() + base.getInvoiceMoney()), base.getValue());
-	        }
+	        // TODO 溢出的
+//	        if (MathTools.compare(item.getMoneys() + base.getInvoiceMoney(), base
+//	            .getValue()) > 0)
+//	        {
+//	            throw new MYException("单据[%s]开票溢出,开票金额[%.2f],销售项金额[%.2f]", out.getFullId(),
+//	                (item.getMoneys() + base.getInvoiceMoney()), base.getValue());
+//	        }
 	
 	        if (MathTools.compare(item.getMoneys() + base.getInvoiceMoney(), base
 	            .getValue()) <= 0)

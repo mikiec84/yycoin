@@ -3,6 +3,13 @@ package com.china.center.oa.sail.manager.impl;
 /**
  * Created by user on 2016/4/8.
  */
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.oa.sail.bean.CiticOrderBean;
+import com.china.center.oa.sail.bean.ConsignBean;
+import com.china.center.oa.sail.bean.TransportBean;
+import com.china.center.tools.StringTools;
 import com.sun.mail.imap.IMAPMessage;
 
 import javax.mail.*;
@@ -12,7 +19,11 @@ import javax.mail.internet.MimeUtility;
 import javax.mail.search.FlagTerm;
 import java.io.*;
 import java.security.Security;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -159,12 +170,102 @@ public class ImapMailClient {
                         fileName = MimeUtility.decodeText(fileName);
                         System.out.println("****name2***" + fileName + "***size" + bodyPart.getSize());
                         InputStream is = bodyPart.getInputStream();
-                        copy(is, new FileOutputStream("D:\\" + fileName));
+                        parse(is);
+//                        copy(is, new FileOutputStream("D:\\" + fileName));
                     }
                 }
             }
         }
+    }
 
+    public static String[] fillObj(String[] obj)
+    {
+        String[] result = new String[50];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
+
+    public static List<CiticOrderBean> parse(InputStream is) throws IOException{
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+        List<CiticOrderBean> items = new ArrayList<CiticOrderBean>();
+        try
+        {
+            reader.readFile(is);
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 前三行忽略
+                if (reader.getCurrentLineNumber() <= 3)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                System.out.println("****11111***"+currentNumber);
+                if (obj.length >= 2 )
+                {
+                    CiticOrderBean bean = new CiticOrderBean();
+
+                    // 购买分行号
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        bean.setBranchId(obj[0]);
+                    }
+
+                    //购买分行名称
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        bean.setBranchName(obj[1]);
+                    }
+
+                    //二级分行名称
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setSecondBranch(obj[2]);
+                    }
+
+                    //TODO
+                    System.out.println(bean);
+                    items.add(bean);
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return items;
     }
 
     public static void copy(InputStream is, OutputStream os) throws IOException {

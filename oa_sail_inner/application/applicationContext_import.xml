@@ -90,6 +90,8 @@
 	<osgi:reference id="userDAO" interface="com.china.center.oa.publics.dao.UserDAO" />
 	
 	<osgi:reference id="productDAO" interface="com.china.center.oa.product.dao.ProductDAO" />
+
+	<osgi:reference id="citicVSOAProductDAO" interface="com.china.center.oa.product.dao.CiticVSOAProductDAO" />
 	
 	<osgi:reference id="locationDAO" interface="com.china.center.oa.publics.dao.LocationDAO" />
 	

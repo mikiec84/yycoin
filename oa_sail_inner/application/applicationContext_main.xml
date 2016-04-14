@@ -70,6 +70,8 @@
 
 	<bean id="outImportDAO" class="com.china.center.oa.sail.dao.impl.OutImportDAOImpl" />
 
+	<bean id="citicOrderDAO" class="com.china.center.oa.sail.dao.impl.CiticOrderDAOImpl" />
+
 	<bean id="outImportResultDAO" class="com.china.center.oa.sail.dao.impl.OutImportResultDAOImpl" />
 
 	<bean id="outImportManager" class="com.china.center.oa.sail.manager.impl.OutImportManagerImpl" />

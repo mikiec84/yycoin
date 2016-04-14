@@ -150,6 +150,8 @@ public class OutImportManagerImpl implements OutImportManager
 	
 	private EstimateProfitDAO estimateProfitDAO = null;
 
+	private CiticOrderDAO citicOrderDAO = null;
+
 	private final static String SPLIT = "_";
 	
 	public OutImportManagerImpl()
@@ -2404,7 +2406,7 @@ public class OutImportManagerImpl implements OutImportManager
 		
 		for (ConsignBean each : list)
 		{
-            _logger.info("each*****************"+each);
+            _logger.info("each*****************" + each);
 			Set<String> set = new HashSet<String>();
 			
 			// each.getDistId() 改为导入的是 出库单，根据出库单找到销售单
@@ -2662,7 +2664,7 @@ public class OutImportManagerImpl implements OutImportManager
 			for (BaseBean baseBean: baseBeans){
 				total += baseBean.getAmount()*baseBean.getPrice();
 			}
-			_logger.info(outId+"****update total***"+total);
+			_logger.info(outId + "****update total***" + total);
 			this.outDAO.updateTotal(outId, total);
 		}
 
@@ -3067,7 +3069,22 @@ public class OutImportManagerImpl implements OutImportManager
 
 		return true;
 	}
-	
+
+	/**
+	 * 2016/4/14 #222
+	 * 邮件附件下载并生成SO单JOB
+	 */
+	@Override
+	@Transactional(rollbackFor = MYException.class)
+	public void downloadOrderFromMailAttachment(){
+		_logger.info("***downloadOrderFromMailAttachment running***");
+		try {
+			ImapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
 	public PlatformTransactionManager getTransactionManager()
 	{
 		return transactionManager;
@@ -3492,4 +3509,11 @@ public class OutImportManagerImpl implements OutImportManager
         this.packageDAO = packageDAO;
     }
 
+	public CiticOrderDAO getCiticOrderDAO() {
+		return citicOrderDAO;
+	}
+
+	public void setCiticOrderDAO(CiticOrderDAO citicOrderDAO) {
+		this.citicOrderDAO = citicOrderDAO;
+	}
 }
