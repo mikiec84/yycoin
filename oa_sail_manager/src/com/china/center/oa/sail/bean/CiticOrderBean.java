@@ -22,6 +22,11 @@ public class CiticOrderBean implements Serializable{
 	private String id = "";
 
 	/**
+	 * 状态位，默认为0，如果成功创建SO单，就把状态位更新为1
+	 */
+	private int status = 0;
+
+	/**
 	 * 客户号
 	 */
 	private String customerId = "";
@@ -56,8 +61,14 @@ public class CiticOrderBean implements Serializable{
 	 */
 	private String tellerId = "";
 
+
 	/**
-	 * 提货网店地址
+	 * 提货网点号
+	 */
+	private String pickupNode = "";
+
+	/**
+	 * 提货网点地址
 	 */
 	private String pickupAddress = "";
 
@@ -144,14 +155,14 @@ public class CiticOrderBean implements Serializable{
 	private int spotFlag = 0;
 
 	/**
-	 * 中信订单号
+	 * 中信订单号(唯一)
 	 */
 	private String citicNo = "";
 
 	/**
 	 * 开票性质
 	 */
-	private int invoiceNature = 0;
+	private String invoiceNature = "";
 
 	/**
 	 * 开票抬头
@@ -461,11 +472,11 @@ public class CiticOrderBean implements Serializable{
 		this.citicNo = citicNo;
 	}
 
-	public int getInvoiceNature() {
+	public String getInvoiceNature() {
 		return invoiceNature;
 	}
 
-	public void setInvoiceNature(int invoiceNature) {
+	public void setInvoiceNature(String invoiceNature) {
 		this.invoiceNature = invoiceNature;
 	}
 
@@ -661,4 +672,78 @@ public class CiticOrderBean implements Serializable{
     public void setSpotFlag(int spotFlag) {
         this.spotFlag = spotFlag;
     }
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public String getPickupNode() {
+		return pickupNode;
+	}
+
+	public void setPickupNode(String pickupNode) {
+		this.pickupNode = pickupNode;
+	}
+
+	@Override
+	public String toString() {
+		return "CiticOrderBean{" +
+				"id='" + id + '\'' +
+				", status=" + status +
+				", customerId='" + customerId + '\'' +
+				", customerName='" + customerName + '\'' +
+				", idCard='" + idCard + '\'' +
+				", dealDate='" + dealDate + '\'' +
+				", pickupDate='" + pickupDate + '\'' +
+				", pickupFlag=" + pickupFlag +
+				", tellerId='" + tellerId + '\'' +
+				", pickupNode='" + pickupNode + '\'' +
+				", pickupAddress='" + pickupAddress + '\'' +
+				", branchId='" + branchId + '\'' +
+				", branchName='" + branchName + '\'' +
+				", secondBranch='" + secondBranch + '\'' +
+				", comunicationBranch='" + comunicationBranch + '\'' +
+				", comunicatonBranchName='" + comunicatonBranchName + '\'' +
+				", productId='" + productId + '\'' +
+				", productCode='" + productCode + '\'' +
+				", enterpriseProductCode='" + enterpriseProductCode + '\'' +
+				", productName='" + productName + '\'' +
+				", amount=" + amount +
+				", price=" + price +
+				", productWeight=" + productWeight +
+				", value=" + value +
+				", fee=" + fee +
+				", arriveDate='" + arriveDate + '\'' +
+				", orderOrShow='" + orderOrShow + '\'' +
+				", spotFlag=" + spotFlag +
+				", citicNo='" + citicNo + '\'' +
+				", invoiceNature='" + invoiceNature + '\'' +
+				", invoiceHead='" + invoiceHead + '\'' +
+				", invoiceCondition='" + invoiceCondition + '\'' +
+				", managerId='" + managerId + '\'' +
+				", manager='" + manager + '\'' +
+				", originator='" + originator + '\'' +
+				", provinceId='" + provinceId + '\'' +
+				", provinceName='" + provinceName + '\'' +
+				", cityId='" + cityId + '\'' +
+				", city='" + city + '\'' +
+				", address='" + address + '\'' +
+				", receiver='" + receiver + '\'' +
+				", receiverMobile='" + receiverMobile + '\'' +
+				", handPhone='" + handPhone + '\'' +
+				", weight=" + weight +
+				", goldPrice=" + goldPrice +
+				", materialType='" + materialType + '\'' +
+				", productType='" + productType + '\'' +
+				", pickupType='" + pickupType + '\'' +
+				", teller='" + teller + '\'' +
+				", logTime='" + logTime + '\'' +
+				", citicOrderDate='" + citicOrderDate + '\'' +
+				", enterpriseName='" + enterpriseName + '\'' +
+				'}';
+	}
 }

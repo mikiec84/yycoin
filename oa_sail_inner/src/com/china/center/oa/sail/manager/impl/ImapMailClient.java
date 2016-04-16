@@ -5,15 +5,11 @@ package com.china.center.oa.sail.manager.impl;
  */
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
-import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.sail.bean.CiticOrderBean;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.TransportBean;
 import com.china.center.oa.sail.dao.CiticOrderDAO;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.sun.mail.imap.IMAPMessage;
-
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -30,7 +26,7 @@ import java.util.Properties;
 
 
 public class ImapMailClient {
-    private static final String IMAP = "imap";
+    public static final String IMAP = "imap";
 
     private CiticOrderDAO citicOrderDAO = null;
 
@@ -58,7 +54,7 @@ public class ImapMailClient {
         props.setProperty("mail.imap.socketFactory.port", port);
         props.setProperty("mail.smtp.starttls.enable", "true");
 
-        props.setProperty("mail.store.protocol", "imap");
+        props.setProperty("mail.store.protocol", ImapMailClient.IMAP);
         props.setProperty("mail.imap.host", host);
         props.setProperty("mail.imap.port", port);
         props.setProperty("mail.imap.ssl.enable", "true");
@@ -240,23 +236,290 @@ public class ImapMailClient {
                 if (obj.length >= 2 )
                 {
                     CiticOrderBean bean = new CiticOrderBean();
+                    int i = 0;
 
                     // 购买分行号
-                    if ( !StringTools.isNullOrNone(obj[0]))
+                    String branchId = obj[i++];
+                    if ( !StringTools.isNullOrNone(branchId))
                     {
-                        bean.setBranchId(obj[0]);
+                        bean.setBranchId(branchId);
                     }
 
                     //购买分行名称
-                    if ( !StringTools.isNullOrNone(obj[1]))
+                    String branchName = obj[i++];
+                    if ( !StringTools.isNullOrNone(branchName))
                     {
-                        bean.setBranchName(obj[1]);
+                        bean.setBranchName(branchName);
                     }
 
                     //二级分行名称
-                    if ( !StringTools.isNullOrNone(obj[2]))
+                    String secondBranch = obj[i++];
+                    if ( !StringTools.isNullOrNone(secondBranch))
                     {
-                        bean.setSecondBranch(obj[2]);
+                        bean.setSecondBranch(secondBranch);
+                    }
+
+                    //网点号
+                    String commBranch = obj[i++];
+                    if(!StringTools.isNullOrNone(commBranch)){
+                        bean.setComunicationBranch(commBranch);
+                    }
+
+                    //网点名称
+                    String commBranchName = obj[i++];
+                    if(!StringTools.isNullOrNone(commBranchName)){
+                        bean.setComunicatonBranchName(commBranchName);
+                    }
+
+                    //商品编码
+                    String productCode = obj[i++];
+                    if(!StringTools.isNullOrNone(productCode)){
+                        bean.setProductCode(productCode);
+                    }
+
+                    //商品名称
+                    String productName = obj[i++];
+                    if(!StringTools.isNullOrNone(productName)){
+                        bean.setProductName(productName);
+                    }
+
+                    //数量
+                    String amount = obj[i++];
+                    if(!StringTools.isNullOrNone(amount)){
+                        bean.setAmount(Integer.valueOf(amount.trim()));
+                    }
+
+                    //单价
+                    String price = obj[i++];
+                    if(!StringTools.isNullOrNone(price)){
+                        bean.setPrice(Double.valueOf(price));
+                    }
+
+                    //产品克重
+                    String productWeight = obj[i++];
+                    if (!StringTools.isNullOrNone(productWeight)){
+                        bean.setProductWeight(Double.valueOf(productWeight));
+                    }
+
+                    //金额
+                    String value = obj[i++];
+                    if(!StringTools.isNullOrNone(value)){
+                        bean.setValue(Double.valueOf(value));
+                    }
+
+                    //费用
+                    String fee = obj[i++];
+                    if(!StringTools.isNullOrNone(fee)){
+                        bean.setFee(Double.valueOf(fee));
+                    }
+
+                    //计划交付日期
+                    String arrivalDate = obj[i++];
+                    if(!StringTools.isNullOrNone(arrivalDate)){
+                        bean.setArriveDate(arrivalDate);
+                    }
+
+                    //订铺货标志
+                    String show = obj[i++];
+                    if(!StringTools.isNullOrNone(show)){
+                        bean.setOrderOrShow(show);
+                    }
+
+                    //是否现货
+                    String spotFlag = obj[i++];
+                    if(!StringTools.isNullOrNone(spotFlag)){
+                        if("是".equals(spotFlag)){
+                            bean.setSpotFlag(1);
+                        }
+                    }
+
+                    //中信订单号
+                    String citicNo = obj[i++];
+                    if(!StringTools.isNullOrNone(citicNo)){
+                        bean.setCiticNo(citicNo);
+                    }
+
+                    //开票性质
+                    String invoiceNature = obj[i++];
+                    if(!StringTools.isNullOrNone(invoiceNature)){
+                        bean.setInvoiceNature(invoiceNature);
+                    }
+
+                    //开票抬头
+                    String head = obj[i++];
+                    if(!StringTools.isNullOrNone(head)){
+                        bean.setInvoiceHead(head);
+                    }
+
+                    //开票条件
+                    String con = obj[i++];
+                    if(!StringTools.isNullOrNone(con)){
+                        bean.setInvoiceCondition(con);
+                    }
+
+                    //客户经理
+                    String managerId = obj[i++];
+                    if(!StringTools.isNullOrNone(managerId)){
+                        bean.setManagerId(managerId);
+                    }
+
+                    //客户经理姓名
+                    String manager = obj[i++];
+                    if(!StringTools.isNullOrNone(manager)){
+                        bean.setManager(manager);
+                    }
+
+                    //发起方标志
+                    String originator = obj[i++];
+                    if(!StringTools.isNullOrNone(originator)){
+                        bean.setOriginator(originator);
+                    }
+
+                    //购买日期
+                    String citicDate = obj[i++];
+                    if(!StringTools.isNullOrNone(citicDate)){
+                        bean.setCiticOrderDate(citicDate);
+                    }
+
+                    //贵金属企业
+                    String company = obj[i++];
+                    if(!StringTools.isNullOrNone(company)){
+                        bean.setEnterpriseName(company);
+                    }
+
+                    //客户姓名
+                    String customer = obj[i++];
+                    if(!StringTools.isNullOrNone(customer)){
+                        bean.setCustomerName(customer);
+                    }
+
+                    //身份证
+                    String id = obj[i++];
+                    if(!StringTools.isNullOrNone(id)){
+                        bean.setIdCard(id);
+                    }
+
+                    //客户号
+                    String customerId = obj[i++];
+                    if(!StringTools.isNullOrNone(customerId)){
+                        bean.setCustomerId(customerId);
+                    }
+
+                    //买卖时间
+                    String dealDate = obj[i++];
+                    if(!StringTools.isNullOrNone(dealDate)){
+                        bean.setDealDate(dealDate);
+                    }
+
+                    //提货时间
+                    String pickupDate = obj[i++];
+                    if(!StringTools.isNullOrNone(pickupDate)){
+                        bean.setPickupDate(pickupDate);
+                    }
+
+                    //提货标志
+                    String pickupFlag = obj[i++];
+                    if(!StringTools.isNullOrNone(pickupFlag)){
+                        if("Y".equalsIgnoreCase(pickupFlag)){
+                            bean.setPickupFlag(1);
+                        }
+                    }
+
+                    //提货柜员号
+                    String tellerId = obj[i++];
+                    if(!StringTools.isNullOrNone(tellerId)){
+                        bean.setTellerId(tellerId);
+                    }
+
+                    //提货网点号
+                    String node = obj[i++];
+                    if(!StringTools.isNullOrNone(node)){
+                        bean.setPickupNode(node);
+                    }
+
+                    //提货网点地址
+                    String pickupAddress = obj[i++];
+                    if(!StringTools.isNullOrNone(pickupAddress)){
+                        bean.setPickupAddress(pickupAddress);
+                    }
+
+
+                    //客户地址
+                    String address = obj[i++];
+                    if(!StringTools.isNullOrNone(address)){
+                        bean.setAddress(address);
+                    }
+
+                    //联系电话
+                    String handPhone = obj[i++];
+                    if(!StringTools.isNullOrNone(handPhone)){
+                        bean.setHandPhone(handPhone);
+                    }
+
+                    //重量
+                    String weight = obj[i++];
+                    if(!StringTools.isNullOrNone(weight)){
+                        bean.setWeight(Double.valueOf(weight));
+                    }
+
+                    //基础金价
+                    String goldPrice = obj[i++];
+                    if(!StringTools.isNullOrNone(goldPrice)){
+                        bean.setGoldPrice(Double.valueOf(goldPrice));
+                    }
+
+                    //金银标志
+                    String materialType = obj[i++];
+                    if(!StringTools.isNullOrNone(materialType)){
+                        bean.setMaterialType(materialType);
+                    }
+
+                    //产品属性
+                    String productType = obj[i++];
+                    if(!StringTools.isNullOrNone(productType)){
+                        bean.setProductType(productType);
+                    }
+
+                    //取货方式
+                    String pickupType = obj[i++];
+                    if(!StringTools.isNullOrNone(pickupType)){
+                        bean.setPickupType(pickupType);
+                    }
+
+                    //操作柜员
+                    String teller = obj[i++];
+                    if(!StringTools.isNullOrNone(teller)){
+                        bean.setTeller(teller);
+                    }
+
+                    //省
+                    String province = obj[i++];
+                    if(!StringTools.isNullOrNone(province)){
+                        bean.setProvinceName(province);
+                    }
+
+                    //市
+                    String city = obj[i++];
+                    if(!StringTools.isNullOrNone(city)){
+                        bean.setCity(city);
+                    }
+
+                    //配送地址
+                    String address2 = obj[i++];
+                    if(!StringTools.isNullOrNone(address2)){
+                        bean.setAddress(address2);
+                    }
+
+                    //分行收货人
+                    String receiver = obj[i++];
+                    if(!StringTools.isNullOrNone(receiver)){
+                        bean.setReceiver(receiver);
+                    }
+
+                    //分行收货人手机
+                    String mobile = obj[i++];
+                    if(!StringTools.isNullOrNone(mobile)){
+                        bean.setReceiverMobile(mobile);
                     }
 
                     //TODO
