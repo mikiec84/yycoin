@@ -270,5 +270,5 @@ logTime varchar(40),
 citicOrderDate varchar(40),
 enterpriseName varchar(40) NOT NULL,
 PRIMARY KEY (id),
-UNIQUE (citicNo)
+UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8

@@ -35,6 +35,11 @@ public class ZyOrderBean implements Serializable{
      */
     private String channelSerialNumber = "";
 
+    /**
+     * 内部客户号
+     */
+    private String innerCustomerId = "";
+
 	/**
 	 * 客户号
 	 */
@@ -266,7 +271,7 @@ public class ZyOrderBean implements Serializable{
     private String currency = "";
 
     /**
-     * 钞汇方式
+     * 钞汇标志
      */
     private String paymentMethod = "";
 
@@ -838,6 +843,14 @@ public class ZyOrderBean implements Serializable{
         this.enterpriseName = enterpriseName;
     }
 
+    public String getInnerCustomerId() {
+        return innerCustomerId;
+    }
+
+    public void setInnerCustomerId(String innerCustomerId) {
+        this.innerCustomerId = innerCustomerId;
+    }
+
     @Override
     public String toString() {
         return "ZyOrderBean{" +
@@ -845,6 +858,7 @@ public class ZyOrderBean implements Serializable{
                 ", status=" + status +
                 ", serialNumber='" + serialNumber + '\'' +
                 ", channelSerialNumber='" + channelSerialNumber + '\'' +
+                ", innerCustomerId='" + innerCustomerId + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", idType='" + idType + '\'' +
