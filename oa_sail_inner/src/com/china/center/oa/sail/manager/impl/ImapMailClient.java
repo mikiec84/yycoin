@@ -254,9 +254,11 @@ public class ImapMailClient {
             while (reader.hasNext())
             {
                 String[] obj = fillObj((String[])reader.next());
+                int currentNumber = reader.getCurrentLineNumber();
+                System.out.println("****currentNumber***"+currentNumber);
 
                 // 前三行忽略
-                if (reader.getCurrentLineNumber() <= 3)
+                if (currentNumber <= 3)
                 {
                     continue;
                 }
@@ -266,9 +268,7 @@ public class ImapMailClient {
                     continue;
                 }
 
-                int currentNumber = reader.getCurrentLineNumber();
 
-                System.out.println("****11111***"+currentNumber);
                 if (obj.length >= 2 )
                 {
                     CiticOrderBean bean = new CiticOrderBean();
@@ -424,7 +424,7 @@ public class ImapMailClient {
                     }
 
                     //客户姓名
-                    String customer = obj[i++];
+                    String customer = obj[i++].trim();
                     if(!StringTools.isNullOrNone(customer)){
                         bean.setCustomerName(customer);
                     }
@@ -600,7 +600,7 @@ public class ImapMailClient {
                 String[] obj = fillObj((String[])reader.next());
 
                 // 前5行忽略
-                if (reader.getCurrentLineNumber() <= 5)
+                if (reader.getCurrentLineNumber() <= 30)
                 {
                     continue;
                 }
@@ -614,11 +614,13 @@ public class ImapMailClient {
 
                 if (obj.length >= 2 )
                 {
+                    try{
                     ZyOrderBean bean = new ZyOrderBean();
                     int i = 0;
 
                     // 流水号
                     String sn = obj[i++];
+                    System.out.println("***sn***"+sn);
                     if ( !StringTools.isNullOrNone(sn))
                     {
                         bean.setSerialNumber(sn);
@@ -892,6 +894,7 @@ public class ImapMailClient {
 
                     //TODO
                     items.add(bean);
+                    }catch(Exception e){e.printStackTrace();}
                 }
             }
         }catch (Exception e)

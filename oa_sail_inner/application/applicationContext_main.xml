@@ -72,6 +72,8 @@
 
 	<bean id="citicOrderDAO" class="com.china.center.oa.sail.dao.impl.CiticOrderDAOImpl" />
 
+    <bean id="zyOrderDAO" class="com.china.center.oa.sail.dao.impl.ZyOrderDAOImpl" />
+
 	<bean id="outImportResultDAO" class="com.china.center.oa.sail.dao.impl.OutImportResultDAOImpl" />
 
     <bean id="imapMailClient" class="com.china.center.oa.sail.manager.impl.ImapMailClient" />
