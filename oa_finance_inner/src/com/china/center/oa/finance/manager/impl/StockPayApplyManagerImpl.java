@@ -516,7 +516,6 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
      * checkPassByCEO
      * 
      * @param id
-     * @param payMoney
      * @return
      * @throws MYException
      */
@@ -649,7 +648,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
     private int getNextStatus(User user, StockPayApplyBean apply)
         throws MYException
     {
-        int next = StockPayApplyConstant.APPLY_STATUS_SAIL;
+        int next = StockPayApplyConstant.APPLY_STATUS_CFO;
 
         if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_INIT)
         {
@@ -658,30 +657,9 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
                 throw new MYException("没有操作权限");
             }
 
-            next = StockPayApplyConstant.APPLY_STATUS_SAIL;
-        }
-
-//        if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_SAIL)
-//        {
-//            if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_SAIL))
-//            {
-//                throw new MYException("没有操作权限");
-//            }
-//
-//            next = StockPayApplyConstant.APPLY_STATUS_CHECK;
-//        }
-
-        if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_SAIL)
-        {
-            if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_SAIL))
-            {
-                throw new MYException("没有操作权限");
-            }
-
             next = StockPayApplyConstant.APPLY_STATUS_CFO;
         }
-
-        if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CFO)
+        else if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CFO)
         {
             if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_CFO))
             {
@@ -699,8 +677,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
                 next = StockPayApplyConstant.APPLY_STATUS_SEC;
             }
         }
-
-        if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CEO)
+        else if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CEO)
         {
             if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_CEO))
             {
@@ -716,7 +693,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
     private int getNextStatus2(User user, StockPrePayApplyBean apply)
     throws MYException
 	{
-	    int next = StockPayApplyConstant.APPLY_STATUS_SAIL;
+	    int next = StockPayApplyConstant.APPLY_STATUS_CFO;
 	
 	    if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_INIT)
 	    {
@@ -725,30 +702,9 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 	            throw new MYException("没有操作权限");
 	        }
 	
-	        next = StockPayApplyConstant.APPLY_STATUS_SAIL;
-	    }
-	
-	//    if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_SAIL)
-	//    {
-	//        if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_SAIL))
-	//        {
-	//            throw new MYException("没有操作权限");
-	//        }
-	//
-	//        next = StockPayApplyConstant.APPLY_STATUS_CHECK;
-	//    }
-	
-	    if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_SAIL)
-	    {
-	        if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_SAIL))
-	        {
-	            throw new MYException("没有操作权限");
-	        }
-	
 	        next = StockPayApplyConstant.APPLY_STATUS_CFO;
 	    }
-	
-	    if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CFO)
+	    else if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CFO)
 	    {
 	        if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_CFO))
 	        {
@@ -766,8 +722,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 	            next = StockPayApplyConstant.APPLY_STATUS_SEC;
 	        }
 	    }
-	
-	    if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CEO)
+	    else if (apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CEO)
 	    {
 	        if ( !userManager.containAuth(user.getId(), AuthConstant.STOCK_PAY_CEO))
 	        {
@@ -938,7 +893,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
     	
     	bean.setId(commonDAO.getSquenceString20());
     	
-    	bean.setStatus(StockPayApplyConstant.APPLY_STATUS_SAIL);
+    	bean.setStatus(StockPayApplyConstant.APPLY_STATUS_CFO);
     	
     	stockPrePayApplyDAO.saveEntityBean(bean);
     	
@@ -969,7 +924,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 		
 		int preStatus =oldBean.getStatus();
 		
-		bean.setStatus(StockPayApplyConstant.APPLY_STATUS_SAIL);
+		bean.setStatus(StockPayApplyConstant.APPLY_STATUS_CFO);
 		
 		stockPrePayApplyDAO.updateEntityBean(bean);
 		

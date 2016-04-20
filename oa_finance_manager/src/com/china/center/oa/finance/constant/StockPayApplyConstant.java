@@ -37,8 +37,10 @@ public interface StockPayApplyConstant
     /**
      * 待营运中心审批
      */
-    @Defined(key = "stockPayApplyStatus", value = "待营运中心审批")
-    int APPLY_STATUS_SAIL = 11;
+    //#227
+    @Deprecated
+//    @Defined(key = "stockPayApplyStatus", value = "待营运中心审批")
+//    int APPLY_STATUS_SAIL = 11;
 
     /**
      * 待稽核审批
