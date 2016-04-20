@@ -54,7 +54,9 @@ public class ImapMailClient {
 
     public static void main(String[] args) throws Exception{
         ImapMailClient client = new ImapMailClient();
-        client.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+//        client.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+        client.receiveEmail("imap.exmail.qq.com", "yycoindd@yycoin.com", "Yycoin135");
+
     }
 
     public void receiveEmail(String host, String username, String password) throws Exception {
