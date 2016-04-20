@@ -138,6 +138,11 @@ public class PackageBean implements Serializable
      */
     private int sendMailFlag = 0;
 
+    /**#228
+     * 发送邮件给销售人员标志
+     */
+    private int sendMailFlagSails = 0;
+
     /**
      * 2015/12/22 宁波银行邮件
      *发送邮件标识 1:已发送
@@ -531,6 +536,14 @@ public class PackageBean implements Serializable
 
     public void setSendMailFlagNbyh(int sendMailFlagNbyh) {
         this.sendMailFlagNbyh = sendMailFlagNbyh;
+    }
+
+    public int getSendMailFlagSails() {
+        return sendMailFlagSails;
+    }
+
+    public void setSendMailFlagSails(int sendMailFlagSails) {
+        this.sendMailFlagSails = sendMailFlagSails;
     }
 
     @Override

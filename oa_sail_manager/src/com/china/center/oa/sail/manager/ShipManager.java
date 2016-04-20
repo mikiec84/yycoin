@@ -47,6 +47,8 @@ public interface ShipManager
 
     void sendMailForShipping() throws MYException;
 
+    void sendShippingMailToSails() throws MYException;
+
     void sendMailForNbShipping() throws MYException;
 
     void sendMailForNbBeforeShipping() throws MYException;

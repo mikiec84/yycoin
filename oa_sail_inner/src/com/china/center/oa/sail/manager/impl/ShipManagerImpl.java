@@ -1448,6 +1448,79 @@ public class ShipManagerImpl implements ShipManager
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void sendShippingMailToSails() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        String msg =  "**************run sendShippingMailToSails job****************";
+        System.out.println(msg);
+        triggerLog.info(msg);
+
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+        con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
+        con.addIntCondition("PackageBean.status", "=", 2);
+        //自提类的也不在发送邮件范围内
+        con.addIntCondition("PackageBean.shipping","=", 0);
+
+        //销售人员邮件与合并订单表:<staffer邮件,List<订单>>
+        Map<String,List<PackageVO>> staffer2Packages = new HashMap<String,List<PackageVO>>();
+
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+        if (!ListTools.isEmptyOrNull(packageList))
+        {
+            triggerLog.info("****packageList to be sent mail***"+packageList.size());
+            for (PackageVO vo : packageList){
+                StafferBean stafferBean = this.stafferDAO.findyStafferByName(vo.getStafferName());
+                if (stafferBean!= null){
+                    String mail = stafferBean.getNation();
+                    if (!StringTools.isNullOrNone(mail)){
+                        if (staffer2Packages.containsKey(mail)){
+                            List<PackageVO> voList = staffer2Packages.get(mail);
+                            voList.add(vo);
+                        }else{
+                            List<PackageVO> voList =  new ArrayList<PackageVO>();
+                            voList.add(vo);
+                            staffer2Packages.put(mail, voList);
+                        }
+                    }
+                }
+            }
+
+            //send mail for merged packages
+            for (String mail : staffer2Packages.keySet()) {
+                List<PackageVO> packages = staffer2Packages.get(mail);
+                String fileName = getShippingAttachmentPath() + "/" + "发货邮件"
+                        + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+                _logger.info("************fileName****"+fileName);
+
+                String title = String.format("永银文化%s发货信息", this.getYesterday());
+                String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
+                createMailAttachment(packages,"" , fileName);
+
+                // check file either exists
+                File file = new File(fileName);
+
+                if (!file.exists())
+                {
+                    throw new MYException("邮件附件未成功生成");
+                }
+
+                //#228 抄送销售人员
+                commonMailManager.sendMail(mail, title,content, fileName);
+
+                for (PackageBean vo:packages){
+                    //Update sendMailFlagSails to 1
+                    PackageBean packBean = packageDAO.find(vo.getId());
+                    packBean.setSendMailFlagSails(1);
+                    this.packageDAO.updateEntityBean(packBean);
+                }
+            }
+        } else {
+            _logger.info("*****no VO found to send mail****");
+        }
+    }
+
     //#2 每日十点发货后必须将已发货信息发送至相关支行与分行
     @Override
     @Transactional(rollbackFor = MYException.class)
@@ -1552,6 +1625,8 @@ public class ShipManagerImpl implements ShipManager
 
                     // 发送给分行
                     commonMailManager.sendMail(key, title,content, fileName);
+
+                    //#228 抄送销售人员
                 }
 
                 if(branch2Copy.get(key) == 1){
