@@ -189,7 +189,7 @@
                 <ref bean="sortPackagesTrigger"/>
                 <ref bean="autoApproveOutJobTrigger"/>
                 <ref bean="downloadOrderFromMailAttachmentJobTrigger"/>
-                <ref bean="sendShippingMailToSails"/>
+                <ref bean="sendShippingMailToSailsTrigger"/>
             </list>
         </property>
     </bean>
