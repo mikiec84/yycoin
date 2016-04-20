@@ -343,3 +343,6 @@ enterpriseName varchar(40) NOT NULL,
 PRIMARY KEY (id),
 UNIQUE KEY `INX_ALL` (`serialNumber`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
+
+--2016/4/20 发货邮件给销售人员
+alter table T_CENTER_PACKAGE add column sendMailFlagSails int(11) default -1
