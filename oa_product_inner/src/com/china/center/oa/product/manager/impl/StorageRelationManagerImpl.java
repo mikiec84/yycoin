@@ -225,7 +225,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 	
 	    List<StorageRelationBean> relationList = storageRelationDAO
 	        .queryByDepotpartIdAndProductIdAndStafferId(bean.getDepotpartId(), bean
-	            .getProductId(), bean.getStafferId());
+                    .getProductId(), bean.getStafferId());
 	    
 	    if (ListTools.isEmptyOrNull(relationList))
 	    {
@@ -321,7 +321,6 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             throw new MYException("库存被锁定,请确认解锁库存操作");
         }
 
-        _logger.info("changeStorageRelationWithoutTransaction**********"+user+"***bean****"+bean.getStafferId()+"***bean.getRelationId()**"+bean.getRelationId()+"***bean.getChange()**"+bean.getChange());
         //TODO 2015/2/4 因票随货发Job修改暂时不检查
 //        JudgeTools.judgeParameterIsNull(user, bean, bean.getStafferId());
 //        JudgeTools.judgeParameterIsNull(user, bean);
@@ -360,6 +359,9 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 //            JudgeTools.judgeParameterIsNull(bean.getDepotpartId(), bean.getProductId());
         }
 
+        _logger.info("changeStorageRelationWithoutTransaction***"+user.getName()+"***staffer****"+bean.getStafferId()
+                +"***relation**"+bean.getRelationId()+"***change**"+bean.getChange()+"***priceKey***"+priceKey);
+
         // 防止直接插入的(先给默认储位)
         if (StringTools.isNullOrNone(bean.getStorageId()))
         {
@@ -378,28 +380,28 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         if (storageBean == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("储位不存在,请确认操作:"+bean.getStorageId());
         }
 
         DepotpartBean depotpartBean = depotpartDAO.find(storageBean.getDepotpartId());
 
         if (depotpartBean == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("仓区不存在,请确认操作:"+storageBean.getDepotpartId());
         }
 
         DepotBean depotBean = depotDAO.find(depotpartBean.getLocationId());
 
         if (depotBean == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("仓库不存在,请确认操作:"+depotpartBean.getLocationId());
         }
 
         ProductBean productBean = productDAO.find(bean.getProductId());
 
         if (productBean == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("产品不存在,请确认操作:"+bean.getProductId());
         }
 
         if (productBean.getAbstractType() == ProductConstant.ABSTRACT_TYPE_YES)
@@ -449,19 +451,20 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         
         if (relation == null)
         {
+            _logger.info("***find relation***"+bean.getDepotpartId()+"***"+bean.getProductId()+"***"+priceKey+"***"+bean.getStafferId());
             relation = storageRelationDAO.findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean
                 .getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId());
         }
 
-        if (relation == null && bean.getChange() < 0)
+        //#229 拆分产品时不需要检查拆分后产品的库存
+        if (relation == null && bean.getChange() < 0 && bean.getType() == StorageConstant.OPR_STORAGE_DECOMPOSE)
         {
             _logger.error("****relation is null && bean.getChange() < 0***");
-            throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
-                .getName(), depotpartBean.getName(), storageBean.getName(), productBean.getName(),
-                0, -bean.getChange());
+//            throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
+//                .getName(), depotpartBean.getName(), storageBean.getName(), productBean.getName(),
+//                0, -bean.getChange());
         }
-
-        if (relation == null && bean.getChange() >= 0)
+        else if (relation == null && bean.getChange() >= 0)
         {
             // 增加一个空的库存
             StorageRelationBean newStorageRelation = new StorageRelationBean();
@@ -486,7 +489,12 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         }
 
         // 查看库存大小
-        if (relation.getAmount() + bean.getChange() < 0)
+        if (relation == null){
+            _logger.error("****relation is null***");
+            throw new MYException("储位关系不存在:仓区[%s]产品[%s]priceKey[%s]stafferId[%s]",
+                    bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId());
+        }
+        else if (relation.getAmount() + bean.getChange() < 0)
         {
             _logger.error("****relation.getAmount() + bean.getChange() < 0***");
             throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
