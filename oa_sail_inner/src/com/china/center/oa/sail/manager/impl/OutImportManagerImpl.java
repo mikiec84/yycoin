@@ -3079,7 +3079,8 @@ public class OutImportManagerImpl implements OutImportManager
 	public void downloadOrderFromMailAttachment(){
 		_logger.info("***downloadOrderFromMailAttachment running***");
 		try {
-			this.imapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+//			this.imapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+			this.imapMailClient.receiveEmail("imap.exmail.qq.com", "yycoindd@yycoin.com", "Yycoin135");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
