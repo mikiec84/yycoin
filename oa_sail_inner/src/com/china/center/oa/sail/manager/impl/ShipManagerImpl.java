@@ -1458,10 +1458,10 @@ public class ShipManagerImpl implements ShipManager
 
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
-        con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
+        con.addIntCondition("PackageBean.sendMailFlagSails", "=", 0);
         con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
-        con.addIntCondition("PackageBean.shipping","=", 0);
+        con.addIntCondition("PackageBean.shipping","!=", 0);
 
         //销售人员邮件与合并订单表:<staffer邮件,List<订单>>
         Map<String,List<PackageVO>> staffer2Packages = new HashMap<String,List<PackageVO>>();
@@ -1492,7 +1492,7 @@ public class ShipManagerImpl implements ShipManager
                 List<PackageVO> packages = staffer2Packages.get(mail);
                 String fileName = getShippingAttachmentPath() + "/" + "发货邮件"
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
-                _logger.info("************fileName****"+fileName);
+                _logger.info("************fileName****"+fileName+"***mail***"+mail);
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
@@ -1514,6 +1514,11 @@ public class ShipManagerImpl implements ShipManager
                     PackageBean packBean = packageDAO.find(vo.getId());
                     packBean.setSendMailFlagSails(1);
                     this.packageDAO.updateEntityBean(packBean);
+                }
+
+                if (file!= null && file.exists()){
+                    file.delete();
+                    _logger.info("file deleted***"+file.getName());
                 }
             }
         } else {
