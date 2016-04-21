@@ -115,7 +115,7 @@
     <bean id="sendShippingMailToSailsTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="sendShippingMailToSails" />
-        <property name="cronExpression" value="0 0 16 * * ?" />
+        <property name="cronExpression" value="0 0 10 * * ?" />
     </bean>
 
     <!--2015/12/21 宁波银行发货邮件-->
