@@ -25,7 +25,21 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class Test {
+
+    public String getInCondition(String value){
+        //SO1602230844017663321;SO1602231628017664378;
+        StringBuilder sb = new StringBuilder();
+        String[] values = value.split(";");
+        sb.append("(");
+        for(String str: values){
+            sb.append("'").append(str).append("',");
+        }
+
+        String str = sb.toString();
+        return str.substring(0,str.length()-1)+")";
+    }
     public String getProductName(String original){
+        System.out.println("hello"+null);
         String test ="AND PackageBean.status =0 AND PackageBean.logTime >= '2016-02-18 00:00:00' AND PackageItemBean.productName like '%a%'";
         test = test.replace("AND PackageItemBean.productName like '%a%'","");
 //        test = test.replace("d","haha");
@@ -89,6 +103,8 @@ public class Test {
         sdf1.parse(date);
 
         Test t = new Test();
+        System.out.println(t.getInCondition("SO1602230844017663321;SO1602231628017664378;"));
+        System.out.println(t.getInCondition("SO1603311420017767434;"));
         String name = null;
         name = t.getCustomerName(c1);
         System.out.println("c1:"+name);

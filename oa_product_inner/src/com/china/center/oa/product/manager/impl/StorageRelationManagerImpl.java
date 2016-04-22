@@ -359,8 +359,14 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 //            JudgeTools.judgeParameterIsNull(bean.getDepotpartId(), bean.getProductId());
         }
 
-        _logger.info("changeStorageRelationWithoutTransaction***"+user.getName()+"***staffer****"+bean.getStafferId()
-                +"***relation**"+bean.getRelationId()+"***change**"+bean.getChange()+"***priceKey***"+priceKey);
+        StringBuilder logSb = new StringBuilder();
+        if (user != null){
+            logSb.append(user.getName());
+        }
+        logSb.append("***changeStorageRelationWithoutTransaction******staffer****" + bean.getStafferId()
+                + "***relation**" + bean.getRelationId() + "***change**" + bean.getChange() + "***priceKey***" + priceKey);
+
+        _logger.info(logSb.toString());
 
         // 防止直接插入的(先给默认储位)
         if (StringTools.isNullOrNone(bean.getStorageId()))
@@ -654,7 +660,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         condtion.addCondition("StorageRelationBean.depotpartId", "=", ProductConstant.OUT_COMMON_DEPOTPART);
         
         condtion.addCondition("StorageRelationBean.priceKey", "<>", "0");
-        
+
         condtion.addIntCondition("StorageRelationBean.amount", ">", 0);
         
         condtion.addIntCondition("DepotpartBean.type", "=", 0);

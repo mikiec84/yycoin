@@ -121,19 +121,19 @@
         <property name="cronExpression" value="0 0/25 * * * ?" />
     </bean>
 
-    <!--票随货发的发票拣配 每5分钟运行一次，并且自动库管审批已开票的SO单-->
-    <bean id="insFollowOutJob"
-          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="invoiceinsManager" />
-        <property name="targetMethod" value="insFollowOutJob" />
-        <property name="concurrent" value="false" />
-    </bean>
+    <!--deprecated! 票随货发的发票拣配 每5分钟运行一次，并且自动库管审批已开票的SO单-->
+    <!--<bean id="insFollowOutJob"-->
+          <!--class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">-->
+        <!--<property name="targetObject" ref="invoiceinsManager" />-->
+        <!--<property name="targetMethod" value="insFollowOutJob" />-->
+        <!--<property name="concurrent" value="false" />-->
+    <!--</bean>-->
 
-    <bean id="insFollowOutJobTrigger"
-          class="org.springframework.scheduling.quartz.CronTriggerBean">
-        <property name="jobDetail" ref="insFollowOutJob" />
-        <property name="cronExpression" value="0 0/5 * * * ?" />
-    </bean>
+    <!--<bean id="insFollowOutJobTrigger"-->
+          <!--class="org.springframework.scheduling.quartz.CronTriggerBean">-->
+        <!--<property name="jobDetail" ref="insFollowOutJob" />-->
+        <!--<property name="cronExpression" value="0 0/5 * * * ?" />-->
+    <!--</bean>-->
 
     <!--#182 票随货发自动审批JOB 每5分钟运行一次，并且自动库管审批已开票的SO单-->
     <bean id="autoApproveJob"

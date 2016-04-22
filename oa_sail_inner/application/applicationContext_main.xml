@@ -105,6 +105,7 @@
 	<bean id="packageDAO" class="com.china.center.oa.sail.dao.impl.PackageDAOImpl" />
 	<bean id="packageItemDAO" class="com.china.center.oa.sail.dao.impl.PackageItemDAOImpl" />
 	<bean id="preConsignDAO" class="com.china.center.oa.sail.dao.impl.PreConsignDAOImpl" />
+	<bean id="tempConsignDAO" class="com.china.center.oa.sail.dao.impl.TempConsignDAOImpl" />
 	
 	<bean id="shipManager" class="com.china.center.oa.sail.manager.impl.ShipManagerImpl" />
 	

@@ -141,6 +141,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private DistributionDAO distributionDAO = null;
     
     private PreConsignDAO preConsignDAO = null;
+
+	private TempConsignDAO tempConsignDAO = null;
     
     private PackageManager packageManager = null;
     
@@ -1918,7 +1920,37 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				//2016/2/17 #169 生成CK单
 				InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
 				if (bean!= null && bean.getStatus()!= FinanceConstant.INVOICEINS_STATUS_END) {
-					this.createPackage(bean);
+					//如果票随货发，就不写入preconsign表，写入临时表
+					if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut()) ){
+						//如果是票随货发，但货的订单已经库管审批通过，那发票也直接写入preconsign
+						String refIds = bean.getRefIds();
+						if (!StringTools.isNullOrNone(refIds)){
+							ConditionParse conditionParse =  new ConditionParse();
+							conditionParse.addCondition("fullId","in",this.getInCondition(refIds));
+							List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+							boolean allPassed = true;
+							if (!ListTools.isEmptyOrNull(outBeans)){
+								for (OutBean outBean: outBeans){
+									//TODO
+									if (outBean.getStatus()!= OutConstant.STATUS_MANAGER_PASS){
+										allPassed = false;
+										break;
+									}
+								}
+							}
+							if (allPassed){
+								this.createPackage(bean);
+							} else{
+								//写入临时表
+								TempConsignBean tempConsignBean = new TempConsignBean();
+								tempConsignBean.setOutId(refIds);
+								tempConsignBean.setInsId(bean.getId());
+								this.tempConsignDAO.saveEntityBean(tempConsignBean);
+							}
+						}
+					} else{
+						this.createPackage(bean);
+					}
 
 					//状态变成结束
 					bean.setStatus(FinanceConstant.INVOICEINS_STATUS_END);
@@ -1941,6 +1973,18 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	}
     	
 		return true;
+	}
+
+	private String getInCondition(String value){
+		StringBuilder sb = new StringBuilder();
+		String[] values = value.split(";");
+		sb.append("(");
+		for(String str: values){
+			sb.append("'").append(str).append("',");
+		}
+
+		String str = sb.toString();
+		return str.substring(0,str.length()-1)+")";
 	}
 
     public void checkImportIns(List<InvoiceinsImportBean> list, StringBuilder sb){
@@ -4168,4 +4212,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     public void setStafferDAO(StafferDAO stafferDAO) {
         this.stafferDAO = stafferDAO;
     }
+
+	public TempConsignDAO getTempConsignDAO() {
+		return tempConsignDAO;
+	}
+
+	public void setTempConsignDAO(TempConsignDAO tempConsignDAO) {
+		this.tempConsignDAO = tempConsignDAO;
+	}
 }
