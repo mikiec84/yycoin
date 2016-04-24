@@ -1928,17 +1928,18 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 							ConditionParse conditionParse =  new ConditionParse();
 							conditionParse.addCondition("fullId","in",this.getInCondition(refIds));
 							List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
-							boolean allPassed = true;
+							boolean flag = false;
 							if (!ListTools.isEmptyOrNull(outBeans)){
 								for (OutBean outBean: outBeans){
-									//TODO
-									if (outBean.getStatus()!= OutConstant.STATUS_MANAGER_PASS){
-										allPassed = false;
+									//如果销售单已出库或已发货
+									if (outBean.getStatus() == OutConstant.STATUS_PASS||
+                                            outBean.getStatus() == OutConstant.STATUS_SEC_PASS){
+                                        flag = true;
 										break;
 									}
 								}
 							}
-							if (allPassed){
+							if (flag){
 								this.createPackage(bean);
 							} else{
 								//写入临时表

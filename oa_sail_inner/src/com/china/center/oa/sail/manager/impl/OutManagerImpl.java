@@ -263,6 +263,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private DeliveryRankVSOutDAO deliveryRankVSOutDAO = null;
     
     private PreConsignDAO preConsignDAO = null;
+
+    private TempConsignDAO tempConsignDAO = null;
     
     private ShipManager shipManager = null;
     
@@ -3408,7 +3410,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         		handerPassBuy(fullId, user, outBean, newNextStatus);
                         }
 
-                        //#162 2016/2/4 空发检查
+                        //#162 2016/2/4 通过库管审批时,空发检查
                         boolean isKf = false;
                         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
                                 && oldStatus == OutConstant.STATUS_FLOW_PASS
@@ -3422,6 +3424,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                     isKf = true;
                                 }
                             }
+
+                            //#169 票随货发的发票需要生成CK单
+                            createPackageForInvoice(outBean);
                         }
 
                         if (isKf){
@@ -7130,6 +7135,40 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 }
+
+    /** #169
+     * create package for invoice bean related with OutBean
+     * @param outBean
+     */
+    private void createPackageForInvoice(final OutBean outBean)
+    {
+        String fullId = outBean.getFullId();
+        _logger.info(fullId+"****createPackageForInvoice****");
+        //SO单库管审核通过时，需要检查临时表，有的话就写入两条preconsign，并且把临时表删除
+        if (!StringTools.isNullOrNone(fullId)){
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("outId","like","%"+fullId+"%");
+            List<TempConsignBean> tempConsignBeans = this.tempConsignDAO.queryEntityBeansByCondition(conditionParse);
+            List<String> ids = new ArrayList<String>();
+            if(!ListTools.isEmptyOrNull(tempConsignBeans)){
+               for(TempConsignBean bean : tempConsignBeans){
+                   String insId = bean.getInsId();
+                   PreConsignBean preConsign = new PreConsignBean();
+                   preConsign.setOutId(insId);
+                   preConsignDAO.saveEntityBean(preConsign);
+                   _logger.info("***create PreConsignBean****"+insId);
+
+                   ids.add(bean.getId());
+               }
+            }
+
+            if(!ListTools.isEmptyOrNull(ids)){
+                _logger.info("***tempConsignDAO.deleteByIds****"+ids.size());
+                this.tempConsignDAO.deleteByIds(ids);
+            }
+        }
+    }
 
     /**
      * 拆分行项目
@@ -12784,5 +12823,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setProductExchangeConfigDAO(ProductExchangeConfigDAO productExchangeConfigDAO) {
         this.productExchangeConfigDAO = productExchangeConfigDAO;
+    }
+
+    public TempConsignDAO getTempConsignDAO() {
+        return tempConsignDAO;
+    }
+
+    public void setTempConsignDAO(TempConsignDAO tempConsignDAO) {
+        this.tempConsignDAO = tempConsignDAO;
     }
 }

@@ -245,7 +245,7 @@ public class StockPayAction extends DispatchAction
         else if ("2".equals(mode))
         {
             condtion.addIntCondition("StockPayApplyBean.status", "=",
-                StockPayApplyConstant.APPLY_STATUS_SAIL);
+                StockPayApplyConstant.APPLY_STATUS_CFO);
         }
         else if ("3".equals(mode))
         {
@@ -802,7 +802,7 @@ public class StockPayAction extends DispatchAction
         else if ("2".equals(mode))
         {
             condtion.addIntCondition("StockPrePayApplyBean.status", "=",
-                StockPayApplyConstant.APPLY_STATUS_SAIL);
+                StockPayApplyConstant.APPLY_STATUS_CFO);
         }
         else if ("3".equals(mode))
         {

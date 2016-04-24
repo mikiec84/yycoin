@@ -86,6 +86,7 @@
     <osgi:reference id="packageDAO" interface="com.china.center.oa.sail.dao.PackageDAO" />
 	<osgi:reference id="packageItemDAO" interface="com.china.center.oa.sail.dao.PackageItemDAO" />
 	<osgi:reference id="preConsignDAO" interface="com.china.center.oa.sail.dao.PreConsignDAO" />
+    <osgi:reference id="tempConsignDAO" interface="com.china.center.oa.sail.dao.TempConsignDAO" />
 	
 	<osgi:reference id="packageVSCustomerDAO" interface="com.china.center.oa.sail.dao.PackageVSCustomerDAO" />
 	

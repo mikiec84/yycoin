@@ -346,3 +346,11 @@ UNIQUE KEY `INX_ALL` (`serialNumber`)
 
 --2016/4/20 发货邮件给销售人员
 alter table T_CENTER_PACKAGE add column sendMailFlagSails int(11) default -1
+
+--2016/4/23 票随货发修改
+CREATE TABLE `T_CENTER_TEMPCONSIGN` (
+  `Id` int(11) NOT NULL AUTO_INCREMENT,
+  `outId` varchar(40) DEFAULT NULL,
+  `insId` varchar(40) DEFAULT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
