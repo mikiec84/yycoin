@@ -21,7 +21,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.search.FlagTerm;
 import java.io.*;
+import java.math.BigDecimal;
 import java.security.Security;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -56,6 +59,11 @@ public class ImapMailClient {
         ImapMailClient client = new ImapMailClient();
 //        client.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
         client.receiveEmail("imap.exmail.qq.com", "yycoindd@yycoin.com", "Yycoin135");
+
+//        InputStream is = new FileInputStream("G:\\Download\\贵金属订单明细报表(永银文化0425).xls");
+        InputStream is = new FileInputStream("D:\\oa_attachment\\贵金属订单明细报表(永银文化0425).xls");
+//        List<CiticOrderBean> beans = client.parseCiticOrder(is);
+//        System.out.println(beans.size());
 
     }
 
@@ -192,8 +200,12 @@ public class ImapMailClient {
                         String fileName = MimeUtility.decodeText(bodyPart.getFileName());
                         _logger.info("****name***" + fileName + "***size" + bodyPart.getSize());
                         InputStream is = bodyPart.getInputStream();
+                        String fullPath = "D:\\oa_attachment\\"+fileName;
+                        this.copy(is, new FileOutputStream(fullPath));
                         if (type ==1) {
-                            List<CiticOrderBean> items = parseCiticOrder(is);
+                            List<CiticOrderBean> items = parseCiticOrder(new FileInputStream(fullPath));
+                            System.out.println("***CiticOrderBean size***"+items.size());
+
                             if (this.citicOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
                                 for(CiticOrderBean item :items){
                                     try{
@@ -205,10 +217,19 @@ public class ImapMailClient {
                             }
                         } else if (type == 2){
                             List<ZyOrderBean> items = parseZyOrder(is);
+                            System.out.println("***ZyOrderBean size***"+items.size());
+
                             if (this.zyOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
                                 for(ZyOrderBean item :items){
                                     try{
-                                        this.zyOrderDAO.saveEntityBean(item);
+                                        if (StringTools.isNullOrNone(item.getCustomerName()) ||
+                                                StringTools.isNullOrNone(item.getProductName())){
+                                            //ignore
+                                            _logger.warn("item not saved***"+item);
+                                            continue;
+                                        } else{
+                                            this.zyOrderDAO.saveEntityBean(item);
+                                        }
                                     } catch(Exception e){
                                         e.printStackTrace();
                                     }
@@ -599,10 +620,12 @@ public class ImapMailClient {
 
             while (reader.hasNext())
             {
+                int currentNumber = reader.getCurrentLineNumber();
                 String[] obj = fillObj((String[])reader.next());
 
+//                System.out.println("***currentNumber***"+currentNumber);
                 // 前5行忽略
-                if (reader.getCurrentLineNumber() <= 30)
+                if (currentNumber <=5)
                 {
                     continue;
                 }
@@ -612,8 +635,6 @@ public class ImapMailClient {
                     continue;
                 }
 
-                int currentNumber = reader.getCurrentLineNumber();
-
                 if (obj.length >= 2 )
                 {
                     try{
@@ -622,7 +643,6 @@ public class ImapMailClient {
 
                     // 流水号
                     String sn = obj[i++];
-                    System.out.println("***sn***"+sn);
                     if ( !StringTools.isNullOrNone(sn))
                     {
                         bean.setSerialNumber(sn);
@@ -689,12 +709,12 @@ public class ImapMailClient {
                     if(!StringTools.isNullOrNone(customerName)){
                         bean.setCustomerName(customerName);
                     }
-                    System.out.println(bean);
                     //证件类型
                     String idType = obj[i++];
                     if(!StringTools.isNullOrNone(idType)){
                         bean.setIdType(idType);
                     }
+
 
                     //证件号码
                     String idCard = obj[i++];
@@ -762,6 +782,12 @@ public class ImapMailClient {
                         bean.setProductCode(productCode);
                     }
 
+                    //产品名称
+                    String productName = obj[i++];
+                    if (!StringTools.isNullOrNone(productName)){
+                        bean.setProductName(productName);
+                    }
+
                     //规格代码
                     String specCode = obj[i++];
                     if(!StringTools.isNullOrNone(specCode)){
@@ -813,13 +839,13 @@ public class ImapMailClient {
                     //单价
                     String price = obj[i++];
                     if(!StringTools.isNullOrNone(price)){
-                        bean.setPrice(Double.valueOf(price));
+                        bean.setPrice(Double.valueOf(price.replace(",","")));
                     }
 
                     //金额
                     String value = obj[i++];
                     if(!StringTools.isNullOrNone(value)){
-                        bean.setValue(Double.valueOf(value));
+                        bean.setValue(Double.valueOf(value.replace(",","")));
                     }
 
                     //币种
@@ -843,13 +869,13 @@ public class ImapMailClient {
                     //保管费
                     String storageCost = obj[i++];
                     if(!StringTools.isNullOrNone(storageCost)){
-                        bean.setStorageCost(Double.valueOf(storageCost));
+                        bean.setStorageCost(Double.valueOf(storageCost.replace(",","")));
                     }
 
                     //手续费
                     String fee = obj[i++];
                     if(!StringTools.isNullOrNone(fee)){
-                        bean.setFee(Double.valueOf(storageCost));
+                        bean.setFee(Double.valueOf(fee.replace(",","")));
                     }
 
                     //折扣率
@@ -918,7 +944,7 @@ public class ImapMailClient {
         return items;
     }
 
-    public static void copy(InputStream is, OutputStream os) throws IOException {
+    public void copy(InputStream is, OutputStream os) throws IOException {
         byte[] bytes = new byte[65536];
         int len;
         while ((len = is.read(bytes)) != -1) {
