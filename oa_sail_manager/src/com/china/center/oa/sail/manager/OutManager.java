@@ -229,6 +229,16 @@ public interface OutManager extends ListenerManager<OutListener>
         throws MYException;
 
     /**
+     * #230 退库驳回时，只改状态
+     * @param user
+     * @param fullId
+     * @param reason
+     * @return
+     * @throws MYException
+     */
+    boolean rejectOutBack(User user, final String fullId, String reason)throws MYException;
+
+    /**
      * 转调处理(仅仅用于)
      * 
      * @param out

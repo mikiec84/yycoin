@@ -83,6 +83,8 @@
 			</fileset>
 		</copy>
 		<jar destfile="${jar.dir}/${jar.name}.jar" basedir="${dist.dir}" manifest="${meta.dir}/MANIFEST.MF" />
+		<copy file="${jar.dir}/${jar.name}.jar" todir="${libs.dir}"/>
+		<copy file="${jar.dir}/${jar.name}.jar" todir="D:\\Workspace\\yycoin\\osgi\\pickup"/>
 	</target>
 	<!-- 文档 -->
 	<target name="doc" depends="pack" description="create api doc">

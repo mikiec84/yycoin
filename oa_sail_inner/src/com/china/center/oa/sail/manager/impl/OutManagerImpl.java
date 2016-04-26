@@ -4815,6 +4815,88 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return out;
     }
 
+    @Override
+    public boolean rejectOutBack(final User user, final String fullId, final String reason) throws MYException {
+
+        JudgeTools.judgeParameterIsNull(fullId);
+
+        final OutBean outBean = outDAO.find(fullId);
+
+        if (outBean == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        if (outBean.getInvoiceMoney() > 0) {
+            throw new MYException("单据不能被驳回,原因是已开过发票.");
+        }
+
+
+        // 入库操作在数据库事务中完成
+        TransactionTemplate tran = new TransactionTemplate(transactionManager);
+        try
+        {
+            tran.execute(new TransactionCallback()
+            {
+                public Object doInTransaction(TransactionStatus arg0)
+                {
+                    outBean.setStatus(OutConstant.BUY_STATUS_REJECT);
+                    outBean.setReason(reason);
+                    outDAO.updateEntityBean(outBean);
+
+                    if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                            && outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH)
+                    {
+                        notifyManager.notifyMessage(outBean.getStafferId(), outBean
+                                .getRefOutFullId()
+                                + "的领样退货申请已经被["
+                                + user.getStafferName()
+                                + "]驳回,申请自动删除");
+                    }
+
+                    List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(fullId);
+                    outBean.setBaseList(baseList);
+                    Collection<OutListener> listenerMapValues = listenerMapValues();
+
+                    for (OutListener listener : listenerMapValues)
+                    {
+                        try
+                        {
+                            listener.onDelete(user, outBean);
+                        }
+                        catch (MYException e)
+                        {
+                            throw new RuntimeException(e.getErrorContent(), e);
+                        }
+                    }
+
+                    return Boolean.TRUE;
+                }
+            });
+        }
+        catch (TransactionException e)
+        {
+            _logger.error("删除库单错误：", e);
+            throw new MYException("数据库内部错误");
+        }
+        catch (DataAccessException e)
+        {
+            _logger.error("删除库单错误：", e);
+            throw new MYException(e.getCause().toString());
+        }
+        catch (Exception e)
+        {
+            _logger.error("删除库单错误：", e);
+            throw new MYException("系统错误,请重新操作");
+        }
+
+        _logger.info(user.getStafferName() + "/" + user.getName() + "/REJECT:" + outBean);
+
+        operationLog.info(user.getStafferName() + "/" + user.getName() + "/REJECT OUT:" + outBean);
+
+        return true;
+    }
+
     /**
      * 删除库单
      * 

@@ -178,6 +178,8 @@ public class OutAction extends ParentOutAction
 
         String queryType = request.getParameter("queryType");
 
+        String reason = request.getParameter("reason");
+
         User user = (User)request.getSession().getAttribute("user");
 
         if (StringTools.isNullOrNone(fullId))
@@ -204,8 +206,8 @@ public class OutAction extends ParentOutAction
             {
             	sendOutRejectMail(fullId, user, "无", bean,"退库单驳回");
             	
-                outManager.delOut(user, fullId);
-                
+//                outManager.delOut(user, fullId);
+                outManager.rejectOutBack(user, fullId, reason);
                 request.setAttribute(KeyConstant.MESSAGE, "成功操作:" + fullId);
             }
             catch (MYException e)

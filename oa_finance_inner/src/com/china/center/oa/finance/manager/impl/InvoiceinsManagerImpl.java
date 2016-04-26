@@ -1926,7 +1926,10 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 						String refIds = bean.getRefIds();
 						if (!StringTools.isNullOrNone(refIds)){
 							ConditionParse conditionParse =  new ConditionParse();
-							conditionParse.addCondition("fullId","in",this.getInCondition(refIds));
+//							conditionParse.addCondition("fullId","in",this.getInCondition(refIds));
+							System.out.println("****condition***"+this.getInCondition(refIds));
+//							conditionParse.addCondition("fullId in "+this.getInCondition(refIds));
+							conditionParse.addCondition(" and fullId like '%"+refIds.replace(";","")+"%'");
 							List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
 							boolean flag = false;
 							if (!ListTools.isEmptyOrNull(outBeans)){

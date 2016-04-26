@@ -10091,6 +10091,8 @@ public class ParentOutAction extends DispatchAction
 
 		User user = (User) request.getSession().getAttribute("user");
 
+		String reason = request.getParameter("reason");
+
 		if (StringTools.isNullOrNone(fullId))
 		{
 			request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在，请重新操作");
@@ -10128,7 +10130,8 @@ public class ParentOutAction extends DispatchAction
 		{
 			try
 			{
-				outManager.delOut(user, fullId);
+//				outManager.delOut(user, fullId);
+				outManager.rejectOutBack(user, fullId, reason);
 
 				importLog.info(operatorName + "/" + user.getName() + "删除了库单:"
 						+ fullId);

@@ -116,7 +116,9 @@ function coo(str1, str2)
 
 function modfiy()
 {
-	if ((getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2') && getRadio('fullId').outtype != 4 && getRadio('fullId').outtype != 5)
+	//#230 2016/4/26 退库可修改
+	if (getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2')
+//	if ((getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2') && getRadio('fullId').outtype != 4 && getRadio('fullId').outtype != 5)
 	{
 		document.location.href = '../sail/out.do?method=findOut&outId=' + getRadioValue("fullId") + "&fow=1";
 	}

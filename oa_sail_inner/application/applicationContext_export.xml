@@ -99,6 +99,7 @@
 	<osgi:service ref="packageDAO" interface="com.china.center.oa.sail.dao.PackageDAO" />
 	<osgi:service ref="packageItemDAO" interface="com.china.center.oa.sail.dao.PackageItemDAO" />
 	<osgi:service ref="preConsignDAO" interface="com.china.center.oa.sail.dao.PreConsignDAO" />
+	<osgi:service ref="tempConsignDAO" interface="com.china.center.oa.sail.dao.TempConsignDAO" />
 	
 	<osgi:service ref="shipManager" interface="com.china.center.oa.sail.manager.ShipManager" />	
 	

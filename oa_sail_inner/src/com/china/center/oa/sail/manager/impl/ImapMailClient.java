@@ -61,7 +61,7 @@ public class ImapMailClient {
         client.receiveEmail("imap.exmail.qq.com", "yycoindd@yycoin.com", "Yycoin135");
 
 //        InputStream is = new FileInputStream("G:\\Download\\贵金属订单明细报表(永银文化0425).xls");
-        InputStream is = new FileInputStream("D:\\oa_attachment\\贵金属订单明细报表(永银文化0425).xls");
+//        InputStream is = new FileInputStream("D:\\oa_attachment\\贵金属订单明细报表(永银文化0425).xls");
 //        List<CiticOrderBean> beans = client.parseCiticOrder(is);
 //        System.out.println(beans.size());
 
@@ -200,10 +200,11 @@ public class ImapMailClient {
                         String fileName = MimeUtility.decodeText(bodyPart.getFileName());
                         _logger.info("****name***" + fileName + "***size" + bodyPart.getSize());
                         InputStream is = bodyPart.getInputStream();
-                        String fullPath = "D:\\oa_attachment\\"+fileName;
-                        this.copy(is, new FileOutputStream(fullPath));
+//                        String fullPath = "D:\\oa_attachment\\"+fileName;
+//                        this.copy(is, new FileOutputStream(fullPath));
                         if (type ==1) {
-                            List<CiticOrderBean> items = parseCiticOrder(new FileInputStream(fullPath));
+//                            List<CiticOrderBean> items = parseCiticOrder(new FileInputStream(fullPath));
+                            List<CiticOrderBean> items = parseCiticOrder(is);
                             System.out.println("***CiticOrderBean size***"+items.size());
 
                             if (this.citicOrderDAO!= null && !ListTools.isEmptyOrNull(items)){

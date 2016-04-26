@@ -419,6 +419,7 @@ public class PackageManagerImpl implements PackageManager {
 	private void createNewInsPackage(InvoiceinsVO ins,
 			List<InsVSInvoiceNumBean> numList, DistributionVO distVO, String fullAddress, String location)
 	{
+		_logger.info("****createNewInsPackage now****");
 		String id = commonDAO.getSquenceString20("CK");
 		
 		int allAmount = 0;
@@ -819,15 +820,15 @@ public class PackageManagerImpl implements PackageManager {
 		InvoiceinsVO ins = invoiceinsDAO.findVO(insId);
 		
 		if (null == ins) {
+			_logger.error("ins not found***"+insId);
 			preConsignDAO.deleteEntityBean(pre.getId());
-			
 			return;
 		}
 		
 		List<InsVSInvoiceNumBean> numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insId);
 		
 		if (ListTools.isEmptyOrNull(numList)) {
-			triggerLog.info("======createInsPackage== (numList is null or empty)====" + insId);
+			_logger.warn("======createInsPackage== (numList is null or empty)====" + insId);
 			return;
 		}
 		
@@ -835,10 +836,8 @@ public class PackageManagerImpl implements PackageManager {
 		
 		if (ListTools.isEmptyOrNull(distList))
 		{
-			triggerLog.info("======createInsPackage==(distList is null or empty)====" + insId);
-			
+			_logger.warn("======createInsPackage==(distList is null or empty)====" + insId);
 			preConsignDAO.deleteEntityBean(pre.getId());
-			
 			return;
 		}
 		
@@ -846,9 +845,8 @@ public class PackageManagerImpl implements PackageManager {
 		
 		// 如果是空发,则不处理
 		if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING) {
-			triggerLog.info("======createInsPackage==(shipping is OUT_SHIPPING_NOTSHIPPING)====" + insId);
+			_logger.warn("======createInsPackage==(shipping is OUT_SHIPPING_NOTSHIPPING)====" + insId);
 			preConsignDAO.deleteEntityBean(pre.getId());
-			
 			return;
 		}
 		
@@ -856,15 +854,15 @@ public class PackageManagerImpl implements PackageManager {
 		if (StringTools.isNullOrNone(distVO.getAddress())
 				&& StringTools.isNullOrNone(distVO.getReceiver())
 				&& StringTools.isNullOrNone(distVO.getMobile())) {
-			triggerLog.info("======createInsPackage==(distList detail is null or empty)====" + insId);
+			_logger.warn("======createInsPackage==(distList detail is null or empty)====" + insId);
 			preConsignDAO.deleteEntityBean(pre.getId());
-			
 			return;
 		}
 		
 		// 地址不全,不发
 		if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
 		{
+			_logger.warn("***wrong address***");
 			return;
 		}
 		
@@ -894,7 +892,6 @@ public class PackageManagerImpl implements PackageManager {
 			}else
 			{
 				//#200 合并入现有CK单时检查是否有重复outId
-
 				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 				
 				int allAmount = 0;
@@ -940,6 +937,7 @@ public class PackageManagerImpl implements PackageManager {
 				packBean.setProductCount(packBean.getProductCount() + numList.size());
 				
 				packageDAO.updateEntityBean(packBean);
+				_logger.info(insId+"***merge to exist package***"+packBean.getId());
 
 				if (!ListTools.isEmptyOrNull(itemList)) {
 					packageItemDAO.saveAllEntityBeans(itemList);
@@ -963,7 +961,8 @@ public class PackageManagerImpl implements PackageManager {
 				}
 			}
 		}
-		
+
+		_logger.info("***delete preconsign***"+pre.getId());
 		preConsignDAO.deleteEntityBean(pre.getId());
 	}
 
