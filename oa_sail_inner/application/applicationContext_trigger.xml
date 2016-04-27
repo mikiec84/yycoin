@@ -101,7 +101,7 @@
     <bean id="sendMailForShippingTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="sendMailForShipping" />
-        <property name="cronExpression" value="0 0 10 * * ?" />
+        <property name="cronExpression" value="0 0 16 * * ?" />
     </bean>
 
     <!--#228发货邮件发送销售员 -->

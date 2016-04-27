@@ -1459,6 +1459,7 @@ public class ShipManagerImpl implements ShipManager
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlagSails", "=", 0);
+        con.addCondition("PackageBean.logTime", ">=", "2016-04-25 00:00:00");
         con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
@@ -1469,7 +1470,7 @@ public class ShipManagerImpl implements ShipManager
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
         {
-            triggerLog.info("****packageList to be sent mail***"+packageList.size());
+            triggerLog.info("****packageList to be sent to sails***"+packageList.size());
             for (PackageVO vo : packageList){
                 StafferBean stafferBean = this.stafferDAO.findyStafferByName(vo.getStafferName());
                 if (stafferBean!= null){
@@ -1483,16 +1484,19 @@ public class ShipManagerImpl implements ShipManager
                             voList.add(vo);
                             staffer2Packages.put(mail, voList);
                         }
+                    }else{
+                        _logger.warn("***no mail for***"+vo.getStafferName());
                     }
                 }
             }
 
+            triggerLog.info("***mail count to be sent for sails***"+staffer2Packages.keySet().size());
             //send mail for merged packages
             for (String mail : staffer2Packages.keySet()) {
                 List<PackageVO> packages = staffer2Packages.get(mail);
                 String fileName = getShippingAttachmentPath() + "/" + "发货邮件"
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
-                _logger.info("************fileName****"+fileName+"***mail***"+mail);
+                _logger.info("************fileName****"+fileName+"***mail***"+mail+"***size***"+packages.size());
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
@@ -1514,16 +1518,18 @@ public class ShipManagerImpl implements ShipManager
                     PackageBean packBean = packageDAO.find(vo.getId());
                     packBean.setSendMailFlagSails(1);
                     this.packageDAO.updateEntityBean(packBean);
+                    _logger.info("***update mail flag***"+vo.getId());
                 }
 
-                if (file!= null && file.exists()){
-                    file.delete();
-                    _logger.info("file deleted***"+file.getName());
-                }
+//                if (file!= null && file.exists()){
+//                    file.delete();
+//                    _logger.info("file deleted***"+file.getName());
+//                }
             }
         } else {
             _logger.info("*****no VO found to send mail****");
         }
+        triggerLog.info("***finish sendMailToSails***");
     }
 
     //#2 每日十点发货后必须将已发货信息发送至相关支行与分行
@@ -1538,6 +1544,7 @@ public class ShipManagerImpl implements ShipManager
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
+        con.addCondition("PackageBean.logTime", ">=", "2016-04-25 00:00:00");
         con.addIntCondition("PackageBean.status", "=", 2);
 
         //分支行对应关系：<分行邮件，List<支行邮件>>
@@ -1554,30 +1561,34 @@ public class ShipManagerImpl implements ShipManager
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
         {
-            triggerLog.info("****packageList to be sent mail***"+packageList.size());
+            triggerLog.info("****packageList to be sent mail to bank***"+packageList.size());
             for (PackageVO vo : packageList){
                 //2016/4/12 update
                 //自提类的也不在发送邮件范围内
                 if (vo.getShipping() == 0){
+                    _logger.warn("***self pickup***"+vo.getId());
                     continue;
                 }else{
                     //如果收货人姓名是在oastaffer表的name字段里的，则此销售单不在发送邮件范围内
-                    if(!StringTools.isNullOrNone(vo.getReceiver())){
-                        StafferBean stafferBean = this.stafferDAO.findyStafferByName(vo.getReceiver());
+                    String receiver = vo.getReceiver();
+                    if(!StringTools.isNullOrNone(receiver)){
+                        StafferBean stafferBean = this.stafferDAO.findyStafferByName(receiver);
                         if (stafferBean!= null){
+                            _logger.info(vo.getId()+"***sent to staffer***"+receiver);
                             continue;
                         }
                     }
                 }
 
                 //First query 分支行对应关系表
+                String customerId = vo.getCustomerId();
                 ConditionParse con2 = new ConditionParse();
                 con2.addWhereStr();
-                con2.addCondition("BranchRelationBean.id", "=", vo.getCustomerId());
+                con2.addCondition("BranchRelationBean.id", "=", customerId);
                 List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
                 if (!ListTools.isEmptyOrNull(relationList)){
                     BranchRelationVO relation = relationList.get(0);
-                    _logger.info("**********relation******"+relation);
+                    _logger.info("***relation fond****"+relation);
                     String branchMail = relation.getBranchMail();
                     if (!StringTools.isNullOrNone(branchMail)){
                         String subBranchMail = relation.getSubBranchMail();
@@ -1602,23 +1613,28 @@ public class ShipManagerImpl implements ShipManager
 
                         branch2Flag.put(branchMail,relation.getSendMailFlag());
                         branch2Copy.put(branchMail,relation.getCopyToBranchFlag());
+                    } else{
+                        _logger.warn("***branchMail is none for customer ID***"+customerId);
                     }
+                } else{
+                    _logger.warn(vo.getId()+"***no relation found***"+customerId);
                 }
             }
 
             //send mail for merged packages
+            triggerLog.info("***mail count to be sent to bank***"+branch2Packages.keySet().size());
             for (String key : branch2Packages.keySet()) {
                 List<PackageVO> packages = branch2Packages.get(key);
                 String fileName = getShippingAttachmentPath() + "/" + branch2Name.get(key)
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
-                _logger.info("************fileName****"+fileName);
+                _logger.info("***fileName***"+fileName);
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
                 if(branch2Flag.get(key) == 1){
                     String branchName = branch2Name.get(key);
-                    _logger.info("分行:"+branchName+"***包裹数***:"+branch2Packages.get(key).size());
-                    createMailAttachment(branch2Packages.get(key),branchName , fileName);
+                    _logger.info("***branchName:"+branchName+"***package size***:"+packages.size());
+                    createMailAttachment(packages,branchName , fileName);
 
                     // check file either exists
                     File file = new File(fileName);
@@ -1630,8 +1646,8 @@ public class ShipManagerImpl implements ShipManager
 
                     // 发送给分行
                     commonMailManager.sendMail(key, title,content, fileName);
-
-                    //#228 抄送销售人员
+                } else{
+                    _logger.warn("***relation send mail flag is 0***" + branch2Name.get(key));
                 }
 
                 if(branch2Copy.get(key) == 1){
@@ -1639,6 +1655,8 @@ public class ShipManagerImpl implements ShipManager
                     for (String branchMail : branch2SubBranch.get(key)){
                         commonMailManager.sendMail(branchMail, title,content, fileName);
                     }
+                } else{
+                    _logger.warn("***relation send mail copy flag is 0***" + branch2Name.get(key));
                 }
 
                 for (PackageBean vo:branch2Packages.get(key)){
@@ -1646,13 +1664,13 @@ public class ShipManagerImpl implements ShipManager
                     PackageBean packBean = packageDAO.find(vo.getId());
                     packBean.setSendMailFlag(1);
                     this.packageDAO.updateEntityBean(packBean);
+                    _logger.info("***update mail flag for bank***"+vo.getId());
                 }
             }
         } else {
-//            System.out.println("**************no Vo found***************");
-            _logger.info("*****no VO found to send mail****");
+            _logger.warn("***no VO found to send mail****");
         }
-
+        triggerLog.info("***finish send mail to bank***");
     }
 
     private String getYesterday(){

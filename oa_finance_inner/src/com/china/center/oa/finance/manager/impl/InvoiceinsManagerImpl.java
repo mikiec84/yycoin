@@ -1866,31 +1866,22 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			throws MYException
 	{
     	JudgeTools.judgeParameterIsNull(user, list);
-    	
     	Map<String, List<InvoiceinsImportBean>> map = new HashMap<String, List<InvoiceinsImportBean>>();
-    	
-//    	Set<String> dset = new HashSet<String>();
-    	
+
+    	_logger.info("***batchUpdateInsNum size***"+list.size());
     	for (InvoiceinsImportBean each : list) {
-//    		if (dset.contains(each.getInvoiceNum())) {
-//    			throw new MYException("导入的发票号中有重复");
-//    		} else {
-//    			dset.add(each.getInvoiceNum());
-//    		}
-    		
-    		if (!map.containsKey(each.getId())) {
+			String id = each.getId();
+    		if (!map.containsKey(id)) {
     			List<InvoiceinsImportBean> ilist = new ArrayList<InvoiceinsImportBean>();
-    			
     			ilist.add(each);
-    			
-    			map.put(each.getId(), ilist);
+    			map.put(id, ilist);
     		} else {
-    			List<InvoiceinsImportBean> ilist = map.get(each.getId());
-    			
+    			List<InvoiceinsImportBean> ilist = map.get(id);
     			ilist.add(each);
     		}
     	}
-    	
+
+		_logger.info("***batchUpdateInsNum map key size***" + map.keySet().size());
     	for (Map.Entry<String, List<InvoiceinsImportBean>> each : map.entrySet()) {
     		List<InvoiceinsImportBean> ilist = each.getValue();
 
@@ -1904,19 +1895,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		// 不得有与现有的重复的发票号
     		for (int i = 0; i < ilist.size(); i++) {
     			InvoiceinsImportBean newnum = ilist.get(i);
-    			
-//    			List<InsVSInvoiceNumBean> cList = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", newnum.getInvoiceNum());
-    			
-//    			if (!ListTools.isEmptyOrNull(cList)) {
-//    				throw new MYException("开票标识[%s]发票号码[%s]已使用过,原发票标识[%s]", insId, newnum.getInvoiceNum(), cList.get(0).getInsId());
-//    			}
-    			
-    			InsVSInvoiceNumBean insNum = insVSInvoiceNumDAO.find(numList.get(i).getId());
+				String id = numList.get(i).getId();
+    			InsVSInvoiceNumBean insNum = insVSInvoiceNumDAO.find(id);
     			
     			insNum.setInvoiceNum(newnum.getInvoiceNum());
     			
     			insVSInvoiceNumDAO.updateEntityBean(insNum);
-
+				_logger.info(id+"***update invoice num***"+insNum);
 				//2016/2/17 #169 生成CK单
 				InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
 				if (bean!= null && bean.getStatus()!= FinanceConstant.INVOICEINS_STATUS_END) {
@@ -1927,7 +1912,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 						if (!StringTools.isNullOrNone(refIds)){
 							ConditionParse conditionParse =  new ConditionParse();
 //							conditionParse.addCondition("fullId","in",this.getInCondition(refIds));
-							System.out.println("****condition***"+this.getInCondition(refIds));
+//							System.out.println("****condition***"+this.getInCondition(refIds));
 //							conditionParse.addCondition("fullId in "+this.getInCondition(refIds));
 							conditionParse.addCondition(" and fullId like '%"+refIds.replace(";","")+"%'");
 							List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
@@ -1950,6 +1935,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 								tempConsignBean.setOutId(refIds);
 								tempConsignBean.setInsId(bean.getId());
 								this.tempConsignDAO.saveEntityBean(tempConsignBean);
+								_logger.info("***save temp consign table***"+tempConsignBean);
 							}
 						}
 					} else{
@@ -1975,7 +1961,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				}
     		}
     	}
-    	
+    	_logger.info("***finish batchUpdateInsNum***");
 		return true;
 	}
 

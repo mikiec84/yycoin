@@ -54,4 +54,13 @@ public class TempConsignBean implements Serializable
 	public void setInsId(String insId) {
 		this.insId = insId;
 	}
+
+	@Override
+	public String toString() {
+		return "TempConsignBean{" +
+				"id='" + id + '\'' +
+				", outId='" + outId + '\'' +
+				", insId='" + insId + '\'' +
+				'}';
+	}
 }

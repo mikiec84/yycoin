@@ -173,6 +173,8 @@ public class CommonMailManagerImpl implements CommonMailManager
             }
             catch (Exception e)
             {
+                e.printStackTrace();
+                _logger.error("***send mail error:"+e.getMessage());
             }
         }
     }
