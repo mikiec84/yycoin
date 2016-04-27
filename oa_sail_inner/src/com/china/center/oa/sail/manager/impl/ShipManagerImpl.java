@@ -1464,8 +1464,9 @@ public class ShipManagerImpl implements ShipManager
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
 
-        //销售人员邮件与合并订单表:<staffer邮件,List<订单>>
+        //根据销售人员合并CK单:<staffer邮件,List<订单>>
         Map<String,List<PackageVO>> staffer2Packages = new HashMap<String,List<PackageVO>>();
+        Map<String,String> mail2Name = new HashMap<String,String>();
 
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
@@ -1484,6 +1485,7 @@ public class ShipManagerImpl implements ShipManager
                             voList.add(vo);
                             staffer2Packages.put(mail, voList);
                         }
+                        mail2Name.put(mail, stafferBean.getName());
                     }else{
                         _logger.warn("***no mail for***"+vo.getStafferName());
                     }
@@ -1494,8 +1496,8 @@ public class ShipManagerImpl implements ShipManager
             //send mail for merged packages
             for (String mail : staffer2Packages.keySet()) {
                 List<PackageVO> packages = staffer2Packages.get(mail);
-                String fileName = getShippingAttachmentPath() + "/" + "发货邮件"
-                        + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+                String fileName = getShippingAttachmentPath() + "/" + "发货邮件"+"_"
+                        + mail2Name.get(mail)+"_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("************fileName****"+fileName+"***mail***"+mail+"***size***"+packages.size());
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
@@ -1510,7 +1512,7 @@ public class ShipManagerImpl implements ShipManager
                     throw new MYException("邮件附件未成功生成");
                 }
 
-                //#228 抄送销售人员
+                //#228 发送销售人员
                 commonMailManager.sendMail(mail, title,content, fileName);
 
                 for (PackageBean vo:packages){
@@ -1546,120 +1548,97 @@ public class ShipManagerImpl implements ShipManager
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
         con.addCondition("PackageBean.logTime", ">=", "2016-04-25 00:00:00");
         con.addIntCondition("PackageBean.status", "=", 2);
+        //自提类的也不在发送邮件范围内
+        con.addIntCondition("PackageBean.shipping","!=", 0);
 
-        //分支行对应关系：<分行邮件，List<支行邮件>>
-        Map<String,Set<String>> branch2SubBranch = new HashMap<String,Set<String>>();
-        //分行邮件与名称表:<分行邮件,分行名称>
-        Map<String,String> branch2Name = new HashMap<String,String>();
-        //分行邮件与合并订单表:<分行邮件,List<订单>>
-        Map<String,List<PackageVO>> branch2Packages = new HashMap<String,List<PackageVO>>();
-        //发送邮件标志:<分行邮件,flg>
-        Map<String,Integer> branch2Flag = new HashMap<String,Integer>();
-        //抄送支行标志:<分行邮件,flg>
-        Map<String,Integer> branch2Copy = new HashMap<String,Integer>();
+        //根据customerId合并CK表:<支行customerId,List<CK>>
+        Map<String,List<PackageVO>> customerId2Packages = new HashMap<String,List<PackageVO>>();
+        //<支行customerId,BranchRelationBean>
+        Map<String,BranchRelationBean> customerId2Relation = new HashMap<String,BranchRelationBean>();
 
+        //step1: 根据支行customerId对CK单合并
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
         {
             triggerLog.info("****packageList to be sent mail to bank***"+packageList.size());
             for (PackageVO vo : packageList){
                 //2016/4/12 update
-                //自提类的也不在发送邮件范围内
-                if (vo.getShipping() == 0){
-                    _logger.warn("***self pickup***"+vo.getId());
-                    continue;
-                }else{
-                    //如果收货人姓名是在oastaffer表的name字段里的，则此销售单不在发送邮件范围内
-                    String receiver = vo.getReceiver();
-                    if(!StringTools.isNullOrNone(receiver)){
-                        StafferBean stafferBean = this.stafferDAO.findyStafferByName(receiver);
-                        if (stafferBean!= null){
-                            _logger.info(vo.getId()+"***sent to staffer***"+receiver);
-                            continue;
-                        }
+                //如果收货人姓名是在oastaffer表的name字段里的，则此销售单不在发送邮件范围内
+                String receiver = vo.getReceiver();
+                if(!StringTools.isNullOrNone(receiver)){
+                    StafferBean stafferBean = this.stafferDAO.findyStafferByName(receiver);
+                    if (stafferBean!= null){
+                        _logger.warn(vo.getId()+"***belong to staffer***"+receiver);
+                        continue;
                     }
                 }
 
-                //First query 分支行对应关系表
                 String customerId = vo.getCustomerId();
-                ConditionParse con2 = new ConditionParse();
-                con2.addWhereStr();
-                con2.addCondition("BranchRelationBean.id", "=", customerId);
-                List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
-                if (!ListTools.isEmptyOrNull(relationList)){
-                    BranchRelationVO relation = relationList.get(0);
-                    _logger.info("***relation fond****"+relation);
-                    String branchMail = relation.getBranchMail();
-                    if (!StringTools.isNullOrNone(branchMail)){
-                        String subBranchMail = relation.getSubBranchMail();
-                        if (branch2SubBranch.containsKey(branchMail)){
-                            branch2SubBranch.get(branchMail).add(subBranchMail);
-                        } else{
-                            Set<String> branchMailSet = new HashSet<String>();
-                            branchMailSet.add(subBranchMail);
-                            branch2SubBranch.put(branchMail,branchMailSet);
-                        }
-
-                        branch2Name.put(branchMail,relation.getBranchName());
-
-                        if (branch2Packages.containsKey(branchMail)){
-                            List<PackageVO> voList = branch2Packages.get(branchMail);
-                            voList.add(vo);
-                        }else{
-                            List<PackageVO> voList =  new ArrayList<PackageVO>();
-                            voList.add(vo);
-                            branch2Packages.put(branchMail,voList);
-                        }
-
-                        branch2Flag.put(branchMail,relation.getSendMailFlag());
-                        branch2Copy.put(branchMail,relation.getCopyToBranchFlag());
-                    } else{
-                        _logger.warn("***branchMail is none for customer ID***"+customerId);
-                    }
-                } else{
+                //查询分支行对应关系表
+                BranchRelationBean bean = this.getRelationByCustomerId(customerId);
+                if(bean == null){
                     _logger.warn(vo.getId()+"***no relation found***"+customerId);
+                    continue;
+                } else{
+                    _logger.info("***relation found****"+bean);
+                    customerId2Relation.put(customerId, bean);
+                }
+
+                if (customerId2Packages.containsKey(customerId)){
+                    List<PackageVO> voList = customerId2Packages.get(customerId);
+                    voList.add(vo);
+                }else{
+                    List<PackageVO> voList =  new ArrayList<PackageVO>();
+                    voList.add(vo);
+                    customerId2Packages.put(customerId, voList);
                 }
             }
 
-            //send mail for merged packages
-            triggerLog.info("***mail count to be sent to bank***"+branch2Packages.keySet().size());
-            for (String key : branch2Packages.keySet()) {
-                List<PackageVO> packages = branch2Packages.get(key);
-                String fileName = getShippingAttachmentPath() + "/" + branch2Name.get(key)
+            //step2 send mail for merged packages
+            triggerLog.info("***mail count to be sent to bank***" + customerId2Packages.keySet().size());
+            for (String customerId : customerId2Packages.keySet()) {
+                List<PackageVO> packages = customerId2Packages.get(customerId);
+                BranchRelationBean bean = customerId2Relation.get(customerId);
+                _logger.info(customerId+"***send mail to branch***"+bean);
+                if (bean == null){
+                    continue;
+                } else if (bean.getSendMailFlag() * bean.getCopyToBranchFlag() == 0) {
+                    _logger.warn("***flag is not set***"+bean);
+                    continue;
+                }
+                String subBranch = bean.getSubBranchName();
+                String fileName = getShippingAttachmentPath() + "/" + subBranch
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
+                createMailAttachment(packages,bean.getBranchName(), fileName);
+                // check file either exists
+                File file = new File(fileName);
+                if (!file.exists())
+                {
+                    throw new MYException("邮件附件未成功生成");
+                }
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
-                if(branch2Flag.get(key) == 1){
-                    String branchName = branch2Name.get(key);
-                    _logger.info("***branchName:"+branchName+"***package size***:"+packages.size());
-                    createMailAttachment(packages,branchName , fileName);
-
-                    // check file either exists
-                    File file = new File(fileName);
-
-                    if (!file.exists())
-                    {
-                        throw new MYException("邮件附件未成功生成");
-                    }
-
-                    // 发送给分行
-                    commonMailManager.sendMail(key, title,content, fileName);
+                if(bean.getSendMailFlag() == 1){
+                    String subBranchMail = bean.getSubBranchMail();
+                    _logger.info("***send mail to subBranchMail:"+subBranchMail+"***package size***:"+packages.size());
+                    // 发送给支行
+                    commonMailManager.sendMail(subBranchMail, title,content, fileName);
                 } else{
-                    _logger.warn("***relation send mail flag is 0***" + branch2Name.get(key));
+                    _logger.warn("***send mail flag for sub branch is 0***" + bean);
                 }
 
-                if(branch2Copy.get(key) == 1){
-                    // 抄送所有支行
-                    for (String branchMail : branch2SubBranch.get(key)){
-                        commonMailManager.sendMail(branchMail, title,content, fileName);
-                    }
+                if(bean.getCopyToBranchFlag() == 1){
+                    String branchMail = bean.getBranchMail();
+                    _logger.info("***send mail to branchMail:"+branchMail+"***package size***:"+packages.size());
+                    // 抄送分行
+                    commonMailManager.sendMail(branchMail, title,content, fileName);
                 } else{
-                    _logger.warn("***relation send mail copy flag is 0***" + branch2Name.get(key));
+                    _logger.warn("***relation send mail copy flag is 0***" + bean);
                 }
 
-                for (PackageBean vo:branch2Packages.get(key)){
+                for (PackageBean vo:customerId2Packages.get(customerId)){
                     //Update sendMailFlag to 1
                     PackageBean packBean = packageDAO.find(vo.getId());
                     packBean.setSendMailFlag(1);
@@ -1678,6 +1657,21 @@ public class ShipManagerImpl implements ShipManager
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String specifiedDay = sdf.format(date);
         return this.getSpecifiedDayBefore(specifiedDay);
+    }
+
+    private BranchRelationBean getRelationByCustomerId(String customerId){
+        ConditionParse con2 = new ConditionParse();
+        con2.addWhereStr();
+        con2.addCondition("BranchRelationBean.id", "=", customerId);
+        List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
+        if (!ListTools.isEmptyOrNull(relationList)){
+            BranchRelationVO relation = relationList.get(0);
+            _logger.info("***relation found****"+relation);
+            return relation;
+        } else{
+            _logger.warn("***no relation found***"+customerId);
+            return null;
+        }
     }
 
     /**
@@ -1844,7 +1838,17 @@ public class ShipManagerImpl implements ShipManager
                         setWS(ws, i, 300, false);
 
                         //分行名称
-                        ws.addCell(new Label(j++, i, branchName, format3));
+                        if (StringTools.isNullOrNone(branchName)){
+                            String customerId = each.getCustomerId();
+                            if (StringTools.isNullOrNone(customerId)){
+                                ws.addCell(new Label(j++, i, branchName, format3));
+                            } else{
+                                BranchRelationBean relation = this.getRelationByCustomerId(customerId);
+                                ws.addCell(new Label(j++, i, relation.getBranchName(), format3));
+                            }
+                        } else{
+                            ws.addCell(new Label(j++, i, branchName, format3));
+                        }
                         //支行名称
                         ws.addCell(new Label(j++, i, bean.getCustomerName(), format3));
                         //产品名称
@@ -1873,8 +1877,6 @@ public class ShipManagerImpl implements ShipManager
                     }
                 }
             }
-
-
         }
         catch (Throwable e)
         {
