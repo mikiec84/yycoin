@@ -170,6 +170,7 @@ public class CommonMailManagerImpl implements CommonMailManager
             	}
             	
                 mail.send();
+                _logger.info("***mail sent to ***"+to);
             }
             catch (Exception e)
             {

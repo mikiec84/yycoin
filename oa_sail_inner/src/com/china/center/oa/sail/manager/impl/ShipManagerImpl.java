@@ -1459,7 +1459,7 @@ public class ShipManagerImpl implements ShipManager
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlagSails", "=", 0);
-        con.addCondition("PackageBean.logTime", ">=", "2016-04-25 00:00:00");
+        con.addCondition("PackageBean.logTime", ">=", "2016-04-27 00:00:00");
         con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
@@ -1498,7 +1498,7 @@ public class ShipManagerImpl implements ShipManager
                 List<PackageVO> packages = staffer2Packages.get(mail);
                 String fileName = getShippingAttachmentPath() + "/" + "发货邮件"+"_"
                         + mail2Name.get(mail)+"_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
-                _logger.info("************fileName****"+fileName+"***mail***"+mail+"***size***"+packages.size());
+                _logger.info("***create fileName****"+fileName+"***mail***"+mail+"***size***"+packages.size());
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
@@ -1546,7 +1546,7 @@ public class ShipManagerImpl implements ShipManager
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
-        con.addCondition("PackageBean.logTime", ">=", "2016-04-25 00:00:00");
+        con.addCondition("PackageBean.logTime", ">=", "2016-04-27 00:00:00");
         con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
@@ -1602,7 +1602,7 @@ public class ShipManagerImpl implements ShipManager
                 _logger.info(customerId+"***send mail to branch***"+bean);
                 if (bean == null){
                     continue;
-                } else if (bean.getSendMailFlag() * bean.getCopyToBranchFlag() == 0) {
+                } else if (bean.getSendMailFlag() ==0 && bean.getCopyToBranchFlag() == 0) {
                     _logger.warn("***flag is not set***"+bean);
                     continue;
                 }
@@ -1708,6 +1708,7 @@ public class ShipManagerImpl implements ShipManager
 
     private void createMailAttachment(List<PackageVO> beans, String branchName, String fileName)
     {
+        _logger.info("***create mail attachment with package "+beans.size()+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
 
         WritableSheet ws = null;
@@ -1814,6 +1815,7 @@ public class ShipManagerImpl implements ShipManager
 
             for (PackageVO bean :beans){
                 List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
+                _logger.info("***itemList size***"+itemList.size());
                 if (!ListTools.isEmptyOrNull(itemList)){
                     PackageItemBean first = itemList.get(0);
                     first.getOutId();
@@ -1844,11 +1846,16 @@ public class ShipManagerImpl implements ShipManager
                                 ws.addCell(new Label(j++, i, branchName, format3));
                             } else{
                                 BranchRelationBean relation = this.getRelationByCustomerId(customerId);
-                                ws.addCell(new Label(j++, i, relation.getBranchName(), format3));
+                                if (relation == null){
+                                    ws.addCell(new Label(j++, i, branchName, format3));
+                                }else{
+                                    ws.addCell(new Label(j++, i, relation.getBranchName(), format3));
+                                }
                             }
                         } else{
                             ws.addCell(new Label(j++, i, branchName, format3));
                         }
+
                         //支行名称
                         ws.addCell(new Label(j++, i, bean.getCustomerName(), format3));
                         //产品名称

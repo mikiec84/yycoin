@@ -25,6 +25,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.tools.StringTools;
 import sun.misc.BASE64Encoder;
 
 
@@ -141,6 +143,23 @@ public class SendMailImpl
 
     }
 
+    public static void main(String[] args){
+        SendMailImpl mail = new SendMailImpl("smtp.163.com", "yycoinoa@163.com", "永银",
+                "yycoinoa",
+                "yycoin123",
+                new String[] {"smartman2014@qq.com"}, "test", "hello");
+
+        try
+        {
+            mail.addAttachfile("D:\\oa_attachment\\shipping\\test.xls");
+            mail.send();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 初始化SMTP服务器地址、发送者E-mail地址、用户名、密码、接收者、主题、内容
      */
@@ -188,12 +207,14 @@ public class SendMailImpl
         { // 服务器需要身份认证
             props.put("mail.smtp.auth", "true");
             SmtpAuth smtpAuth = new SmtpAuth(username, password);
-            session = Session.getDefaultInstance(props, smtpAuth);
+//            session = Session.getDefaultInstance(props, smtpAuth);
+            session = Session.getInstance(props, smtpAuth);
         }
         else
         {
             props.put("mail.smtp.auth", "false");
-            session = Session.getDefaultInstance(props, null);
+//            session = Session.getDefaultInstance(props, null);
+            session = Session.getInstance(props, null);
         }
 
         // session.setDebug(true);

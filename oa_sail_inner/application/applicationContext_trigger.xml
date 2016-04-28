@@ -101,7 +101,7 @@
     <bean id="sendMailForShippingTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="sendMailForShipping" />
-        <property name="cronExpression" value="0 0 16 * * ?" />
+        <property name="cronExpression" value="0 30 9 * * ?" />
     </bean>
 
     <!--#228发货邮件发送销售员 -->
@@ -115,7 +115,8 @@
     <bean id="sendShippingMailToSailsTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="sendShippingMailToSails" />
-        <property name="cronExpression" value="0 0 10 * * ?" />
+        <property name="cronExpression" value="0 30 9 * * ?" />
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
     </bean>
 
     <!--2015/12/21 宁波银行发货邮件-->
@@ -171,7 +172,7 @@
     <bean id="downloadOrderFromMailAttachmentJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="downloadOrderFromMailAttachmentJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/10 * * * ?" />
     </bean>
 
     <bean
