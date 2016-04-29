@@ -1907,35 +1907,33 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				if (bean!= null && bean.getStatus()!= FinanceConstant.INVOICEINS_STATUS_END) {
 					//如果票随货发，就不写入preconsign表，写入临时表
 					if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut()) ){
-						//如果是票随货发，但货的订单已经库管审批通过，那发票也直接写入preconsign
+						//如果是票随货发，发票对应所有订单已经库管审批通过，那发票也直接写入preconsign
 						String refIds = bean.getRefIds();
 						if (!StringTools.isNullOrNone(refIds)){
-							ConditionParse conditionParse =  new ConditionParse();
-//							conditionParse.addCondition("fullId","in",this.getInCondition(refIds));
-//							System.out.println("****condition***"+this.getInCondition(refIds));
-//							conditionParse.addCondition("fullId in "+this.getInCondition(refIds));
-							conditionParse.addCondition(" and fullId like '%"+refIds.replace(";","")+"%'");
-							List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+							//SO1603171408390763989;SO1603171408390764099;SO1604070959404897436;SO1603281059398657592;SO1604291455420111218;SO1604061025404245564;SO1604070959404897439;SO1604201109413750564;SO1604201608413899399;SO1604231033415808201;
+							String[] fullIds = refIds.split(";");
 							boolean flag = false;
-							if (!ListTools.isEmptyOrNull(outBeans)){
-								for (OutBean outBean: outBeans){
-									//如果销售单已出库或已发货
-									if (outBean.getStatus() == OutConstant.STATUS_PASS||
-                                            outBean.getStatus() == OutConstant.STATUS_SEC_PASS){
-                                        flag = true;
-										break;
-									}
+							for (String fullId : fullIds){
+								OutBean outBean = outDAO.find(fullId);
+								//如果存在销售单“待商务审批”或"待库管审批"，就写入临时表
+								if(outBean == null){
+									continue;
+								}else if (outBean.getStatus() == OutConstant.STATUS_SUBMIT||
+										outBean.getStatus() == OutConstant.STATUS_FLOW_PASS){
+									flag = true;
+									break;
 								}
 							}
+
 							if (flag){
-								this.createPackage(bean);
-							} else{
 								//写入临时表
 								TempConsignBean tempConsignBean = new TempConsignBean();
 								tempConsignBean.setOutId(refIds);
 								tempConsignBean.setInsId(bean.getId());
 								this.tempConsignDAO.saveEntityBean(tempConsignBean);
-								_logger.info("***save temp consign table***"+tempConsignBean);
+								_logger.info("***save temp consign table***" + tempConsignBean);
+							} else{
+								this.createPackage(bean);
 							}
 						}
 					} else{
@@ -3434,6 +3432,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     }
 
     @Override
+	@Deprecated
     public void insFollowOutJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         String msg = "*****票随货发insFollowOutJob running***************";
