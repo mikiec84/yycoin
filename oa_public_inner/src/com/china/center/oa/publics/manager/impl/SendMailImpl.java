@@ -4,11 +4,7 @@
 package com.china.center.oa.publics.manager.impl;
 
 
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -27,6 +23,8 @@ import javax.mail.internet.MimeMultipart;
 
 import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.tools.StringTools;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import sun.misc.BASE64Encoder;
 
 
@@ -35,6 +33,8 @@ import sun.misc.BASE64Encoder;
  */
 public class SendMailImpl
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     // 定义发件人、收件人、SMTP服务器、用户名、密码、主题、内容等
     private String displayName;
 
@@ -144,19 +144,25 @@ public class SendMailImpl
     }
 
     public static void main(String[] args){
-        SendMailImpl mail = new SendMailImpl("smtp.163.com", "yycoinoa@163.com", "永银",
-                "yycoinoa",
-                "yycoin123",
-                new String[] {"smartman2014@qq.com"}, "test", "hello");
-
-        try
-        {
-            mail.addAttachfile("D:\\oa_attachment\\shipping\\test.xls");
-            mail.send();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+//        SendMailImpl mail = new SendMailImpl("smtp.163.com", "yycoinoa@163.com", "永银",
+//                "yycoinoa",
+//                "yycoin123",
+//                new String[] {"smartman2014@qq.com"}, "test", "hello");
+        for (int i=0;i<=1000;i++) {
+            SendMailImpl mail = new SendMailImpl("smtp.exmail.qq.com", "yycoinoa@yycoin.com", "永银",
+                    "yycoinoa@yycoin.com",
+                    "Yycoin135",
+                    new String[]{"smartman2014@qq.com"}, "test", "hello");
+            try {
+                mail.addAttachfile("D:\\oa_attachment\\shipping\\test.xls");
+                Map result = mail.send();
+                String status = (String)result.get("state");
+                String message = (String)result.get("message");
+                String template = "***send to mail:%s with status:%s and message:%s***";
+                System.out.println(String.format(template, "smartman2014@qq.com", status, message.trim()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -266,10 +272,10 @@ public class SendMailImpl
             // 发送信件
             msg.saveChanges();
             trans = session.getTransport("smtp");
+            _logger.info("***smtp***"+ smtpServer + "***user***" + username+"***pwd***"+password);
             trans.connect(smtpServer, username, password);
             trans.sendMessage(msg, msg.getAllRecipients());
             trans.close();
-
         }
         catch (AuthenticationFailedException e)
         {

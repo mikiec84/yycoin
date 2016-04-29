@@ -58,7 +58,7 @@ public class ImapMailClient {
     public static void main(String[] args) throws Exception{
         ImapMailClient client = new ImapMailClient();
 //        client.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
-        client.receiveEmail("imap.exmail.qq.com", "yycoindd@yycoin.com", "Yycoin135");
+        client.receiveEmail("imap.exmail.qq.com", "yycoinoa@yycoin.com", "Yycoin135");
 
 //        InputStream is = new FileInputStream("G:\\Download\\贵金属订单明细报表(永银文化0425).xls");
 //        InputStream is = new FileInputStream("D:\\oa_attachment\\贵金属订单明细报表(永银文化0425).xls");

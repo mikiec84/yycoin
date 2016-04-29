@@ -8,6 +8,8 @@ import com.china.center.oa.publics.dao.ParameterDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.tools.StringTools;
 
+import java.util.Map;
+
 /**
  * 
  * CommonMailManagerImpl
@@ -156,11 +158,18 @@ public class CommonMailManagerImpl implements CommonMailManager
 
         public void run()
         {
-            SendMailImpl mail = new SendMailImpl("smtp.163.com", parameterDAO
-                .getString(SysConfigConstant.MAIL_FROM), "永银",
-                parameterDAO.getString(SysConfigConstant.MAIL_USER),
-                parameterDAO.getString(SysConfigConstant.MAIL_PWD),
-                new String[] {to}, subject, msg);
+//            SendMailImpl mail = new SendMailImpl("smtp.163.com", parameterDAO
+//                .getString(SysConfigConstant.MAIL_FROM), "永银",
+//                parameterDAO.getString(SysConfigConstant.MAIL_USER),
+//                parameterDAO.getString(SysConfigConstant.MAIL_PWD),
+//                new String[] {to}, subject, msg);
+
+            SendMailImpl mail = new SendMailImpl(parameterDAO
+                    .getString(SysConfigConstant.MAIL_SMTP), parameterDAO
+                    .getString(SysConfigConstant.MAIL_FROM), "永银",
+                    parameterDAO.getString(SysConfigConstant.MAIL_USER),
+                    parameterDAO.getString(SysConfigConstant.MAIL_PWD),
+                    new String[] {to}, subject, msg);
 
             try
             {
@@ -169,8 +178,11 @@ public class CommonMailManagerImpl implements CommonMailManager
             		mail.addAttachfile(getFile());
             	}
             	
-                mail.send();
-                _logger.info("***mail sent to ***"+to);
+                Map result = mail.send();
+                String status = (String)result.get("state");
+                String message = (String)result.get("message");
+                String template = "***send to mail:%s with status:%s and message:%s***";
+                _logger.info(String.format(template, to, status, message.trim()));
             }
             catch (Exception e)
             {
