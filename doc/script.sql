@@ -354,3 +354,17 @@ CREATE TABLE `T_CENTER_TEMPCONSIGN` (
   `insId` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--2016/4/30 银行业务部层级关系导入
+insert into t_center_oamenuitem values('1924','银行业务部层级关系导入','../tcp/importBankBuLevel.jsp','19',1,'0000',21,'银行业务部层级关系导入')
+CREATE TABLE `T_CENTER_BANKBU_LEVEL` (
+  `id` varchar(40) NOT NULL,
+  `name` varchar(40) NOT NULL,
+  `provinceManagerId` varchar(40) DEFAULT NULL,
+  `provinceManager` varchar(40) DEFAULT NULL,
+  `regionalManagerId` varchar(40) DEFAULT NULL,
+  `regionalManager` varchar(40) DEFAULT NULL,
+  `regionalDirectorId` varchar(40) DEFAULT NULL,
+  `regionalDirector` varchar(40) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

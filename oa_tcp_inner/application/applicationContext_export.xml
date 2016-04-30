@@ -17,6 +17,8 @@
 
 	<osgi:service ref="tcpShareDAO" interface="com.china.center.oa.tcp.dao.TcpShareDAO" />
 
+    <osgi:service ref="bankBuLevelDAO" interface="com.china.center.oa.tcp.dao.BankBuLevelDAO" />
+
     <osgi:service ref="tcpIbDAO" interface="com.china.center.oa.tcp.dao.TcpIbDAO" />
 
     <osgi:service ref="tcpIbReportDAO" interface="com.china.center.oa.tcp.dao.TcpIbReportDAO" />

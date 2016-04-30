@@ -61,6 +61,8 @@
     <osgi:reference id="cityDAO" interface="com.china.center.oa.publics.dao.CityDAO" />
 	
 	<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+
+    <osgi:reference id="bankBuLevelDAO" interface="com.china.center.oa.tcp.dao.BankBuLevelDAO" />
 	
 	<osgi:reference id="preInvoiceApplyDAO" interface="com.china.center.oa.finance.dao.PreInvoiceApplyDAO" />
 	

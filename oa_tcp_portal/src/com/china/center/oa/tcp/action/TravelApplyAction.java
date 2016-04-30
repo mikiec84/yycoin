@@ -171,6 +171,8 @@ public class TravelApplyAction extends DispatchAction
 
     private BaseDAO baseDAO = null;
 
+    private BankBuLevelDAO bankBuLevelDAO = null;
+
     private static String QUERYSELFTRAVELAPPLY = "tcp.querySelfTravelApply";
     
     private static String QUERYSELFCOMMISSION = "tcp.querySelfCommission";
@@ -2757,6 +2759,194 @@ public class TravelApplyAction extends DispatchAction
         return mapping.findForward("addExpense" + type);
 	}
 
+    /**
+     * #231 导入银行业务部层级关系
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importBankBuLevel(ActionMapping mapping, ActionForm form,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response)
+            throws ServletException
+    {
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<BankBuLevelBean> importItemList = new ArrayList<BankBuLevelBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importBankBuLevel");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importBankBuLevel");
+        }
+
+        String type = rds.getParameter("type");
+
+        request.setAttribute("type", type);
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    BankBuLevelBean item = new BankBuLevelBean();
+
+                    // 专员编码
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String id = obj[0];
+                        item.setId(id);
+                    }else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("专员编码必填")
+                                .append("</font><br>");
+
+                        importError = true;
+                    }
+
+                    // 专员姓名
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String name = obj[1];
+                        item.setName(name);
+                    } else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("专员名称必填")
+                                .append("</font><br>");
+
+                        importError = true;
+                    }
+
+                    //省级经理编码
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String provinceManagerId = obj[2];
+                        item.setProvinceManagerId(provinceManagerId);
+                    }
+
+                    //省级经理姓名
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String provinceManager = obj[3];
+                        item.setProvinceManager(provinceManager);
+                    }
+
+                    //区域经理编码
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        String regionalManagerId = obj[4];
+                        item.setRegionalManagerId(regionalManagerId);
+                    }
+
+                    //区域经理姓名
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        String regionalManager = obj[5];
+                        item.setRegionalManager(regionalManager);
+                    }
+
+                    //大区总编码
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String regionalDirectorId = obj[6];
+                        item.setRegionalDirectorId(regionalDirectorId);
+                    }
+
+                    //大区总姓名
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        String regionalDirector = obj[7];
+                        item.setRegionalDirector(regionalDirector);
+                    }
+
+                    importItemList.add(item);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足2格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importBankBuLevel");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importBankBuLevel");
+        }
+
+        return mapping.findForward("importBankBuLevel");
+    }
+
 
     /**
      * 导入银行中收激励数据
@@ -4068,6 +4258,25 @@ public class TravelApplyAction extends DispatchAction
 
         return result;
     }
+
+    private String[] fillObj20(String[] obj)
+    {
+        String[] result = new String[20];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
     
     /**
      * @return the travelApplyManager
@@ -4462,5 +4671,13 @@ public class TravelApplyAction extends DispatchAction
 
     public void setBaseDAO(BaseDAO baseDAO) {
         this.baseDAO = baseDAO;
+    }
+
+    public BankBuLevelDAO getBankBuLevelDAO() {
+        return bankBuLevelDAO;
+    }
+
+    public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
+        this.bankBuLevelDAO = bankBuLevelDAO;
     }
 }

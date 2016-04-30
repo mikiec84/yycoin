@@ -54,6 +54,7 @@
 			<forward name="rptQueryTravelApply" path="/tcp/rptQueryTravelApply.jsp" />
 			
 			<forward name="importShare" path="/tcp/importShare.jsp" />
+            <forward name="importBankBuLevel" path="/tcp/importBankBuLevel.jsp" />
             <forward name="importIb" path="/tcp/importIb.jsp" />
             <forward name="ibReport" path="/tcp/ibReport.jsp" />
             <forward name="ibReportDetail" path="/tcp/ibReportDetail.jsp" />

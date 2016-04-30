@@ -26,6 +26,8 @@
 
 	<bean id="travelApplyDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyDAOImpl" />
 
+    <bean id="bankBuLevelDAO" class="com.china.center.oa.tcp.dao.impl.BankBuLevelDAOImpl" />
+
 	<bean id="travelApplyItemDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyItemDAOImpl" />
 
 	<bean id="travelApplyPayDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyPayDAOImpl" />
