@@ -1884,6 +1884,7 @@ public class ProductAction extends DispatchAction
         String dirProductId = request.getParameter("dirProductId");
         String dirAmount = request.getParameter("dirAmount");
         String srcDepot = request.getParameter("srcDepot");
+        String description = request.getParameter("description");
 
         bean.setDepotpartId(dirDepotpart);
         bean.setDeportId(srcDepot);
@@ -1891,6 +1892,7 @@ public class ProductAction extends DispatchAction
         bean.setAmount(CommonTools.parseInt(dirAmount));
         bean.setLogTime(TimeTools.now());
         bean.setType(StorageConstant.OPR_STORAGE_COMPOSE);
+        bean.setDescription(description);
 
         // 获取费用
         String[] feeItemIds = request.getParameterValues("feeItemId");
@@ -1975,6 +1977,7 @@ public class ProductAction extends DispatchAction
         String dirProductId = request.getParameter("dirProductId");
         String dirAmount = request.getParameter("dirAmount");
         String srcDepot = request.getParameter("srcDepot");
+        String description = request.getParameter("description");
 
         bean.setDepotpartId(dirDepotpart);
         bean.setDeportId(srcDepot);
@@ -1982,6 +1985,7 @@ public class ProductAction extends DispatchAction
         bean.setAmount(CommonTools.parseInt(dirAmount));
         bean.setLogTime(TimeTools.now());
         bean.setType(StorageConstant.OPR_STORAGE_COMPOSE);
+        bean.setDescription(description);
 
         // 获取费用
         String[] feeItemIds = request.getParameterValues("feeItemId");

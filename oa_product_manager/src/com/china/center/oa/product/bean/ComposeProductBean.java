@@ -103,6 +103,8 @@ public class ComposeProductBean implements Serializable
     
     private String tag = "";
 
+    private String description = "";
+
     @Ignore
     private List<ComposeItemBean> itemList = null;
 
@@ -114,6 +116,14 @@ public class ComposeProductBean implements Serializable
      */
     public ComposeProductBean()
     {
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**

@@ -337,6 +337,9 @@ function load()
 	银价：<input type="text" style="width: 5%"
                     name="silverPrice" value="0.0" oncheck="isFloat">
 			</p:tr>
+            <p:tr align="left">
+                备注：<textarea name="description" rows="3" cols="60"></textarea>
+            </p:tr>
 		</p:table>
 	</p:subBody>
 	
