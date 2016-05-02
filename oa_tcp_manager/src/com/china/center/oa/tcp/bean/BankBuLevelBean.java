@@ -1,6 +1,7 @@
 package com.china.center.oa.tcp.bean;
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Id;
 import com.china.center.jdbc.annotation.Table;
 
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public class BankBuLevelBean implements Serializable {
     /**
      * 专员编码
      */
+    @Id
     private String id;
 
     /**

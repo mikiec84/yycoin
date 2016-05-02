@@ -146,6 +146,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     private BaseDAO baseDAO = null;
 
+    private BankBuLevelDAO bankBuLevelDAO = null;
+
     /**
      * default constructor
      */
@@ -3204,6 +3206,21 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         logDAO.saveEntityBean(log);
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void importBankBulevel(User user, List<BankBuLevelBean> bankBuLevelBeans) throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        for(BankBuLevelBean bean : bankBuLevelBeans){
+            BankBuLevelBean bb = this.bankBuLevelDAO.find(bean.getId());
+            if (bb == null){
+                this.bankBuLevelDAO.saveEntityBean(bean);
+            } else{
+                BeanUtil.copyProperties(bb, bean);
+                this.bankBuLevelDAO.updateEntityBean(bb);
+            }
+        }
+    }
+
     /**
      * @return the tcpApplyDAO
      */
@@ -3598,5 +3615,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     public void setLogDAO(LogDAO logDAO) {
         this.logDAO = logDAO;
+    }
+
+    public BankBuLevelDAO getBankBuLevelDAO() {
+        return bankBuLevelDAO;
+    }
+
+    public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
+        this.bankBuLevelDAO = bankBuLevelDAO;
     }
 }

@@ -2773,6 +2773,7 @@ public class TravelApplyAction extends DispatchAction
                                      HttpServletResponse response)
             throws ServletException
     {
+        _logger.info("***importBankBuLevel***");
         RequestDataStream rds = new RequestDataStream(request);
 
         boolean importError = false;
@@ -2801,10 +2802,6 @@ public class TravelApplyAction extends DispatchAction
             return mapping.findForward("importBankBuLevel");
         }
 
-        String type = rds.getParameter("type");
-
-        request.setAttribute("type", type);
-
         ReaderFile reader = ReadeFileFactory.getXLSReader();
 
         try
@@ -2813,7 +2810,7 @@ public class TravelApplyAction extends DispatchAction
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next());
+                String[] obj = fillObj20((String[])reader.next());
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -2851,6 +2848,19 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String name = obj[1];
                         item.setName(name);
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addCondition("id","=",item.getId());
+                        conditionParse.addCondition("name","=",item.getName());
+                        List<StafferBean> stafferBeans = this.stafferDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(stafferBeans)){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("专员编码与人员必须与oaSTAFFER表里的 ID,NAME 一致")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -2942,6 +2952,16 @@ public class TravelApplyAction extends DispatchAction
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
             return mapping.findForward("importBankBuLevel");
+        } else{
+            try{
+                this.travelApplyManager.importBankBulevel(null, importItemList);
+
+                request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+            }catch(Exception e){
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getMessage());
+
+                return mapping.findForward("importBankBuLevel");
+            }
         }
 
         return mapping.findForward("importBankBuLevel");

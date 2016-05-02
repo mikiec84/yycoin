@@ -9,6 +9,7 @@
 package com.china.center.oa.tcp.manager;
 
 
+import com.china.center.oa.tcp.bean.BankBuLevelBean;
 import com.china.center.oa.tcp.bean.TcpIbBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -164,4 +165,6 @@ public interface TravelApplyManager extends ListenerManager<TcpPayListener>
     public void ibReportJobMonthly() throws MYException;
 
     public void batchUpdateIbMoney(User user, List<TcpIbBean> list) throws MYException;
+
+    public void importBankBulevel(User user, List<BankBuLevelBean> list) throws MYException;
 }
