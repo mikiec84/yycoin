@@ -85,6 +85,10 @@ function pagePrint()
             <p:cell title="核对信息" end="true">
                ${bean.checks}
             </p:cell>
+
+            <p:cell title="备注" end="true">
+                ${bean.description}
+            </p:cell>
 			
 		</p:table>
 	</p:subBody>
