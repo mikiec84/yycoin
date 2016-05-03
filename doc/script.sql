@@ -368,3 +368,5 @@ CREATE TABLE `T_CENTER_BANKBU_LEVEL` (
   `regionalDirector` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+alter table T_CENTER_COMPOSE add column description varchar(1024) default ''
+
