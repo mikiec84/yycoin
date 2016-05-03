@@ -2967,6 +2967,43 @@ public class TravelApplyAction extends DispatchAction
         return mapping.findForward("importBankBuLevel");
     }
 
+    public ActionForward queryZy(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        String bearType = request.getParameter("bearType");
+        _logger.info("***queryZy***"+bearType);
+
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        List<BankBuLevelBean> bankBuLevelBeans = null;
+
+        try
+        {
+            ConditionParse conditionParse = new ConditionParse();
+            if("2".equals(bearType)){
+                conditionParse.addCondition("");
+            }
+            bankBuLevelBeans = this.bankBuLevelDAO.listEntityBeans();
+
+
+            result.setSuccessAndObj("操作成功", bankBuLevelBeans);
+        }
+        catch(Exception e)
+        {
+            _logger.warn(e, e);
+
+            result.setError("创建失败");
+        }
+
+        String jsonstr = mapper.toJson(result);
+
+        _logger.info("***queryZy result***"+jsonstr);
+
+        return JSONTools.writeResponse(reponse, jsonstr);
+    }
+
 
     /**
      * 导入银行中收激励数据

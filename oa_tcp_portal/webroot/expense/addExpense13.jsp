@@ -51,6 +51,22 @@ function getTravelApply(oos)
     $("#refId").val(oo.value);
 }
 
+function changeType(obj){
+    console.log($$('bearType'));
+    $ajax('../tcp/apply.do?method=queryZy&bearType='+$$('bearType'), function(data){
+        console.log(data);
+        var dataList = data.obj;
+        console.log(dataList);
+        var select = document.getElementById("manager");
+        for (var j = 0; j < dataList.length; j++)
+        {
+            setOption(select, dataList[j].id, dataList[j].name);
+        }
+//        var obj = JSON.parse(data);
+//        console.log(obj);
+    });
+}
+
 </script>
 </head>
 
@@ -216,28 +232,43 @@ function getTravelApply(oos)
     </p:title>
 
     <p:line flag="0" />
-    
-    <tr>
-        <td colspan='2' align='center'>
-        <table width="98%" border="0" cellpadding="0" cellspacing="0"
-            class="border">
-            <tr>
-                <td>
-                <table width="100%" border="0" cellspacing='1' id="tables_share">
-                    <tr align="center" class="content0">
-                        <td width="30%" align="center">月度预算</td>
-                        <td width="30%" align="center">部门</td>
-                        <td width="15%" align="center">权签人</td>
-                        <td width="15%" align="center">承担人</td>
-                        <td width="15%" align="center">分担金额</td>
-                        <td width="5%" align="left"><input type="button" accesskey="B"
-                            value="增加" class="button_class" onclick="addShareTr()"></td>
-                    </tr>
-                </table>
-                </td>
-            </tr>
-        </table>
+        <tr>
+            <td colspan='2' align='center'>
+                <select name="bearType" id="bearType" onchange="changeType(this)">
+                    <option value="0"></option>
+                    <option value="1">其他部门</option>
+                    <option value="2">省级经理下属承担</option>
+                    <option value="3">区域经理下属承担</option>
+                    <option value="4">大区总经理下属承担</option>
+                    <option value="5">专员承担</option>
+                </select>
+                <select name="manager" id="manager">
+                    <option value="0"></option>
+                </select>
+            </td>
+        </tr>
 
+    <tr>
+
+        <td colspan='2' align='center'>
+            <table width="98%" border="0" cellpadding="0" cellspacing="0"
+                class="border">
+                <tr>
+                    <td>
+                    <table width="100%" border="0" cellspacing='1' id="tables_share">
+                        <tr align="center" class="content0">
+                            <td width="30%" align="center">月度预算</td>
+                            <td width="30%" align="center">部门</td>
+                            <td width="15%" align="center">权签人</td>
+                            <td width="15%" align="center">承担人</td>
+                            <td width="15%" align="center">分担金额</td>
+                            <td width="5%" align="left"><input type="button" accesskey="B"
+                                value="增加" class="button_class" onclick="addShareTr()"></td>
+                        </tr>
+                    </table>
+                    </td>
+                </tr>
+            </table>
         </td>
     </tr>
     </c:if>
