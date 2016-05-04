@@ -30,7 +30,7 @@ function addShareTr()
  * @param trId
  * @returns {HTMLElement|*}
  */
-function addTrInnerWithData(tableId, trId, dataList)
+function addTrInnerWithData(tableId, trId, data)
 {
     var table = $O(tableId);
 
@@ -50,22 +50,26 @@ function addTrInnerWithData(tableId, trId, dataList)
     for (var i = 0; i < tr.cells.length; i++)
     {
         var tcell = document.createElement("td");
+        var innerHtml = tr.cells[i].innerHTML;
+        var newstr = innerHtml.replace('name="s_bearName" value=""', 'name="s_bearName" value="'+data.name+'"');
+        var newstr2 = newstr.replace('name="s_bearId" value=""', 'name="s_bearId" value="'+data.id+'"');
+        var newstr3 = newstr2.replace('name="s_ratio" value=""', 'name="s_ratio" value="'+data.ratio+'"');
 
-        tcell.innerHTML = tr.cells[i].innerHTML;
+        tcell.innerHTML = newstr3;
         console.log(tcell.innerHTML);
-        var childNode = tcell.firstChild;
-        console.log("child***"+childNode);
-        if (childNode){
-            console.log(childNode.nodeName);
-            console.log(childNode.name);
-            if (childNode.nodeName == 's_bearName'){
-                console.log("s_bearName");
-            }
-
-            if (childNode.nodeName == 's_ratio'){
-                console.log("s_ratio");
-            }
-        }
+//        var childNode = tcell.firstChild;
+//        console.log("child***"+childNode);
+//        if (childNode){
+//            console.log(childNode.nodeName);
+//            console.log(childNode.name);
+//            if (childNode.nodeName == 's_bearName'){
+//                console.log("s_bearName");
+//            }
+//
+//            if (childNode.nodeName == 's_ratio'){
+//                console.log("s_ratio");
+//            }
+//        }
 
         trow.appendChild(tcell);
     }
@@ -78,11 +82,12 @@ function addTrInnerWithData(tableId, trId, dataList)
 /**
  * #231
  */
-function addShareTr2(dataList)
+function addShareTr2(data)
 {
+    console.log("data***"+data);
     for (var i = 0; i < 1; i++)
     {
-        addTrInnerWithData("tables_share", "trCopy_share", dataList);
+        addTrInnerWithData("tables_share", "trCopy_share", data);
     }
 }
 

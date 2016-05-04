@@ -53,8 +53,10 @@ function getTravelApply(oos)
 }
 
 function changeType(obj){
-    console.log($$('bearType'));
-    $ajax('../tcp/apply.do?method=queryZy&bearType='+$$('bearType'), function(data){
+    var bearType = $$('bearType');
+    console.log(bearType);
+
+    $ajax('../tcp/apply.do?method=queryZy&bearType='+bearType, function(data){
         console.log(data);
         var dataList = data.obj;
         console.log(dataList);
@@ -65,6 +67,10 @@ function changeType(obj){
         for (var j = 0; j < dataList.length; j++)
         {
             setOption(select, dataList[j].id, dataList[j].name);
+        }
+
+        if (bearType == '0' || bearType == '1' || bearType== '5') {
+            $('#tables_share tr:gt(0)').remove();
         }
 //        var obj = JSON.parse(data);
 //        console.log(obj);
@@ -78,10 +84,13 @@ function changeManager(obj){
         var dataList = data.obj;
         console.log(dataList);
 //        var select = document.getElementById("manager");
-        $("#tables_share").empty();
+//        $("#tables_share").empty();
+        $('#tables_share tr:gt(0)').remove();
         for (var j = 0; j < dataList.length; j++)
         {
-            addShareTr2(dataList);
+            var data = dataList[j];
+            data.ratio = sumTotal()/dataList.length;
+            addShareTr2(data);
         }
 //        var obj = JSON.parse(data);
 //        console.log(obj);
@@ -255,6 +264,7 @@ function changeManager(obj){
     <p:line flag="0" />
         <tr>
             <td colspan='2' align='center'>
+                <label for="bearType">承担方式：</label>
                 <select name="bearType" id="bearType" onchange="changeType(this)">
                     <option value="0"></option>
                     <option value="1">其他部门</option>
@@ -263,6 +273,7 @@ function changeManager(obj){
                     <option value="4">大区总经理下属承担</option>
                     <option value="5">专员承担</option>
                 </select>
+                <label for="manager">承担经理：</label>
                 <select name="manager" id="manager" onchange="changeManager(this)">
                     <option value="0"></option>
                 </select>
