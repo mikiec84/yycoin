@@ -2967,6 +2967,15 @@ public class TravelApplyAction extends DispatchAction
         return mapping.findForward("importBankBuLevel");
     }
 
+    /**
+     * #231 经理查询
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
     public ActionForward queryZy(ActionMapping mapping, ActionForm form,
                                             HttpServletRequest request, HttpServletResponse reponse)
             throws ServletException
@@ -2981,11 +2990,49 @@ public class TravelApplyAction extends DispatchAction
 
         try
         {
-            ConditionParse conditionParse = new ConditionParse();
-            if("2".equals(bearType)){
-                conditionParse.addCondition("");
-            }
-            bankBuLevelBeans = this.bankBuLevelDAO.listEntityBeans();
+            bankBuLevelBeans = this.bankBuLevelDAO.queryByBearType(bearType);
+
+            result.setSuccessAndObj("操作成功", bankBuLevelBeans);
+        }
+        catch(Exception e)
+        {
+            _logger.warn(e, e);
+
+            result.setError("创建失败");
+        }
+
+        String jsonstr = mapper.toJson(result);
+
+        _logger.info("***queryZy result***" + jsonstr);
+
+        return JSONTools.writeResponse(reponse, jsonstr);
+    }
+
+    /**
+     * 下属专员查询 #231
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward queryZy2(ActionMapping mapping, ActionForm form,
+                                 HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        String bearType = request.getParameter("bearType");
+        String manager = request.getParameter("manager");
+        _logger.info("***queryZy2***"+bearType+"***"+manager);
+
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        List<BankBuLevelBean> bankBuLevelBeans = null;
+
+        try
+        {
+            bankBuLevelBeans = this.bankBuLevelDAO.queryByBearTypeAndManager(bearType,manager);
 
 
             result.setSuccessAndObj("操作成功", bankBuLevelBeans);
@@ -2999,7 +3046,7 @@ public class TravelApplyAction extends DispatchAction
 
         String jsonstr = mapper.toJson(result);
 
-        _logger.info("***queryZy result***"+jsonstr);
+        _logger.info("***queryZy2 result***"+jsonstr);
 
         return JSONTools.writeResponse(reponse, jsonstr);
     }

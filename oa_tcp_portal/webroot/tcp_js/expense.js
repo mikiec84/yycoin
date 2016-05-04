@@ -24,6 +24,68 @@ function addShareTr()
     }
 }
 
+/**
+ * 231
+ * @param tableId
+ * @param trId
+ * @returns {HTMLElement|*}
+ */
+function addTrInnerWithData(tableId, trId, dataList)
+{
+    var table = $O(tableId);
+
+    var tr = $O(trId);
+
+    trow =  table.insertRow(-1);
+
+    if (length % 2 == 1)
+    {
+        trow.className = 'content2';
+    }
+    else
+    {
+        trow.className = 'content1';
+    }
+
+    for (var i = 0; i < tr.cells.length; i++)
+    {
+        var tcell = document.createElement("td");
+
+        tcell.innerHTML = tr.cells[i].innerHTML;
+        console.log(tcell.innerHTML);
+        var childNode = tcell.firstChild;
+        console.log("child***"+childNode);
+        if (childNode){
+            console.log(childNode.nodeName);
+            console.log(childNode.name);
+            if (childNode.nodeName == 's_bearName'){
+                console.log("s_bearName");
+            }
+
+            if (childNode.nodeName == 's_ratio'){
+                console.log("s_ratio");
+            }
+        }
+
+        trow.appendChild(tcell);
+    }
+
+    trow.appendChild(tcell);
+
+    return trow;
+}
+
+/**
+ * #231
+ */
+function addShareTr2(dataList)
+{
+    for (var i = 0; i < 1; i++)
+    {
+        addTrInnerWithData("tables_share", "trCopy_share", dataList);
+    }
+}
+
 function compareNumber(a, b)
 {
 	var aa = a * 1000;

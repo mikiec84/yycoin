@@ -41,19 +41,6 @@ public class JsonMapper{
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	}
 
-	/**
-	 * 创建只输出非Null且非Empty(如List.isEmpty)的属性到Json字符串的Mapper,建议在外部接口中使用.
-	 */
-	public static com.china.center.oa.openservice.util.JsonMapper nonEmptyMapper() {
-		return new com.china.center.oa.openservice.util.JsonMapper(Include.NON_EMPTY);
-	}
-
-	/**
-	 * 创建只输出初始值被改变的属性到Json字符串的Mapper, 最节约的存储方式，建议在内部接口中使用。
-	 */
-	public static com.china.center.oa.openservice.util.JsonMapper nonDefaultMapper() {
-		return new com.china.center.oa.openservice.util.JsonMapper(Include.NON_DEFAULT);
-	}
 
 	/**
 	 * Object可以是POJO，也可以是Collection或数组。
@@ -61,7 +48,6 @@ public class JsonMapper{
 	 * 如果集合为空集合, 返回"[]".
 	 */
 	public String toJson(Object object) {
-
 		try {
 			return mapper.writeValueAsString(object);
 		} catch (IOException e) {

@@ -10,6 +10,7 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
+<script language="JavaScript" src="../tcp_js/jquery.js"></script>
 <script language="JavaScript" src="../tcp_js/expense.js"></script>
 <script language="javascript">
 
@@ -58,9 +59,29 @@ function changeType(obj){
         var dataList = data.obj;
         console.log(dataList);
         var select = document.getElementById("manager");
+//        removeAllItem($O('manager'));
+        removeAllItem(select);
+        setOption(select, "0", "");
         for (var j = 0; j < dataList.length; j++)
         {
             setOption(select, dataList[j].id, dataList[j].name);
+        }
+//        var obj = JSON.parse(data);
+//        console.log(obj);
+    });
+}
+
+function changeManager(obj){
+    console.log($$('manager'));
+    $ajax('../tcp/apply.do?method=queryZy2&bearType='+$$('bearType')+"&manager="+$$('manager'), function(data){
+        console.log(data);
+        var dataList = data.obj;
+        console.log(dataList);
+//        var select = document.getElementById("manager");
+        $("#tables_share").empty();
+        for (var j = 0; j < dataList.length; j++)
+        {
+            addShareTr2(dataList);
         }
 //        var obj = JSON.parse(data);
 //        console.log(obj);
@@ -242,7 +263,7 @@ function changeType(obj){
                     <option value="4">大区总经理下属承担</option>
                     <option value="5">专员承担</option>
                 </select>
-                <select name="manager" id="manager">
+                <select name="manager" id="manager" onchange="changeManager(this)">
                     <option value="0"></option>
                 </select>
             </td>
