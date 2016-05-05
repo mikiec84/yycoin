@@ -350,7 +350,7 @@ alter table T_CENTER_PACKAGE add column sendMailFlagSails int(11) default -1
 --2016/4/23 Æ±Ëæ»õ·¢ÐÞ¸Ä
 CREATE TABLE `T_CENTER_TEMPCONSIGN` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `outId` varchar(40) DEFAULT NULL,
+  `outId` varchar(1024) DEFAULT NULL,
   `insId` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -369,4 +369,7 @@ CREATE TABLE `T_CENTER_BANKBU_LEVEL` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 alter table T_CENTER_COMPOSE add column description varchar(1024) default ''
+
+alter table T_CENTER_TEMPCONSIGN modify column outId varchar(1024);
+
 

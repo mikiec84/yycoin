@@ -94,4 +94,14 @@ public class InsVSInvoiceNumBean implements Serializable
 	{
 		this.moneys = moneys;
 	}
+
+	@Override
+	public String toString() {
+		return "InsVSInvoiceNumBean{" +
+				"id='" + id + '\'' +
+				", insId='" + insId + '\'' +
+				", invoiceNum='" + invoiceNum + '\'' +
+				", moneys=" + moneys +
+				'}';
+	}
 }
