@@ -47,16 +47,29 @@ function addTrInnerWithData(tableId, trId, data)
         trow.className = 'content1';
     }
 
+    //alert(data);
     for (var i = 0; i < tr.cells.length; i++)
     {
         var tcell = document.createElement("td");
         var innerHtml = tr.cells[i].innerHTML;
-        var newstr = innerHtml.replace('name="s_bearName" value=""', 'name="s_bearName" value="'+data.name+'"');
-        var newstr2 = newstr.replace('name="s_bearId" value=""', 'name="s_bearId" value="'+data.id+'"');
-        var newstr3 = newstr2.replace('name="s_ratio" value=""', 'name="s_ratio" value="'+data.ratio+'"');
+        //alert(innerHtml);
+        //alert(data.name);
+        //var newstr = innerHtml.replace('name="s_bearName" value=""', 'name="s_bearName" value="'+data.name+'"');
+        //var newstr2 = newstr.replace('name="s_bearId" value=""', 'name="s_bearId" value="'+data.id+'"');
+        //var newstr3 = newstr2.replace('name="s_ratio" value=""', 'name="s_ratio" value="'+data.ratio+'"');
+        if (innerHtml.indexOf("s_bearName")!= -1){
+            var html = '<input type="text" style="width: 100%;cursor: pointer;" name="s_bearName" value="'+data.name+'" oncheck="notNone;" readonly="readonly" onclick="selectStaffer2(this)">'+
+                '<input type="hidden" name="s_bearId" value="'+data.id+'">';
+            tcell.innerHTML = html;
+        } else if (innerHtml.indexOf("s_ratio")!= -1){
+            var html = '<input type="text" style="width: 100%" name="s_ratio" value="'+data.ratio+'" oncheck="notNone;isFloat2">';
+            tcell.innerHTML = html;
+        } else{
+            tcell.innerHTML = innerHtml;
+        }
+        //alert(tcell.innerHTML);
 
-        tcell.innerHTML = newstr3;
-        console.log(tcell.innerHTML);
+        //console.log(tcell.innerHTML);
 //        var childNode = tcell.firstChild;
 //        console.log("child***"+childNode);
 //        if (childNode){
@@ -84,7 +97,7 @@ function addTrInnerWithData(tableId, trId, data)
  */
 function addShareTr2(data)
 {
-    console.log("data***"+data);
+    //console.log("data***"+data);
     for (var i = 0; i < 1; i++)
     {
         addTrInnerWithData("tables_share", "trCopy_share", data);

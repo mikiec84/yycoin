@@ -54,12 +54,12 @@ function getTravelApply(oos)
 
 function changeType(obj){
     var bearType = $$('bearType');
-    console.log(bearType);
+//    console.log(bearType);
 
     $ajax('../tcp/apply.do?method=queryZy&bearType='+bearType, function(data){
-        console.log(data);
+//        console.log(data);
         var dataList = data.obj;
-        console.log(dataList);
+//        console.log(dataList);
         var select = document.getElementById("manager");
 //        removeAllItem($O('manager'));
         removeAllItem(select);
@@ -78,11 +78,11 @@ function changeType(obj){
 }
 
 function changeManager(obj){
-    console.log($$('manager'));
+//    console.log($$('manager'));
     $ajax('../tcp/apply.do?method=queryZy2&bearType='+$$('bearType')+"&manager="+$$('manager'), function(data){
-        console.log(data);
+//        console.log(data);
         var dataList = data.obj;
-        console.log(dataList);
+//        console.log(dataList);
 //        var select = document.getElementById("manager");
 //        $("#tables_share").empty();
         $('#tables_share tr:gt(0)').remove();
