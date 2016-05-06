@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.actionhelper.common.*;
 import com.china.center.common.taglib.DefinedCommon;
+import com.china.center.oa.budget.vo.BudgetVO;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.vs.InsVSOutBean;
@@ -33,6 +34,7 @@ import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.bean.BaseBean;
 import com.china.center.oa.publics.constant.AuthConstant;
+import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
@@ -172,6 +174,8 @@ public class TravelApplyAction extends DispatchAction
     private BaseDAO baseDAO = null;
 
     private BankBuLevelDAO bankBuLevelDAO = null;
+
+    private OrgManager orgManager      = null;
 
     private static String QUERYSELFTRAVELAPPLY = "tcp.querySelfTravelApply";
     
@@ -2968,6 +2972,58 @@ public class TravelApplyAction extends DispatchAction
     }
 
     /**
+     * 查询预算项
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward queryBudget(ActionMapping mapping, ActionForm form,
+                                 HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        _logger.info("***queryBudget***");
+
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        List<BudgetVO> budgetBeans = null;
+
+        try
+        {
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addIntCondition("BudgetBean.carryStatus","=",BudgetConstant.BUDGET_CARRY_DOING);
+            conditionParse.addIntCondition("BudgetBean.type","=",BudgetConstant.BUDGET_TYPE_DEPARTMENT);
+            conditionParse.addIntCondition("BudgetBean.level","=",BudgetConstant.BUDGET_LEVEL_MONTH);
+            conditionParse.addIntCondition("BudgetBean.status", "=", BudgetConstant.BUDGET_STATUS_PASS);
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String today = sdf.format(date);
+
+            conditionParse.addCondition("BudgetBean.endDate", ">=", today);
+            conditionParse.addCondition("BudgetBean.beginDate","<=",today);
+
+            budgetBeans = this.budgetDAO.queryEntityVOsByCondition(conditionParse);
+
+            result.setSuccessAndObj("操作成功", budgetBeans);
+        }
+        catch(Exception e)
+        {
+            _logger.warn(e, e);
+
+            result.setError("创建失败");
+        }
+
+        String jsonstr = mapper.toJson(result);
+
+        _logger.info("***queryBudget***" + jsonstr);
+
+        return JSONTools.writeResponse(reponse, jsonstr);
+    }
+
+    /**
      * #231 经理查询
      * @param mapping
      * @param form
@@ -3023,25 +3079,24 @@ public class TravelApplyAction extends DispatchAction
     {
         String bearType = request.getParameter("bearType");
         String manager = request.getParameter("manager");
-        _logger.info("***queryZy2***"+bearType+"***"+manager);
+        String budgetId = request.getParameter("budgetId");
+        _logger.info("***queryZy2***"+bearType+"***"+manager+"***"+budgetId);
 
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
 
-        List<BankBuLevelBean> bankBuLevelBeans = null;
+        List<BankBuLevelBean> bankBuLevelBeans = this.bankBuLevelDAO.queryByBearTypeAndManager(bearType,manager);
+        result.setSuccessAndObj("操作成功", bankBuLevelBeans);
 
-        try
-        {
-            bankBuLevelBeans = this.bankBuLevelDAO.queryByBearTypeAndManager(bearType,manager);
+        if (!StringTools.isNullOrNone(budgetId)){
+            BudgetVO budgetVO = this.budgetDAO.findVO(budgetId);
 
+            PrincipalshipBean org = orgManager.findPrincipalshipById(budgetVO.getBudgetDepartment());
 
-            result.setSuccessAndObj("操作成功", bankBuLevelBeans);
-        }
-        catch(Exception e)
-        {
-            _logger.warn(e, e);
-
-            result.setError("创建失败");
+            if (org != null) {
+                budgetVO.setBudgetFullDepartmentName(org.getFullName());
+            }
+            result.setExtraObj(budgetVO);
         }
 
         String jsonstr = mapper.toJson(result);
@@ -4783,5 +4838,13 @@ public class TravelApplyAction extends DispatchAction
 
     public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
         this.bankBuLevelDAO = bankBuLevelDAO;
+    }
+
+    public OrgManager getOrgManager() {
+        return orgManager;
+    }
+
+    public void setOrgManager(OrgManager orgManager) {
+        this.orgManager = orgManager;
     }
 }

@@ -30,8 +30,9 @@ function addShareTr()
  * @param trId
  * @returns {HTMLElement|*}
  */
-function addTrInnerWithData(tableId, trId, data)
+function addTrInnerWithData(tableId, trId, data, budget)
 {
+
     var table = $O(tableId);
 
     var tr = $O(trId);
@@ -57,7 +58,20 @@ function addTrInnerWithData(tableId, trId, data)
         //var newstr = innerHtml.replace('name="s_bearName" value=""', 'name="s_bearName" value="'+data.name+'"');
         //var newstr2 = newstr.replace('name="s_bearId" value=""', 'name="s_bearId" value="'+data.id+'"');
         //var newstr3 = newstr2.replace('name="s_ratio" value=""', 'name="s_ratio" value="'+data.ratio+'"');
-        if (innerHtml.indexOf("s_bearName")!= -1){
+        if (innerHtml.indexOf("s_budgetName")!= -1){
+            var html ='<input type="text" style="width: 100%;cursor: pointer;" name="s_budgetName" value="'+budget.name+'" oncheck="notNone;" readonly="readonly" onclick="selectBudget(this)">'+
+                '<input type="hidden" name="s_budgetId" value="'+budget.id+'">'
+            tcell.innerHTML = html;
+        } else if (innerHtml.indexOf("s_departmentName")!=-1){
+            var html ='<input type="text" style="width: 100%" name="s_departmentName" value="'+budget.budgetFullDepartmentName+'" oncheck="notNone;" readonly="readonly">'+
+                '<input type="hidden" name="s_departmentId" value="'+budget.budgetDepartment+'"> '
+            tcell.innerHTML = html;
+        } else if (innerHtml.indexOf("s_approverName")!=-1){
+            var html = '<input type="text" style="width: 100%" name="s_approverName" value="'+budget.signerName+'" oncheck="notNone;" readonly="readonly">'+
+                '<input type="hidden" name="s_approverId" value="'+budget.signer+'"> ';
+            tcell.innerHTML = html;
+        }
+        else if (innerHtml.indexOf("s_bearName")!= -1){
             var html = '<input type="text" style="width: 100%;cursor: pointer;" name="s_bearName" value="'+data.name+'" oncheck="notNone;" readonly="readonly" onclick="selectStaffer2(this)">'+
                 '<input type="hidden" name="s_bearId" value="'+data.id+'">';
             tcell.innerHTML = html;
@@ -95,12 +109,12 @@ function addTrInnerWithData(tableId, trId, data)
 /**
  * #231
  */
-function addShareTr2(data)
+function addShareTr2(data, budget)
 {
     //console.log("data***"+data);
     for (var i = 0; i < 1; i++)
     {
-        addTrInnerWithData("tables_share", "trCopy_share", data);
+        addTrInnerWithData("tables_share", "trCopy_share", data, budget);
     }
 }
 

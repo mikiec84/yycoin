@@ -39,6 +39,8 @@ function load()
 	$v('tr_att_more', false);
 	
 	payTypeChange();
+
+    loadBudget();
 }
 
 
@@ -79,9 +81,17 @@ function changeType(obj){
 
 function changeManager(obj){
 //    console.log($$('manager'));
-    $ajax('../tcp/apply.do?method=queryZy2&bearType='+$$('bearType')+"&manager="+$$('manager'), function(data){
+    var selectedBudget = $("#budget option:selected");
+//    console.log("budget**"+selectedBudget);
+//    var budget = selectedBudget.text();
+    var budgetId = selectedBudget.val();
+//    console.log("***budget name***"+budget);
+//    console.log("***budget id***"+budgetId);
+    $ajax('../tcp/apply.do?method=queryZy2&bearType='+$$('bearType')+"&manager="+$$('manager')+"&budgetId="+budgetId,
+            function(data){
 //        console.log(data);
         var dataList = data.obj;
+        var budget = data.extraObj;
 //        console.log(dataList);
 //        var select = document.getElementById("manager");
 //        $("#tables_share").empty();
@@ -90,13 +100,25 @@ function changeManager(obj){
         {
             var data = dataList[j];
             data.ratio = sumTotal()/dataList.length;
-            addShareTr2(data);
+            addShareTr2(data,budget);
         }
 //        var obj = JSON.parse(data);
 //        console.log(obj);
     });
 }
 
+function loadBudget(){
+//    console.log($$('manager'));
+    $ajax('../tcp/apply.do?method=queryBudget', function(data){
+//        console.log(data);
+        var dataList = data.obj;
+        var select = document.getElementById("budget");
+        for (var j = 0; j < dataList.length; j++)
+        {
+            setOption(select, dataList[j].id, dataList[j].name);
+        }
+    });
+}
 </script>
 </head>
 
@@ -264,6 +286,10 @@ function changeManager(obj){
     <p:line flag="0" />
         <tr>
             <td colspan='2' align='center'>
+                <label for="budget">月度预算：</label>
+                <select name="budget" id="budget">
+                    <option value="0"></option>
+                </select>
                 <label for="bearType">承担方式：</label>
                 <select name="bearType" id="bearType" onchange="changeType(this)">
                     <option value="0"></option>

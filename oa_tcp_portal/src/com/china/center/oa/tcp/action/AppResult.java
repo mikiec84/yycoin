@@ -15,6 +15,8 @@ public class AppResult implements Serializable
 	private String retMsg = "";
 	
 	private Object obj = null;
+
+	private Object extraObj = null;
 	
 	public AppResult()
 	{
@@ -72,5 +74,13 @@ public class AppResult implements Serializable
 		this.retMsg = msg;
 		
 		this.obj = obj;
+	}
+
+	public Object getExtraObj() {
+		return extraObj;
+	}
+
+	public void setExtraObj(Object extraObj) {
+		this.extraObj = extraObj;
 	}
 }

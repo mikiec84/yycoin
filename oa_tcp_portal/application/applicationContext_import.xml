@@ -29,6 +29,8 @@
 	<osgi:reference id="parameterDAO" interface="com.china.center.oa.publics.dao.ParameterDAO" />
 	
 	<osgi:reference id="attachmentDAO" interface="com.china.center.oa.publics.dao.AttachmentDAO" />
+
+	<osgi:reference id="orgManager" interface="com.china.center.oa.publics.manager.OrgManager" />
 	
 	<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 	
