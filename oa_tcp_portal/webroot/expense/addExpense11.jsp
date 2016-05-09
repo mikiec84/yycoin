@@ -10,6 +10,7 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
+<script language="JavaScript" src="../tcp_js/jquery.js"></script>
 <script language="JavaScript" src="../tcp_js/expense.js"></script>
 <script language="javascript">
 
@@ -38,6 +39,8 @@ function load()
 	$v('tr_att_more', false);
 	
 	payTypeChange();
+
+    loadBudget();
 }
 
 
@@ -245,7 +248,28 @@ function getTravelApply(oos)
     </p:title>
 
     <p:line flag="0" />
-    
+        <tr>
+            <td colspan='2' align='center'>
+                <label for="budget">月度预算：</label>
+                <select name="budget" id="budget">
+                    <option value="0"></option>
+                </select>
+                <label for="bearType">承担方式：</label>
+                <select name="bearType" id="bearType" onchange="changeType(this)">
+                    <option value="0"></option>
+                    <option value="1">其他部门</option>
+                    <option value="2">省级经理下属承担</option>
+                    <option value="3">区域总监下属承担</option>
+                    <option value="4">大区总经理下属承担</option>
+                    <option value="5">专员承担</option>
+                </select>
+                <label for="manager">承担经理：</label>
+                <select name="manager" id="manager" onchange="changeManager(this)">
+                    <option value="0"></option>
+                </select>
+            </td>
+        </tr>
+
     <tr>
         <td colspan='2' align='center'>
         <table width="98%" border="0" cellpadding="0" cellspacing="0"
