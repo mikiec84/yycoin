@@ -557,7 +557,7 @@ public class ProductAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,关联凭证,产品名称,产品编码,数量,单价,合成人,类型,核对,管理类型,源仓区,源产品编码,源产品名称,源产品数量,源产品价格");
+            write.writeLine("日期,标识,关联凭证,产品名称,产品编码,数量,单价,备注,合成人,类型,核对,管理类型,源仓区,源产品编码,源产品名称,源产品数量,源产品价格");
 
             PageSeparate page = new PageSeparate();
 
@@ -598,6 +598,7 @@ public class ProductAction extends DispatchAction
                         line.writeColumn(vo.getProductCode());
                         line.writeColumn(vo.getAmount());
                         line.writeColumn(vo.getPrice());
+                        line.writeColumn(vo.getDescription());
                         line.writeColumn(vo.getStafferName());
                         line.writeColumn(ElTools.get("composeType", vo.getType()));
                         line.writeColumn(ElTools.get("pubCheckStatus", vo.getCheckStatus()));
@@ -608,7 +609,7 @@ public class ProductAction extends DispatchAction
                         line.writeColumn(itemVO.getProductName());
                         line.writeColumn(itemVO.getAmount());
                         line.writeColumn(itemVO.getPrice());
-                        
+
                         line.writeLine();
                     }
                 }
