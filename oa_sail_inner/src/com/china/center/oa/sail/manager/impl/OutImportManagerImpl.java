@@ -2514,49 +2514,35 @@ public class OutImportManagerImpl implements OutImportManager
 	public boolean batchUpdateDistAddr(List<DistributionBean> list)
 	throws MYException
 	{
-        System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa");
-		if (ListTools.isEmptyOrNull(list))
+        if (ListTools.isEmptyOrNull(list))
 		{
 			throw new MYException("导入异常");
 		}
-        System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa11");
-		for(DistributionBean each : list)
+        for(DistributionBean each : list)
 		{
-            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa22"+each.getOutId());
-			List<DistributionBean> distList = null;
+            List<DistributionBean> distList = null;
             try{
-            distList = distributionDAO.queryEntityBeansByFK(each.getOutId());
+                distList = distributionDAO.queryEntityBeansByFK(each.getOutId());
             }catch(Exception e){
                 e.printStackTrace();
             }
-            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa333");
-			if (ListTools.isEmptyOrNull(distList))
+            if (ListTools.isEmptyOrNull(distList))
 			{
 				throw new MYException("导入异常，请退出重新登陆");
 			}
 			
 			for (DistributionBean reach : distList)
 			{
-				/*reach.setProvinceId(each.getProvinceId());
-				reach.setCityId(each.getCityId());
-				reach.setAreaId(each.getAreaId());
-				reach.setAddress(each.getAddress());
-				reach.setReceiver(each.getReceiver());
-				reach.setMobile(each.getMobile());
-				reach.setShipping(each.getShipping());
-				
-				distributionDAO.updateEntityBean(reach);*/
-				
-				operationLog.info("地址更新，销售单：" + reach.getOutId());
-				operationLog.info("新省：" + each.getProvinceId());
-				operationLog.info("新市：" + each.getCityId());
-				operationLog.info("新区：" + each.getAreaId());
-				operationLog.info("新地址：" + each.getAddress());
-				operationLog.info("新接收人：" + each.getReceiver());
-				operationLog.info("新手机：" + each.getMobile());
-				operationLog.info("新发货方式：" + each.getShipping());
-                System.out.println("************销售单备注：" + each.getDescription());
-				
+				_logger.info("地址更新，销售单：" + reach.getOutId());
+                _logger.info("新省：" + each.getProvinceId());
+                _logger.info("新市：" + each.getCityId());
+                _logger.info("新区：" + each.getAreaId());
+                _logger.info("新地址：" + each.getAddress());
+                _logger.info("新接收人：" + each.getReceiver());
+                _logger.info("新手机：" + each.getMobile());
+                _logger.info("新发货方式：" + each.getShipping());
+                _logger.info("新快递公司：" + each.getTransport1());
+
 				Boolean ret = distributionDAO.updateBean(reach.getId(), each);
 				
 				if (!ret)
@@ -2564,7 +2550,6 @@ public class OutImportManagerImpl implements OutImportManager
 					throw new MYException("更新失败,请检查源文件");
 				}
 
-                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa444"+reach.getOutId()+":"+each.getDescription());
                 Boolean ret2 = this.outDAO.updateDescription(reach.getOutId(), each.getDescription());
 
                 if (!ret2)

@@ -1,4 +1,4 @@
-package com.china.center.oa.sail.action;
+ package com.china.center.oa.sail.action;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,6 +26,7 @@ import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.BaseVO;
+import com.china.center.oa.sail.vo.DistributionVO;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2305,7 +2306,7 @@ public class OutImportAction extends DispatchAction
 
                 if (obj.length >= 2 )
                 {
-                	DistributionBean bean = new DistributionBean();
+                    DistributionBean bean = new DistributionBean();
                     
                 	// 单号
             		if ( !StringTools.isNullOrNone(obj[0]))
@@ -2405,26 +2406,7 @@ public class OutImportAction extends DispatchAction
                     
             			importError = true;
             		}
-            		
-            		// 区
-            		/*if ( !StringTools.isNullOrNone(obj[3]))
-            		{
-            			String name = obj[3].trim();
-            			
-            			List<AreaBean> areaList = areaDAO.queryEntityBeansByCondition("where name=? and parentid=?", name, bean.getCityId());
-            			
-            			if (ListTools.isEmptyOrNull(areaList)){
-                			builder
-                            .append("第[" + currentNumber + "]错误:")
-                            .append("区不存在")
-                            .append("<br>");
-                        
-                			importError = true;
-            			}else{
-            				bean.setAreaId(areaList.get(0).getId());
-            			}
-            			
-            		}*/
+
             		
             		// 详细地址
             		if ( !StringTools.isNullOrNone(obj[3]))
@@ -2503,10 +2485,29 @@ public class OutImportAction extends DispatchAction
             			importError = true;
             		}
 
-                    // 销售单备注
-                    if ( !StringTools.isNullOrNone(obj[7]))
+                    // 快递公司
+                    String transportName = obj[7].trim();
+                    if ( !StringTools.isNullOrNone(transportName))
                     {
-                        bean.setDescription(obj[7].trim());
+                        ExpressBean express = expressDAO.findByUnique(transportName);
+
+                        if (null == express)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("快递方式"+ transportName +"不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        }else{
+                            bean.setTransport1(MathTools.parseInt(express.getId()));
+                        }
+                    }
+
+                    // 销售单备注
+                    if ( !StringTools.isNullOrNone(obj[8]))
+                    {
+                        bean.setDescription(obj[8].trim());
                     }
             		
                     importItemList.add(bean);
