@@ -697,7 +697,7 @@ public class PackageManagerImpl implements PackageManager {
 			{
                 _logger.info(fullId+"****add SO to existent package now***"+packBean.getId());
 
-                //2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
+                //#18 2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
                 List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
                 if (!ListTools.isEmptyOrNull(currentItems)){
                    _logger.info("****current package items****"+currentItems.size());
@@ -706,8 +706,8 @@ public class PackageManagerImpl implements PackageManager {
                     if (outBean!= null){
                         String lo = outBean.getLocation();
                         if (!StringTools.isNullOrNone(lo) && !lo.equals(out.getLocation())){
-                            _logger.info(first.getOutId()+"****location is not same****"+out.getFullId());
-                            return;
+                            _logger.warn(first.getOutId()+"****location is not same****"+out.getFullId());
+                            createNewPackage(out, baseList, distVO, fullAddress, location);
                         }
                     }
 
