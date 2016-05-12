@@ -2050,11 +2050,13 @@ public class FinaAction extends ParentQueryFinaAction
 		}
 
 		List<TaxBean> taxList = taxDAO.listEntityBeansByOrder("order by id");
+        _logger.info("***taxList***"+taxList.size());
 
 		List<FinanceMonthVO> monthList = new ArrayList<FinanceMonthVO>();
 
 		for (TaxBean taxBean : taxList)
 		{
+            long begin = System.currentTimeMillis();
 			ConditionParse condition = new ConditionParse();
 
 			condition.addWhereStr();
@@ -2066,8 +2068,12 @@ public class FinaAction extends ParentQueryFinaAction
 					taxBean.getId());
 
 			long inMonetTotal = financeItemDAO.sumInByCondition(condition);
+            long end2 = System.currentTimeMillis();
+            _logger.info(taxBean.getId()+"***time inMonetTotal***"+(end2-begin));
 
 			long outMonetTotal = financeItemDAO.sumOutByCondition(condition);
+            long end3 = System.currentTimeMillis();
+            _logger.info(taxBean.getId()+"***time outMonetTotal***"+(end3-end2));
 
 			FinanceMonthVO fmb = new FinanceMonthVO();
 
@@ -2095,6 +2101,8 @@ public class FinaAction extends ParentQueryFinaAction
 			fmb.setLogTime(TimeTools.now());
 
 			monthList.add(fmb);
+            long end = System.currentTimeMillis();
+            _logger.info(taxBean.getId()+"***time used***"+(end-begin));
 		}
 
 		request.setAttribute("monthList", monthList);
@@ -2280,7 +2288,7 @@ public class FinaAction extends ParentQueryFinaAction
 	 * @param mapping
 	 * @param form
 	 * @param request
-	 * @param reponse
+	 * @param response
 	 * @return
 	 * @throws ServletException
 	 */
@@ -2337,7 +2345,7 @@ public class FinaAction extends ParentQueryFinaAction
 	 * @param mapping
 	 * @param form
 	 * @param request
-	 * @param reponse
+	 * @param response
 	 * @return
 	 * @throws ServletException
 	 */
