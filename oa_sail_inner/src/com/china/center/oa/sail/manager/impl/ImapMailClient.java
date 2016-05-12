@@ -119,6 +119,10 @@ public class ImapMailClient {
 //                    Header header = (Header) headers.nextElement();
 //                }
                 try{
+                    int mailType = this.getOrderType(msg);
+                    if(mailType == 0){
+                        continue;
+                    }
                     parseMultipart(msg.getContent(), this.getOrderType(msg));
                 }catch(Exception e){
                     e.printStackTrace();

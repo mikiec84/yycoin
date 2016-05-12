@@ -130,8 +130,10 @@ function modfiy()
 
 function del()
 {
-	if ((getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2' || getRadio('fullId').temptype == '1') && getRadio('fullId').outtype != 4
-	       && getRadio('fullId').outtype != 5)
+	//#230 2016/5/12 退库可删除
+	if (getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2')
+//	if ((getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2' || getRadio('fullId').temptype == '1') && getRadio('fullId').outtype != 4
+//	       && getRadio('fullId').outtype != 5)
 	{
 		 if (window.confirm("确定删除入库单?"))
 		document.location.href = '../sail/out.do?method=delOut&outId=' + getRadioValue("fullId");
