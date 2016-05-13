@@ -53,6 +53,8 @@ function load()
 	loadForm();
 	
 	payTypeChange();
+
+    loadBudget();
 }
 
 function del(id)
@@ -319,7 +321,7 @@ function getTravelApply(oos)
     </tr>
     
     
-   <%@include file="share_update.jsp"%>
+   <%@include file="share_update_with_budget.jsp"%>
     
     
 	    <p:title>
