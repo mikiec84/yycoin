@@ -71,6 +71,7 @@
             <forward name="queryApplyClient" path="/client/queryApplyClient.jsp" />
             <forward name="detailClient" path="/client/detailClient.jsp" />
             <forward name="importCustomer" path="/client/importCustomer.jsp" />
+			<forward name="importCustomerAddress" path="/client/importCustomerAddress.jsp" />
 			<forward name="compareUpdateClient" path="/client/compareUpdateClient.jsp" />
 			<forward name="queryCheckApplyClient" path="/client/queryCheckApplyClient.jsp" />
 			<forward name="rptQueryClientBatchTrans" path="/client/rptQueryClientBatchTrans.jsp" />
