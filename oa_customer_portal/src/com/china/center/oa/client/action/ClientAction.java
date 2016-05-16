@@ -1,9 +1,7 @@
 package com.china.center.oa.client.action;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -11,12 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.client.bean.*;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.ConsignBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,19 +39,6 @@ import com.china.center.common.MYException;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.client.bean.AppUserVSCustomerBean;
-import com.china.center.oa.client.bean.AssignApplyBean;
-import com.china.center.oa.client.bean.CustomerApproveBean;
-import com.china.center.oa.client.bean.CustomerBean;
-import com.china.center.oa.client.bean.CustomerBusinessApplyBean;
-import com.china.center.oa.client.bean.CustomerBusinessBean;
-import com.china.center.oa.client.bean.CustomerContactApplyBean;
-import com.china.center.oa.client.bean.CustomerContactBean;
-import com.china.center.oa.client.bean.CustomerCorporationApplyBean;
-import com.china.center.oa.client.bean.CustomerDepartApplyBean;
-import com.china.center.oa.client.bean.CustomerDistAddrApplyBean;
-import com.china.center.oa.client.bean.CustomerFormerNameBean;
-import com.china.center.oa.client.bean.CustomerIndividualApplyBean;
 import com.china.center.oa.client.dao.AppUserApplyDAO;
 import com.china.center.oa.client.dao.AppUserDAO;
 import com.china.center.oa.client.dao.AppUserVSCustomerDAO;
@@ -160,6 +147,10 @@ public class ClientAction extends DispatchAction
     private ProvinceDAO provinceDAO = null;
 
     private CityDAO cityDAO = null;
+
+    private AreaDAO areaDAO = null;
+
+    private EnumDAO enumDAO = null;
     
     private static String QUERYCLIENTBYSUBSTAFFER = "queryClientBySubStaffer";
 	
@@ -198,6 +189,9 @@ public class ClientAction extends DispatchAction
     private static String RPTQUERYSELFDEPARTCLIENT = "rptQuerySelfDepartClient";
     
     private static String RPTQUERYNOTUSECLIENT = "rptQueryNotUseClient";
+
+    private static String shipping [] = new String []{"自提","公司","第三方快递","第三方货运","第三方快递+货运","空发"};
+    private static int ishipping [] = new int []{0,1,2,3,4,99};
     
 	public ClientAction()
 	{
@@ -949,6 +943,7 @@ public class ClientAction extends DispatchAction
 		}
 
 		ReaderFile reader = ReadeFileFactory.getXLSReader();
+        Map<String, List<CustomerDistAddrBean>> map = new HashMap<String ,List<CustomerDistAddrBean>>();
 
 		try {
 			reader.readFile(rds.getUniqueInputStream());
@@ -981,10 +976,10 @@ public class ClientAction extends DispatchAction
 						bean.setName(name);
 
 						CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
-						if (vo!= null){
+						if (vo== null){
 							builder
 									.append("第[" + currentNumber + "]错误:")
-									.append("客户名已存在")
+									.append("客户名不存在")
 									.append("<br>");
 
 							importError = true;
@@ -1000,11 +995,12 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
+
+                    CustomerDistAddrBean address = new CustomerDistAddrBean();
 					// 省
 					if ( !StringTools.isNullOrNone(obj[1]))
 					{
 						String province = obj[1].trim();
-						bean.setProvinceName(province);
 
 						ProvinceBean provinceBean = this.provinceDAO.findByUnique(province);
 						if (provinceBean == null){
@@ -1015,9 +1011,8 @@ public class ClientAction extends DispatchAction
 
 							importError = true;
 						} else{
-							bean.setProvinceId(provinceBean.getId());
+                            address.setProvinceId(provinceBean.getId());
 						}
-
 					}
 					else
 					{
@@ -1033,7 +1028,6 @@ public class ClientAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[2]))
 					{
 						String city = obj[2].trim();
-						bean.setCityName(city);
 
 						CityBean cityBean = this.cityDAO.findByUnique(city);
 						if (cityBean == null){
@@ -1044,7 +1038,7 @@ public class ClientAction extends DispatchAction
 
 							importError = true;
 						} else{
-							bean.setCityId(cityBean.getId());
+                            address.setCityId(cityBean.getId());
 						}
 
 					}
@@ -1058,12 +1052,38 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
+                    // 区
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String area = obj[3].trim();
+                        AreaBean areaBean = this.areaDAO.findByUnique(area);
+                        if (areaBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("区不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            address.setAreaId(areaBean.getId());
+                        }
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("区不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
 
 					// 地址
-					if ( !StringTools.isNullOrNone(obj[3]))
+					if ( !StringTools.isNullOrNone(obj[4]))
 					{
-						String address = obj[3].trim();
-						bean.setAddress(address);
+						String addr = obj[4].trim();
+						bean.setAddress(addr);
 					}
 					else
 					{
@@ -1075,34 +1095,112 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-					// 业务员
-					if ( !StringTools.isNullOrNone(obj[4]))
+					// 收货人
+					if ( !StringTools.isNullOrNone(obj[5]))
 					{
-						String stafferName = obj[4].trim();
-						bean.setStafferName(stafferName);
-
-						StafferBean stafferBean = this.stafferDAO.findyStafferByName(stafferName);
-						if (stafferBean == null){
-							builder
-									.append("第[" + currentNumber + "]错误:")
-									.append("业务员不存在")
-									.append("<br>");
-
-							importError = true;
-						}
+						String receiver = obj[5].trim();
+                        address.setContact(receiver);
 					}
 					else
 					{
 						builder
 								.append("第[" + currentNumber + "]错误:")
-								.append("业务员不能为空")
+								.append("收货人不能为空")
 								.append("<br>");
 
 						importError = true;
 					}
 
-					importItemList.add(bean);
+                    // 收货人电话
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String receiverPhone = obj[6].trim();
+                        address.setTelephone(receiverPhone);
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("收货人电话不能为空")
+                                .append("<br>");
 
+                        importError = true;
+                    }
+
+                    // 地址性质
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        String atype = obj[7].trim();
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("type","=","303");
+                        conditionParse.addCondition("val","=",atype);
+                        List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(enumBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("地址性质不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            address.setAtype(Integer.valueOf(enumBeans.get(0).getKey()));
+                        }
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("地址性质不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+
+                    // 发货方式
+                    if ( !StringTools.isNullOrNone(obj[8]))
+                    {
+                        boolean has = false;
+
+                        String shipping = obj[8].trim();
+
+                        for (int i = 0 ; i < ClientAction.shipping.length; i++)
+                        {
+                            if (ClientAction.shipping[i].equals(shipping))
+                            {
+                                has = true;
+
+                                address.setShipping(ClientAction.ishipping[i]);
+
+                                break;
+                            }
+                        }
+                        if (!has)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    //快递公司
+
+                    //货运
+
+					importItemList.add(bean);
 				}
 				else
 				{
@@ -4383,5 +4481,21 @@ public class ClientAction extends DispatchAction
 
     public void setCityDAO(CityDAO cityDAO) {
         this.cityDAO = cityDAO;
+    }
+
+    public AreaDAO getAreaDAO() {
+        return areaDAO;
+    }
+
+    public void setAreaDAO(AreaDAO areaDAO) {
+        this.areaDAO = areaDAO;
+    }
+
+    public EnumDAO getEnumDAO() {
+        return enumDAO;
+    }
+
+    public void setEnumDAO(EnumDAO enumDAO) {
+        this.enumDAO = enumDAO;
     }
 }

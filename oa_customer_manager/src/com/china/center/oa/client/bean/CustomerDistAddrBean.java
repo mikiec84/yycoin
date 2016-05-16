@@ -17,6 +17,8 @@ public class CustomerDistAddrBean extends AbstractCustomerDistAddrBean
 	@FK
 	private String customerId = "";
 
+    private int shipping = -1;
+
 	/**
 	 * 标注是新增还是删除的
 	 */
@@ -96,4 +98,12 @@ public class CustomerDistAddrBean extends AbstractCustomerDistAddrBean
 	{
 		this.addOrDel = addOrDel;
 	}
+
+    public int getShipping() {
+        return shipping;
+    }
+
+    public void setShipping(int shipping) {
+        this.shipping = shipping;
+    }
 }
