@@ -958,14 +958,14 @@ public class ClientAction extends DispatchAction
 
 		ReaderFile reader = ReadeFileFactory.getXLSReader();
         Map<String, List<CustomerDistAddrBean>> map = new HashMap<String ,List<CustomerDistAddrBean>>();
-		Map<String, Integer> nameToType = new HashMap<String, Integer>();
+		Map<String, CustomerVO> nameToCustomer = new HashMap<String, CustomerVO>();
 
 		try {
 			reader.readFile(rds.getUniqueInputStream());
 
 			while (reader.hasNext())
 			{
-				String[] obj = fillObj((String[])reader.next());
+				String[] obj = fillObj2((String[])reader.next());
 
 				// 第一行忽略
 				if (reader.getCurrentLineNumber() == 1)
@@ -998,7 +998,9 @@ public class ClientAction extends DispatchAction
 									.append("<br>");
 
 							importError = true;
-						}
+						} else{
+                            bean.setId(vo.getId());
+                        }
 					}
 					else
 					{
@@ -1024,7 +1026,7 @@ public class ClientAction extends DispatchAction
 							importError = true;
 						} else{
 							bean.setType(this.getType(type));
-							nameToType.put(bean.getName(), bean.getType());
+							nameToCustomer.put(bean.getName(), bean);
 						}
 					}
 					else
@@ -1094,11 +1096,15 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
+                    _logger.info("***import 11111");
                     // 区
                     if ( !StringTools.isNullOrNone(obj[4])) {
                         String area = obj[4].trim();
-                        AreaBean areaBean = this.areaDAO.findByUnique(area);
-                        if (areaBean == null){
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=",area);
+                        List<AreaBean> areaBeans = this.areaDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(areaBeans)){
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("区不存在")
@@ -1106,7 +1112,7 @@ public class ClientAction extends DispatchAction
 
                             importError = true;
                         } else{
-                            address.setAreaId(areaBean.getId());
+                            address.setAreaId(areaBeans.get(0).getId());
                         }
                     }
                     else
@@ -1119,12 +1125,12 @@ public class ClientAction extends DispatchAction
                         importError = true;
                     }
 
-
+                    _logger.info("***import 22222");
 					// 地址
 					if ( !StringTools.isNullOrNone(obj[5]))
 					{
 						String addr = obj[5].trim();
-						bean.setAddress(addr);
+						address.setAddress(addr);
 					}
 					else
 					{
@@ -1135,7 +1141,7 @@ public class ClientAction extends DispatchAction
 
 						importError = true;
 					}
-
+                    _logger.info("***import 33333");
 					// 收货人
 					if ( !StringTools.isNullOrNone(obj[6]))
 					{
@@ -1151,7 +1157,7 @@ public class ClientAction extends DispatchAction
 
 						importError = true;
 					}
-
+                    _logger.info("***import 4444");
                     // 收货人电话
                     if ( !StringTools.isNullOrNone(obj[7]))
                     {
@@ -1167,7 +1173,7 @@ public class ClientAction extends DispatchAction
 
                         importError = true;
                     }
-
+                    _logger.info("***import 555");
                     // 地址性质
                     if ( !StringTools.isNullOrNone(obj[8])) {
                         String atype = obj[8].trim();
@@ -1198,7 +1204,7 @@ public class ClientAction extends DispatchAction
                         importError = true;
                     }
 
-
+                    _logger.info("***import 666");
                     // 发货方式
                     if ( !StringTools.isNullOrNone(obj[9]))
                     {
@@ -1235,7 +1241,7 @@ public class ClientAction extends DispatchAction
 
                         importError = true;
                     }
-
+                    _logger.info("***import 7777");
                     //快递公司
 					if (address.getShipping() == 2 || address.getShipping() == 4)
 					{
@@ -1266,7 +1272,7 @@ public class ClientAction extends DispatchAction
 
 							importError = true;
 						}
-
+                        _logger.info("***import 8888");
 						// 快递支付方式也不能为空
 						if ( !StringTools.isNullOrNone(obj[11]))
 						{
@@ -1305,7 +1311,7 @@ public class ClientAction extends DispatchAction
 							importError = true;
 						}
 					}
-
+                    _logger.info("***import 99999");
                     //货运
 					if (address.getShipping() == 3 || address.getShipping() == 4)
 					{
@@ -1336,7 +1342,7 @@ public class ClientAction extends DispatchAction
 
 							importError = true;
 						}
-
+                        _logger.info("***import aaaaa");
 						// 货运支付方式也不能为空
 						if ( !StringTools.isNullOrNone(obj[13]))
 						{
@@ -1377,15 +1383,14 @@ public class ClientAction extends DispatchAction
 					}
 
 					if (map.containsKey(bean.getName())){
-						List<CustomerDistAddrBean> list = new ArrayList<CustomerDistAddrBean>();
-						list.add(address);
-						map.put(bean.getName(), list);
+                        List<CustomerDistAddrBean> list = map.get(bean.getName());
+                        list.add(address);
 					} else{
-						List<CustomerDistAddrBean> list = map.get(bean.getName());
-						list.add(address);
+                        List<CustomerDistAddrBean> list = new ArrayList<CustomerDistAddrBean>();
+                        list.add(address);
+                        map.put(bean.getName(), list);
 					}
 
-//					importItemList.add(bean);
 				}
 				else
 				{
@@ -1399,6 +1404,7 @@ public class ClientAction extends DispatchAction
 			}
 		}catch (Exception e)
 		{
+            e.printStackTrace();
 			_logger.error(e, e);
 
 			request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
@@ -1429,10 +1435,9 @@ public class ClientAction extends DispatchAction
 		try
 		{
 			for (String name : map.keySet()){
-				CustomerVO customerVO = new CustomerVO();
-				customerVO.setName(name);
-				customerVO.setType(nameToType.get(name));
+				CustomerVO customerVO = nameToCustomer.get(name);
 				customerVO.setCustAddrList(map.get(name));
+                importItemList.add(customerVO);
 			}
 			this.clientManager.importCustomerAddress(importItemList);
 			request.setAttribute(KeyConstant.MESSAGE, "批量导入成功");
@@ -1450,6 +1455,25 @@ public class ClientAction extends DispatchAction
     private String[] fillObj(String[] obj)
     {
         String[] result = new String[5];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
+
+    private String[] fillObj2(String[] obj)
+    {
+        String[] result = new String[13];
 
         for (int i = 0; i < result.length; i++ )
         {

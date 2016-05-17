@@ -2288,6 +2288,15 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 	@Override
 	public void importCustomerAddress(List<CustomerVO> list) throws MYException {
 		_logger.info("***customer list***"+list.size());
+        for (CustomerVO customerVO : list){
+             List<CustomerDistAddrBean>  addrBeans = customerVO.getCustAddrList();
+            for (CustomerDistAddrBean bean : addrBeans){
+                bean.setCustomerId(customerVO.getId());
+                bean.setId(commonDAO.getSquenceString20());
+            }
+            this.customerDistAddrDAO.saveAllEntityBeans(customerVO.getCustAddrList());
+            _logger.info(customerVO.getId()+"***customer address list***"+customerVO.getCustAddrList().size());
+        }
 	}
 
 	@Transactional(rollbackFor = MYException.class)

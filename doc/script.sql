@@ -372,4 +372,7 @@ alter table T_CENTER_COMPOSE add column description varchar(1024) default ''
 
 alter table T_CENTER_TEMPCONSIGN modify column outId varchar(1024);
 
+--2016/5/17 导入客户地址信息
+alter table T_CENTER_VS_CUSTADDR add column shipping int(11) DEFAULT -1,add column transport1 int(11) DEFAULT 0,add column transport2 int(11) DEFAULT 0, add column expressPay int(11) DEFAULT -1,add column transportPay int(11) DEFAULT -1
+insert into t_center_oamenuitem values('0232','导入客户地址信息','../client/importCustomerAddress.jsp','02',1,'0201',99,'导入客户地址信息')
 
