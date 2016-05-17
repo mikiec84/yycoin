@@ -104,5 +104,7 @@
 	
 	<osgi:service ref="customerDistAddrHisDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrHisDAO" />
 	<osgi:service ref="customerDistAddrApplyDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrApplyDAO" />
-	<osgi:service ref="customerDistAddrDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrDAO" />	
+	<osgi:service ref="customerDistAddrDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrDAO" />
+
+	<osgi:service ref="expressDAO" interface="com.china.center.oa.customer.dao.ExpressDAO" />
 </beans>

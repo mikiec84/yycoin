@@ -3,14 +3,7 @@ package com.china.center.oa.client.manager;
 import com.center.china.osgi.publics.ListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
-import com.china.center.oa.client.bean.AddressBean;
-import com.china.center.oa.client.bean.AssignApplyBean;
-import com.china.center.oa.client.bean.CiticBranchBean;
-import com.china.center.oa.client.bean.CustomerApproveBean;
-import com.china.center.oa.client.bean.CustomerBean;
-import com.china.center.oa.client.bean.CustomerCorporationApplyBean;
-import com.china.center.oa.client.bean.CustomerDepartApplyBean;
-import com.china.center.oa.client.bean.CustomerIndividualApplyBean;
+import com.china.center.oa.client.bean.*;
 import com.china.center.oa.client.listener.ClientListener;
 import com.china.center.oa.client.vo.*;
 
@@ -106,4 +99,6 @@ public interface ClientManager extends ListenerManager<ClientListener>
     boolean batchTransCustomer(User user, int type) throws MYException;
 
     void importCustomer(List<CustomerVO> customerVOList) throws MYException;
+
+    void importCustomerAddress(List<CustomerVO> customerList) throws MYException;
 }

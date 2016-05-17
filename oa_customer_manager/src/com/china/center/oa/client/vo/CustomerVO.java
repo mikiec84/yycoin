@@ -4,6 +4,9 @@ import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.bean.CustomerDistAddrBean;
+
+import java.util.List;
 
 @SuppressWarnings("serial")
 @Entity(inherit = true)
@@ -29,6 +32,9 @@ public class CustomerVO extends CustomerBean
 	
 	@Relationship(relationField = "refDepartCustId")
 	private String refDepartCustName = "";
+
+	@Ignore
+	private List<CustomerDistAddrBean> custAddrList = null;
     
 	public CustomerVO()
 	{
@@ -114,5 +120,13 @@ public class CustomerVO extends CustomerBean
 	public void setRefDepartCustName(String refDepartCustName)
 	{
 		this.refDepartCustName = refDepartCustName;
+	}
+
+	public List<CustomerDistAddrBean> getCustAddrList() {
+		return custAddrList;
+	}
+
+	public void setCustAddrList(List<CustomerDistAddrBean> custAddrList) {
+		this.custAddrList = custAddrList;
 	}
 }

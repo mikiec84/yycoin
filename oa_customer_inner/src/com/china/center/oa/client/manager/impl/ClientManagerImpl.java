@@ -2284,7 +2284,13 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
         return stafferVSCustomerDAO.countByStafferIdAndCustomerId(stafferId, customerId) > 0;
     }
 
-    @Transactional(rollbackFor = MYException.class)
+	@Transactional(rollbackFor = MYException.class)
+	@Override
+	public void importCustomerAddress(List<CustomerVO> list) throws MYException {
+		_logger.info("***customer list***"+list.size());
+	}
+
+	@Transactional(rollbackFor = MYException.class)
     @Override
     public void importCustomer(List<CustomerVO> customerVOs) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.

@@ -144,5 +144,6 @@
     <osgi:reference id="provinceDAO" interface="com.china.center.oa.publics.dao.ProvinceDAO" />
     <osgi:reference id="cityDAO" interface="com.china.center.oa.publics.dao.CityDAO" />
     <osgi:reference id="areaDAO" interface="com.china.center.oa.publics.dao.AreaDAO" />
+	<osgi:reference id="expressDAO" interface="com.china.center.oa.customer.dao.ExpressDAO" />
 	
 </beans>

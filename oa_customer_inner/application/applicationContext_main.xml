@@ -107,6 +107,8 @@
 	
 	<bean id="customerDistAddrHisDAO" class="com.china.center.oa.client.dao.impl.CustomerDistAddrHisDAOImpl" />
 	<bean id="customerDistAddrApplyDAO" class="com.china.center.oa.client.dao.impl.CustomerDistAddrApplyDAOImpl" />
-	<bean id="customerDistAddrDAO" class="com.china.center.oa.client.dao.impl.CustomerDistAddrDAOImpl" />	
+	<bean id="customerDistAddrDAO" class="com.china.center.oa.client.dao.impl.CustomerDistAddrDAOImpl" />
+
+	<bean id="expressDAO" class="com.china.center.oa.customer.dao.impl.ExpressDAOImpl"/>
 	
 </beans>
