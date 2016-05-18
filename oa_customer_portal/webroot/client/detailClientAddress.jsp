@@ -26,8 +26,20 @@
 						<p:option type="303"></p:option>
 					</select>					
 				</td>
-				<td width="15%"></td>
+				<td width="15%">发货方式</td>
 				<td width="35%"></td>
+			</tr>
+			<tr class="content2">
+				<td width="15%">快递公司：</td>
+				<td width="35%">${item.transportName1}</td>
+				<td width="15%">快递支付方式：</td>
+				<td width="35%">${my:get('deliverPay',item.expressPay)}</td>
+			</tr>
+			<tr class="content1">
+				<td width="15%">货运：</td>
+				<td width="35%">${item.transportName2}</td>
+				<td width="15%">货运支付方式：</td>
+				<td width="35%">${my:get('deliverPay',item.transportPay)}</td>
 			</tr>
 			<tr>
 				<td background='/uportal/images/dot_line.gif' colspan='4'></td>

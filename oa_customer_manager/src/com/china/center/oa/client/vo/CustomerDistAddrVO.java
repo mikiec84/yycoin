@@ -1,6 +1,7 @@
 package com.china.center.oa.client.vo;
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.client.bean.CustomerDistAddrBean;
 
@@ -16,6 +17,22 @@ public class CustomerDistAddrVO extends CustomerDistAddrBean
 
     @Relationship(tagField = "name", relationField = "areaId")
     private String areaName = "";
+
+
+	/**
+	 * 运输方式1
+	 */
+	@Relationship(relationField = "transport1")
+	private String transportName1 = "";
+
+	/**
+	 * 运输方式2
+	 */
+	@Relationship(relationField = "transport2")
+	private String transportName2 = "";
+
+	@Ignore
+	private String shippingName = "";
 
 	public CustomerDistAddrVO()
 	{
@@ -61,5 +78,29 @@ public class CustomerDistAddrVO extends CustomerDistAddrBean
 	public void setAreaName(String areaName)
 	{
 		this.areaName = areaName;
+	}
+
+	public String getTransportName1() {
+		return transportName1;
+	}
+
+	public void setTransportName1(String transportName1) {
+		this.transportName1 = transportName1;
+	}
+
+	public String getTransportName2() {
+		return transportName2;
+	}
+
+	public void setTransportName2(String transportName2) {
+		this.transportName2 = transportName2;
+	}
+
+	public String getShippingName() {
+		return shippingName;
+	}
+
+	public void setShippingName(String shippingName) {
+		this.shippingName = shippingName;
 	}
 }

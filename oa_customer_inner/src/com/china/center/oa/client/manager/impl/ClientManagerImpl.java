@@ -1,10 +1,6 @@
 package com.china.center.oa.client.manager.impl;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.china.center.oa.client.vo.*;
 import org.apache.commons.logging.Log;
@@ -2157,7 +2153,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
     {
         JudgeTools.judgeParameterIsNull(user, type);
 
-        _logger.info("batchTransCustomer*333333333333333333333**********"+user.getStafferId());
+        _logger.info("batchTransCustomer*333333333333333333333**********" + user.getStafferId());
         List<DestStafferVSCustomerBean> destVSList = destStafferVSCustomerDAO.queryEntityBeansByFK(user.getStafferId(), AnoConstant.FK_SECOND);
 
         if (!ListTools.isEmptyOrNull(destVSList))
@@ -2288,15 +2284,33 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 	@Override
 	public void importCustomerAddress(List<CustomerVO> list) throws MYException {
 		_logger.info("***customer list***"+list.size());
-        for (CustomerVO customerVO : list){
-             List<CustomerDistAddrBean>  addrBeans = customerVO.getCustAddrList();
+
+		//同一地址性质只能存在一条，如办公地址，就只能有一条地址
+		for (CustomerVO customerVO : list){
+			List<CustomerDistAddrBean>  addrBeans = customerVO.getCustAddrList();
+			Set<Integer> addressTypes = new HashSet<Integer>();
             for (CustomerDistAddrBean bean : addrBeans){
-                bean.setCustomerId(customerVO.getId());
-                bean.setId(commonDAO.getSquenceString20());
+				if (addressTypes.contains(bean.getAtype())){
+					throw new MYException("同一地址性质只能存在一条:"+customerVO.getName());
+				} else{
+					addressTypes.add(bean.getAtype());
+				}
             }
-            this.customerDistAddrDAO.saveAllEntityBeans(customerVO.getCustAddrList());
-            _logger.info(customerVO.getId()+"***customer address list***"+customerVO.getCustAddrList().size());
         }
+
+		for (CustomerVO customerVO : list){
+			List<CustomerDistAddrBean>  addrBeans = customerVO.getCustAddrList();
+			for (CustomerDistAddrBean bean : addrBeans){
+				String customerId = customerVO.getId();
+				//先删除同一地址性质的现有地址信息
+				this.customerDistAddrDAO.deleteByCustomerIdAndType(customerId, bean.getAtype());
+
+				bean.setCustomerId(customerId);
+				bean.setId(commonDAO.getSquenceString20());
+			}
+			this.customerDistAddrDAO.saveAllEntityBeans(addrBeans);
+			_logger.info(customerVO.getId()+"***customer address list***"+customerVO.getCustAddrList().size());
+		}
 	}
 
 	@Transactional(rollbackFor = MYException.class)

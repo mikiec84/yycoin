@@ -38,4 +38,10 @@ public class CustomerDistAddrDAOImpl extends
 		return this.queryEntityVOsByCondition("where customerId = ? and valid = ?", cid, valid);
 	}
 
+	@Override
+	public boolean deleteByCustomerIdAndType(String customerId, int atype) {
+		this.jdbcOperation.delete("where customerId = ? and atype = ?", CustomerDistAddrBean.class, customerId, atype);
+
+		return true;
+	}
 }

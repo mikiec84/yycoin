@@ -8,6 +8,8 @@
 				<td width="30%" align="center">送货地址</td>
 				<td width="8%" align="center">联系人</td>
 				<td width="10%" align="center">联系人电话</td>
+				<td width="10%" align="center">发货方式</td>
+				<td width="10%" align="center">货运</td>
 				<td width="8%" align="center"><input type="button" accesskey="A"
 					value="增加" class="button_class" onclick="opAddrDlg();"></td>
 			</tr>
@@ -31,7 +33,14 @@
 	
 				<td align="center"><input type="text"
 					style="width: 100%" maxlength="13" readonly="readonly" name="p_telephone" value="${item.telephone}"></td>
-					
+
+				<td align="center"><input type="text"
+									  style="width: 100%" maxlength="13" readonly="readonly" name="p_transportName1" value="${item.transportName1}"></td>
+
+				<td align="center"><input type="text"
+										  style="width: 100%" maxlength="13" readonly="readonly" name="p_transportName2" value="${item.transportName2}"></td>
+
+
 				<td align="center"><input type=button value="修改"  class="button_class" onclick="editAddr(this)">|
 				<input type=button value="删除"  class="button_class" onclick="removeTr(this)"></td>
 				</tr>

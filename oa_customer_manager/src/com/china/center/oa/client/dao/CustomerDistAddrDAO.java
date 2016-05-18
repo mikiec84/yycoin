@@ -29,4 +29,6 @@ public interface CustomerDistAddrDAO extends DAO<CustomerDistAddrBean, CustomerD
 	boolean updateValid(String id, int valid);
 	
 	List<CustomerDistAddrVO> queryEntityBeansByCidAndValid(String cid, int valid);
+
+	boolean deleteByCustomerIdAndType(String customerId, int atype);
 }
