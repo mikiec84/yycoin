@@ -2197,18 +2197,10 @@ public class ShipAction extends DispatchAction
      */
     private void getProductCode(PackageItemBean item){
         String outId = item.getOutId();
-        if (StringTools.isNullOrNone(outId)){
-            _logger.warn("****Empty OutId***********"+outId);
-        }else if (outId.startsWith("SO")){
+        if (StringTools.isNullOrNone(outId) || outId.startsWith("A")){
+            _logger.warn("****Empty OutId or invoiceins***********"+outId);
+        }else {
             item.setProductCode(this.getProductCodeFromOutImport(outId));
-        } else if(outId.startsWith("ZS")){
-            OutBean out = outDAO.find(outId);
-            if (out!= null){
-                String sourceOutId = out.getRefOutFullId();
-                if (!StringTools.isNullOrNone(sourceOutId)){
-                    item.setProductCode(this.getProductCodeFromOutImport(sourceOutId));
-                }
-            }
         }
     }
 

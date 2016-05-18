@@ -10130,10 +10130,11 @@ public class ParentOutAction extends DispatchAction
 		{
 			try
 			{
-//				outManager.delOut(user, fullId);
-				outManager.rejectOutBack(user, fullId, reason);
+				//#230 直接删除
+				outManager.delOut(user, fullId);
+//				outManager.rejectOutBack(user, fullId, reason);
 
-				importLog.info(operatorName + "/" + user.getName() + "删除了库单:"
+				_logger.info(operatorName + "/" + user.getName() + "删除了库单:"
 						+ fullId);
 
 				request.setAttribute(KeyConstant.MESSAGE, "库单删除成功:" + fullId);
