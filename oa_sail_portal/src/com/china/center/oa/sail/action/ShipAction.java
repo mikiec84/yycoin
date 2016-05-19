@@ -1961,6 +1961,9 @@ public class ShipAction extends DispatchAction
             productName = this.getProductName(item.getProductName());
         }
 
+        String template = "fullID %s product name %s converted to %s";
+        _logger.info(String.format(template, outId, item.getProductName(), productName));
+
         return productName;
     }
 
@@ -2781,7 +2784,8 @@ public class ShipAction extends DispatchAction
             _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId());
             if (!each.getCustomerId().equals(vo.getCustomerId()))
             {
-                _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
+                //过滤掉其他客户的销售单
+                _logger.warn("***each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
                 continue;
             }
 
@@ -2908,14 +2912,12 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-//            this.convertProductName(item);
-//            this.convertProductNameForBank(item);
             String productName = this.convertProductNameForBank(item);
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
             itemList1.add(item);
-            _logger.info("**********get product code******" + item.getProductCode());
+            _logger.info("***get product code***" + item.getProductCode());
         }
 
         //2015/11/13 中原银行回执单：调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
