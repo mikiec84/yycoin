@@ -1933,6 +1933,11 @@ public class ShipAction extends DispatchAction
     private String convertProductNameForBank(PackageItemBean item){
         String productName = "";
         String outId = item.getOutId();
+        if (outId.startsWith("ZS")){
+            //2016/5/19 赠送单直接取品名
+            return this.getProductName(item.getProductName());
+        }
+
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
         _logger.info("***importBeans size***"+importBeans.size());
