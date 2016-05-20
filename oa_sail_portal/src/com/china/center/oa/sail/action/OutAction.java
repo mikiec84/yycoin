@@ -4679,7 +4679,7 @@ public class OutAction extends ParentOutAction
     	
     	if (null != consign) {
     		distributionVO.setTransport(consign.getTransport());
-    		distributionVO.setTransportNo(consign.getTransportNo());
+//    		distributionVO.setTransportNo(consign.getTransportNo());
     	}
     	
     	request.setAttribute("baseList", baseList);
@@ -4703,9 +4703,7 @@ public class OutAction extends ParentOutAction
             ck = packageBean.getId();
 
             //2016/3/23 #210
-            if (StringTools.isNullOrNone(distributionVO.getTransportNo())){
-                distributionVO.setTransportNo(packageBean.getTransportNo());
-            }
+            distributionVO.setTransportNo(packageBean.getTransportNo());
         }
         request.setAttribute("ck", ck);
     	
