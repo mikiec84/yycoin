@@ -1228,7 +1228,9 @@ public class ShipManagerImpl implements ShipManager
                         throw new MYException("邮件附件未成功生成");
                     }
 
-                    commonMailManager.sendMail("zhousudong@yycoin.com", title,content, fileName);
+                    commonMailManager.sendMail("wangjiayi@nbcb.cn", title,content, fileName);
+                    commonMailManager.sendMail("359985066@qq.com", title,content, fileName);
+//                    commonMailManager.sendMail("zhousudong@yycoin.com", title,content, fileName);
                 }
 
                 //Update sendMailFlagNbyh to 1
