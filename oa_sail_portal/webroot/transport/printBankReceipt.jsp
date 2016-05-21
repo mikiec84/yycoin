@@ -82,6 +82,7 @@ function callBackPrintFun()
                             <font size=5>
                                 <b>
 						${title}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>
+                            <img src="${qrcode}"/>
                                 </b>
                             </font>
                         </td>

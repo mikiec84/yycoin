@@ -56,7 +56,9 @@ function callBackPrintFun()
 						<td style="height: 27px" align="center">
                             <font size=5>
                                 <b>
-						    永银文化创意产业发展有限责任公司发货确认单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if></b>
+						    永银文化创意产业发展有限责任公司发货确认单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>
+                                    <img src="${qrcode}"/>
+                                </b>
                             </font></td>
 					</tr>
 				</table>

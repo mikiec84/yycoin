@@ -74,6 +74,7 @@ function callBackPrintFun()
                             <font size=5>
                                 <b>
 						        永银文化发货单 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>
+                                    <img src="${qrcode}"/>
                                 </b>
                             </font>
                         </td>

@@ -1511,6 +1511,8 @@ public class ShipAction extends DispatchAction
             vo.setItemList(itemList1);
 
             request.setAttribute("total", total);
+            this.generateQRCode(vo.getId());
+            request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
 
             return mapping.findForward("printPostReceipt");
         }else if (vo.getCustomerName().indexOf("中信银行") != -1 || vo.getCustomerName().indexOf("招商银行") != -1)
@@ -1548,6 +1550,8 @@ public class ShipAction extends DispatchAction
                 String msg5 = "**********before prepareForBankPrint****";
                 _logger.info(msg5);
                 prepareForBankPrint(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
                 String msg6 = "**********after prepareForBankPrint****";
                 _logger.info(msg6);
             }catch(Exception e){
@@ -1649,6 +1653,8 @@ public class ShipAction extends DispatchAction
             }
 
             request.setAttribute("total", totalAmount);
+            this.generateQRCode(vo.getId());
+            request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
 
             return mapping.findForward("printPufaReceipt");
         }
@@ -1690,6 +1696,8 @@ public class ShipAction extends DispatchAction
                 _logger.info(msg5);
                 this.prepareForZyPrint(request, vo, itemList, compose);
                 String msg6 = "**********after prepareForZyPrint****";
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
                 _logger.info(msg6);
             }catch(Exception e){
                 e.printStackTrace();
@@ -1735,6 +1743,8 @@ public class ShipAction extends DispatchAction
                 String msg5 = "**********before prepareForNbPrint****";
                 _logger.info(msg5);
                 this.prepareForNbPrint(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
                 String msg6 = "**********after prepareForNbPrint****";
                 _logger.info(msg6);
             }catch(Exception e){
@@ -1781,6 +1791,8 @@ public class ShipAction extends DispatchAction
                 String msg5 = "**********before prepareForBankPrint****";
                 _logger.info(msg5);
                 this.prepareForXyPrint(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
                 String msg6 = "**********after prepareForBankPrint****";
                 _logger.info(msg6);
             }catch(Exception e){
@@ -1824,7 +1836,22 @@ public class ShipAction extends DispatchAction
 
             vo.setItemList(itemList1);
 
+            this.generateQRCode(vo.getId());
+            request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+
             return mapping.findForward("printShipment");
+        }
+    }
+
+    private String getQrcodeUrl(String image){
+        return "http://localhost:8000/images/"+image+".png";
+    }
+
+    private void generateQRCode(String packagId){
+        try{
+            ZxingUtils.generateQRCode(packagId);
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 

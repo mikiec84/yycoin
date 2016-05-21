@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class Test {
     private void generateQRCode_general(String myCodeText)throws WriterException {
-        String filePath = "D:/CrunchifyQR.png";
+        String filePath = "D:/CK201410201617123517.png";
         int size = 250;
         String fileType = "png";
         File myFile = new File(filePath);

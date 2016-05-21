@@ -18,13 +18,14 @@
 	<property name="application.dir" value="${OA.home}/dist/application" />
 	<!-- 最终META-INF文件地址 -->
 	<property name="meta.dir" value="${OA.home}/dist/META-INF" />
+    <property name="lib.dir" value="${OA.home}/dist/lib" />
 	<!-- 最终jar文件地址 -->
 	<property name="jar.dir" value="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/pickup" />
 
 	<!--jar包名称-->
 	<property name="jar.name" value="com.china.center.oa.sail.portal_1.0.0" />
 
-	<property name="lib.dir" value="lib" />
+
 	<property name="dist.dir" value="dist" />
 	<property name="doc.dir" value="doc" />
 
@@ -82,6 +83,13 @@
 				<!--<exclude name="**/**" />-->
 			</fileset>
 		</copy>
+        <copy todir="${lib.dir}" preservelastmodified="true">
+            <fileset dir="${OA.home}/lib">
+                <include name="**/**" />
+                <include name="**.**" />
+                <!--<exclude name="**/**" />-->
+            </fileset>
+        </copy>
 		<jar destfile="${jar.dir}/${jar.name}.jar" basedir="${dist.dir}" manifest="${meta.dir}/MANIFEST.MF" />
 		<copy file="${jar.dir}/${jar.name}.jar" todir="${libs.dir}"/>
 		<copy file="${jar.dir}/${jar.name}.jar" todir="D:\\Workspace\\yycoin\\osgi\\pickup"/>
