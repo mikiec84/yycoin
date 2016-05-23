@@ -1067,6 +1067,8 @@ public class ShipAction extends DispatchAction
 
             request.setAttribute("compose", compose);
 
+            this.generateQRCode(pickupId);
+            request.setAttribute("qrcode", this.getQrcodeUrl(pickupId));
             return mapping.findForward("printPickup");
         }
 
@@ -1261,6 +1263,8 @@ public class ShipAction extends DispatchAction
 
         request.setAttribute("compose", compose);
 
+        this.generateQRCode(vo.getId());
+        request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
         return mapping.findForward("printPackage");
     }
 
