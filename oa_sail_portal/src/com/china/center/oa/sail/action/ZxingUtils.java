@@ -2,8 +2,11 @@ package com.china.center.oa.sail.action;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.apache.commons.logging.Log;
@@ -13,6 +16,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
@@ -80,7 +84,38 @@ public class ZxingUtils {
         }
     }
 
+    public static void generateBarCode(String myCodeText)throws WriterException {
+        _logger.info("***generateQRCode***"+myCodeText);
+        String filePath = "D:\\oa_attachment\\images\\"+myCodeText+".png";
+        String fileType = "png";
+        File myFile = new File(filePath);
+        try {
+            Map<EncodeHintType, Object> hintMap = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
+            hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+
+            // Now with zxing version 3.2.1 you could change border size (white border size to just 1)
+            hintMap.put(EncodeHintType.MARGIN, 1); /* default = 4 */
+            hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+
+            Code128Writer writer =new Code128Writer();
+            BitMatrix byteMatrix = writer.encode(myCodeText, BarcodeFormat.CODE_128, 200, 50);
+
+            MatrixToImageWriter.writeToStream(byteMatrix, fileType, new FileOutputStream(myFile));
+            _logger.info("***finish generate barcode***"+myCodeText);
+        } catch (WriterException e) {
+            e.printStackTrace();
+            _logger.error(e);
+        } catch (IOException e) {
+            e.printStackTrace();
+            _logger.error(e);
+        } catch(Exception e){
+            e.printStackTrace();
+            _logger.error(e);
+        }
+    }
+
     public static void main(String[] args) throws Exception{
-        ZxingUtils.generateQRCode("CK201410201617123517");
+//        ZxingUtils.generateQRCode("CK201410201617123517");
+        ZxingUtils.generateBarCode("CK201410201617123517");
     }
 }

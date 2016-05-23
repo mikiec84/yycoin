@@ -1849,7 +1849,8 @@ public class ShipAction extends DispatchAction
 
     private void generateQRCode(String packagId){
         try{
-            ZxingUtils.generateQRCode(packagId);
+//            ZxingUtils.generateQRCode(packagId);
+            ZxingUtils.generateBarCode(packagId);
         }catch(Exception e){
             e.printStackTrace();
         }
