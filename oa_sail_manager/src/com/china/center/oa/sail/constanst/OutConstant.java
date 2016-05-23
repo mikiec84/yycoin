@@ -674,7 +674,7 @@ public interface OutConstant
     /**
      * 第三方物流
      */
-    @Defined(key = "outShipment", value = "第三方物流")
+    @Defined(key = "outShipment", value = "第三方快递")
     int OUT_SHIPPING_3PL = 2;
     
     /**

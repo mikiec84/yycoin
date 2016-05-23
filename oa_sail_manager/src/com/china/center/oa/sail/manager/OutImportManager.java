@@ -75,8 +75,8 @@ public interface OutImportManager
 	boolean batchUpdateProductName(List<BaseVO> list) throws MYException;
 
 	/**
-	 * 20116/4/14 #222
-	 * 从网易邮箱下载附件，并生成out
+	 * 2016/4/14 #222
+	 * download attachment from mail and create OA out
 	 */
 	void downloadOrderFromMailAttachment();
 }

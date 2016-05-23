@@ -12,7 +12,7 @@ public class BaseVO extends BaseBean
 	private String depotName = "";
 
 	/**
-	 * #190 批量修改品名
+	 * #190 batch update product name
 	 */
 	@Ignore
 	private String destProductName = "";
