@@ -1,0 +1,1 @@
+2016/05/23 08:50:07 [error] 10004#10044: *1 CreateFile() "D:\Workspace\yycoin\nginx-1.10.0/html/favicon.ico" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8000", referrer: "http://localhost:8000/images/"
