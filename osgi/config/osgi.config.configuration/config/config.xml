@@ -36,4 +36,5 @@
 	<entry key="exNumber">6000324</entry>
 	<entry key="sendSMSURL">http://127.0.0.1:8888/uportal/admin/index.jsp?MobilePhones=%s&amp;Content=%s&amp;MessageFlag=%s&amp;ModuleName=WebSms&amp;pwdpwd=yyoaCC&amp;ExNumber=%s</entry>
 	<entry key="version">V5.01.20120301</entry>
+	<entry key="httpServerIP">192.168.1.103</entry>
 </properties>

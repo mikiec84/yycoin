@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -40,6 +41,14 @@ import java.util.List;
  */
 public class Test {
     private void generateQRCode_general(String myCodeText)throws WriterException {
+        try {
+            InetAddress thisIp =InetAddress.getLocalHost();
+            System.out.println("IP:"+thisIp.getHostAddress());
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
         String filePath = "D:/CK201410201617123517.png";
         int size = 250;
         String fileType = "png";

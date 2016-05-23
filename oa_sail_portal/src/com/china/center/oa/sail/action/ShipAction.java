@@ -1,6 +1,7 @@
 package com.china.center.oa.sail.action;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -8,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.oa.client.bean.CustomerBean;
@@ -1844,7 +1846,17 @@ public class ShipAction extends DispatchAction
     }
 
     private String getQrcodeUrl(String image){
-        return "http://localhost:8000/images/"+image+".png";
+        String ip = ConfigLoader.getProperty("httpServerIP");
+        if (StringTools.isNullOrNone(ip)){
+            try {
+                InetAddress thisIp =InetAddress.getLocalHost();
+                ip = thisIp.getHostAddress();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return "http://"+ip+":8000/images/"+image+".png";
     }
 
     private void generateQRCode(String packagId){
