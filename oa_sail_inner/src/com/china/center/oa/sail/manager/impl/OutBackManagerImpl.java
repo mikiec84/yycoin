@@ -285,6 +285,8 @@ public class OutBackManagerImpl implements OutBackManager
 		old.setStatus(OutConstant.OUTBACK_STATUS_FINISH);
 		
 		outBackDAO.updateEntityBean(old);
+
+		this.log(user, old.getId(), OutConstant.OUTBACK_STATUS_IN, OutConstant.OUTBACK_STATUS_FINISH);
 		
 		return true;
 	}
