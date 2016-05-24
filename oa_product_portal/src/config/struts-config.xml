@@ -87,6 +87,7 @@
 			bean="ProductApply" type="org.springframework.web.struts.DelegatingActionProxy"
 			validate="false">
             <forward name="importProductApply" path="/product/importProductApply.jsp" />
+            <forward name="importProductForMailOut" path="/product/importProductForMailOut.jsp" />
 		</action>
 		
 		<action path="/product/priceConfig" parameter="method"

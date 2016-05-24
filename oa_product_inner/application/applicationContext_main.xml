@@ -19,6 +19,8 @@
 
 	<bean id="productDAO" class="com.china.center.oa.product.dao.impl.ProductDAOImpl" />
 
+    <bean id="productImportDAO" class="com.china.center.oa.product.dao.impl.ProductImportDAOImpl" />
+
 	<bean id="productVSLocationDAO" class="com.china.center.oa.product.dao.impl.ProductVSLocationDAOImpl" />
 	
 	<bean id="productFacade" class="com.china.center.oa.product.facade.impl.ProductFacadeImpl" />

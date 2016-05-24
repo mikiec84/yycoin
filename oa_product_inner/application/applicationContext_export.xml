@@ -18,6 +18,8 @@
 
 	<osgi:service ref="productDAO" interface="com.china.center.oa.product.dao.ProductDAO" />
 
+    <osgi:service ref="productImportDAO" interface="com.china.center.oa.product.dao.ProductImportDAO" />
+
 	<osgi:service ref="productVSLocationDAO" interface="com.china.center.oa.product.dao.ProductVSLocationDAO" />
 
 	<osgi:service ref="productFacade" interface="com.china.center.oa.product.facade.ProductFacade" />

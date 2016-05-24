@@ -4,6 +4,7 @@ import com.center.china.osgi.publics.ListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.product.bean.ProductApplyBean;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.listener.ProductApplyListener;
 
 import java.util.List;
@@ -30,4 +31,6 @@ public interface ProductApplyManager extends ListenerManager<ProductApplyListene
      * @throws MYException
      */
     boolean importProductApply(User user, List<ProductApplyBean> beans) throws MYException;
+
+    boolean importProductForMailOut(User user, List<ProductImportBean> beans) throws MYException;
 }

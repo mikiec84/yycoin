@@ -2,6 +2,7 @@ package com.china.center.oa.product.manager.impl;
 
 import java.util.List;
 
+import com.china.center.oa.product.bean.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,11 +11,6 @@ import com.center.china.osgi.publics.AbstractListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.expression.Expression;
-import com.china.center.oa.product.bean.ProductApplyBean;
-import com.china.center.oa.product.bean.ProductBOMBean;
-import com.china.center.oa.product.bean.ProductBean;
-import com.china.center.oa.product.bean.ProductSubApplyBean;
-import com.china.center.oa.product.bean.ProductVSStafferBean;
 import com.china.center.oa.product.constant.ProductApplyConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ProductApplyDAO;
@@ -626,6 +622,13 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
             return false;
         }
         return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean importProductForMailOut(User user, List<ProductImportBean> productImportBeans) throws MYException {
+        _logger.info("***importProductForMailOut with size***"+productImportBeans.size());
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public ProductApplyDAO getProductApplyDAO() {

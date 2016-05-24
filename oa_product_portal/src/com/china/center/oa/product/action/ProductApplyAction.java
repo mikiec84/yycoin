@@ -570,6 +570,359 @@ public class ProductApplyAction extends DispatchAction {
     }
 
     /**
+     *  #235 import product for mail out
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importProductForMailOut(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        final String url = "importProductForMailOut";
+        User user = Helper.getUser(request);
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<ProductImportBean> importItemList = new ArrayList<ProductImportBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        // 获取上次最后一次导入的时间
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next(), 20);
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    ProductImportBean bean = new ProductImportBean();
+
+                    // 银行名称
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        bean.setBank(obj[0]);
+                    }else{
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("银行名称为空")
+                                .append("<br>");
+                    }
+
+                    //银行产品编码
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        bean.setBankProductCode(obj[1]);
+                    }else{
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("银行产品编码为空")
+                                .append("<br>");
+                    }
+
+                    // OA品名
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setName(obj[2]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("OA品名为空")
+                                .append("<br>");
+                    }
+
+                    // OA产品code
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        bean.setCode(obj[3]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("OA产品code为空")
+                                .append("<br>");
+                    }
+
+                    // 银行产品条码
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        bean.setBankProductBarcode(obj[4]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("管理类型为空")
+                                .append("<br>");
+                    }
+
+                    // 银行产品名称
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        bean.setBankProductName(obj[5]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("银行产品名称为空")
+                                .append("<br>");
+                    }
+
+                    // 克重
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        bean.setWeight(Double.valueOf(obj[6]));
+                    }
+
+                    // 材质
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        bean.setMaterial(obj[7]);
+                    }
+
+                    // 零售价
+                    if ( !StringTools.isNullOrNone(obj[8]))
+                    {
+                        bean.setRetailPrice(Double.valueOf(obj[8]));
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("零售价为空")
+                                .append("<br>");
+                    }
+
+                    // 供货价
+                    if ( !StringTools.isNullOrNone(obj[9]))
+                    {
+                        bean.setCostPrice(Double.valueOf(obj[9]));
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("供货价为空")
+                                .append("<br>");
+                    }
+
+                    // 中收
+                    if ( !StringTools.isNullOrNone(obj[10]))
+                    {
+                        bean.setIbMoney(Double.valueOf(obj[10]));
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("中收为空")
+                                .append("<br>");
+                    }
+
+                    // 激励
+                    if ( !StringTools.isNullOrNone(obj[11]))
+                    {
+                        bean.setMotivationMoney(Double.valueOf(obj[11]));
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("激励为空")
+                                .append("<br>");
+                    }
+
+                    // 可支配毛利
+                    if ( !StringTools.isNullOrNone(obj[12]))
+                    {
+                        bean.setGrossProfit(Double.valueOf(obj[12]));
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("可支配毛利为空")
+                                .append("<br>");
+                    }
+
+                    // 是否回购
+                    if ( !StringTools.isNullOrNone(obj[13]))
+                    {
+                        if("否".equals(obj[13])){
+                            bean.setBuyBack(0);
+                        } else{
+                            bean.setBuyBack(1);
+                        }
+                    }
+
+                    // 调价或上市时间
+                    if ( !StringTools.isNullOrNone(obj[14]))
+                    {
+                        bean.setOnMarketDate(obj[14]);
+                    }
+
+                    // 下线时间
+                    if ( !StringTools.isNullOrNone(obj[15]))
+                    {
+                        bean.setOfflineDate(obj[15]);
+                    }
+
+                    // 分行范围
+                    if ( !StringTools.isNullOrNone(obj[16]))
+                    {
+                        bean.setRange(obj[16]);
+                    }
+
+                    // 税率
+                    if ( !StringTools.isNullOrNone(obj[17]))
+                    {
+                        bean.setTaxRate(obj[17]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("税率为空")
+                                .append("<br>");
+                    }
+
+                    // 发票类型
+                    if ( !StringTools.isNullOrNone(obj[18]))
+                    {
+                        bean.setInvoiceType(obj[18]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票类型为空")
+                                .append("<br>");
+                    }
+
+                    // 可开发票内容
+                    if ( !StringTools.isNullOrNone(obj[19]))
+                    {
+                        bean.setInvoiceContent(obj[19]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("可开发票内容为空")
+                                .append("<br>");
+                    }
+
+                    importItemList.add(bean);
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward(url);
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward(url);
+        }
+
+        try {
+            this.productApplyManager.importProductForMailOut(user, importItemList);
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:" + e.getErrorContent());
+
+            return mapping.findForward(url);
+        }
+
+        request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+
+        return mapping.findForward(url);
+    }
+
+    /**
      * 2015/11/5 批量导入新产品申请
      * @param mapping
      * @param form
@@ -1100,6 +1453,25 @@ public class ProductApplyAction extends DispatchAction {
     private String[] fillObj(String[] obj)
     {
         String[] result = new String[13];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
+
+    private String[] fillObj(String[] obj, int length)
+    {
+        String[] result = new String[length];
 
         for (int i = 0; i < result.length; i++ )
         {
