@@ -61,7 +61,7 @@ public class ProductImportBean implements Serializable
     /**
      * 克重
      */
-    private double weight;
+    private String weight="";
 
     /**
      * 材质
@@ -111,7 +111,7 @@ public class ProductImportBean implements Serializable
     /**
      * 分行范围
      */
-    private String range = "";
+    private String branchRange = "";
 
     /**
      * 税率
@@ -184,11 +184,11 @@ public class ProductImportBean implements Serializable
         this.bankProductName = bankProductName;
     }
 
-    public double getWeight() {
+    public String getWeight() {
         return weight;
     }
 
-    public void setWeight(double weight) {
+    public void setWeight(String weight) {
         this.weight = weight;
     }
 
@@ -264,12 +264,12 @@ public class ProductImportBean implements Serializable
         this.offlineDate = offlineDate;
     }
 
-    public String getRange() {
-        return range;
+    public String getBranchRange() {
+        return branchRange;
     }
 
-    public void setRange(String range) {
-        this.range = range;
+    public void setBranchRange(String branchRange) {
+        this.branchRange = branchRange;
     }
 
     public String getTaxRate() {
@@ -316,7 +316,7 @@ public class ProductImportBean implements Serializable
                 ", buyBack=" + buyBack +
                 ", onMarketDate='" + onMarketDate + '\'' +
                 ", offlineDate='" + offlineDate + '\'' +
-                ", range='" + range + '\'' +
+                ", branchRange='" + branchRange + '\'' +
                 ", taxRate='" + taxRate + '\'' +
                 ", invoiceType='" + invoiceType + '\'' +
                 ", invoiceContent='" + invoiceContent + '\'' +

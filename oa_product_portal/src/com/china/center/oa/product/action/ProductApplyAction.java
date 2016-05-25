@@ -726,7 +726,7 @@ public class ProductApplyAction extends DispatchAction {
                     // 克重
                     if ( !StringTools.isNullOrNone(obj[6]))
                     {
-                        bean.setWeight(Double.valueOf(obj[6]));
+                        bean.setWeight(obj[6]);
                     }
 
                     // 材质
@@ -830,7 +830,7 @@ public class ProductApplyAction extends DispatchAction {
                     // 分行范围
                     if ( !StringTools.isNullOrNone(obj[16]))
                     {
-                        bean.setRange(obj[16]);
+                        bean.setBranchRange(obj[16]);
                     }
 
                     // 税率

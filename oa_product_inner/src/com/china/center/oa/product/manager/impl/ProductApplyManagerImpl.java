@@ -3,6 +3,7 @@ package com.china.center.oa.product.manager.impl;
 import java.util.List;
 
 import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,13 +14,6 @@ import com.china.center.common.MYException;
 import com.china.center.jdbc.expression.Expression;
 import com.china.center.oa.product.constant.ProductApplyConstant;
 import com.china.center.oa.product.constant.ProductConstant;
-import com.china.center.oa.product.dao.ProductApplyDAO;
-import com.china.center.oa.product.dao.ProductBOMDAO;
-import com.china.center.oa.product.dao.ProductCombinationDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.ProductSubApplyDAO;
-import com.china.center.oa.product.dao.ProductVSStafferDAO;
-import com.china.center.oa.product.dao.SequenceDAO;
 import com.china.center.oa.product.listener.ProductApplyListener;
 import com.china.center.oa.product.manager.ProductApplyManager;
 import com.china.center.oa.product.vs.ProductCombinationBean;
@@ -50,6 +44,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     private CommonDAO             commonDAO             = null;
 
     private ProductDAO            productDAO            = null;
+
+    private ProductImportDAO productImportDAO = null;
     
     private SequenceDAO sequenceDAO = null;
 
@@ -628,7 +624,13 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     @Transactional(rollbackFor = MYException.class)
     public boolean importProductForMailOut(User user, List<ProductImportBean> productImportBeans) throws MYException {
         _logger.info("***importProductForMailOut with size***"+productImportBeans.size());
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        for(ProductImportBean bean : productImportBeans){
+            String id = commonDAO.getSquenceString();
+            bean.setId(id);
+            this.productImportDAO.saveEntityBean(bean);
+        }
+
+        return true;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public ProductApplyDAO getProductApplyDAO() {
@@ -716,4 +718,12 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 	public void setProductBOMDAO(ProductBOMDAO productBOMDAO) {
 		this.productBOMDAO = productBOMDAO;
 	}
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
+    }
 }

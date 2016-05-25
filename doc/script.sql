@@ -385,7 +385,7 @@ CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   `code` varchar(40) NOT NULL,
   `bankProductBarcode` varchar(40) NOT NULL,
   `bankProductName` varchar(40) NOT NULL,
-  `weight` double DEFAULT 0,
+  `weight` varchar(40) DEFAULT '',
   `material` varchar(40) DEFAULT NULL,
   `retailPrice` double DEFAULT 0,
   `costPrice` double DEFAULT 0,
