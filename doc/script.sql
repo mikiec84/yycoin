@@ -376,3 +376,29 @@ alter table T_CENTER_TEMPCONSIGN modify column outId varchar(1024);
 alter table T_CENTER_VS_CUSTADDR add column shipping int(11) DEFAULT -1,add column transport1 int(11) DEFAULT 0,add column transport2 int(11) DEFAULT 0, add column expressPay int(11) DEFAULT -1,add column transportPay int(11) DEFAULT -1
 insert into t_center_oamenuitem values('0232','导入客户地址信息','../client/importCustomerAddress.jsp','02',1,'0201',99,'导入客户地址信息')
 
+--2016/5/25 导入主产品数据
+CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
+  `id` varchar(40) NOT NULL,
+  `bank` varchar(40) NOT NULL,
+  `bankProductCode` varchar(40) NOT NULL,
+  `name` varchar(40) NOT NULL,
+  `code` varchar(40) NOT NULL,
+  `bankProductBarcode` varchar(40) NOT NULL,
+  `bankProductName` varchar(40) NOT NULL,
+  `weight` double DEFAULT 0,
+  `material` varchar(40) DEFAULT NULL,
+  `retailPrice` double DEFAULT 0,
+  `costPrice` double DEFAULT 0,
+  `ibMoney` double DEFAULT 0,
+  `motivationMoney` double DEFAULT 0,
+  `grossProfit` double DEFAULT 0,
+  `buyBack` int(11) DEFAULT -1,
+  `onMarketDate` varchar(40) DEFAULT '',
+  `offlineDate` varchar(40) DEFAULT '',
+  `range` varchar(40) DEFAULT '',
+  `taxRate` varchar(40) NOT NULL,
+  `invoiceType` varchar(40) NOT NULL,
+  `invoiceContent` varchar(256) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+insert into t_center_oamenuitem values(1034,'批量导入产品主数据','../product/importProductForMailOut.jsp',10,1,101001,27,'批量导入产品主数据')
