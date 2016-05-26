@@ -399,6 +399,7 @@ CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   `taxRate` varchar(40) NOT NULL,
   `invoiceType` varchar(40) NOT NULL,
   `invoiceContent` varchar(256) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE (bankProductBarcode)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 insert into t_center_oamenuitem values(1034,'批量导入产品主数据','../product/importProductForMailOut.jsp',10,1,101001,27,'批量导入产品主数据')
