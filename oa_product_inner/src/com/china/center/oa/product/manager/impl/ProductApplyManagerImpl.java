@@ -624,10 +624,17 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     @Transactional(rollbackFor = MYException.class)
     public boolean importProductForMailOut(User user, List<ProductImportBean> productImportBeans) throws MYException {
         _logger.info("***importProductForMailOut with size***"+productImportBeans.size());
-        for(ProductImportBean bean : productImportBeans){
-            String id = commonDAO.getSquenceString();
-            bean.setId(id);
-            this.productImportDAO.saveEntityBean(bean);
+        try{
+            for(ProductImportBean bean : productImportBeans){
+                String id = commonDAO.getSquenceString();
+                bean.setId(id);
+                _logger.info("***save***"+bean);
+                this.productImportDAO.saveEntityBean(bean);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error(e);
+            throw new MYException(e.getMessage());
         }
 
         return true;  //To change body of implemented methods use File | Settings | File Templates.

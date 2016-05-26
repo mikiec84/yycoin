@@ -2050,10 +2050,10 @@ public class ShipAction extends DispatchAction
         if(item != null && product!= null){
             _logger.info("****product amount***"+item.getAmount()+"***"+product.getProductAmount()+"***"+product.getPackageAmount()+"***");
             int amount = Math.abs(item.getAmount());
-            item.setProductAmount(item.getAmount()*product.getProductAmount());
-            item.setPackageAmount(item.getAmount()*product.getPackageAmount());
-            item.setCertificateAmount(item.getAmount()*product.getCertificateAmount());
-            item.setProductWeight(product.getProductWeight());
+            item.setProductAmount(Math.abs(item.getAmount()*product.getProductAmount()));
+            item.setPackageAmount(Math.abs(item.getAmount()*product.getPackageAmount()));
+            item.setCertificateAmount(Math.abs(item.getAmount()*product.getCertificateAmount()));
+            item.setProductWeight(Math.abs(product.getProductWeight()));
 
             //材质类型
             int checkDays = product.getCheckDays();

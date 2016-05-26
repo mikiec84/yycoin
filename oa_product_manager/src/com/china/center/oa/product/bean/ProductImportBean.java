@@ -59,6 +59,11 @@ public class ProductImportBean implements Serializable
     private String bankProductName = "";
 
     /**
+     * 特殊属性
+     */
+    private String properties = "";
+
+    /**
      * 克重
      */
     private String weight="";
@@ -294,6 +299,14 @@ public class ProductImportBean implements Serializable
 
     public void setInvoiceContent(String invoiceContent) {
         this.invoiceContent = invoiceContent;
+    }
+
+    public String getProperties() {
+        return properties;
+    }
+
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
 
     @Override

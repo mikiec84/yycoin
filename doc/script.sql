@@ -385,6 +385,7 @@ CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   `code` varchar(40) NOT NULL,
   `bankProductBarcode` varchar(40) NOT NULL,
   `bankProductName` varchar(40) NOT NULL,
+  `properties` varchar(100) NOT NULL,
   `weight` varchar(40) DEFAULT '',
   `material` varchar(40) DEFAULT NULL,
   `retailPrice` double DEFAULT 0,
@@ -395,11 +396,10 @@ CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   `buyBack` int(11) DEFAULT -1,
   `onMarketDate` varchar(40) DEFAULT '',
   `offlineDate` varchar(40) DEFAULT '',
-  `range` varchar(40) DEFAULT '',
+  `branchRange` varchar(40) DEFAULT '',
   `taxRate` varchar(40) NOT NULL,
   `invoiceType` varchar(40) NOT NULL,
   `invoiceContent` varchar(256) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE (bankProductBarcode)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 insert into t_center_oamenuitem values(1034,'批量导入产品主数据','../product/importProductForMailOut.jsp',10,1,101001,27,'批量导入产品主数据')
