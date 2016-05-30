@@ -770,9 +770,79 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     public boolean passComposeProduct(User user, String id)
         throws MYException
     {
+        //#246 2016/5/30 合成审批流程调整
+//        JudgeTools.judgeParameterIsNull(user, id);
+//
+//        composeProductDAO.updateStatus(id, ComposeConstant.STATUS_MANAGER_PASS);
+//
+//        return true;
+
         JudgeTools.judgeParameterIsNull(user, id);
 
-        composeProductDAO.updateStatus(id, ComposeConstant.STATUS_MANAGER_PASS);
+        ComposeProductBean bean = findBeanById(id);
+
+        if (bean == null)
+        {
+            throw new MYException("合成单不存在");
+        }
+
+        bean.setStatus(ComposeConstant.STATUS_MANAGER_PASS);
+
+        // 结束时间
+        bean.setLogTime(TimeTools.now());
+
+        if (bean.getMtype() == PublicConstant.MANAGER_TYPE_COMMON)
+        {
+            bean.setTag("HCP1");
+        }else{
+            bean.setTag("HCG1");
+        }
+
+        composeProductDAO.updateEntityBean(bean);
+
+        // 修改库存(合成)
+        if (bean.getType() == ComposeConstant.COMPOSE_TYPE_COMPOSE
+                //2015/8/3 预合成类型
+                || bean.getType() == ComposeConstant.COMPOSE_TYPE_PRE_COMPOSE)
+        {
+            processCompose(user, bean);
+        }
+        else
+        {
+            // 分解
+            processDecompose(user, bean);
+        }
+
+        // 根据源产品管理/普通组成情况，如果是普通+管理，则需一拆为三
+        boolean hybrid = false;
+
+        hybrid = checkIfHybrid(bean);
+
+        // TAX_ADD 产品合成/分解-运营总监通过
+        Collection<ComposeProductListener> listenerMapValues = this.listenerMapValues();
+
+        // 拆分
+        if (hybrid)
+        {
+            // 原合成申请混合标记
+            composeProductDAO.updateHybrid(id, 1);
+
+            List<ComposeProductBean> list = splitComposeProduct(bean);
+
+            for (ComposeProductListener composeProductListener : listenerMapValues)
+            {
+                for (ComposeProductBean each : list)
+                {
+                    composeProductListener.onConfirmCompose(user, each);
+                }
+            }
+
+        }else{
+            for (ComposeProductListener composeProductListener : listenerMapValues)
+            {
+                composeProductListener.onConfirmCompose(user, bean);
+            }
+        }
 
         return true;
     }
