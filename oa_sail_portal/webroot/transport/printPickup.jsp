@@ -62,8 +62,12 @@ function pagePrint()
 				<td align="center">
 				<table width="100%" border="0" cellspacing="2">
 					<tr>
-						<td style="height: 27px" align="center"><font size=5><b>
-						批&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;出&nbsp;&nbsp;&nbsp;库&nbsp;&nbsp;&nbsp;单</b></font></td>
+						<td style="height: 27px" align="center">
+                            <font size=5><b>
+						批&nbsp;&nbsp;&nbsp;次&nbsp;&nbsp;&nbsp;出&nbsp;&nbsp;&nbsp;库&nbsp;&nbsp;&nbsp;单</b>
+                            </font>
+                            <img src="${qrcode}"/>
+                        </td>
 					</tr>
 				</table>
 				</td>

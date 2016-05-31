@@ -166,7 +166,7 @@ function callBackPrintFun()
 						<td height="15" colspan="8"><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>					
 					<tr class="content2">
-						<td colspan="4" align="left"><table class="border1"><tr><td align="center">传真请直接回传至：025-51885907   </td></tr></table></td>
+						<td colspan="4" align="left"><table class="border1"><tr><td align="center">传真请直接回传至：025-51885923   </td></tr></table></td>
 						<td colspan="4" align="left"><table class="border1"><tr><td align="center">联系电话：4006518859</td></tr></table></td>
 					</tr>
 					<tr>

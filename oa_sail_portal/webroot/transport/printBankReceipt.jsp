@@ -118,7 +118,7 @@ function callBackPrintFun()
 				<table width="100%" cellspacing='0' cellpadding="0">
 					<tr class="content2">
 						<td colspan="3" width="50%"><table><tr><td>发货时间：${bean.repTime}</td></tr></table></td>
-						<td width="50%"><table><tr><td>传真：025-51885907/025-51885911</td></tr></table></td>
+						<td width="50%"><table><tr><td>传真：025-51885923</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td>收货时间：</td></tr></table></td>
