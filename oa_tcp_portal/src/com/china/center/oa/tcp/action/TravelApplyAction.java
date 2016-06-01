@@ -964,7 +964,7 @@ public class TravelApplyAction extends DispatchAction
 
         String ibType = rds.getParameter("ibType");
 
-        _logger.info("****importFlag:"+importFlag+"***ibType:"+ibType);
+        _logger.info("****importFlag:"+importFlag+"***ibType:"+ibType+"***bean***"+bean);
 
 //        if (!StringTools.isNullOrNone(importFlag)){
 //

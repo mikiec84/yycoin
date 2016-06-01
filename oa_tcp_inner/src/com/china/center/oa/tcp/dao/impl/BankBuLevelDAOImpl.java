@@ -22,7 +22,7 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
     public List<BankBuLevelBean> queryByBearType(String bearType) {
         List<BankBuLevelBean> result = new ArrayList<BankBuLevelBean>();
         if ("2".equals(bearType)){
-            //省级经理
+            //province manager
             result = jdbcOperation.queryObjectsBySql(
                     "select distinct provinceManagerId, provinceManager from T_CENTER_BANKBU_LEVEL")
                     .setMaxResults(600).list(BankBuLevelBean.class);
@@ -31,7 +31,7 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                 bean.setName(bean.getProvinceManager());
             }
         } else if ("3".equals(bearType)){
-            //区域经理
+            //regionalManager
             result = jdbcOperation.queryObjectsBySql(
                     "select distinct regionalManagerId,regionalManager from T_CENTER_BANKBU_LEVEL")
                     .setMaxResults(600).list(BankBuLevelBean.class);
@@ -40,7 +40,7 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                 bean.setName(bean.getRegionalManager());
             }
         } else if ("4".equals(bearType)){
-            //大区经理
+            //regionalDirector
             result = jdbcOperation.queryObjectsBySql(
                     "select distinct regionalDirectorId,regionalDirector from T_CENTER_BANKBU_LEVEL")
                     .setMaxResults(600).list(BankBuLevelBean.class);
@@ -57,17 +57,17 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
     public List<BankBuLevelBean> queryByBearTypeAndManager(String bearType, String manager) {
         List<BankBuLevelBean> result = new ArrayList<BankBuLevelBean>();
         if ("2".equals(bearType)){
-            //省级经理
+            //provinceManager
             result = jdbcOperation.queryObjectsBySql(
                     "select id, name from T_CENTER_BANKBU_LEVEL where provinceManagerId='"+manager+"'")
                     .setMaxResults(600).list(BankBuLevelBean.class);
         } else if ("3".equals(bearType)){
-            //区域经理
+            //regionalManager
             result = jdbcOperation.queryObjectsBySql(
                     "select id,name from T_CENTER_BANKBU_LEVEL where regionalManagerId='"+manager+"'")
                     .setMaxResults(600).list(BankBuLevelBean.class);
         } else if ("4".equals(bearType)){
-            //大区经理
+            //regionalDirector
             result = jdbcOperation.queryObjectsBySql(
                     "select id,name from T_CENTER_BANKBU_LEVEL where regionalDirectorId='"+manager+"'")
                     .setMaxResults(600).list(BankBuLevelBean.class);

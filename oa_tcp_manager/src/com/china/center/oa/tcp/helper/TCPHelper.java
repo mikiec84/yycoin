@@ -54,6 +54,9 @@ public abstract class TCPHelper
                 if (apply.getIbType() == TcpConstanst.MOTIVATION_TYPE)  {
                     bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MOTIVATION);
                     return;
+                } else if (apply.getIbType() == TcpConstanst.IB_TYPE)  {
+                    bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_IB);
+                    return;
                 }
             }
     		bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_0_5000);
