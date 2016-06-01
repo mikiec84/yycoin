@@ -700,7 +700,8 @@ public class PackageManagerImpl implements PackageManager {
                         String lo = outBean.getLocation();
                         if (!StringTools.isNullOrNone(lo) && !lo.equals(out.getLocation())){
                             _logger.warn(first.getOutId()+"****location is not same****"+out.getFullId());
-                            createNewPackage(out, baseList, distVO, fullAddress, location);
+                            return ;
+//                            createNewPackage(out, baseList, distVO, fullAddress, location);
                         }
                     }
 
