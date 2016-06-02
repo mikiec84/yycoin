@@ -137,6 +137,12 @@ public interface TcpFlowConstant
      * 预收退款
      */
     String BACKPREPAY_APPLY = "backPrePay";
+
+    /**
+     * #248
+     * 出差及借款申请营销审批流
+     */
+    String WORK_APPLY_MARKETING = "work-apply-marketing";
     
     /**
      * 部门经理

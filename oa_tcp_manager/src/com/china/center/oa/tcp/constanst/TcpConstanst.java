@@ -626,4 +626,10 @@ public interface TcpConstanst
 
     String IB_TYPE_STR = "中收";
     String MOTIVATION_TYPE_STR = "激励";
+
+    @Defined(key = "marketingFlag", value = "非营销")
+    int TCP_MARKETING_FLAG_NO = 0;
+
+    @Defined(key = "marketingFlag", value = "营销")
+    int TCP_MARKETING_FLAG_YES = 1;
 }

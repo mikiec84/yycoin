@@ -78,6 +78,11 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
     private int ibType = -1;
 
     /**
+     * #248 默认非营销
+     */
+    private int marketingFlag = 0;
+
+    /**
      * default constructor
      */
     public TravelApplyBean()
@@ -99,6 +104,14 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
     public void setId(String id)
     {
         this.id = id;
+    }
+
+    public int getMarketingFlag() {
+        return marketingFlag;
+    }
+
+    public void setMarketingFlag(int marketingFlag) {
+        this.marketingFlag = marketingFlag;
     }
 
     /**
