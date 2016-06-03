@@ -1956,7 +1956,7 @@ public class ShipAction extends DispatchAction
                     productName = bean.getCiticProductName();
                 }
             } else{
-                productName = this.getProductName(item.getProductName());
+                productName = item.getProductName();
             }
         }
 
@@ -1979,7 +1979,7 @@ public class ShipAction extends DispatchAction
         String outId = item.getOutId();
         if (outId.startsWith("ZS")){
             //2016/5/19 赠送单直接取品名
-            return this.getProductName(item.getProductName());
+            return item.getProductName();
         }
 
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
@@ -2002,7 +2002,7 @@ public class ShipAction extends DispatchAction
 
         //default pick from package item table
         if (StringTools.isNullOrNone(productName)){
-            productName = this.getProductName(item.getProductName());
+            productName = item.getProductName();
         }
 
         String template = "fullID %s product name %s converted to %s";
@@ -2032,7 +2032,7 @@ public class ShipAction extends DispatchAction
                     productName = bean.getCiticProductName();
                 }
             } else{
-                productName = this.getProductName(item.getProductName());
+                productName = item.getProductName();
             }
 
             this.setProductInfoForNb(item, product);
@@ -2079,6 +2079,8 @@ public class ShipAction extends DispatchAction
         }
     }
 
+    //2016/5/27 去掉此品名规则
+    @Deprecated
     public String getProductName(String original){
         String name = "";
         try {

@@ -203,7 +203,7 @@ function opens(obj)
     var mtype = duesTypeMap[$$('dutyId')];
     //alert('========'+ g_url_query);
     if (g_url_query == 0)
-    window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&costMode=1&queryType=1&showAbs=1&load=1&depotId='+ $$('location') + '&code=' + obj.productcode + '&mtype=' + mtype);
+    window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&costMode=1&queryType=1&showAbs=1&load=1&init=1&depotId='+ $$('location') + '&code=' + obj.productcode + '&mtype=' + mtype);
     else
     window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&abstractType=0&status=0' + '&mtype=' + mtype);
 }
