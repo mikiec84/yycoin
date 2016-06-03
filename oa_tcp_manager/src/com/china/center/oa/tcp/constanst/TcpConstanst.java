@@ -160,6 +160,19 @@ public interface TcpConstanst
 
     @Defined(key = "tcpStatus", value = "大区总监")
     int TCP_STATUS_REGION_DIRECTOR = 31;
+
+    //#248 营销审批流：省级/区域/大区/营销管理部/财务审批/权签人/财务支付
+    @Defined(key = "tcpStatus", value = "待省级经理审批")
+    int TCP_STATUS_PROVINCE_MANAGER = 32;
+
+    @Defined(key = "tcpStatus", value = "待区域经理审批")
+    int TCP_STATUS_REGIONAL_MANAGER = 33;
+
+    @Defined(key = "tcpStatus", value = "待大区总监审批")
+    int TCP_STATUS_REGIONAL_DIRECTOR = 34;
+
+    @Defined(key = "tcpStatus", value = "待营销管理部审批")
+    int TCP_STATUS_MARKETING_MANAGER = 35;
     
     /**
      * 结束
