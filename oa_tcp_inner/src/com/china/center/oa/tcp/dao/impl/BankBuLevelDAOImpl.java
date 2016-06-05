@@ -75,4 +75,27 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
 
         return result;
     }
+
+    @Override
+    public String queryHighLevelManagerId(String bearType, String stafferId) {
+        List<String> result = new ArrayList<String>();
+        if ("2".equals(bearType)){
+            //provinceManager
+            result = jdbcOperation.queryObjectsBySql(
+                    "select provinceManagerId from T_CENTER_BANKBU_LEVEL where id='"+stafferId+"'")
+                    .setMaxResults(600).list(String.class);
+        } else if ("3".equals(bearType)){
+            //regionalManager
+            result = jdbcOperation.queryObjectsBySql(
+                    "select regionalManagerId from T_CENTER_BANKBU_LEVEL where provinceManagerId='"+stafferId+"'")
+                    .setMaxResults(600).list(String.class);
+        } else if ("4".equals(bearType)){
+            //regionalDirector
+            result = jdbcOperation.queryObjectsBySql(
+                    "select regionalDirectorId from T_CENTER_BANKBU_LEVEL where regionalManagerId='"+stafferId+"'")
+                    .setMaxResults(600).list(String.class);
+        }
+
+        return result.get(0);
+    }
 }

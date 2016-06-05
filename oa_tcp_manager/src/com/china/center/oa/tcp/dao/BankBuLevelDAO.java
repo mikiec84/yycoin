@@ -21,4 +21,6 @@ public interface BankBuLevelDAO extends DAO<BankBuLevelBean, BankBuLevelBean>
 
     public List<BankBuLevelBean> queryByBearTypeAndManager(String bearType, String manager);
 
+    public String queryHighLevelManagerId(String bearType, String stafferId);
+
 }

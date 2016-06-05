@@ -330,7 +330,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     public boolean submitTravelApplyBean(User user, String id, String processId)
         throws MYException
     {
-        _logger.info("*******************submitTravelApplyBean*****************");
+        _logger.info("***submitTravelApplyBean***"+processId);
         JudgeTools.judgeParameterIsNull(user, id);
 
         TravelApplyVO bean = findVO(id);
@@ -415,6 +415,25 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         return true;
     }
+
+    /**
+     * get High level manager Id from  bank level table
+     * @param stafferId
+     * @param nextStatus
+     * @return
+     */
+    private String getNextProcessor(String stafferId, int nextStatus){
+        if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER){
+            return this.bankBuLevelDAO.queryHighLevelManagerId("2", stafferId);
+        } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER){
+            return this.bankBuLevelDAO.queryHighLevelManagerId("3", stafferId);
+        } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR){
+            return this.bankBuLevelDAO.queryHighLevelManagerId("4", stafferId);
+        } else{
+           return "";
+        }
+    }
+
     
     
     /**
@@ -765,6 +784,27 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	            // 记录操作日志
 	            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
 	        }
+            //#248
+            else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector"))
+            {
+                List<String> processList = new ArrayList();
+                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
+                if (!StringTools.isNullOrNone(nextProcessor)){
+                    processList.add(nextProcessor);
+                }
+                _logger.info("***processList***"+processList.size());
+
+                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+                        TcpConstanst.TCP_POOL_COMMON);
+
+                bean.setStatus(newStatus);
+
+                travelApplyDAO.updateStatus(bean.getId(), newStatus);
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+            }
 	    }
 	    // 结束模式
 	    else if (token.getNextPlugin().startsWith("end"))
@@ -1980,6 +2020,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         {
             // 仅仅删除自己的
             List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+            _logger.info("***approveList***"+approveList.size());
             for (TcpApproveBean tcpApproveBean : approveList)
             {
                 if (tcpApproveBean.getApproverId().equals(user.getStafferId()))
@@ -1990,8 +2031,14 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
 
         List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+        _logger.info("***appList***"+appList.size());
         if (token == null || appList.size() == 0 || token.getSingeAll() == 0)
         {
+            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
+            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
+                processList.add(nextProcessor);
+            }
+            _logger.info("***processList***"+processList.size());
             for (String processId : processList)
             {
                 // 进入审批状态
@@ -2014,6 +2061,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 approve.setPayType(TcpConstanst.PAYTYPE_GPAY_BO);
 
                 tcpApproveDAO.saveEntityBean(approve);
+                _logger.info("***save TcpApproveBean***"+approve);
+
             }
 
             // 如果是共享的不发送邮件
@@ -2049,6 +2098,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         {
             // 会签
             nextStatus = bean.getStatus();
+            _logger.info("***nextStatus***"+nextStatus);
         }
 
         return nextStatus;

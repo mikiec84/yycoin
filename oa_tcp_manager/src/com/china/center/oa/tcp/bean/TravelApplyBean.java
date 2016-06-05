@@ -80,6 +80,7 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
     /**
      * #248 默认非营销
      */
+    @Html(title = "非营销/营销", must = true, type = Element.SELECT)
     private int marketingFlag = 0;
 
     /**

@@ -79,13 +79,13 @@ function load()
 		<p:table cells="2">
             <p:pro field="stafferId" value="${g_stafferBean.name}"/>
             <p:pro field="departmentId" value="${g_stafferBean.principalshipName}"/>
+
+            <p:pro field="marketingFlag" cell="0" >
+                <p:option type="marketingFlag"></p:option>
+            </p:pro>
             
             <p:pro field="name" cell="0" innerString="size=60"/>
-            <select name="marketingFlag">
-                <option value="0">非营销</option>
-                <option value="1">营销</option>
-            </select>
-            
+
             <p:pro field="beginDate"/>
             <p:pro field="endDate"/>
             
