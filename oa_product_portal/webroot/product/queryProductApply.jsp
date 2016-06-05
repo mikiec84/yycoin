@@ -49,12 +49,12 @@ function load()
             </c:if>
              
              <c:if test="${param.forward == 1}" >
-             {id: 'pass', bclass: 'pass', caption: '部门审批', onpress : passBean},
+             {id: 'pass', bclass: 'pass', caption: '财务总监审批', onpress : passBean},
              {id: 'reject', bclass: 'reject', caption: '驳回', onpress : rejectBean},
              </c:if>
 
              <c:if test="${param.forward == 2}" >
-             {id: 'pass1', bclass: 'pass', caption: '产品管理中心审批', onpress : pass1Bean},
+             {id: 'pass1', bclass: 'pass', caption: '战略审批', onpress : pass1Bean},
              {id: 'reject', bclass: 'reject', caption: '驳回', onpress : rejectBean},
              </c:if>
              {id: 'search', bclass: 'search', onpress : doSearch}
@@ -108,10 +108,10 @@ function doSearch()
     $modalQuery('../admin/query.do?method=popCommonQuery2&key=query' + ukey);
 }
 
-//部门审批
+//待财务总监审批
 function passBean(opr, grid)
 {
-    if (getRadio('checkb') && getRadioValue('checkb') && getRadio('checkb').lstatus == 3)
+    if (getRadio('checkb') && getRadioValue('checkb') && getRadio('checkb').lstatus == 5)
     {    
         if(window.confirm('确定通过此新品申请?'))    
         $ajax(gurl + 'pass' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
@@ -120,9 +120,10 @@ function passBean(opr, grid)
     $error('不能操作');
 }
 
+//待战略审批
 function pass1Bean(opr, grid){
 
-    if (getRadio('checkb') && getRadioValue('checkb') && getRadio('checkb').lstatus == 4)
+    if (getRadio('checkb') && getRadioValue('checkb') && getRadio('checkb').lstatus == 6)
     {    
         if(window.confirm('确定通过此新品申请?'))    
         $ajax(gurl + 'pass1' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
@@ -133,7 +134,7 @@ function pass1Bean(opr, grid){
 
 function rejectBean(){
 
-    if (getRadio('checkb') && getRadioValue('checkb') && (getRadio('checkb').lstatus == 3 || getRadio('checkb').lstatus == 4))
+    if (getRadio('checkb') && getRadioValue('checkb') && (getRadio('checkb').lstatus == 5 || getRadio('checkb').lstatus == 6))
     {    
         if(window.confirm('确定驳回此新品申请?'))    
         $ajax(gurl + 'reject' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);

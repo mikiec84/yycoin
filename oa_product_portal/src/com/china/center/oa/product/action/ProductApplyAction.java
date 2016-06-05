@@ -123,11 +123,11 @@ public class ProductApplyAction extends DispatchAction {
         // 1 部门审批
         if (forward.equals("1")) {
 
-            condition.addCondition("ProductApplyBean.status", "=", ProductApplyConstant.STATUS_PRODUCTAPPLY);
+            condition.addCondition("ProductApplyBean.status", "=", ProductApplyConstant.STATUS_PRODUCT_FINANCE);
             
         } else if (forward.equals("2")) {
 
-            condition.addCondition("ProductApplyBean.status", "=", ProductApplyConstant.STATUS_PRODUCTAPPLY);
+            condition.addCondition("ProductApplyBean.status", "=", ProductApplyConstant.STATUS_PRODUCT_STRATEGY);
         }
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPRODUCTAPPLY, request,

@@ -74,7 +74,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
         if (oldStatus == ProductApplyConstant.STATUS_SUBMIT) {
             //2015/8/15 新产品申请去掉产品管理部审批环节
-            bean.setStatus(ProductApplyConstant.STATUS_PRODUCTAPPLY);
+            //2016/6/5 #247
+            bean.setStatus(ProductApplyConstant.STATUS_PRODUCT_FINANCE);
         }
 
         checkUnique(bean);
@@ -113,7 +114,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
             addLog(id, user, bean, "提交", ProductApplyConstant.OPRMODE_SUBMIT,
                     //2015/8/15 新产品申请去掉产品管理部审批环节
-                    ProductApplyConstant.STATUS_PRODUCTAPPLY);
+                    //2016/6/5 #247
+                    ProductApplyConstant.STATUS_PRODUCT_FINANCE);
         }
 
         return true;
@@ -190,7 +192,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         
         if (bean.getStatus() == ProductApplyConstant.STATUS_SUBMIT) {
             //2015/8/15 新产品申请去掉产品管理部审批环节
-            bean.setStatus(ProductApplyConstant.STATUS_PRODUCTAPPLY);
+            //2016/6/5 #247
+            bean.setStatus(ProductApplyConstant.STATUS_PRODUCT_FINANCE);
         }
         
         productApplyDAO.updateEntityBean(bean);
@@ -228,7 +231,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
             addLog(id, user, bean, "提交", ProductApplyConstant.OPRMODE_SUBMIT,
                     //2015/8/15 新产品申请去掉产品管理部审批环节
-                    ProductApplyConstant.STATUS_PRODUCTAPPLY);
+                    //2016/6/5 #247
+                    ProductApplyConstant.STATUS_PRODUCT_FINANCE);
         }
 
         operationLog.info("updateProductBean productApplyBean new :" + bean);
@@ -282,16 +286,15 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
         int status = bean.getStatus();
 
-        if (status != ProductApplyConstant.STATUS_PRODUCTAPPLY) {
-            //2015/8/15 新产品申请去掉产品管理部审批环节
-            throw new MYException("当前状态不是待部门审批状态,请联系管理员");
+        if (status != ProductApplyConstant.STATUS_PRODUCT_FINANCE) {
+            throw new MYException("当前状态不是待财务总监审批状态,请联系管理员");
         }
 
-        productApplyDAO.modifyProductApplyStatus(id, ProductApplyConstant.STATUS_PRODUCTAPPLY);
+        productApplyDAO.modifyProductApplyStatus(id, ProductApplyConstant.STATUS_PRODUCT_STRATEGY);
 
         // add log
         addLog(id, user, bean, "通过", ProductApplyConstant.OPRMODE_PASS,
-                ProductApplyConstant.STATUS_PRODUCTAPPLY);
+                ProductApplyConstant.STATUS_PRODUCT_STRATEGY);
 
         return true;
     }
@@ -314,8 +317,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
             int status = bean.getStatus();
 
-            if (status != ProductApplyConstant.STATUS_PRODUCTAPPLY) {
-                throw new MYException("当前状态不是待产品管理中心审批状态,请联系管理员:"+status);
+            if (status != ProductApplyConstant.STATUS_PRODUCT_STRATEGY) {
+                throw new MYException("当前状态不是待战略审批状态,请联系管理员:"+status);
             }
 
             createFullName(applyBean);

@@ -403,3 +403,7 @@ CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 insert into t_center_oamenuitem values(1034,'批量导入产品主数据','../product/importProductForMailOut.jsp',10,1,101001,27,'批量导入产品主数据')
+
+--2016/6/5 新产品申请流程
+insert into t_center_oamenuitem values(1021,'新产品-财务总监审批','../product/queryProductApply.jsp?forward=1',10,1,101003,14,null)
+update t_center_oamenuitem set menuitemname='新产品-战略审批' where id=1022 and menuitemname='新产品-运营中心审批'

@@ -18,8 +18,15 @@ public interface ProductApplyConstant {
 /*   @Defined(key = "productApplyStatus", value = "待部门审批")
     int STATUS_DEPARTMENTAPPLY = 3;*/
     
-    @Defined(key = "productApplyStatus", value = "待产品管理中心审批")
-    int STATUS_PRODUCTAPPLY = 4;
+//    @Defined(key = "productApplyStatus", value = "待产品管理中心审批")
+//    int STATUS_PRODUCTAPPLY = 4;
+
+    //#247 2016/6/5 新产品申请增加审批流，增加“财务总监审批”与“战略审批”环节
+    @Defined(key = "productApplyStatus", value = "待财务总监审批")
+    int STATUS_PRODUCT_FINANCE = 5;
+
+    @Defined(key = "productApplyStatus", value = "待战略审批")
+    int STATUS_PRODUCT_STRATEGY =6;
     
     @Defined(key = "productApplyStatus", value = "结束")
     int STATUS_FINISHED = 99;
