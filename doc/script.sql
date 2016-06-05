@@ -407,3 +407,30 @@ insert into t_center_oamenuitem values(1034,'批量导入产品主数据','../product/imp
 --2016/6/5 新产品申请流程
 insert into t_center_oamenuitem values(1021,'新产品-财务总监审批','../product/queryProductApply.jsp?forward=1',10,1,101003,14,null)
 update t_center_oamenuitem set menuitemname='新产品-战略审批' where id=1022 and menuitemname='新产品-运营中心审批'
+
+--2016/6/5 #256
+drop PROCEDURE auth_user
+CREATE PROCEDURE auth_user(in authId varchar(100))
+BEGIN
+   DECLARE u_id varchar(100) DEFAULT "";
+   DECLARE u_name varchar(100) DEFAULT "";
+   DECLARE u_roleId varchar(100) DEFAULT "";
+   DECLARE no_more_rows BOOLEAN;
+   
+   DEClARE user_cursor CURSOR FOR select id,name,roleId from T_CENTER_OAUSER where name='林均波';
+   DECLARE CONTINUE HANDLER FOR NOT FOUND
+    SET no_more_rows = TRUE;
+    
+      
+   OPEN user_cursor;
+   the_loop: LOOP
+   FETCH user_cursor INTO u_id,u_name,u_roleId;
+#   SELECT concat('myvar is ', u_id,u_name,u_roleId);   
+    IF no_more_rows THEN
+        CLOSE user_cursor;
+        LEAVE the_loop;
+    END IF;
+   SELECT u_id,u_name,u_roleId;  
+   END LOOP the_loop; 
+   #CLOSE user_cursor; 
+END 
