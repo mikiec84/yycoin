@@ -1453,8 +1453,8 @@ public class ShipAction extends DispatchAction
 
         List<PackageItemBean> itemList = packageItemDAO.
                 queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
-        String template = "CK:%s customer:%s item size:%d";
-        _logger.info(String.format(template, vo.getId(), vo.getCustomerName(), itemList.size()));
+        String template = "CK:%s customerID:%s customer:%s item size:%d";
+        _logger.info(String.format(template, vo.getId(), vo.getCustomerId(), vo.getCustomerName(), itemList.size()));
         request.setAttribute("bean", vo);
 
         request.setAttribute("pickupId", pickupId);
@@ -1836,6 +1836,12 @@ public class ShipAction extends DispatchAction
                 String productName = this.convertProductNameForBank(item);
                 if (!StringTools.isNullOrNone(productName)){
                     item.setProductName(productName);
+                }
+
+                if (!item.getCustomerId().equals(vo.getCustomerId()))
+                {
+                    _logger.info("*************each.getCustomerId()***"+item.getCustomerId()+"****"+vo.getCustomerId());
+                    continue;
                 }
                 itemList1.add(item);
             }
