@@ -1818,6 +1818,13 @@ public class ShipAction extends DispatchAction
 
             for (PackageItemBean each : itemList)
             {
+
+                if (!each.getCustomerId().equals(vo.getCustomerId()))
+                {
+                    _logger.info("***each.getCustomerId() "+each.getCustomerId()+" vs "+vo.getCustomerId());
+                    continue;
+                }
+
                 String key = each.getProductId();
 
                 if (!map1.containsKey(key))
@@ -1838,11 +1845,6 @@ public class ShipAction extends DispatchAction
                     item.setProductName(productName);
                 }
 
-                if (!item.getCustomerId().equals(vo.getCustomerId()))
-                {
-                    _logger.info("*************each.getCustomerId()***"+item.getCustomerId()+"****"+vo.getCustomerId());
-                    continue;
-                }
                 itemList1.add(item);
             }
 
@@ -1990,7 +1992,6 @@ public class ShipAction extends DispatchAction
 
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
-        _logger.info("***importBeans size***"+importBeans.size());
         if (!ListTools.isEmptyOrNull(importBeans))
         {
             OutImportBean bean = importBeans.get(0);
@@ -2055,7 +2056,6 @@ public class ShipAction extends DispatchAction
     private void setProductInfoForNb(PackageItemBean item, ProductBean product){
         if(item != null && product!= null){
             _logger.info("****product amount***"+item.getAmount()+"***"+product.getProductAmount()+"***"+product.getPackageAmount()+"***");
-            int amount = Math.abs(item.getAmount());
             item.setProductAmount(Math.abs(item.getAmount()*product.getProductAmount()));
             item.setPackageAmount(Math.abs(item.getAmount()*product.getPackageAmount()));
             item.setCertificateAmount(Math.abs(item.getAmount()*product.getCertificateAmount()));
@@ -2211,7 +2211,6 @@ public class ShipAction extends DispatchAction
                 }
             }
         }
-        _logger.info(productCode+"getProductCodeFromOutImport****"+conditionParse.toString());
         return productCode;
     }
 
@@ -2304,7 +2303,6 @@ public class ShipAction extends DispatchAction
 
         //2015/1/25 取商务联系人及电话
         if (!ListTools.isEmptyOrNull(itemList)){
-            _logger.info("******itemList size****"+itemList.size());
             PackageItemBean first = itemList.get(0);
             String outId = first.getOutId();
             String stafferName = "永银商务部";
@@ -2340,8 +2338,7 @@ public class ShipAction extends DispatchAction
                     }
                 }
             }
-            _logger.info("*****stafferName***********"+stafferName);
-            _logger.info("*******phone*************"+phone);
+            _logger.info("**stafferName***"+stafferName+"**phone**"+phone);
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
         }
@@ -2543,7 +2540,6 @@ public class ShipAction extends DispatchAction
             String outId = first.getOutId();
             String stafferName = "永银商务部";
             String phone = "4006518859";
-//            _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
                 _logger.warn("****Empty OutId***********"+first.getId());
             }else if (this.isOut(outId)){
@@ -2584,7 +2580,7 @@ public class ShipAction extends DispatchAction
             _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId());
             if (!each.getCustomerId().equals(vo.getCustomerId()))
             {
-                _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
+                _logger.info("*************each.getCustomerId() "+each.getCustomerId()+"****"+vo.getCustomerId());
                 continue;
             }
 
@@ -2765,7 +2761,6 @@ public class ShipAction extends DispatchAction
 
         //2015/1/25 取商务联系人及电话
         if (!ListTools.isEmptyOrNull(itemList)){
-            _logger.info("******itemList size****"+itemList.size());
             PackageItemBean first = itemList.get(0);
             String outId = first.getOutId();
             String stafferName = "永银商务部";
@@ -2808,13 +2803,11 @@ public class ShipAction extends DispatchAction
                     }
                 }
             }
-            _logger.info("*****stafferName***********"+stafferName+"***phone***"+phone);
+
 
             branchName = this.getBranchNameFromOutImport(firstOutId);
-            _logger.info("***branchName***" + branchName);
+            _logger.info("*****stafferName***"+stafferName+"***phone***"+phone+"**branchName*"+branchName);
             request.setAttribute("branchName",branchName);
-
-
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
 
@@ -2997,7 +2990,6 @@ public class ShipAction extends DispatchAction
 
         //2015/1/25 取商务联系人及电话
         if (!ListTools.isEmptyOrNull(itemList)){
-            _logger.info("******itemList size****"+itemList.size());
             PackageItemBean first = itemList.get(0);
             String outId = first.getOutId();
             String stafferName = "永银商务部";
@@ -3033,8 +3025,7 @@ public class ShipAction extends DispatchAction
                     }
                 }
             }
-            _logger.info("*****stafferName***********"+stafferName);
-            _logger.info("*******phone*************"+phone);
+            _logger.info("*****stafferName***********"+stafferName+"**phone**"+phone);
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
 
