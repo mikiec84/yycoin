@@ -2940,6 +2940,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //根据customerId分组
         Map<String, List<OutVO>>  customerToOutMap = new HashMap<String,List<OutVO>>();
 
+        final String beginDate = "2015-04-01";
         //所有中收激励统计均为“已出库”、“已发货”状态的销售出库订单
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
@@ -2952,7 +2953,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         // “已出库”、“已发货”状态的订单
 //        con.addCondition("and OutBean.status in (3,4)");
 
-        con.addCondition("outTime", ">", "2015-04-01");
+        con.addCondition("outTime", ">", beginDate);
         List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(outList)){
             _logger.info("ibReport outList1 size:"+outList.size());
@@ -2961,12 +2962,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                  if (customerToOutMap.containsKey(customerId)){
                      List<OutVO> outVOs = customerToOutMap.get(customerId);
                      outVOs.add(out);
-                     _logger.info(out.getFullId()+" add to customerToOutMap:"+customerId);
+//                     _logger.info(out.getFullId()+" add to customerToOutMap:"+customerId);
                  }else{
                      List<OutVO> outVOList = new ArrayList<OutVO>();
                      outVOList.add(out);
                      customerToOutMap.put(customerId, outVOList);
-                     _logger.info(out.getFullId()+" first put to customerToOutMap:"+customerId);
+//                     _logger.info(out.getFullId()+" first put to customerToOutMap:"+customerId);
                  }
              }
         }
@@ -2980,7 +2981,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         con1.addCondition("OutBean.outType", "=", OutConstant.OUTTYPE_IN_OUTBACK);
         //“待核对”状态
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
-        con1.addCondition("outTime",">","2015-04-01");
+        con1.addCondition("outTime",">",beginDate);
         List<OutVO> outList2 = this.outDAO.queryEntityVOsByCondition(con1);
         if (!ListTools.isEmptyOrNull(outList2)){
             _logger.info("ibReport outList2 size:"+outList2.size());

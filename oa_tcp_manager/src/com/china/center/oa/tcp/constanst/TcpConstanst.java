@@ -363,6 +363,12 @@ public interface TcpConstanst
     int TCP_APPLYTYPE_MID = 7;
 
     /**
+     * 激励申请
+     */
+    @Defined(key = "tcpType", value = "激励申请")
+    int TCP_APPLYTYPE_MOTIVATION = 8;
+
+    /**
      * 差旅费报销
      */
     @Defined(key = "tcpType", value = "差旅费报销")
