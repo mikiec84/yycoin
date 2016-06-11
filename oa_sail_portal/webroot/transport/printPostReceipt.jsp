@@ -52,12 +52,15 @@ function callBackPrintFun()
 			<tr>
 				<td align="center">
 				<table width="100%" border="0" cellspacing="2">
+                    <tr>
+                        <td align="left" style="height: 27px"><img src="${qrcode}"/></td>
+                        <td align="right"><img src="${qrcode}"/></td>
+                    </tr>
 					<tr>
-						<td style="height: 27px" align="center">
+						<td style="height: 27px" align="center" colspan="2">
                             <font size=5>
                                 <b>
 						    永银文化创意产业发展有限责任公司发货确认单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>
-                                    <img src="${qrcode}"/>
                                 </b>
                             </font></td>
 					</tr>

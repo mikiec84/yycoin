@@ -72,22 +72,24 @@ function callBackPrintFun()
 		<td colspan='2'>
 		<table width="100%" border="0" cellpadding="0" cellspacing="0">
 			<tr>
-
 			</tr>
 			<tr>
 				<td align="center">
-				<table width="100%" border="0" cellspacing="2">
-					<tr>
-						<td style="height: 27px" align="center">
-                            <font size=5>
-                                <b>
-						${title}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>
-                            <img src="${qrcode}"/>
-                                </b>
-                            </font>
-                        </td>
-					</tr>
-				</table>
+                    <table width="100%" border="0" cellspacing="2">
+                        <tr>
+                            <td align="left" style="height: 27px"><img src="${qrcode}"/></td>
+                            <td align="right"><img src="${qrcode}"/></td>
+                        </tr>
+                        <tr>
+                            <td style="height: 27px" align="center" colspan="2">
+                                <font size=5>
+                                    <b>
+                            ${title}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>
+                                    </b>
+                                </font>
+                            </td>
+                        </tr>
+                    </table>
 				</td>
 			</tr>
 		</table>
