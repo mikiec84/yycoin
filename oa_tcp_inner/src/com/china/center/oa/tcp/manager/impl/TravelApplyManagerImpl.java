@@ -365,7 +365,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         travelApplyDAO.updateStatus(bean.getId(), newStatus);
 
         // 中收在此产生凭证借：营业费用-中收 (5504-47)贷：预提费用 (2191)
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID ) {
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
             if (bean.isImportFlag()){
                 //2015/4/12 中收激励设置对应SO标志位
                 List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
@@ -422,15 +423,20 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
      * @param nextStatus
      * @return
      */
-    private String getNextProcessor(String stafferId, int nextStatus){
-        if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER){
-            return this.bankBuLevelDAO.queryHighLevelManagerId("2", stafferId);
-        } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER){
-            return this.bankBuLevelDAO.queryHighLevelManagerId("3", stafferId);
-        } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR){
-            return this.bankBuLevelDAO.queryHighLevelManagerId("4", stafferId);
-        } else{
-           return "";
+    private String getNextProcessor(String stafferId, int nextStatus) throws  MYException{
+        try {
+            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId("2", stafferId);
+            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId("3", stafferId);
+            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId("4", stafferId);
+            } else {
+                return "";
+            }
+        }catch(Exception e){
+            _logger.error(e);
+            throw new MYException("T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+stafferId);
         }
     }
 
@@ -1630,7 +1636,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             for (TcpPayListener tcpPayListener : listenerMapValues)
             {
             	// 中收，在支付确认后，红冲提交时产生的凭证
-            	if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID) {
+            	if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                        ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
             		tcpPayListener.onSubmitMidTravelApply(user, bean, -1);
             	}
             	
@@ -1770,7 +1777,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         checkAuth(user, id);
         
         // 中收申请，同时删除凭证。如果此时凭证所在的月份已经月结，要求反月结才能继续驳回操作
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID) {
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
             if (bean.isImportFlag()) {
                 //2015/4/12 中收激励设置SO单标志位
                 List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());

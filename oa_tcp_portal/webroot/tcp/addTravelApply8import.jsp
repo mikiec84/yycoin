@@ -54,7 +54,7 @@ function load()
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="addOrUpdate" value="0"> 
 <input type="hidden" name="processId" value=""> 
-<input type="hidden" name="type" value="7">
+<input type="hidden" name="type" value="8">
 <input type="hidden" name="importFlag" value="${bean.importFlag}">
 <input type="hidden" name="ibType" value="${bean.ibType}">
 <input type="hidden" name="stafferId" value="${g_stafferBean.id}"> 

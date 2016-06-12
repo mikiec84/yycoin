@@ -701,7 +701,9 @@ public class TravelApplyAction extends DispatchAction
             return ActionTools.toError("数据异常,请重新操作", mapping, request);
         } else{
             //2015/4/12 中收激励导入功能
-            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID && bean.isImportFlag()){
+            if ((bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                    || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION )
+                    && bean.isImportFlag()){
                 List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
                  _logger.info("************TcpIbBean list size:"+ibList.size());
                 bean.setIbList(ibList);
@@ -989,7 +991,8 @@ public class TravelApplyAction extends DispatchAction
         bean.setStype(stafferBean.getOtype());
         
         // 中收赋上纳税实体
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID) {
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                ||bean.getType() ==TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
         	bean.setDutyId(PublicConstant.DEFAULR_DUTY_ID);
         }
         

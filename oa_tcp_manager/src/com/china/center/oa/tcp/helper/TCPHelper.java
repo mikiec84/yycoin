@@ -48,7 +48,8 @@ public abstract class TCPHelper
      */
     public static void setFlowKey(AbstractTcpBean bean)
     {
-    	if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID) {
+    	if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
             if (bean instanceof TravelApplyBean){
                 TravelApplyBean apply = (TravelApplyBean)bean;
                 if (apply.getIbType() == TcpConstanst.MOTIVATION_TYPE)  {

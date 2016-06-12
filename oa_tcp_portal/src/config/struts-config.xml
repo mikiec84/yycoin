@@ -23,6 +23,7 @@
 			<forward name="updateTravelApply2" path="/tcp/updateTravelApply2.jsp" />
 			<forward name="updateTravelApply3" path="/tcp/updateTravelApply3.jsp" />
 			<forward name="updateTravelApply7" path="/tcp/updateTravelApply7.jsp" />
+            <forward name="updateTravelApply8" path="/tcp/updateTravelApply8.jsp" />
 			<forward name="updateVocationAndWork" path="/tcp/updateVocationAndWork.jsp" />
 			<forward name="processVocationAndWork" path="/tcp/processVocationAndWork.jsp" />
 			<forward name="detailVocationAndWork" path="/tcp/detailVocationAndWork.jsp" />
@@ -37,18 +38,21 @@
 			<forward name="querySelfTravelApply2" path="/tcp/querySelfTravelApply2.jsp" />
 			<forward name="querySelfTravelApply3" path="/tcp/querySelfTravelApply3.jsp" />
 			<forward name="querySelfTravelApply7" path="/tcp/querySelfTravelApply7.jsp" />
+            <forward name="querySelfTravelApply8" path="/tcp/querySelfTravelApply8.jsp" />
 			
 			<forward name="detailTravelApply0" path="/tcp/detailTravelApply0.jsp" />
 			<forward name="detailTravelApply1" path="/tcp/detailTravelApply1.jsp" />
 			<forward name="detailTravelApply2" path="/tcp/detailTravelApply2.jsp" />
 			<forward name="detailTravelApply3" path="/tcp/detailTravelApply3.jsp" />
 			<forward name="detailTravelApply7" path="/tcp/detailTravelApply7.jsp" />
+            <forward name="detailTravelApply8" path="/tcp/detailTravelApply8.jsp" />
 			
 			<forward name="processTravelApply0" path="/tcp/processTravelApply0.jsp" />
 			<forward name="processTravelApply1" path="/tcp/processTravelApply1.jsp" />
 			<forward name="processTravelApply2" path="/tcp/processTravelApply2.jsp" />
 			<forward name="processTravelApply3" path="/tcp/processTravelApply3.jsp" />
 			<forward name="processTravelApply7" path="/tcp/processTravelApply7.jsp" />
+            <forward name="processTravelApply8" path="/tcp/processTravelApply8.jsp" />
 			
 			<forward name="querySelfApprove" path="/tcp/querySelfApprove.jsp" />
 			<forward name="rptQueryTravelApply" path="/tcp/rptQueryTravelApply.jsp" />
