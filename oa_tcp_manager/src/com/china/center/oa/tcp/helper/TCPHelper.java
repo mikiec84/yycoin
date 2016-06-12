@@ -69,6 +69,15 @@ public abstract class TCPHelper
     		
     		return;
     	}
+
+        //2016/6/2 #248 不管职能系
+        if (bean instanceof TravelApplyBean){
+            TravelApplyBean apply = (TravelApplyBean)bean;
+            if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
+                bean.setFlowKey(TcpFlowConstant.WORK_APPLY_MARKETING);
+                return ;
+            }
+        }
     	
         if (bean.getType() != TcpConstanst.TCP_APPLYTYPE_STOCK)
         {
@@ -105,14 +114,6 @@ public abstract class TCPHelper
 
             if (bean.getStype() == TcpConstanst.TCP_STYPE_WORK)
             {
-                //2016/6/2 #248
-                if (bean instanceof TravelApplyBean){
-                    TravelApplyBean apply = (TravelApplyBean)bean;
-                    if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
-                        bean.setFlowKey(TcpFlowConstant.WORK_APPLY_MARKETING);
-                        return ;
-                    }
-                }
                 if (bean.getTotal() <= 5000000)
                 {
                     bean.setFlowKey(TcpFlowConstant.WORK_APPLY_0_50000);
