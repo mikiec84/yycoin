@@ -436,6 +436,10 @@ public class ShipAction extends DispatchAction
 
         for (String pickupId : set)
         {
+            if (StringTools.isNullOrNone(pickupId)){
+                _logger.warn("pickupId is empty!");
+                continue;
+            }
             List<PackageVO> voList = packageDAO.queryEntityVOsByFK(pickupId);
 
             // 从小到大
