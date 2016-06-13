@@ -12,6 +12,7 @@ package com.china.center.oa.product.action;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2046,6 +2047,12 @@ public class ProductAction extends DispatchAction
         bean.setItemList(itemList);
     }
 
+    private double parseFloat(String value){
+        BigDecimal bd = new BigDecimal(value);
+        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return v1;
+    }
+
     /**
      * setDecompose
      * 
@@ -2065,7 +2072,10 @@ public class ProductAction extends DispatchAction
         bean.setDeportId(depot);
         bean.setProductId(productId);
         bean.setAmount(CommonTools.parseInt(amount));
-        bean.setPrice(CommonTools.parseFloat(price));
+        _logger.info("***price***" + price);
+//        bean.setPrice(CommonTools.parseFloat(price));
+        bean.setPrice(this.parseFloat(price));
+        _logger.info("***price2***" + bean.getPrice());
         bean.setLogTime(TimeTools.now());
         bean.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 

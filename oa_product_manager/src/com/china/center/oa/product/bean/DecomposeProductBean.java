@@ -289,4 +289,22 @@ public class DecomposeProductBean implements Serializable
 	{
 		this.itemList = itemList;
 	}
+
+    @Override
+    public String toString() {
+        return "DecomposeProductBean{" +
+                "id='" + id + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", deportId='" + deportId + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", storageId='" + storageId + '\'' +
+                ", type=" + type +
+                ", mtype=" + mtype +
+                ", amount=" + amount +
+                ", status=" + status +
+                ", price=" + price +
+                ", logTime='" + logTime + '\'' +
+                '}';
+    }
 }

@@ -1185,9 +1185,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         bean.setId(commonDAO.getSquenceString20());
 
         bean.setStatus(ComposeConstant.STATUS_INDUSTRY_PASS);
-
-        System.out.println(bean.getId()+"****************decomposeProductDAO***********"+bean.getItemList().size());
-
+        _logger.info("****addDecomposeProduct***"+bean);
         decomposeProductDAO.saveEntityBean(bean);
 
         List<ComposeItemBean> itemList = bean.getItemList();
