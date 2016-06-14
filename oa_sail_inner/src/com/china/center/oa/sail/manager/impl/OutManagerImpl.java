@@ -7205,12 +7205,17 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
             }else
             {
-                PreConsignBean preConsign = new PreConsignBean();
+                DepotBean depot =  this.depotDAO.find(outBean.getLocation());
+                if (depot != null && "99".equals(depot.getIndustryId2())){
+                    PreConsignBean preConsign = new PreConsignBean();
 
-                preConsign.setOutId(outBean.getFullId());
+                    preConsign.setOutId(outBean.getFullId());
 
-                preConsignDAO.saveEntityBean(preConsign);
-                _logger.info("create PreConsignBean****"+outBean.getFullId());
+                    preConsignDAO.saveEntityBean(preConsign);
+                    _logger.info("create PreConsignBean****"+outBean.getFullId());
+                } else{
+                    _logger.warn(outBean.getLocation()+"not create PreConsignBean****"+outBean.getFullId());
+                }
             }
         } else {
             _logger.info("****distList not found 2222222222222222222222222222****");
