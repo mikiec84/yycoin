@@ -121,7 +121,7 @@ public class ProductImportBean implements Serializable
     /**
      * 税率
      */
-    private String taxRate;
+    private double taxRate =0.0d;
 
     /**
      * 发票类型
@@ -277,11 +277,11 @@ public class ProductImportBean implements Serializable
         this.branchRange = branchRange;
     }
 
-    public String getTaxRate() {
+    public double getTaxRate() {
         return taxRate;
     }
 
-    public void setTaxRate(String taxRate) {
+    public void setTaxRate(double taxRate) {
         this.taxRate = taxRate;
     }
 

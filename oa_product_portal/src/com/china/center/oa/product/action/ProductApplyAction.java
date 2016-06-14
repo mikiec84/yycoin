@@ -9,6 +9,7 @@
 package com.china.center.oa.product.action;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -684,7 +685,25 @@ public class ProductApplyAction extends DispatchAction {
                     // OA产品code
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
-                        bean.setCode(obj[3]);
+                        bean.setCode(obj[3].trim());
+                        ProductBean product = productDAO.find(bean.getCode());
+
+                        if (null == product)
+                        {
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("产品不存在")
+                                    .append("<br>");
+                        } else if(!product.getName().equals(bean.getName())){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("OA品名与产品CODE不对应")
+                                    .append("<br>");
+                        }
                     }else
                     {
                         importError = true;
@@ -705,7 +724,7 @@ public class ProductApplyAction extends DispatchAction {
 
                         builder
                                 .append("第[" + currentNumber + "]错误:")
-                                .append("管理类型为空")
+                                .append("银行产品条码为空")
                                 .append("<br>");
                     }
 
@@ -744,7 +763,16 @@ public class ProductApplyAction extends DispatchAction {
                     // 零售价
                     if ( !StringTools.isNullOrNone(obj[9]))
                     {
-                        bean.setRetailPrice(Double.valueOf(obj[9]));
+                        try{
+                            bean.setRetailPrice(Double.valueOf(obj[9]));
+                        }catch(Exception e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("零售价必须为数值")
+                                    .append("<br>");
+                        }
                     }else
                     {
                         importError = true;
@@ -758,57 +786,61 @@ public class ProductApplyAction extends DispatchAction {
                     // 供货价
                     if ( !StringTools.isNullOrNone(obj[10]))
                     {
-                        bean.setCostPrice(Double.valueOf(obj[10]));
-                    }else
-                    {
-                        importError = true;
+                        try{
+                            bean.setCostPrice(Double.valueOf(obj[10]));
+                        }catch(Exception e){
+                            importError = true;
 
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("供货价为空")
-                                .append("<br>");
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("供货价必须为数值")
+                                    .append("<br>");
+                        }
                     }
 
                     // 中收
                     if ( !StringTools.isNullOrNone(obj[11]))
                     {
-                        bean.setIbMoney(Double.valueOf(obj[11]));
-                    }else
-                    {
-                        importError = true;
+                        try{
+                            bean.setIbMoney(Double.valueOf(obj[11]));
+                        }catch(Exception e){
+                            importError = true;
 
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("中收为空")
-                                .append("<br>");
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("中收必须为数值")
+                                    .append("<br>");
+                        }
                     }
 
                     // 激励
                     if ( !StringTools.isNullOrNone(obj[12]))
                     {
-                        bean.setMotivationMoney(Double.valueOf(obj[12]));
-                    }else
-                    {
-                        importError = true;
+                        try{
+                            bean.setMotivationMoney(Double.valueOf(obj[12]));
+                        }catch(Exception e){
+                            importError = true;
 
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("激励为空")
-                                .append("<br>");
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("激励必须为数值")
+                                    .append("<br>");
+                        }
                     }
 
                     // 可支配毛利
                     if ( !StringTools.isNullOrNone(obj[13]))
                     {
-                        bean.setGrossProfit(Double.valueOf(obj[13]));
-                    }else
-                    {
-                        importError = true;
+                        try{
+                            bean.setGrossProfit(Double.valueOf(obj[13]));
+                        }catch(Exception e){
+                            importError = true;
 
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("可支配毛利为空")
-                                .append("<br>");
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("可支配毛利必须为数值")
+                                    .append("<br>");
+                        }
                     }
 
                     // 是否回购
@@ -816,8 +848,15 @@ public class ProductApplyAction extends DispatchAction {
                     {
                         if("否".equals(obj[14])){
                             bean.setBuyBack(0);
-                        } else{
+                        } else if ("是".equals(obj[14])){
                             bean.setBuyBack(1);
+                        } else{
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("是否回购必须为是或否")
+                                    .append("<br>");
                         }
                     }
 
@@ -825,12 +864,42 @@ public class ProductApplyAction extends DispatchAction {
                     if ( !StringTools.isNullOrNone(obj[15]))
                     {
                         bean.setOnMarketDate(obj[15]);
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        try{
+                            sdf.format(bean.getOnMarketDate());
+                        }catch(IllegalArgumentException e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("上线时间必须为XXXX-XX-XX格式")
+                                    .append("<br>");
+                        }
+                    } else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("上线时间为空")
+                                .append("<br>");
                     }
 
                     // 下线时间
                     if ( !StringTools.isNullOrNone(obj[16]))
                     {
                         bean.setOfflineDate(obj[16]);
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        try{
+                            sdf.format(bean.getOfflineDate());
+                        }catch(IllegalArgumentException e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("下线时间必须为XXXX-XX-XX格式")
+                                    .append("<br>");
+                        }
                     }
 
                     // 分行范围
@@ -842,7 +911,16 @@ public class ProductApplyAction extends DispatchAction {
                     // 税率
                     if ( !StringTools.isNullOrNone(obj[18]))
                     {
-                        bean.setTaxRate(obj[18]);
+                        try{
+                           bean.setTaxRate(Double.parseDouble(obj[18].trim()));
+                        }catch(Exception e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("税率必须为数值")
+                                    .append("<br>");
+                        }
                     }else
                     {
                         importError = true;
@@ -856,7 +934,24 @@ public class ProductApplyAction extends DispatchAction {
                     // 发票类型
                     if ( !StringTools.isNullOrNone(obj[19]))
                     {
-                        bean.setInvoiceType(obj[19]);
+                        String invoiceName = obj[19].trim();
+                        bean.setInvoiceType(invoiceName);
+                        InvoiceBean invoiceBean = this.invoiceDAO.findByUnique(invoiceName);
+                        if(invoiceBean == null){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票类型不存在")
+                                    .append("<br>");
+                        } else if(this.equals(invoiceBean.getVal(), bean.getTaxRate(), 0.001)){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票类型与税率不匹配")
+                                    .append("<br>");
+                        }
                     }else
                     {
                         importError = true;
@@ -926,6 +1021,14 @@ public class ProductApplyAction extends DispatchAction {
         request.setAttribute(KeyConstant.MESSAGE, "导入成功");
 
         return mapping.findForward(url);
+    }
+
+      public boolean equals(double x, double y) {
+          return (Double.isNaN(x) && Double.isNaN(y)) || x == y;
+     }
+
+    public boolean equals(double x, double y, double eps) {
+        return equals(x, y) || (Math.abs(y - x) <= eps);
     }
 
     /**
