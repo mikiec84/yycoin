@@ -17,14 +17,14 @@ function addBean(opr)
 {
     $("input[name='oprType']").val(opr);
     
-    if ("0" == opr)
-    {
-        $O('processer').oncheck = '';
-    }
-    else
-    {
-        $O('processer').oncheck = 'notNone';
-    }
+//    if ("0" == opr)
+//    {
+//        $O('processer').oncheck = '';
+//    }
+//    else
+//    {
+//        $O('processer').oncheck = 'notNone';
+//    }
 
     //2015/5/14 disabled HTML select will not submit value ,need to remove disabled before submit
     $(".select_class").removeAttr('disabled');
@@ -324,7 +324,8 @@ function load()
     </p:title>
 
     <p:line flag="0" />
-    
+
+    <!--
     <tr id="sub_main_tr">
         <td colspan='2' align='center'>
         <table width="98%" border="0" cellpadding="0" cellspacing="0"
@@ -348,6 +349,7 @@ function load()
 
         </td>
     </tr>
+    -->
     
     <p:line flag="1" />
     

@@ -854,14 +854,14 @@ public class TravelApplyAction extends DispatchAction
 
             request.setAttribute("token", token);
 
-            if (token.getNextPlugin().startsWith("group"))
+            String nextPlugin = token.getNextPlugin();
+            if (nextPlugin.startsWith("group"))
             {
                 // 群组
                 request.setAttribute("pluginType", "group");
 
                 request.setAttribute("pluginValue", token.getNextPlugin().substring(6));
-            }
-            else
+            } else
             {
                 request.setAttribute("pluginType", "");
                 request.setAttribute("pluginValue", "");
