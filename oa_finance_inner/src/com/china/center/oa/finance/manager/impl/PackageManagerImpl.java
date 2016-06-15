@@ -58,6 +58,8 @@ import com.china.center.tools.TimeTools;
 public class PackageManagerImpl implements PackageManager {
 	private final Log triggerLog = LogFactory.getLog("trigger");
 
+    private final Log blockedLog = LogFactory.getLog("blocked");
+
     private final Log _logger = LogFactory.getLog(getClass());
 	
 	private PreConsignDAO preConsignDAO = null;
@@ -676,7 +678,7 @@ public class PackageManagerImpl implements PackageManager {
             _logger.info("****create new package now***"+fullId);
 			createNewPackage(out, baseList, distVO, fullAddress, location);
 		}else{
-            _logger.info("****package already exist***"+fullId);
+            _logger.info(location+"****package already exist***"+fullId);
             String id = packageList.get(0).getId();
 			
 			PackageBean packBean = packageDAO.find(id);
@@ -698,11 +700,20 @@ public class PackageManagerImpl implements PackageManager {
                     OutVO outBean = outDAO.findVO(first.getOutId());
                     if (outBean!= null){
                         String lo = outBean.getLocation();
-                        if (!StringTools.isNullOrNone(lo) && !lo.equals(out.getLocation())){
-                            _logger.warn(first.getOutId()+"****location is not same****"+out.getFullId());
+                        //#18 2016/6/15 如果销售单对应depot表中industryId2不一致，就不能合并。而不管仓库是否一致
+                        DepotBean depot2 = this.depotDAO.find(lo);
+                        if (depot2!= null && !location.equals(depot2.getIndustryId2())) {
+                            String msg = first.getOutId()+"****industryId2 is not same****"+out.getFullId();
+                            blockedLog.warn(out.getFullId()+":"+packBean.getId());
+                            _logger.warn(msg);
+                            preConsignDAO.deleteEntityBean(pre.getId());
                             return ;
-//                            createNewPackage(out, baseList, distVO, fullAddress, location);
                         }
+//                        if (!StringTools.isNullOrNone(lo) && !lo.equals(out.getLocation())){
+//                            _logger.warn(first.getOutId()+"****location is not same****"+out.getFullId());
+//                            return ;
+////                            createNewPackage(out, baseList, distVO, fullAddress, location);
+//                        }
                     }
 
                     //2015/2/15 检查重复SO单
