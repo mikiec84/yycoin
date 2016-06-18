@@ -3933,12 +3933,12 @@ public class OutImportAction extends DispatchAction
                     {
 						String date = obj[16].trim();
 						try {
-							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 							sdf.parse(date);
 						}catch(ParseException e){
 							builder
 									.append("第[" + currentNumber + "]错误:")
-									.append("顺丰收货日期格式必须如2016-04-01")
+									.append("顺丰收货日期格式必须按照XXXX-XX-XX XX:XX:XX")
 									.append("<br>");
 
 							importError = true;

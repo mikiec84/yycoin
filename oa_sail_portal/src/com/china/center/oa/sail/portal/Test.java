@@ -97,10 +97,21 @@ public class Test {
     }
 
     public String getInCondition(String value){
+//        double d = CommonTools.parseFloat("1392887.80");
+//        System.out.println(d);
+        double d = Float.parseFloat("1392887.80");
+        System.out.println(d);
+/*        System.out.println(new Float("1392887.80"));
+        System.out.println(Float.valueOf("1392887.80"));*/
+        BigDecimal bd = new BigDecimal("1392887.80");
+        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        System.out.println(v1);
+
         Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String specifiedDay = sdf.format(date);
-        System.out.println(specifiedDay);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            sdf.parse("2016-05-23 10:07:19");
+        }catch(Exception e){e.printStackTrace();}
         //SO1602230844017663321;SO1602231628017664378;
         StringBuilder sb = new StringBuilder();
         String[] values = value.split(";");
