@@ -866,7 +866,7 @@ public class ProductApplyAction extends DispatchAction {
                         bean.setOnMarketDate(obj[15]);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         try{
-                            sdf.format(bean.getOnMarketDate());
+                            sdf.parse(bean.getOnMarketDate());
                         }catch(IllegalArgumentException e){
                             importError = true;
 
@@ -891,7 +891,7 @@ public class ProductApplyAction extends DispatchAction {
                         bean.setOfflineDate(obj[16]);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         try{
-                            sdf.format(bean.getOfflineDate());
+                            sdf.parse(bean.getOfflineDate());
                         }catch(IllegalArgumentException e){
                             importError = true;
 
@@ -944,7 +944,7 @@ public class ProductApplyAction extends DispatchAction {
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("发票类型不存在")
                                     .append("<br>");
-                        } else if(this.equals(invoiceBean.getVal(), bean.getTaxRate(), 0.001)){
+                        } else if(!this.equals(invoiceBean.getVal(), bean.getTaxRate(), 0.001)){
                             importError = true;
 
                             builder
