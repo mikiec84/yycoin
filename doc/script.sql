@@ -397,7 +397,7 @@ CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   `onMarketDate` varchar(40) DEFAULT '',
   `offlineDate` varchar(40) DEFAULT '',
   `branchRange` varchar(40) DEFAULT '',
-  `taxRate` varchar(40) NOT NULL,
+  `taxRate` double DEFAULT 0,
   `invoiceType` varchar(40) NOT NULL,
   `invoiceContent` varchar(256) NOT NULL,
   PRIMARY KEY (`id`)

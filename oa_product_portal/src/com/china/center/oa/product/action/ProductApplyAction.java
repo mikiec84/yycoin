@@ -686,7 +686,8 @@ public class ProductApplyAction extends DispatchAction {
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
                         bean.setCode(obj[3].trim());
-                        ProductBean product = productDAO.find(bean.getCode());
+//                        ProductBean product = productDAO.find(bean.getCode());
+                        ProductBean product = productDAO.findByUnique(bean.getCode());
 
                         if (null == product)
                         {
