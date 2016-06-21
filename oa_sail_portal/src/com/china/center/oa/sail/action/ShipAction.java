@@ -1273,6 +1273,320 @@ public class ShipAction extends DispatchAction
     }
 
     /**
+     * #262 统一回执单打印格式
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward findOutForReceipt(ActionMapping mapping, ActionForm form,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response)
+            throws ServletException {
+        CommonTools.saveParamers(request);
+
+        String compose = RequestTools.getValueFromRequest(request, "compose");
+
+        String compose1 = RequestTools.getValueFromRequest(request, "compose1");
+
+        if (!StringTools.isNullOrNone(compose1))
+            compose = compose1;
+
+        String pickupId = RequestTools.getValueFromRequest(request, "pickupId");
+
+        String pickupId2 = RequestTools.getValueFromRequest(request, "pickupId2");
+
+        // 第一次跳转
+        if (!StringTools.isNullOrNone(pickupId2)) {
+            pickupId = pickupId2;
+        }
+
+        String sindex_pos = RequestTools.getValueFromRequest(request, "index_pos");
+
+        int index_pos = 0;
+
+        if (!StringTools.isNullOrNone(sindex_pos)) {
+            index_pos = MathTools.parseInt(sindex_pos);
+        }
+
+        String packageId = RequestTools.getValueFromRequest(request, "packageId");
+
+        String printMode = (String) request.getAttribute("printMode");
+        String printSmode = (String) request.getAttribute("printSmode");
+
+        String batchPrint = RequestTools.getValueFromRequest(request, "batchPrint");
+        String print2 = (String) request.getSession().getAttribute("printMode");
+
+        String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 + "***pickupId***" + pickupId + "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" + printSmode;
+        _logger.info(msg1);
+        //2015/3/25 批量打印标志
+        request.setAttribute("batchPrint", batchPrint);
+
+        //可去掉？很奇怪在页面上读不到printMode参数
+        request.setAttribute("printMode", printMode);
+        request.setAttribute("printSmode", printSmode);
+
+        // 第一次打印时，找出第一个出库单，一个出库单对应多个客户 1:n
+        if (index_pos == 0) {
+            ConditionParse condtion = new ConditionParse();
+
+            condtion.addWhereStr();
+
+            condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+            condtion.addIntCondition("PackageBean.index_pos", "=", 1);
+
+            List<PackageVO> packageList = packageDAO.queryVOsByCondition(condtion);
+
+            if (ListTools.isEmptyOrNull(packageList) || packageList.size() > 1) {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印完毕");
+
+                return mapping.findForward("error");
+            }
+
+            packageId = packageList.get(0).getId();
+
+            index_pos = 1;
+        }
+        String subindex_pos = request.getParameter("subindex_pos");
+
+        int subindexpos = 0;
+
+        if (!StringTools.isNullOrNone(subindex_pos)) {
+            subindexpos = MathTools.parseInt(subindex_pos);
+        }
+
+        subindexpos += 1;
+
+        String customerId = "";
+        String customerName = "";
+
+        ConditionParse con = new ConditionParse();
+
+        con.addWhereStr();
+
+        con.addCondition("PackageVSCustomerBean.packageId", "=", packageId);
+        con.addIntCondition("PackageVSCustomerBean.indexPos", "=", subindexpos);
+        _logger.info("=======con========" + con.toString());
+        List<PackageVSCustomerBean> vsList = packageVSCustomerDAO.queryEntityBeansByCondition(con);
+
+        if (!ListTools.isEmptyOrNull(vsList)) {
+            customerId = vsList.get(0).getCustomerId();
+            customerName = vsList.get(0).getCustomerName();
+
+            request.setAttribute("subindex_pos", subindexpos);
+            String msg2 = "**********vsList size****" + vsList.size();
+            _logger.info(msg2);
+        } else {
+            // 更新状态
+            try {
+                shipManager.updatePrintStatus(pickupId, index_pos);
+                _logger.info(pickupId + ":" + index_pos + " print finished***");
+            } catch (MYException e) {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印出错." + e.getErrorContent());
+
+                return mapping.findForward("error");
+            }
+
+            index_pos += 1;
+        }
+
+        ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+
+        condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+        condtion.addIntCondition("PackageBean.index_pos", "=", index_pos);
+
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(condtion);
+
+        if (ListTools.isEmptyOrNull(packageList) || packageList.size() > 1) {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印完毕");
+
+            return mapping.findForward("error");
+        }
+
+        // 取出包
+        PackageVO vo = packageList.get(0);
+
+        vo.setRepTime(TimeTools.now_short());
+
+        vo.setCustomerId(customerId);
+        vo.setCustomerName(customerName);
+
+        if (StringTools.isNullOrNone(customerId)) {
+            ConditionParse con1 = new ConditionParse();
+
+            con1.addWhereStr();
+
+            con1.addCondition("PackageVSCustomerBean.packageId", "=", vo.getId());
+            con1.addIntCondition("PackageVSCustomerBean.indexPos", "=", 1);
+            List<PackageVSCustomerBean> vsList1 = packageVSCustomerDAO.queryEntityBeansByCondition(con1);
+
+            if (!ListTools.isEmptyOrNull(vsList1)) {
+                customerId = vsList1.get(0).getCustomerId();
+                customerName = vsList1.get(0).getCustomerName();
+
+                vo.setCustomerId(customerId);
+                vo.setCustomerName(customerName);
+
+                request.setAttribute("subindex_pos", 1);
+                String msg3 = "**********vsList1 size****" + vsList1.size() + "***customerId***" + customerId;
+                _logger.info(msg3);
+
+            }
+        }
+
+        List<PackageItemBean> itemList = packageItemDAO.
+                queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
+        String template = "CK:%s customerID:%s customer:%s item size:%d";
+        _logger.info(String.format(template, vo.getId(), vo.getCustomerId(), vo.getCustomerName(), itemList.size()));
+        request.setAttribute("bean", vo);
+
+        request.setAttribute("pickupId", pickupId);
+
+        request.setAttribute("index_pos", index_pos);
+
+        request.setAttribute("compose", compose);
+
+        request.setAttribute("year", TimeTools.now("yyyy"));
+        request.setAttribute("month", TimeTools.now("MM"));
+        request.setAttribute("day", TimeTools.now("dd"));
+
+        int totalAmount = 0;
+        double total = 0.0d;
+
+        //中原银行客户
+        if (vo.getCustomerName().indexOf("中原银行") != -1) {
+            request.setAttribute("packageId", vo.getId());
+
+            request.setAttribute("title", "贵金属交接单");
+
+            ConditionParse con2 = new ConditionParse();
+            con2.addWhereStr();
+            con2.addCondition("PackageBean.pickupId", "=", pickupId);
+
+            List<PackageVO> allPackages = packageDAO.queryVOsByCondition(con2);
+            if (!ListTools.isEmptyOrNull(allPackages)) {
+                _logger.info("****allPackages size****" + allPackages.size());
+                request.setAttribute("allPackages", allPackages.size());
+
+                //2015/3/30 批量打印最后一张回执单时，因定向到交接单打印，需要此时把最后一张CK单状态设置为“已打印"
+                if ("0".equals(batchPrint) && allPackages.size() == index_pos) {
+                    // 更新状态
+                    try {
+                        shipManager.updatePrintStatus(pickupId, index_pos);
+                        _logger.info(pickupId + ":" + index_pos + " print finished***");
+                    } catch (MYException e) {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印出错." + e.getErrorContent());
+
+                        return mapping.findForward("error");
+                    }
+                }
+            }
+
+            try {
+                String msg5 = "**********before prepareForZyPrint****";
+                _logger.info(msg5);
+                this.prepareForZyPrint(request, vo, itemList, compose);
+                String msg6 = "**********after prepareForZyPrint****";
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+                _logger.error("****printZyReceipt exception***", e);
+            }
+
+            return mapping.findForward("printZyReceipt");
+        }
+        //宁波银行客户
+        else if (vo.getCustomerName().indexOf("宁波银行") != -1) {
+            request.setAttribute("packageId", vo.getId());
+
+            request.setAttribute("title", "发货确认单");
+
+            ConditionParse con2 = new ConditionParse();
+            con2.addWhereStr();
+            con2.addCondition("PackageBean.pickupId", "=", pickupId);
+
+            List<PackageVO> allPackages = packageDAO.queryVOsByCondition(con2);
+            if (!ListTools.isEmptyOrNull(allPackages)) {
+                _logger.info("****allPackages size****" + allPackages.size());
+                request.setAttribute("allPackages", allPackages.size());
+
+                //2015/3/30 批量打印最后一张回执单时，因定向到交接单打印，需要此时把最后一张CK单状态设置为“已打印"
+                if ("0".equals(batchPrint) && allPackages.size() == index_pos) {
+                    // 更新状态
+                    try {
+                        shipManager.updatePrintStatus(pickupId, index_pos);
+                        _logger.info(pickupId + ":" + index_pos + " print finished***");
+                    } catch (MYException e) {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印出错." + e.getErrorContent());
+
+                        return mapping.findForward("error");
+                    }
+                }
+            }
+
+            try {
+                String msg5 = "**********before prepareForNbPrint****";
+                _logger.info(msg5);
+                this.prepareForNbPrint(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                String msg6 = "**********after prepareForNbPrint****";
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+                _logger.error("****prepareForNbPrint exception***", e);
+            }
+
+            return mapping.findForward("printNbReceipt");
+        } else{
+            //其他所有银行
+            request.setAttribute("packageId", vo.getId());
+
+            request.setAttribute("title", "永银文化——发货清单");
+
+            ConditionParse con2 = new ConditionParse();
+            con2.addWhereStr();
+            con2.addCondition("PackageBean.pickupId", "=", pickupId);
+
+            List<PackageVO> allPackages = packageDAO.queryVOsByCondition(con2);
+            if (!ListTools.isEmptyOrNull(allPackages)) {
+                request.setAttribute("allPackages", allPackages.size());
+
+                //2015/3/30 批量打印最后一张回执单时，因定向到交接单打印，需要此时把最后一张CK单状态设置为“已打印"
+                if ("0".equals(batchPrint) && allPackages.size() == index_pos) {
+                    // 更新状态
+                    try {
+                        shipManager.updatePrintStatus(pickupId, index_pos);
+                    } catch (MYException e) {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印出错." + e.getErrorContent());
+
+                        return mapping.findForward("error");
+                    }
+                }
+            }
+
+            try {
+                String msg5 = "**********before prepareForUnified****";
+                _logger.info(msg5);
+                prepareForUnified(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                String msg6 = "**********after prepareForUnified****";
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return mapping.findForward("printUnifiedReceipt");
+        }
+    }
+    /**
      * 显示要打印的回执单
      * 邮政、浦发、中信
      * 一个包(package)一个打印单
@@ -1284,7 +1598,8 @@ public class ShipAction extends DispatchAction
      * @return
      * @throws ServletException
      */
-    public ActionForward findOutForReceipt(ActionMapping mapping, ActionForm form,
+    @Deprecated
+    public ActionForward findOutForReceipt2(ActionMapping mapping, ActionForm form,
                                            HttpServletRequest request,
                                            HttpServletResponse response)
             throws ServletException
@@ -2277,13 +2592,17 @@ public class ShipAction extends DispatchAction
             if (staffer!= null){
                 if (!StringTools.isNullOrNone(staffer.getName())){
                     stafferName = staffer.getName();
+                    if (!StringTools.isNullOrNone(stafferName) && stafferName.indexOf("-")!=-1){
+                        String[] temp = stafferName.split("-");
+                        stafferName = temp[1];
+                    }
                 }
                 if (!StringTools.isNullOrNone(staffer.getHandphone())){
                     phone = staffer.getHandphone();
                 }
             }
         } else{
-            _logger.warn("******OutBean not found*****"+outId);
+            _logger.warn("******OutBean not found*****" + outId);
         }
         return new String[]{stafferName,phone};
     }
@@ -2526,6 +2845,222 @@ public class ShipAction extends DispatchAction
 
     private boolean isOut(String outId){
         return outId.startsWith("SO") || outId.startsWith("ZS") || outId.startsWith("XZ");
+    }
+
+    /**
+     * #262 2016/6/21 统一回执单打印格式
+     * @param request
+     * @param vo
+     * @param itemList
+     * @param compose
+     */
+    private void prepareForUnified(HttpServletRequest request, PackageVO vo,
+                                     List<PackageItemBean> itemList, String compose)
+    {
+        int totalAmount = 0 ;
+
+        List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
+
+        //#189 <productId_itemType,PackageItemBean>
+        Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
+
+        //2015/1/25 取商务联系人及电话
+        if (!ListTools.isEmptyOrNull(itemList)){
+            PackageItemBean first = itemList.get(0);
+            String outId = first.getOutId();
+            String stafferName = "永银商务部";
+            String phone = "4006518859";
+            if (StringTools.isNullOrNone(outId)){
+                _logger.warn("****Empty OutId***********"+first.getId());
+            }else if (this.isOut(outId)){
+                String[] result = this.getStafferNameAndPhone(outId);
+                if (result.length>=2){
+                    stafferName = result[0];
+                    phone = result[1];
+                }
+            } else if(outId.startsWith("A")){
+                InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
+                if (bean!= null){
+                    String refIds = bean.getRefIds();
+                    _logger.info(outId+"*****refIds found********"+refIds);
+                    if (!StringTools.isNullOrNone(refIds)){
+                        String[] temp = refIds.split(";");
+                        String refOutId = null;
+                        for (String out: temp){
+                            if (out.startsWith("SO")){
+                                refOutId = out;
+                                break;
+                            }
+                        }
+                        String[] result2 = this.getStafferNameAndPhone(refOutId);
+                        if (result2.length>=2){
+                            stafferName = result2[0];
+                            phone = result2[1];
+                        }
+                    }
+                }
+            }
+            _logger.info("*****stafferName***********"+stafferName+"*******phone*************"+phone);
+            request.setAttribute("stafferName", stafferName);
+            request.setAttribute("phone",phone);
+        }
+
+        for (PackageItemBean each : itemList)
+        {
+            _logger.info(each.getId() + "****iterate package item:" + "***" + each.getOutId() + "***" + each.getDescription() + "***" + each.getRefId());
+            if (!each.getCustomerId().equals(vo.getCustomerId()))
+            {
+                _logger.info("*************each.getCustomerId() "+each.getCustomerId()+"****"+vo.getCustomerId());
+                continue;
+            }
+
+            //2015/12/26 #145:回执单打印CK单合并多客户名称问题
+            this.getCustomerName(each);
+            this.getProductCode(each);
+
+            // 针对赠品,且有备注的订单,单独显示
+            String outId = each.getOutId();
+
+            OutBean out = outDAO.find(outId);
+
+            //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
+            if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
+                if (out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){
+                    each.setItemType("销售");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+                        || out.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH
+                        || out.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH){
+                    each.setItemType("领样");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SHOW){
+                    each.setItemType("铺货");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT){
+                    each.setItemType("赠品");
+                }
+            }
+
+            if (StringTools.isNullOrNone(each.getItemType()) && outId.startsWith("A")){
+                each.setItemType("发票");
+            }
+
+            //2015/10/13 销售时间取out表中的podate
+            if (out!= null){
+                each.setPoDate(out.getPodate());
+            }
+            //#169
+            else if(out == null && outId.startsWith("A")){
+                each.setPoDate(each.getOutTime());
+            }
+
+            if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
+            {
+                _logger.info("******赠品类型*****"+each.getOutId());
+                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
+
+                if (!ListTools.isEmptyOrNull(outiList))
+                {
+                    String refId = outiList.get(0).getCiticNo();
+                    _logger.info("****refId:"+refId);
+                    each.setRefId(refId);
+
+                    if (!StringTools.isNullOrNone(outiList.get(0).getDescription()))
+                    {
+                        checkCompose(each, each, compose);
+
+                        String description = outiList.get(0).getDescription();
+                        _logger.info("****Description****"+description);
+                        each.setDescription(description);
+
+                        itemList1.add(each);
+
+                        totalAmount += each.getAmount();
+
+                        continue;
+                    }
+                }
+            }
+
+//            String key = each.getProductId();
+            String key = each.getProductId()+"_"+each.getItemType();
+
+            if (!map1.containsKey(key))
+            {
+                checkCompose(each, each, compose);
+
+                String refId = this.getRefId(out, each.getOutId());
+                if (!StringTools.isNullOrNone(refId)){
+                    each.setRefId(refId);
+                }
+
+                //2015/1/25 注释掉
+//				each.setDescription("");
+
+                map1.put(key, each);
+            }else{
+                PackageItemBean itemBean = map1.get(key);
+
+                itemBean.setAmount(itemBean.getAmount() + each.getAmount());
+
+                itemBean.setOutId(itemBean.getOutId() + "<br>" + each.getOutId());
+
+                //#145: 2015/12/27 回执单CK单合并多客户名称问题
+                if (StringTools.isNullOrNone(itemBean.getCustomerName())){
+                    itemBean.setCustomerName(each.getCustomerName());
+                }else{
+                    itemBean.setCustomerName(itemBean.getCustomerName()+"<br>"+each.getCustomerName());
+                }
+
+                if (!StringTools.isNullOrNone(itemBean.getRefId()))
+                {
+                    String refId = this.getRefId(out, each.getOutId());
+                    if (!StringTools.isNullOrNone(refId))
+                    {
+                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
+                        _logger.info("*****refId3*******"+refId3);
+                        itemBean.setRefId(refId3);
+                    }
+                }else{
+                    if (!StringTools.isNullOrNone(each.getRefId()))
+                    {
+                        _logger.info("**********refId4**********"+each.getRefId());
+                        itemBean.setRefId(each.getRefId());
+                    }
+                }
+
+                //2015/1/29 合并Description
+                if (!StringTools.isNullOrNone(itemBean.getDescription()))
+                {
+                    if (!StringTools.isNullOrNone(each.getDescription()))
+                    {
+                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
+                        _logger.info("**********description2**********"+description);
+                        itemBean.setDescription(description);
+                    }
+                }else{
+                    if (!StringTools.isNullOrNone(each.getDescription()))
+                    {
+                        itemBean.setDescription(each.getDescription());
+                    }
+                }
+            }
+
+            totalAmount += each.getAmount();
+        }
+
+        for(Entry<String, PackageItemBean> each : map1.entrySet())
+        {
+            PackageItemBean item = each.getValue();
+            String productName = this.convertProductNameForBank(item);
+            if (!StringTools.isNullOrNone(productName)){
+                item.setProductName(productName);
+            }
+
+            itemList1.add(item);
+            _logger.info("***convertProductNameForBank***" + item.getProductName());
+        }
+
+        vo.setItemList(itemList1);
+
+        request.setAttribute("total", totalAmount);
     }
 
     private void prepareForBankPrint(HttpServletRequest request, PackageVO vo,

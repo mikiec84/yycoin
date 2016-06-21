@@ -107,16 +107,16 @@ function callBackPrintFun()
 				<td>
 				<table width="100%" cellspacing='0' cellpadding="0">
 					<tr class="content2">
-						<td colspan="2" width="50%"><table><tr><td>出库时间：取打印时间</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>出库时间：${year}-${month}-${day}</td></tr></table></td>
 						<td colspan="2" width="50%"><table><tr><td>收货客户：${bean.customerName}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td><table><tr><td>业务联系：TODO 去掉专员-${stafferName}</td></tr></table></td>
-						<td colspan="3"><table><tr><td>TODO 客服电话：${phone} </td></tr></table></td>
+						<td><table><tr><td>业务联系：${stafferName}</td></tr></table></td>
+						<td colspan="3"><table><tr><td>客服电话：4006518859</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td><table><tr><td>业务电话</td></tr></table></td>
-						<td><table><tr><td>客服传真：</td></tr></table></td>
+						<td><table><tr><td>业务电话：${phone}</td></tr></table></td>
+						<td><table><tr><td>客服传真：025-51885923</td></tr></table></td>
                         <td><table><tr><td>收货人员：${bean.receiver}</td></tr></table></td>
                         <td><table><tr><td>联系电话：${bean.mobile}</td></tr></table></td>
 					</tr>
@@ -141,7 +141,7 @@ function callBackPrintFun()
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
 						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                        <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
 						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.itemType}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>
@@ -163,21 +163,12 @@ function callBackPrintFun()
                         <td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
-					<tr class="content2">
-						<td colspan="2"><table class="border1"><tr><td align="center">合计:</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${total}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">-</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-					</tr>
 				</table>
 				</td>
 			</tr>
 			
 			<tr>
-				<td height="15"></td>
+				<td height="20"></td>
 			</tr>
 			
 			<tr>
