@@ -5,12 +5,21 @@ package com.china.center.oa.sail.manager.impl;
  */
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.dao.CustomerMainDAO;
+import com.china.center.oa.client.dao.StafferVSCustomerDAO;
+import com.china.center.oa.client.vs.StafferVSCustomerBean;
 import com.china.center.oa.sail.bean.CiticOrderBean;
+import com.china.center.oa.sail.bean.OutImportBean;
 import com.china.center.oa.sail.bean.ZyOrderBean;
+import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.CiticOrderDAO;
 import com.china.center.oa.sail.dao.ZyOrderDAO;
 import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
 import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
 import com.sun.mail.imap.IMAPMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +35,7 @@ import java.security.Security;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -38,6 +48,10 @@ public class ImapMailClient {
     private CiticOrderDAO citicOrderDAO = null;
 
     private ZyOrderDAO zyOrderDAO = null;
+
+    private CustomerMainDAO customerMainDAO = null;
+
+    private StafferVSCustomerDAO stafferVSCustomerDAO = null;
 
     public CiticOrderDAO getCiticOrderDAO() {
         return citicOrderDAO;
@@ -67,7 +81,8 @@ public class ImapMailClient {
 
     }
 
-    public void receiveEmail(String host, String username, String password) throws Exception {
+    public String receiveEmail(String host, String username, String password) throws Exception {
+        String mailId= "";
         String port = "993";
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
@@ -123,7 +138,10 @@ public class ImapMailClient {
                     if(mailType == 0){
                         continue;
                     }
-                    parseMultipart(msg.getContent(), this.getOrderType(msg));
+                    String subject = msg.getSubject();
+                    Date now = new Date();
+                    mailId = subject+"_"+now.toString();
+                    parseMultipart(msg.getContent(), this.getOrderType(msg), mailId);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -140,9 +158,110 @@ public class ImapMailClient {
             }
             try {
                 store.close();
-            } catch (Exception ignored) {
+            } catch (Exception ignored) {}
+        }
+
+
+        return mailId;
+    }
+
+    /**
+     * convert temp order table to OA table with import method
+     * @param mailId
+     */
+    public List<OutImportBean> importOrders(String mailId){
+        List<OutImportBean> importItemList = new ArrayList<OutImportBean>();
+
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("mailId","=",mailId);
+        if (mailId.indexOf("贵金属订单")!= -1) {
+            List<CiticOrderBean> citicOrderBeans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(citicOrderBeans)){
+
+                 for(CiticOrderBean citicOrderBean: citicOrderBeans){
+                     OutImportBean bean = this.convert(citicOrderBean);
+                     if (bean == null){
+                         _logger.error("Fail to convert citic order***"+citicOrderBean);
+                     } else{
+//                     bean.setItype(MathTools.parseInt(itype));
+                         importItemList.add(bean);
+                     }
+                 }
             }
         }
+
+        return importItemList;
+    }
+
+    private   OutImportBean convert(CiticOrderBean orderBean){
+        OutImportBean bean = new OutImportBean();
+        bean.setLogTime(TimeTools.now());
+        // 操作人
+        bean.setReason("import_from_mail");
+
+        bean.setBranchName(orderBean.getBranchName());
+        bean.setSecondBranch(orderBean.getSecondBranch());
+        bean.setComunicationBranch(orderBean.getComunicationBranch());
+
+        //TODO 订单类型
+
+        String custName = orderBean.getComunicatonBranchName()+"-银行";
+
+        CustomerBean cBean = customerMainDAO.findByUnique(custName);
+
+        if (null == cBean)
+        {
+            _logger.error("网点名称不存在："+custName);
+        }else{
+            if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
+            {
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+
+                if (null == vsBean)
+                {
+                    _logger.error("网点名称（客户）没有与业务员挂靠关系："+custName);
+                }else{
+                    bean.setComunicatonBranchName(custName);
+                }
+            }else{
+                bean.setComunicatonBranchName("公共客户");
+            }
+        }
+
+        //TODO
+        bean.setProductCode(orderBean.getProductCode());
+
+        bean.setFirstName("N/A");
+        bean.setAmount(orderBean.getAmount());
+        bean.setPrice(orderBean.getPrice());
+
+        //TODO 规格
+//        bean.setStyle(orderBean.getst);
+        bean.setValue(orderBean.getValue());
+
+        //TODO 中收
+//        bean.setMidValue(orderBean.getmid);
+        bean.setArriveDate(orderBean.getArriveDate());
+
+        //TODO 库存类型
+//        bean.setStorageType(orderBean);
+        bean.setCiticNo(orderBean.getCiticNo());
+        //TODO 开票性质
+//        bean.setInvoiceNature(orderBean.getInvoiceNature());
+        bean.setInvoiceHead(orderBean.getInvoiceHead());
+        bean.setInvoiceCondition(orderBean.getInvoiceCondition());
+        //TODO 开票类型   开票品名    开票金额
+//        bean.setInvoiceType(orderBean);
+//        bean.setInvoiceName(orderBean);
+//        bean.setInvoiceMoney(orderBean.getmo);
+        bean.setCiticOrderDate(orderBean.getCiticOrderDate());
+        //TODO 仓库 仓区   职员 备注 发货方式
+//        bean.setStafferId(orderBean);
+//        bean.setDescription(orderBean.getdes);
+//        bean.setShipping(orderBean);
+
+
+        return bean;
     }
 
     private int getOrderType(Message message){
@@ -179,10 +298,11 @@ public class ImapMailClient {
      *
      * @param content
      * @param type 1:中信 2:中原
+     * @param subject 邮件标题
      * @throws MessagingException
      * @throws IOException
      */
-    public void parseMultipart(Object content, int type) throws MessagingException, IOException {
+    public void parseMultipart(Object content, int type, String subject) throws MessagingException, IOException {
         if (content instanceof Multipart) {
             Multipart multipart = (Multipart) content;
             int count = multipart.getCount();
@@ -196,7 +316,7 @@ public class ImapMailClient {
                     _logger.info("html..................." + bodyPart.getContent());
                 } else if (bodyPart.isMimeType("multipart/*")) {
                     Multipart mpart = (Multipart) bodyPart.getContent();
-                    parseMultipart(mpart, type);
+                    parseMultipart(mpart, type, subject);
                 } else if (bodyPart.isMimeType("application/octet-stream")) {
                     String disposition = bodyPart.getDisposition();
                     _logger.info(disposition + "***disposition***" + bodyPart.getInputStream());
@@ -212,8 +332,10 @@ public class ImapMailClient {
                             System.out.println("***CiticOrderBean size***"+items.size());
 
                             if (this.citicOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
+
                                 for(CiticOrderBean item :items){
                                     try{
+                                        item.setMailId(subject);
                                         this.citicOrderDAO.saveEntityBean(item);
                                     } catch(Exception e){
                                         e.printStackTrace();

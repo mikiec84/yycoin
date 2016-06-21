@@ -21,6 +21,11 @@ public class CiticOrderBean implements Serializable{
 	@Id(autoIncrement = true)
 	private String id = "";
 
+    /**
+     *  邮件标题+时间
+     */
+    private String mailId = "";
+
 	/**
 	 * 状态位，默认为0，如果成功创建SO单，就把状态位更新为1
 	 */
@@ -689,7 +694,15 @@ public class CiticOrderBean implements Serializable{
 		this.pickupNode = pickupNode;
 	}
 
-	@Override
+    public String getMailId() {
+        return mailId;
+    }
+
+    public void setMailId(String mailId) {
+        this.mailId = mailId;
+    }
+
+    @Override
 	public String toString() {
 		return "CiticOrderBean{" +
 				"id='" + id + '\'' +

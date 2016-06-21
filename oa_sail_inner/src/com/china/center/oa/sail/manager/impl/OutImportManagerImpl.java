@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
@@ -3065,7 +3066,26 @@ public class OutImportManagerImpl implements OutImportManager
 		_logger.info("***downloadOrderFromMailAttachment running***");
 		try {
 //			this.imapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
-			this.imapMailClient.receiveEmail("imap.exmail.qq.com", "yycoindd@yycoin.com", "Yycoin135");
+			String mailId = this.imapMailClient.receiveEmail("imap.exmail.qq.com", "yycoinoa@yycoin.com", "Yycoin135");
+            List<OutImportBean>  importItemList = this.imapMailClient.importOrders(mailId);
+            String batchId = "";
+            try
+            {
+                batchId = this.addBean(importItemList);
+            }
+            catch(MYException e)
+            {
+                _logger.error("Fail to import order from mail：",e);
+            }
+
+            // 异步处理
+            List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
+
+            if (!ListTools.isEmptyOrNull(list))
+            {
+                _logger.info("before outImportManager.processAsyn***"+list.size());
+                this.processAsyn(list);
+            }
 		}catch(Exception e){
 			e.printStackTrace();
 		}

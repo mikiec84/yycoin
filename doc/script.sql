@@ -218,6 +218,7 @@ update t_center_oamenuitem set indexPos = indexPos+2 where id in ('1516','1517',
 --2016/4/14 邮件下载生成销售单
 create table T_CENTER_CITIC_ORDER (	
 id int(11) NOT NULL AUTO_INCREMENT,
+mailId varchar(100) NOT NULL,
 status int(11) default 0,
 customerId varchar(40) NOT NULL,
 customerName varchar(40) NOT NULL ,
