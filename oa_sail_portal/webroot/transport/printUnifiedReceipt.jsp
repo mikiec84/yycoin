@@ -135,7 +135,6 @@ function callBackPrintFun()
 						<td width="20%"><table class="border1"><tr><td align="center">客户单号</td></tr></table></td>
 						<td width="10%"><table class="border1"><tr><td align="center">订单日期</td></tr></table></td>
                         <td width="8%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
-						<td width="26%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
@@ -147,7 +146,6 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
                         <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
@@ -160,7 +158,6 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 				</table>
@@ -179,13 +176,16 @@ function callBackPrintFun()
 						<td width="50%"><table><tr><td>收货人签字确认：</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>备注：1.此发货清单仅作为收货确认使用。请依据本清单清点货品，请特别留意：如有发票，发票与发货清单一起放置在透明塑封袋中。</td></tr></table></td>
+						<td colspan="4"><table><tr><td>备注：</td></tr></table></td>
+					</tr>
+					<tr class="content2">
+						<td colspan="4"><table><tr><td>1.此发货清单仅作为收货确认使用。请依据本清单清点货品，请特别留意：如有发票，发票与发货清单一起放置在透明塑封袋中。</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="4"><table><tr><td>2.约定有配套赠品的，本次如未配送，将随后补发，请留意收货。</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>3.如需要退换补货，请留存照片等说明情况的依据，在收货后三日内联系我方人员，提供需退换补货的订单号及退货快递单号。需退回的货品，烦请保留所有配件完整，原样（含发票）完整打包后寄回。不原路返回的退款要求，请同时寄回有效盖章的退款函，注明退回账号信息。</td></tr></table></td>
+						<td colspan="4"><table><tr><td>3.如需要退换补货，请留存照片等说明情况的依据，<b>在收货后三日内联系我方人员</b>，提供需退换补货的订单号及退货快递单号。需退回的货品，烦请保留所有配件完整，原样（含发票）完整打包后寄回。不原路返回的退款要求，请同时寄回有效盖章的退款函，注明退回账号信息。</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td></td></tr></table></td>
