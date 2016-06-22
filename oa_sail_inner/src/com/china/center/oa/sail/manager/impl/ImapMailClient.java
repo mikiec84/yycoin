@@ -5,11 +5,16 @@ package com.china.center.oa.sail.manager.impl;
  */
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vs.StafferVSCustomerBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.sail.bean.CiticOrderBean;
 import com.china.center.oa.sail.bean.OutImportBean;
 import com.china.center.oa.sail.bean.ZyOrderBean;
@@ -53,6 +58,10 @@ public class ImapMailClient {
 
     private StafferVSCustomerDAO stafferVSCustomerDAO = null;
 
+    private ProductImportDAO productImportDAO = null;
+
+    private ProductDAO productDAO = null;
+
     public CiticOrderDAO getCiticOrderDAO() {
         return citicOrderDAO;
     }
@@ -67,6 +76,38 @@ public class ImapMailClient {
 
     public void setZyOrderDAO(ZyOrderDAO zyOrderDAO) {
         this.zyOrderDAO = zyOrderDAO;
+    }
+
+    public CustomerMainDAO getCustomerMainDAO() {
+        return customerMainDAO;
+    }
+
+    public void setCustomerMainDAO(CustomerMainDAO customerMainDAO) {
+        this.customerMainDAO = customerMainDAO;
+    }
+
+    public StafferVSCustomerDAO getStafferVSCustomerDAO() {
+        return stafferVSCustomerDAO;
+    }
+
+    public void setStafferVSCustomerDAO(StafferVSCustomerDAO stafferVSCustomerDAO) {
+        this.stafferVSCustomerDAO = stafferVSCustomerDAO;
+    }
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
+    }
+
+    public ProductDAO getProductDAO() {
+        return productDAO;
+    }
+
+    public void setProductDAO(ProductDAO productDAO) {
+        this.productDAO = productDAO;
     }
 
     public static void main(String[] args) throws Exception{
@@ -179,12 +220,11 @@ public class ImapMailClient {
             if (!ListTools.isEmptyOrNull(citicOrderBeans)){
 
                  for(CiticOrderBean citicOrderBean: citicOrderBeans){
-                     OutImportBean bean = this.convert(citicOrderBean);
-                     if (bean == null){
-                         _logger.error("Fail to convert citic order***"+citicOrderBean);
-                     } else{
-//                     bean.setItype(MathTools.parseInt(itype));
+                     try{
+                         OutImportBean bean = this.convert(citicOrderBean);
                          importItemList.add(bean);
+                     }catch(MYException e){
+                         _logger.error(citicOrderBean+" Fail to convert citic order***"+e.getMessage());
                      }
                  }
             }
@@ -193,7 +233,7 @@ public class ImapMailClient {
         return importItemList;
     }
 
-    private   OutImportBean convert(CiticOrderBean orderBean){
+    private   OutImportBean convert(CiticOrderBean orderBean) throws MYException{
         OutImportBean bean = new OutImportBean();
         bean.setLogTime(TimeTools.now());
         // 操作人
@@ -211,7 +251,9 @@ public class ImapMailClient {
 
         if (null == cBean)
         {
-            _logger.error("网点名称不存在："+custName);
+            String msg = "网点名称不存在："+custName;
+            _logger.error(msg);
+            throw new MYException(msg);
         }else{
             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
             {
@@ -219,7 +261,9 @@ public class ImapMailClient {
 
                 if (null == vsBean)
                 {
-                    _logger.error("网点名称（客户）没有与业务员挂靠关系："+custName);
+                    String msg = "网点名称（客户）没有与业务员挂靠关系："+custName;
+                    _logger.error(msg);
+                    throw new MYException(msg);
                 }else{
                     bean.setComunicatonBranchName(custName);
                 }
@@ -228,8 +272,23 @@ public class ImapMailClient {
             }
         }
 
-        //TODO
-        bean.setProductCode(orderBean.getProductCode());
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("bankProductCode","=", orderBean.getProductCode());
+        List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(productImportBeans)){
+            String code = productImportBeans.get(0).getCode();
+            ProductBean productBean = this.productDAO.findByUnique(code);
+            if (productBean == null){
+                String msg = "***Fail to find product***"+orderBean.getProductCode();
+                _logger.error(msg);
+                throw new MYException(msg);
+            } else{
+                bean.setProductCode(code);
+            }
+        }
+
+        bean.setProductName(orderBean.getProductName());
+        //TODO 加一条规则，如果银行品名里含 姓氏 字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
 
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
@@ -239,17 +298,18 @@ public class ImapMailClient {
 //        bean.setStyle(orderBean.getst);
         bean.setValue(orderBean.getValue());
 
-        //TODO 中收
-//        bean.setMidValue(orderBean.getmid);
+        bean.setIbMoney(orderBean.getFee());
         bean.setArriveDate(orderBean.getArriveDate());
 
         //TODO 库存类型
 //        bean.setStorageType(orderBean);
         bean.setCiticNo(orderBean.getCiticNo());
+
         //TODO 开票性质
 //        bean.setInvoiceNature(orderBean.getInvoiceNature());
         bean.setInvoiceHead(orderBean.getInvoiceHead());
         bean.setInvoiceCondition(orderBean.getInvoiceCondition());
+
         //TODO 开票类型   开票品名    开票金额
 //        bean.setInvoiceType(orderBean);
 //        bean.setInvoiceName(orderBean);
