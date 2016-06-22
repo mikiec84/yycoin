@@ -39,10 +39,7 @@ import java.math.BigDecimal;
 import java.security.Security;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 public class ImapMailClient {
@@ -217,12 +214,16 @@ public class ImapMailClient {
         conditionParse.addCondition("mailId","=",mailId);
         if (mailId.indexOf("贵金属订单")!= -1) {
             List<CiticOrderBean> citicOrderBeans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse);
+            Set<String> citicOrders = new HashSet<String>();
             if (!ListTools.isEmptyOrNull(citicOrderBeans)){
-
                  for(CiticOrderBean citicOrderBean: citicOrderBeans){
                      try{
-                         OutImportBean bean = this.convert(citicOrderBean);
-                         importItemList.add(bean);
+                         if (citicOrders.contains(citicOrderBean.getCiticNo())){
+                             _logger.error(citicOrderBean+" is duplicate***");
+                         } else{
+                             OutImportBean bean = this.convert(citicOrderBean);
+                             importItemList.add(bean);
+                         }
                      }catch(MYException e){
                          _logger.error(citicOrderBean+" Fail to convert citic order***"+e.getMessage());
                      }
@@ -243,7 +244,8 @@ public class ImapMailClient {
         bean.setSecondBranch(orderBean.getSecondBranch());
         bean.setComunicationBranch(orderBean.getComunicationBranch());
 
-        //TODO 订单类型
+        //订单类型默认"销售出库"
+        bean.setOutType(0);
 
         String custName = orderBean.getComunicatonBranchName()+"-银行";
 
@@ -288,7 +290,12 @@ public class ImapMailClient {
         }
 
         bean.setProductName(orderBean.getProductName());
-        //TODO 加一条规则，如果银行品名里含 姓氏 字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
+        //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
+        if(bean.getProductName().contains("姓氏")){
+            String msg = "product should not contain 姓氏"+orderBean.getProductName();
+            _logger.error(msg);
+            throw new MYException(msg);
+        }
 
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
@@ -311,11 +318,14 @@ public class ImapMailClient {
         bean.setInvoiceCondition(orderBean.getInvoiceCondition());
 
         //TODO 开票类型   开票品名    开票金额
+        //TODO 开票先不考虑
 //        bean.setInvoiceType(orderBean);
 //        bean.setInvoiceName(orderBean);
 //        bean.setInvoiceMoney(orderBean.getmo);
+
         bean.setCiticOrderDate(orderBean.getCiticOrderDate());
         //TODO 仓库 仓区   职员 备注 发货方式
+        //库存默认 公共库-南京物流中心
 //        bean.setStafferId(orderBean);
 //        bean.setDescription(orderBean.getdes);
 //        bean.setShipping(orderBean);
