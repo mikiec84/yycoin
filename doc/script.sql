@@ -276,6 +276,7 @@ UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
 
 create table T_CENTER_ZY_ORDER (	
 id int(11) NOT NULL AUTO_INCREMENT,
+mailId varchar(100) NOT NULL,
 status int(11) default 0,
 innerCustomerId varchar(40) NOT NULL,
 customerId varchar(40) NOT NULL,

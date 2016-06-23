@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.security.Security;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -178,7 +179,8 @@ public class ImapMailClient {
                     }
                     String subject = msg.getSubject();
                     Date now = new Date();
-                    mailId = subject+"_"+now.toString();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    mailId = subject+"_"+sdf.format(now);
                     parseMultipart(msg.getContent(), this.getOrderType(msg), mailId);
                 }catch(Exception e){
                     e.printStackTrace();
@@ -208,21 +210,28 @@ public class ImapMailClient {
      * @param mailId
      */
     public List<OutImportBean> importOrders(String mailId){
+        _logger.info("***import orders***"+mailId);
         List<OutImportBean> importItemList = new ArrayList<OutImportBean>();
 
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("mailId","=",mailId);
+        _logger.info("***import orders***111111111111");
         if (mailId.indexOf("贵金属订单")!= -1) {
+            _logger.info("***import orders***222");
             List<CiticOrderBean> citicOrderBeans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse);
+            _logger.info("***import orders with size:"+citicOrderBeans.size());
             Set<String> citicOrders = new HashSet<String>();
             if (!ListTools.isEmptyOrNull(citicOrderBeans)){
+                _logger.info("***import orders***444");
                  for(CiticOrderBean citicOrderBean: citicOrderBeans){
                      try{
                          if (citicOrders.contains(citicOrderBean.getCiticNo())){
                              _logger.error(citicOrderBean+" is duplicate***");
                          } else{
+                             _logger.info("***import orders***555");
                              OutImportBean bean = this.convert(citicOrderBean);
                              importItemList.add(bean);
+                             _logger.info("***import orders***666");
                          }
                      }catch(MYException e){
                          _logger.error(citicOrderBean+" Fail to convert citic order***"+e.getMessage());
@@ -231,10 +240,12 @@ public class ImapMailClient {
             }
         }
 
+        _logger.info("***import orders size***"+importItemList.size());
         return importItemList;
     }
 
     private   OutImportBean convert(CiticOrderBean orderBean) throws MYException{
+        _logger.info("convert***111");
         OutImportBean bean = new OutImportBean();
         bean.setLogTime(TimeTools.now());
         // 操作人
@@ -246,11 +257,11 @@ public class ImapMailClient {
 
         //订单类型默认"销售出库"
         bean.setOutType(0);
-
+        _logger.info("convert***2222");
         String custName = orderBean.getComunicatonBranchName()+"-银行";
 
         CustomerBean cBean = customerMainDAO.findByUnique(custName);
-
+        _logger.info("convert***333");
         if (null == cBean)
         {
             String msg = "网点名称不存在："+custName;
@@ -273,10 +284,12 @@ public class ImapMailClient {
                 bean.setComunicatonBranchName("公共客户");
             }
         }
-
+        _logger.info("convert***444");
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("bankProductCode","=", orderBean.getProductCode());
+        _logger.info("convert***555" + this.productImportDAO);
         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+        _logger.info("convert***66");
         if (!ListTools.isEmptyOrNull(productImportBeans)){
             String code = productImportBeans.get(0).getCode();
             ProductBean productBean = this.productDAO.findByUnique(code);
@@ -288,7 +301,7 @@ public class ImapMailClient {
                 bean.setProductCode(code);
             }
         }
-
+        _logger.info("convert***77");
         bean.setProductName(orderBean.getProductName());
         //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
         if(bean.getProductName().contains("姓氏")){
@@ -296,7 +309,7 @@ public class ImapMailClient {
             _logger.error(msg);
             throw new MYException(msg);
         }
-
+        _logger.info("convert***88");
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
         bean.setPrice(orderBean.getPrice());

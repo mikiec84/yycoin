@@ -3068,24 +3068,29 @@ public class OutImportManagerImpl implements OutImportManager
 //			this.imapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
 			String mailId = this.imapMailClient.receiveEmail("imap.exmail.qq.com", "yycoinoa@yycoin.com", "Yycoin135");
             List<OutImportBean>  importItemList = this.imapMailClient.importOrders(mailId);
-            String batchId = "";
-            try
-            {
-                batchId = this.addBean(importItemList);
-            }
-            catch(MYException e)
-            {
-                _logger.error("Fail to import order from mail：",e);
-            }
+			if (ListTools.isEmptyOrNull(importItemList)){
+				_logger.info("No out to process***");
+			} else{
+				_logger.info(mailId+"***begin import order***"+importItemList.size());
+				String batchId = "";
+				try
+				{
+					batchId = this.addBean(importItemList);
+				}
+				catch(MYException e)
+				{
+					_logger.error("Fail to import order from mail：",e);
+				}
 
-            // 异步处理
-            List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
+				// 异步处理
+				List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
 
-            if (!ListTools.isEmptyOrNull(list))
-            {
-                _logger.info("before outImportManager.processAsyn***"+list.size());
-                this.processAsyn(list);
-            }
+				if (!ListTools.isEmptyOrNull(list))
+				{
+					_logger.info("before outImportManager.processAsyn***"+list.size());
+					this.processAsyn(list);
+				}
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
