@@ -3066,7 +3066,10 @@ public class OutImportManagerImpl implements OutImportManager
 		_logger.info("***downloadOrderFromMailAttachment running***");
 		try {
 //			this.imapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
+            //step1 download email to temp order table
 			String mailId = this.imapMailClient.receiveEmail("imap.exmail.qq.com", "yycoinoa@yycoin.com", "Yycoin135");
+
+            //step2 conver to out import table
             List<OutImportBean>  importItemList = this.imapMailClient.importOrders(mailId);
 			if (ListTools.isEmptyOrNull(importItemList)){
 				_logger.info("No out to process***");
@@ -3090,6 +3093,9 @@ public class OutImportManagerImpl implements OutImportManager
 					_logger.info("before outImportManager.processAsyn***"+list.size());
 					this.processAsyn(list);
 				}
+
+                //step3 callback to update temp order flag after import OA
+                this.imapMailClient.onCreateOA(mailId, list);
 			}
 		}catch(Exception e){
 			e.printStackTrace();

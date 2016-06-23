@@ -8,11 +8,14 @@ import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.bean.CustomerDistAddrBean;
+import com.china.center.oa.client.dao.CustomerDistAddrDAO;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vs.StafferVSCustomerBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.sail.bean.CiticOrderBean;
@@ -52,28 +55,38 @@ public class ImapMailClient {
 
     private ZyOrderDAO zyOrderDAO = null;
 
-    private CustomerMainDAO customerMainDAO = null;
-
-    private StafferVSCustomerDAO stafferVSCustomerDAO = null;
-
     private ProductImportDAO productImportDAO = null;
 
     private ProductDAO productDAO = null;
 
-    public CiticOrderDAO getCiticOrderDAO() {
-        return citicOrderDAO;
+    private CustomerMainDAO customerMainDAO = null;
+
+    private StafferVSCustomerDAO stafferVSCustomerDAO = null;
+
+    private CustomerDistAddrDAO  customerDistAddrDAO = null;
+
+    public CustomerDistAddrDAO getCustomerDistAddrDAO() {
+        return customerDistAddrDAO;
     }
 
-    public void setCiticOrderDAO(CiticOrderDAO citicOrderDAO) {
-        this.citicOrderDAO = citicOrderDAO;
+    public void setCustomerDistAddrDAO(CustomerDistAddrDAO customerDistAddrDAO) {
+        this.customerDistAddrDAO = customerDistAddrDAO;
     }
 
-    public ZyOrderDAO getZyOrderDAO() {
-        return zyOrderDAO;
+    public ProductDAO getProductDAO() {
+        return productDAO;
     }
 
-    public void setZyOrderDAO(ZyOrderDAO zyOrderDAO) {
-        this.zyOrderDAO = zyOrderDAO;
+    public void setProductDAO(ProductDAO productDAO) {
+        this.productDAO = productDAO;
+    }
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
     }
 
     public CustomerMainDAO getCustomerMainDAO() {
@@ -92,21 +105,22 @@ public class ImapMailClient {
         this.stafferVSCustomerDAO = stafferVSCustomerDAO;
     }
 
-    public ProductImportDAO getProductImportDAO() {
-        return productImportDAO;
+    public CiticOrderDAO getCiticOrderDAO() {
+        return citicOrderDAO;
     }
 
-    public void setProductImportDAO(ProductImportDAO productImportDAO) {
-        this.productImportDAO = productImportDAO;
+    public void setCiticOrderDAO(CiticOrderDAO citicOrderDAO) {
+        this.citicOrderDAO = citicOrderDAO;
     }
 
-    public ProductDAO getProductDAO() {
-        return productDAO;
+    public ZyOrderDAO getZyOrderDAO() {
+        return zyOrderDAO;
     }
 
-    public void setProductDAO(ProductDAO productDAO) {
-        this.productDAO = productDAO;
+    public void setZyOrderDAO(ZyOrderDAO zyOrderDAO) {
+        this.zyOrderDAO = zyOrderDAO;
     }
+
 
     public static void main(String[] args) throws Exception{
         ImapMailClient client = new ImapMailClient();
@@ -201,7 +215,6 @@ public class ImapMailClient {
             } catch (Exception ignored) {}
         }
 
-
         return mailId;
     }
 
@@ -210,7 +223,7 @@ public class ImapMailClient {
      * @param mailId
      */
     public List<OutImportBean> importOrders(String mailId){
-        _logger.info("***import orders***"+mailId);
+        _logger.info("***import orders with mailId***"+mailId);
         List<OutImportBean> importItemList = new ArrayList<OutImportBean>();
 
         ConditionParse conditionParse = new ConditionParse();
@@ -228,6 +241,7 @@ public class ImapMailClient {
                          if (citicOrders.contains(citicOrderBean.getCiticNo())){
                              _logger.error(citicOrderBean+" is duplicate***");
                          } else{
+                             //TODO check DB
                              _logger.info("***import orders***555");
                              OutImportBean bean = this.convert(citicOrderBean);
                              importItemList.add(bean);
@@ -268,13 +282,14 @@ public class ImapMailClient {
             _logger.error(msg);
             throw new MYException(msg);
         }else{
+            bean.setCustomerId(cBean.getId());
             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
             {
                 StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
 
                 if (null == vsBean)
                 {
-                    String msg = "网点名称（客户）没有与业务员挂靠关系："+custName;
+                    String msg = "网点名称没有与业务员挂靠关系："+custName;
                     _logger.error(msg);
                     throw new MYException(msg);
                 }else{
@@ -337,13 +352,47 @@ public class ImapMailClient {
 //        bean.setInvoiceMoney(orderBean.getmo);
 
         bean.setCiticOrderDate(orderBean.getCiticOrderDate());
-        //TODO 仓库 仓区   职员 备注 发货方式
+        //TODO   职员 备注
         //库存默认 公共库-南京物流中心
-//        bean.setStafferId(orderBean);
-//        bean.setDescription(orderBean.getdes);
-//        bean.setShipping(orderBean);
+        bean.setDepotId(DepotConstant.CENTER_DEPOT_ID);
 
+        //TODO  仓区
 
+        //TODO 职员取客户对应的业务员，如果没有，此单和姓氏一样处理
+        bean.setStafferId("3328333");
+
+        bean.setDescription("Mail_"+orderBean.getMailId());
+
+        //TODO 凡是 中信银行重庆XXXX的就取邮件里的地址信息,其他的取客户的默认办公地址
+        if (custName.contains("中信银行重庆")){
+            //TODO 发货方式 运输方式 支付方式
+            bean.setShipping(0);
+            bean.setProvinceId(orderBean.getProvinceId());
+            bean.setCityId(orderBean.getCityId());
+            bean.setAddress(orderBean.getAddress());
+            bean.setReceiver(orderBean.getReceiver());
+            bean.setHandPhone(orderBean.getReceiverMobile());
+        } else{
+            List<CustomerDistAddrBean> customerDistAddrBeans = this.customerDistAddrDAO.queryEntityBeansByFK(bean.getCustomerId());
+            if (!ListTools.isEmptyOrNull(customerDistAddrBeans)){
+                for (CustomerDistAddrBean addr : customerDistAddrBeans){
+                    if (addr.getAtype() == 1){
+                        bean.setShipping(addr.getShipping());
+                        bean.setTransport1(addr.getTransport1());
+                        bean.setExpressPay(addr.getExpressPay());
+                        bean.setTransport2(addr.getTransport2());
+                        bean.setTransportPay(addr.getTransportPay());
+                        bean.setProvinceId(addr.getProvinceId());
+                        bean.setCityId(addr.getCityId());
+                        bean.setAddress(addr.getAddress());
+                        bean.setReceiver(addr.getContact());
+                        bean.setHandPhone(addr.getTelephone());
+                    }
+                }
+            }
+        }
+
+        _logger.info("***convert bean success***"+bean);
         return bean;
     }
 
@@ -1152,6 +1201,22 @@ public class ImapMailClient {
         }
 
         return items;
+    }
+
+    /**
+     * callback to update status after create OA order
+     * @param mailId
+     * @param beans
+     */
+    public void onCreateOA(String mailId,List<OutImportBean> beans){
+        //中信订单
+        if (mailId.indexOf("贵金属订单")!= -1) {
+            for(OutImportBean bean : beans){
+//                ConditionParse conditionParse = new ConditionParse();
+//                conditionParse.addCondition("citicNo","=",bean.getCiticNo());
+                this.citicOrderDAO.updateStatus(bean.getCiticNo());
+            }
+        }
     }
 
     public void copy(InputStream is, OutputStream os) throws IOException {

@@ -835,4 +835,67 @@ public class OutImportBean implements Serializable
 	public void setNbyhNo(String nbyhNo) {
 		this.nbyhNo = nbyhNo;
 	}
+
+    @Override
+    public String toString() {
+        return "OutImportBean{" +
+                "id=" + id +
+                ", fullId='" + fullId + '\'' +
+                ", batchId='" + batchId + '\'' +
+                ", type=" + type +
+                ", customerId='" + customerId + '\'' +
+                ", customerName='" + customerName + '\'' +
+                ", branchName='" + branchName + '\'' +
+                ", secondBranch='" + secondBranch + '\'' +
+                ", comunicationBranch='" + comunicationBranch + '\'' +
+                ", comunicatonBranchName='" + comunicatonBranchName + '\'' +
+                ", productId='" + productId + '\'' +
+                ", productCode='" + productCode + '\'' +
+                ", productName='" + productName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", amount=" + amount +
+                ", price=" + price +
+                ", style='" + style + '\'' +
+                ", value=" + value +
+                ", midValue=" + midValue +
+                ", arriveDate='" + arriveDate + '\'' +
+                ", storageType=" + storageType +
+                ", citicNo='" + citicNo + '\'' +
+                ", invoiceNature=" + invoiceNature +
+                ", invoiceHead='" + invoiceHead + '\'' +
+                ", invoiceCondition='" + invoiceCondition + '\'' +
+                ", bindNo='" + bindNo + '\'' +
+                ", invoiceType=" + invoiceType +
+                ", invoiceName='" + invoiceName + '\'' +
+                ", invoiceMoney=" + invoiceMoney +
+                ", provinceId='" + provinceId + '\'' +
+                ", cityId='" + cityId + '\'' +
+                ", address='" + address + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", handPhone='" + handPhone + '\'' +
+                ", status=" + status +
+                ", OANo='" + OANo + '\'' +
+                ", nbyhNo='" + nbyhNo + '\'' +
+                ", reason='" + reason + '\'' +
+                ", logTime='" + logTime + '\'' +
+                ", citicOrderDate='" + citicOrderDate + '\'' +
+                ", itype=" + itype +
+                ", outType=" + outType +
+                ", depotId='" + depotId + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", description='" + description + '\'' +
+                ", shipping=" + shipping +
+                ", transport1=" + transport1 +
+                ", transport2=" + transport2 +
+                ", expressPay=" + expressPay +
+                ", transportPay=" + transportPay +
+                ", preUse=" + preUse +
+                ", reday=" + reday +
+                ", presentFlag=" + presentFlag +
+                ", ibMoney=" + ibMoney +
+                ", motivationMoney=" + motivationMoney +
+                ", mayAmount=" + mayAmount +
+                '}';
+    }
 }

@@ -8,5 +8,12 @@ import com.china.center.oa.sail.dao.CiticOrderDAO;
 
 public class CiticOrderDAOImpl extends BaseDAO<CiticOrderBean, CiticOrderBean> implements CiticOrderDAO
 {
+    @Override
+    public boolean updateStatus(String citicNo) {
+        String sql = BeanTools.getUpdateHead(claz)
+                + "set status = 1 where citicNo = ?";
 
+        jdbcOperation.update(sql, citicNo);
+        return true;
+    }
 }

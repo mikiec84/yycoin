@@ -5,5 +5,6 @@ import com.china.center.oa.sail.bean.CiticOrderBean;
 
 public interface CiticOrderDAO extends DAO<CiticOrderBean, CiticOrderBean>
 {
+    public boolean updateStatus(String citicNo);
 
 }
