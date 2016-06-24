@@ -237,20 +237,24 @@ public class ImapMailClient {
             _logger.info("***import orders with size:"+citicOrderBeans.size());
             Set<String> citicOrders = new HashSet<String>();
             if (!ListTools.isEmptyOrNull(citicOrderBeans)){
-                _logger.info("***import orders***444");
                  for(CiticOrderBean citicOrderBean: citicOrderBeans){
-                     try{
-                         if (citicOrders.contains(citicOrderBean.getCiticNo())){
-                             _logger.error(citicOrderBean+" is duplicate***");
-                         } else{
-                             //TODO check DB
-                             _logger.info("***import orders***555");
+                     if (citicOrders.contains(citicOrderBean.getCiticNo())){
+                         _logger.error(citicOrderBean+" is duplicate***");
+                     } else{
+                         //TODO check DB
+                         try {
                              OutImportBean bean = this.convert(citicOrderBean);
                              importItemList.add(bean);
-                             _logger.info("***import orders***666");
+                         }catch(MYException e){
+                             if (e instanceof MailOrderException){
+                                 MailOrderException moe = (MailOrderException)e;
+                                 if(moe.getOrder() instanceof OutImportBean){
+                                     OutImportBean order = (OutImportBean)moe.getOrder();
+                                     order.setResult(moe.getErrorContent());
+                                     importItemList.add(order);
+                                 }
+                             }
                          }
-                     }catch(MYException e){
-                         _logger.error(citicOrderBean+" Fail to convert citic order***"+e.getMessage());
                      }
                  }
             }
@@ -260,7 +264,7 @@ public class ImapMailClient {
         return importItemList;
     }
 
-    private   OutImportBean convert(CiticOrderBean orderBean) throws MYException{
+    private   OutImportBean convert(CiticOrderBean orderBean) throws MailOrderException{
         _logger.info("convert***111");
         OutImportBean bean = new OutImportBean();
         bean.setLogTime(TimeTools.now());
@@ -282,7 +286,7 @@ public class ImapMailClient {
         {
             String msg = "网点名称不存在："+custName;
             _logger.error(msg);
-            throw new MYException(msg);
+            throw new MailOrderException(msg, bean);
         }else{
             bean.setCustomerId(cBean.getId());
             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
@@ -293,7 +297,7 @@ public class ImapMailClient {
                 {
                     String msg = "网点名称没有与业务员挂靠关系："+custName;
                     _logger.error(msg);
-                    throw new MYException(msg);
+                    throw new MailOrderException(msg, bean);
                 }else{
                     bean.setComunicatonBranchName(custName);
                     bean.setStafferId(vsBean.getStafferId());
@@ -302,32 +306,32 @@ public class ImapMailClient {
                 bean.setComunicatonBranchName("公共客户");
             }
         }
-        _logger.info("convert***444");
         ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addCondition("bankProductCode","=", orderBean.getProductCode());
-        _logger.info("convert***555" + this.productImportDAO);
+        conditionParse.addCondition("bankProductCode", "=", orderBean.getProductCode());
         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-        _logger.info("convert***66");
         if (!ListTools.isEmptyOrNull(productImportBeans)){
-            String code = productImportBeans.get(0).getCode();
+            ProductImportBean productImportBean = productImportBeans.get(0);
+            String code = productImportBean.getCode();
+            _logger.info(orderBean.getProductCode()+" product import vs product code***"+code);
             ProductBean productBean = this.productDAO.findByUnique(code);
             if (productBean == null){
-                String msg = "***Fail to find product***"+orderBean.getProductCode();
+                String msg = "产品编码不存在:"+orderBean.getProductCode();
                 _logger.error(msg);
-                throw new MYException(msg);
+                throw new MailOrderException(msg, bean);
             } else{
                 bean.setProductCode(code);
+                //激励金额取t_center_product_import中的motivationmoney
+                bean.setMotivationMoney(productImportBean.getMotivationMoney());
             }
         }
-        _logger.info("convert***77");
         bean.setProductName(orderBean.getProductName());
         //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
         if(bean.getProductName().contains("姓氏")){
-            String msg = "product should not contain 姓氏"+orderBean.getProductName();
+            String msg = "银行品名不能包含姓氏:"+orderBean.getProductName();
             _logger.error(msg);
-            throw new MYException(msg);
+            throw new MailOrderException(msg, bean);
         }
-        _logger.info("convert***88");
+
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
         bean.setPrice(orderBean.getPrice());

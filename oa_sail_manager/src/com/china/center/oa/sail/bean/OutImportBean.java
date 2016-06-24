@@ -112,7 +112,12 @@ public class OutImportBean implements Serializable
 	/**
 	 * 状态 0:初始状态 1：处理中 2：成功 3：异常
 	 */
-	private int status = 0; 
+	private int status = 0;
+
+	/**
+	 * #222 导入失败原因
+	 */
+	private String result = "成功";
 	
 	/**
 	 * 关联OA的单号
@@ -836,7 +841,15 @@ public class OutImportBean implements Serializable
 		this.nbyhNo = nbyhNo;
 	}
 
-    @Override
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
+	@Override
     public String toString() {
         return "OutImportBean{" +
                 "id=" + id +
