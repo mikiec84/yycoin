@@ -228,6 +228,8 @@ public class ImapMailClient {
 
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("mailId","=",mailId);
+        //status=0 not imported
+        conditionParse.addCondition("status","=",0);
         _logger.info("***import orders***111111111111");
         if (mailId.indexOf("贵金属订单")!= -1) {
             _logger.info("***import orders***222");
@@ -294,6 +296,7 @@ public class ImapMailClient {
                     throw new MYException(msg);
                 }else{
                     bean.setComunicatonBranchName(custName);
+                    bean.setStafferId(vsBean.getStafferId());
                 }
             }else{
                 bean.setComunicatonBranchName("公共客户");
@@ -359,7 +362,7 @@ public class ImapMailClient {
         //TODO  仓区
 
         //TODO 职员取客户对应的业务员，如果没有，此单和姓氏一样处理
-        bean.setStafferId("3328333");
+//        bean.setStafferId("3328333");
 
         bean.setDescription("Mail_"+orderBean.getMailId());
 
