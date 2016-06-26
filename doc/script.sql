@@ -445,3 +445,4 @@ call auth_user('1501')
 
 --2016/6/24 #222
 alter table t_center_out_import add column result varchar(100) default ''
+alter table t_center_out_import add column importFromMail int(11) default 0

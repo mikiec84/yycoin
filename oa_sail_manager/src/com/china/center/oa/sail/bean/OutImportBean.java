@@ -118,6 +118,11 @@ public class OutImportBean implements Serializable
 	 * #222 导入失败原因
 	 */
 	private String result = "成功";
+
+    /**
+     * #222 邮件下载标志：0 非邮件，1 邮件下载
+     */
+    private int importFromMail = 0;
 	
 	/**
 	 * 关联OA的单号
@@ -849,7 +854,15 @@ public class OutImportBean implements Serializable
 		this.result = result;
 	}
 
-	@Override
+    public int getImportFromMail() {
+        return importFromMail;
+    }
+
+    public void setImportFromMail(int importFromMail) {
+        this.importFromMail = importFromMail;
+    }
+
+    @Override
     public String toString() {
         return "OutImportBean{" +
                 "id=" + id +

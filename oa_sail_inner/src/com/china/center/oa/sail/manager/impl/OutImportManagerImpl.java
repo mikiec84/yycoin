@@ -4,13 +4,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
-import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.BaseVO;
-import com.china.center.oa.sail.vo.PackageVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -536,6 +534,12 @@ public class OutImportManagerImpl implements OutImportManager
 		OutImportBean bean = list.get(0);
 		
 		itype = bean.getItype();
+
+        //#222 2016/6/24 邮件下载订单失败
+        if (bean.getImportFromMail() == 1 && bean.getStatus() == 3)
+        {
+            throw new RuntimeException(bean.getCiticNo()+"生成邮件订单失败");
+        }
 		
 		String mess = "";
 		
@@ -3065,38 +3069,39 @@ public class OutImportManagerImpl implements OutImportManager
 	public void downloadOrderFromMailAttachment(){
 		_logger.info("***downloadOrderFromMailAttachment running***");
 		try {
-//			this.imapMailClient.receiveEmail("imap.163.com", "yycoindd@163.com", "yycoin1234");
             //step1 download email to temp order table
-			String mailId = this.imapMailClient.receiveEmail("imap.exmail.qq.com", "yycoinoa@yycoin.com", "Yycoin135");
+			List<String> mailList = this.imapMailClient.receiveEmail("imap.exmail.qq.com", "yycoinoa@yycoin.com", "Yycoin135");
 
-            //step2 conver to out import table
-            List<OutImportBean>  importItemList = this.imapMailClient.importOrders(mailId);
-			if (ListTools.isEmptyOrNull(importItemList)){
-				_logger.info("No out to process***");
-			} else{
-				_logger.info(mailId+"***begin import order***"+importItemList.size());
-				String batchId = "";
-				try
-				{
-					batchId = this.addBean(importItemList);
-				}
-				catch(MYException e)
-				{
-					_logger.error("Fail to import order from mail：",e);
-				}
+            for (String mailId : mailList){
+                //step2 convert to out import table
+                List<OutImportBean>  importItemList = this.imapMailClient.convertToOutImport(mailId);
+                if (ListTools.isEmptyOrNull(importItemList)){
+                    _logger.info("No out to process***");
+                } else{
+                    _logger.info(mailId+"***begin import order***"+importItemList.size());
+                    String batchId = "";
+                    try
+                    {
+                        batchId = this.addBean(importItemList);
+                    }
+                    catch(MYException e)
+                    {
+                        _logger.error("Fail to import order from mail：",e);
+                    }
 
-				// 异步处理
-				List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
+                    // 异步处理
+                    List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
 
-				if (!ListTools.isEmptyOrNull(list))
-				{
-					_logger.info("before outImportManager.processAsyn***"+list.size());
-					this.processAsyn(list);
-				}
+                    if (!ListTools.isEmptyOrNull(list))
+                    {
+                        _logger.info("before outImportManager.processAsyn***"+list.size());
+                        this.processAsyn(list);
+                    }
 
-                //step3 callback to update temp order flag after import OA
-                this.imapMailClient.onCreateOA(mailId, list);
-			}
+                    //step3 callback to update temp order flag after import OA
+                    this.imapMailClient.onCreateOA(mailId, list);
+                }
+            }
 		}catch(Exception e){
 			e.printStackTrace();
 		}

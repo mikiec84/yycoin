@@ -3,6 +3,7 @@ package com.china.center.oa.sail.manager.impl;
 /**
  * Created by user on 2016/4/8.
  */
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.common.MYException;
@@ -25,7 +26,6 @@ import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.CiticOrderDAO;
 import com.china.center.oa.sail.dao.ZyOrderDAO;
 import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 import com.sun.mail.imap.IMAPMessage;
@@ -38,18 +38,21 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.search.FlagTerm;
 import java.io.*;
-import java.math.BigDecimal;
 import java.security.Security;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class ImapMailClient {
     private final Log _logger = LogFactory.getLog(getClass());
 
     public static final String IMAP = "imap";
+
+    public static final String CITIC = "citic";
+
+    public static enum MailType {unknown, citic, zy}
 
     private CiticOrderDAO citicOrderDAO = null;
 
@@ -134,8 +137,16 @@ public class ImapMailClient {
 
     }
 
-    public String receiveEmail(String host, String username, String password) throws Exception {
-        String mailId= "";
+    /**
+     *
+     * @param host
+     * @param username
+     * @param password
+     * @return lis of mailId
+     * @throws Exception
+     */
+    public List<String> receiveEmail(String host, String username, String password) throws Exception {
+        List<String> mailList = new ArrayList<String>();
         String port = "993";
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
@@ -174,6 +185,7 @@ public class ImapMailClient {
             inbox.fetch(messages, profile);
             _logger.info("***unread mail count***" + inbox.getUnreadMessageCount());
 
+            int count = 0 ;
             for (Message message : messages) {
                 IMAPMessage msg = (IMAPMessage) message;
                 Flags flags = message.getFlags();
@@ -187,15 +199,26 @@ public class ImapMailClient {
 //                    Header header = (Header) headers.nextElement();
 //                }
                 try{
-                    int mailType = this.getOrderType(msg);
-                    if(mailType == 0){
-                        continue;
-                    }
+                    count ++;
+                    String fromEmail = ((InternetAddress) msg.getFrom()[0]).getAddress();
+                    MailType mailType = this.getOrderTypeByEmail(fromEmail);
                     String subject = msg.getSubject();
                     Date now = new Date();
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    mailId = subject+"_"+sdf.format(now);
-                    parseMultipart(msg.getContent(), this.getOrderType(msg), mailId);
+                    String mailId = "";
+                    if (mailType == MailType.citic){
+                        mailId = subject+"_citic_"+sdf.format(now);
+                    } else{
+                        mailId = subject+"_"+sdf.format(now);
+                    }
+
+                    _logger.info(count+" begin download mailId "+mailId);
+                    if(mailType == MailType.unknown){
+                        continue;
+                    }
+
+                    parseMultipart(msg.getContent(), mailType, mailId);
+                    mailList.add(mailId);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -215,35 +238,43 @@ public class ImapMailClient {
             } catch (Exception ignored) {}
         }
 
-        return mailId;
+        _logger.info("***Finish download mail***");
+        return mailList;
     }
 
     /**
-     * convert temp order table to OA table with import method
+     * convertCitic temp order table to OA table with import method
      * @param mailId
      */
-    public List<OutImportBean> importOrders(String mailId){
-        _logger.info("***import orders with mailId***"+mailId);
+    public List<OutImportBean> convertToOutImport(String mailId){
+        _logger.info("***convertToOutImport with mailId "+mailId);
         List<OutImportBean> importItemList = new ArrayList<OutImportBean>();
 
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("mailId","=",mailId);
         //status=0 not imported
         conditionParse.addCondition("status","=",0);
-        _logger.info("***import orders***111111111111");
-        if (mailId.indexOf("贵金属订单")!= -1) {
-            _logger.info("***import orders***222");
+        if (mailId.indexOf(CITIC)!= -1) {
             List<CiticOrderBean> citicOrderBeans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***import orders with size:"+citicOrderBeans.size());
             Set<String> citicOrders = new HashSet<String>();
             if (!ListTools.isEmptyOrNull(citicOrderBeans)){
                  for(CiticOrderBean citicOrderBean: citicOrderBeans){
-                     if (citicOrders.contains(citicOrderBean.getCiticNo())){
+                     String citicNo = citicOrderBean.getCiticNo();
+                     if (citicOrders.contains(citicNo)){
                          _logger.error(citicOrderBean+" is duplicate***");
                      } else{
                          //TODO check DB
+                         ConditionParse conditionParse1 = new ConditionParse();
+                         conditionParse1.addCondition("citicNo","=",citicNo);
+                         conditionParse1.addCondition("status","=",1);
+                         List<CiticOrderBean> beans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse1);
+                         if (!ListTools.isEmptyOrNull(beans)){
+                             _logger.error(citicOrderBean+" is duplicate***");
+                             continue;
+                         }
                          try {
-                             OutImportBean bean = this.convert(citicOrderBean);
+                             OutImportBean bean = this.convertCitic(citicOrderBean);
                              importItemList.add(bean);
                          }catch(MYException e){
                              if (e instanceof MailOrderException){
@@ -264,12 +295,14 @@ public class ImapMailClient {
         return importItemList;
     }
 
-    private   OutImportBean convert(CiticOrderBean orderBean) throws MailOrderException{
-        _logger.info("convert***111");
+    private   OutImportBean convertCitic(CiticOrderBean orderBean) throws MailOrderException{
         OutImportBean bean = new OutImportBean();
+
         bean.setLogTime(TimeTools.now());
         // 操作人
         bean.setReason("import_from_mail");
+        bean.setCiticNo(orderBean.getCiticNo());
+        bean.setCiticOrderDate(orderBean.getCiticOrderDate());
 
         bean.setBranchName(orderBean.getBranchName());
         bean.setSecondBranch(orderBean.getSecondBranch());
@@ -277,60 +310,8 @@ public class ImapMailClient {
 
         //订单类型默认"销售出库"
         bean.setOutType(0);
-        _logger.info("convert***2222");
         String custName = orderBean.getComunicatonBranchName()+"-银行";
-
-        CustomerBean cBean = customerMainDAO.findByUnique(custName);
-        _logger.info("convert***333");
-        if (null == cBean)
-        {
-            String msg = "网点名称不存在："+custName;
-            _logger.error(msg);
-            throw new MailOrderException(msg, bean);
-        }else{
-            bean.setCustomerId(cBean.getId());
-            if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
-            {
-                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
-
-                if (null == vsBean)
-                {
-                    String msg = "网点名称没有与业务员挂靠关系："+custName;
-                    _logger.error(msg);
-                    throw new MailOrderException(msg, bean);
-                }else{
-                    bean.setComunicatonBranchName(custName);
-                    bean.setStafferId(vsBean.getStafferId());
-                }
-            }else{
-                bean.setComunicatonBranchName("公共客户");
-            }
-        }
-        ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addCondition("bankProductCode", "=", orderBean.getProductCode());
-        List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-        if (!ListTools.isEmptyOrNull(productImportBeans)){
-            ProductImportBean productImportBean = productImportBeans.get(0);
-            String code = productImportBean.getCode();
-            _logger.info(orderBean.getProductCode()+" product import vs product code***"+code);
-            ProductBean productBean = this.productDAO.findByUnique(code);
-            if (productBean == null){
-                String msg = "产品编码不存在:"+orderBean.getProductCode();
-                _logger.error(msg);
-                throw new MailOrderException(msg, bean);
-            } else{
-                bean.setProductCode(code);
-                //激励金额取t_center_product_import中的motivationmoney
-                bean.setMotivationMoney(productImportBean.getMotivationMoney());
-            }
-        }
-        bean.setProductName(orderBean.getProductName());
-        //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
-        if(bean.getProductName().contains("姓氏")){
-            String msg = "银行品名不能包含姓氏:"+orderBean.getProductName();
-            _logger.error(msg);
-            throw new MailOrderException(msg, bean);
-        }
+        bean.setComunicatonBranchName(custName);
 
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
@@ -345,7 +326,7 @@ public class ImapMailClient {
 
         //TODO 库存类型
 //        bean.setStorageType(orderBean);
-        bean.setCiticNo(orderBean.getCiticNo());
+
 
         //TODO 开票性质
 //        bean.setInvoiceNature(orderBean.getInvoiceNature());
@@ -358,16 +339,14 @@ public class ImapMailClient {
 //        bean.setInvoiceName(orderBean);
 //        bean.setInvoiceMoney(orderBean.getmo);
 
-        bean.setCiticOrderDate(orderBean.getCiticOrderDate());
         //TODO   职员 备注
         //库存默认 公共库-南京物流中心
         bean.setDepotId(DepotConstant.CENTER_DEPOT_ID);
 
         //TODO  仓区
 
-        //TODO 职员取客户对应的业务员，如果没有，此单和姓氏一样处理
-//        bean.setStafferId("3328333");
-
+        bean.setProductName(orderBean.getProductName());
+        bean.setProductCode(orderBean.getProductCode());
         bean.setDescription("Mail_"+orderBean.getMailId());
 
         //TODO 凡是 中信银行重庆XXXX的就取邮件里的地址信息,其他的取客户的默认办公地址
@@ -399,24 +378,84 @@ public class ImapMailClient {
             }
         }
 
-        _logger.info("***convert bean success***"+bean);
+        CustomerBean cBean = customerMainDAO.findByUnique(custName);
+        if (null == cBean)
+        {
+            String msg = "网点名称不存在："+custName;
+            _logger.error(msg);
+            throw new MailOrderException(msg, bean);
+        }else{
+            bean.setCustomerId(cBean.getId());
+            if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
+            {
+
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                if (null == vsBean)
+                {
+                    String msg = "网点名称没有与业务员挂靠关系："+custName;
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }else{
+                    //职员取客户对应的业务员，如果没有，此单和姓氏一样处理
+                    bean.setStafferId(vsBean.getStafferId());
+                }
+            }else{
+                bean.setComunicatonBranchName("公共客户");
+            }
+        }
+
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("bankProductCode", "=", orderBean.getProductCode());
+        List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(productImportBeans)){
+            ProductImportBean productImportBean = productImportBeans.get(0);
+            String code = productImportBean.getCode();
+            _logger.info(orderBean.getProductCode()+" product import vs product code***"+code);
+            ProductBean productBean = this.productDAO.findByUnique(code);
+            if (productBean == null){
+                String msg = "产品编码不存在:"+orderBean.getProductCode();
+                _logger.error(msg);
+                throw new MailOrderException(msg, bean);
+            } else{
+                bean.setProductCode(code);
+                //激励金额取t_center_product_import中的motivationmoney
+                bean.setMotivationMoney(productImportBean.getMotivationMoney());
+            }
+        }
+
+        //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
+        if(bean.getProductName().contains("姓氏")){
+            String msg = "银行品名不能包含姓氏:"+orderBean.getProductName();
+            _logger.error(msg);
+            throw new MailOrderException(msg, bean);
+        }
+
+        _logger.info("***convertCitic bean success***"+bean);
         return bean;
     }
 
-    private int getOrderType(Message message){
-        int type = 0;
+    private MailType getOrderTypeByEmail(String from){
+        MailType type = MailType.unknown;
         try{
-            String subject = message.getSubject();
-            if (StringTools.isNullOrNone(subject)){
-                return 0;
-            } else if (subject.indexOf("中原")!= -1){
-                type = 2;
-            }  else if (subject.indexOf("贵金属订单")!= -1){
-                type = 1;
+            String citicEL = "\\w+@citicbank.com";
+            String citicOrderMail = ConfigLoader.getProperty("citicOrderMail");
+            if (!StringTools.isNullOrNone(citicOrderMail)){
+                citicEL = citicOrderMail;
+            }
+
+            Pattern citicPattern = Pattern.compile(citicEL);
+            Matcher citicMatcher = citicPattern.matcher(from);
+//            _logger.info(citicEL+"***citicEL**"+from);
+            //中信
+            if (citicMatcher.matches()){
+                type = MailType.citic;
             }
         }catch(Exception e){
             e.printStackTrace();
         }
+
+        _logger.info(from+"***getOrderTypeByEmail "+type);
+
         return type;
     }
 
@@ -441,7 +480,7 @@ public class ImapMailClient {
      * @throws MessagingException
      * @throws IOException
      */
-    public void parseMultipart(Object content, int type, String subject) throws MessagingException, IOException {
+    public void parseMultipart(Object content, MailType type, String subject) throws MessagingException, IOException {
         if (content instanceof Multipart) {
             Multipart multipart = (Multipart) content;
             int count = multipart.getCount();
@@ -461,43 +500,41 @@ public class ImapMailClient {
                     _logger.info(disposition + "***disposition***" + bodyPart.getInputStream());
                     if (BodyPart.ATTACHMENT.equalsIgnoreCase(disposition) || bodyPart.getInputStream()!= null) {
                         String fileName = MimeUtility.decodeText(bodyPart.getFileName());
-                        _logger.info("****name***" + fileName + "***size" + bodyPart.getSize());
-                        InputStream is = bodyPart.getInputStream();
+                        _logger.info("****fileName***" + fileName + "***size" + bodyPart.getSize());
+                        if (fileName.contains("xls")){
+                            InputStream is = bodyPart.getInputStream();
 //                        String fullPath = "D:\\oa_attachment\\"+fileName;
 //                        this.copy(is, new FileOutputStream(fullPath));
-                        if (type ==1) {
+                            if (type == MailType.citic) {
 //                            List<CiticOrderBean> items = parseCiticOrder(new FileInputStream(fullPath));
-                            List<CiticOrderBean> items = parseCiticOrder(is);
-                            System.out.println("***CiticOrderBean size***"+items.size());
-
-                            if (this.citicOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
-
-                                for(CiticOrderBean item :items){
-                                    try{
-                                        item.setMailId(subject);
-                                        this.citicOrderDAO.saveEntityBean(item);
-                                    } catch(Exception e){
-                                        e.printStackTrace();
+                                List<CiticOrderBean> items = parseCiticOrder(is);
+                                if (this.citicOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
+                                    for(CiticOrderBean item :items){
+                                        try{
+                                            item.setMailId(subject);
+                                            item.setLogTime(TimeTools.now());
+                                            this.citicOrderDAO.saveEntityBean(item);
+                                        } catch(Exception e){
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
-                            }
-                        } else if (type == 2){
-                            List<ZyOrderBean> items = parseZyOrder(is);
-                            System.out.println("***ZyOrderBean size***"+items.size());
-
-                            if (this.zyOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
-                                for(ZyOrderBean item :items){
-                                    try{
-                                        if (StringTools.isNullOrNone(item.getCustomerName()) ||
-                                                StringTools.isNullOrNone(item.getProductName())){
-                                            //ignore
-                                            _logger.warn("item not saved***"+item);
-                                            continue;
-                                        } else{
-                                            this.zyOrderDAO.saveEntityBean(item);
+                            } else if (type == MailType.zy){
+                                List<ZyOrderBean> items = parseZyOrder(is);
+                                if (this.zyOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
+                                    for(ZyOrderBean item :items){
+                                        try{
+                                            if (StringTools.isNullOrNone(item.getCustomerName()) ||
+                                                    StringTools.isNullOrNone(item.getProductName())){
+                                                //ignore
+                                                _logger.warn("item not saved***"+item);
+                                                continue;
+                                            } else{
+                                                this.zyOrderDAO.saveEntityBean(item);
+                                            }
+                                        } catch(Exception e){
+                                            e.printStackTrace();
                                         }
-                                    } catch(Exception e){
-                                        e.printStackTrace();
                                     }
                                 }
                             }
@@ -1217,10 +1254,9 @@ public class ImapMailClient {
      */
     public void onCreateOA(String mailId,List<OutImportBean> beans){
         //中信订单
-        if (mailId.indexOf("贵金属订单")!= -1) {
+        if (mailId.indexOf(CITIC)!= -1) {
             for(OutImportBean bean : beans){
-//                ConditionParse conditionParse = new ConditionParse();
-//                conditionParse.addCondition("citicNo","=",bean.getCiticNo());
+                _logger.info("***onCreateOA***"+bean.getCiticNo());
                 this.citicOrderDAO.updateStatus(bean.getCiticNo());
             }
         }
