@@ -41,6 +41,7 @@ import java.io.*;
 import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,6 +125,7 @@ public class ImapMailClient {
         this.zyOrderDAO = zyOrderDAO;
     }
 
+    private static Set<String> citicNoSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     public static void main(String[] args) throws Exception{
         ImapMailClient client = new ImapMailClient();
@@ -262,14 +264,17 @@ public class ImapMailClient {
         if (mailId.indexOf(CITIC)!= -1) {
             List<CiticOrderBean> citicOrderBeans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***import orders with size:"+citicOrderBeans.size());
-            Set<String> citicOrders = new HashSet<String>();
+//            Set<String> citicOrders = new HashSet<String>();
             if (!ListTools.isEmptyOrNull(citicOrderBeans)){
                  for(CiticOrderBean citicOrderBean: citicOrderBeans){
                      String citicNo = citicOrderBean.getCiticNo();
-                     if (citicOrders.contains(citicNo)){
+                     _logger.info(ImapMailClient.citicNoSet.size()+"***"+ImapMailClient.citicNoSet);
+                     if (ImapMailClient.citicNoSet.contains(citicNo)){
                          _logger.error(citicOrderBean+" is duplicate***");
                      } else{
                          //TODO check DB
+                         ImapMailClient.citicNoSet.add(citicNo);
+
                          ConditionParse conditionParse1 = new ConditionParse();
                          conditionParse1.addCondition("citicNo","=",citicNo);
                          conditionParse1.addCondition("status","=",1);
@@ -287,6 +292,8 @@ public class ImapMailClient {
                                  if(moe.getOrder() instanceof OutImportBean){
                                      OutImportBean order = (OutImportBean)moe.getOrder();
                                      order.setResult(moe.getErrorContent());
+                                     //失败批次
+                                     order.setStatus(3);
                                      importItemListFail.add(order);
                                  }
                              }
@@ -303,6 +310,7 @@ public class ImapMailClient {
     private   OutImportBean convertCitic(CiticOrderBean orderBean) throws MailOrderException{
         OutImportBean bean = new OutImportBean();
 
+        bean.setImportFromMail(1);
         bean.setLogTime(TimeTools.now());
         // 操作人
         bean.setReason("import_from_mail");
