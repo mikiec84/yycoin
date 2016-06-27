@@ -246,14 +246,19 @@ public class ImapMailClient {
      * convertCitic temp order table to OA table with import method
      * @param mailId
      */
-    public List<OutImportBean> convertToOutImport(String mailId){
+    public Map<String,List<OutImportBean>> convertToOutImport(String mailId){
         _logger.info("***convertToOutImport with mailId "+mailId);
-        List<OutImportBean> importItemList = new ArrayList<OutImportBean>();
+        Map<String,List<OutImportBean>> mail2ImportMap = new HashMap<String,List<OutImportBean>>();
+        //成功和失败分成两个批次
+        List<OutImportBean> importItemListSuccess = new ArrayList<OutImportBean>();
+        List<OutImportBean> importItemListFail = new ArrayList<OutImportBean>();
+        mail2ImportMap.put(mailId+"_success", importItemListSuccess);
+        mail2ImportMap.put(mailId+"_fail", importItemListFail);
 
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("mailId","=",mailId);
         //status=0 not imported
-        conditionParse.addCondition("status","=",0);
+        conditionParse.addCondition("status", "=", 0);
         if (mailId.indexOf(CITIC)!= -1) {
             List<CiticOrderBean> citicOrderBeans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***import orders with size:"+citicOrderBeans.size());
@@ -275,14 +280,14 @@ public class ImapMailClient {
                          }
                          try {
                              OutImportBean bean = this.convertCitic(citicOrderBean);
-                             importItemList.add(bean);
+                             importItemListSuccess.add(bean);
                          }catch(MYException e){
                              if (e instanceof MailOrderException){
                                  MailOrderException moe = (MailOrderException)e;
                                  if(moe.getOrder() instanceof OutImportBean){
                                      OutImportBean order = (OutImportBean)moe.getOrder();
                                      order.setResult(moe.getErrorContent());
-                                     importItemList.add(order);
+                                     importItemListFail.add(order);
                                  }
                              }
                          }
@@ -291,8 +296,8 @@ public class ImapMailClient {
             }
         }
 
-        _logger.info("***import orders size***"+importItemList.size());
-        return importItemList;
+        _logger.info("***import orders size***"+importItemListSuccess.size()+"***"+importItemListFail.size());
+        return mail2ImportMap;
     }
 
     private   OutImportBean convertCitic(CiticOrderBean orderBean) throws MailOrderException{
@@ -347,7 +352,7 @@ public class ImapMailClient {
 
         bean.setProductName(orderBean.getProductName());
         bean.setProductCode(orderBean.getProductCode());
-        bean.setDescription("Mail_"+orderBean.getMailId());
+        bean.setDescription("Mail_" + orderBean.getMailId());
 
         //TODO 凡是 中信银行重庆XXXX的就取邮件里的地址信息,其他的取客户的默认办公地址
         if (custName.contains("中信银行重庆")){

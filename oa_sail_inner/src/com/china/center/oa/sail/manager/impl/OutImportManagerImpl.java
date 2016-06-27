@@ -3074,33 +3074,35 @@ public class OutImportManagerImpl implements OutImportManager
 
             for (String mailId : mailList){
                 //step2 convert to out import table
-                List<OutImportBean>  importItemList = this.imapMailClient.convertToOutImport(mailId);
-                if (ListTools.isEmptyOrNull(importItemList)){
-                    _logger.info("No out to process***");
-                } else{
-                    _logger.info(mailId+"***begin import order***"+importItemList.size());
-                    String batchId = "";
-                    try
-                    {
-                        batchId = this.addBean(importItemList);
-                    }
-                    catch(MYException e)
-                    {
-                        _logger.error("Fail to import order from mail：",e);
-                    }
+				Map<String,List<OutImportBean>>  mail2ImportMap = this.imapMailClient.convertToOutImport(mailId);
+				for (List<OutImportBean> importItemList: mail2ImportMap.values()){
+					if (ListTools.isEmptyOrNull(importItemList)){
+						_logger.info("No out to process***");
+					} else{
+						_logger.info(mailId+"***begin import order***"+importItemList.size());
+						String batchId = "";
+						try
+						{
+							batchId = this.addBean(importItemList);
+						}
+						catch(MYException e)
+						{
+							_logger.error("Fail to import order from mail：",e);
+						}
 
-                    // 异步处理
-                    List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
+						// 异步处理
+						List<OutImportBean> list = outImportDAO.queryEntityBeansByFK(batchId);
 
-                    if (!ListTools.isEmptyOrNull(list))
-                    {
-                        _logger.info("before outImportManager.processAsyn***"+list.size());
-                        this.processAsyn(list);
-                    }
+						if (!ListTools.isEmptyOrNull(list))
+						{
+							_logger.info("before outImportManager.processAsyn***"+list.size());
+							this.processAsyn(list);
+						}
 
-                    //step3 callback to update temp order flag after import OA
-                    this.imapMailClient.onCreateOA(mailId, list);
-                }
+						//step3 callback to update temp order flag after import OA
+						this.imapMailClient.onCreateOA(mailId, list);
+					}
+				}
             }
 		}catch(Exception e){
 			e.printStackTrace();
