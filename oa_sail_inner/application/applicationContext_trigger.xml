@@ -172,7 +172,7 @@
     <bean id="downloadOrderFromMailAttachmentJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="downloadOrderFromMailAttachmentJob" />
-        <property name="cronExpression" value="0 0/10 * * * ?" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
     <bean

@@ -125,7 +125,7 @@ public class ImapMailClient {
         this.zyOrderDAO = zyOrderDAO;
     }
 
-    private static Set<String> citicNoSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+//    private static Set<String> citicNoSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     public static void main(String[] args) throws Exception{
         ImapMailClient client = new ImapMailClient();
@@ -268,34 +268,35 @@ public class ImapMailClient {
             if (!ListTools.isEmptyOrNull(citicOrderBeans)){
                  for(CiticOrderBean citicOrderBean: citicOrderBeans){
                      String citicNo = citicOrderBean.getCiticNo();
-                     _logger.info(ImapMailClient.citicNoSet.size()+"***"+ImapMailClient.citicNoSet);
-                     if (ImapMailClient.citicNoSet.contains(citicNo)){
-                         _logger.error(citicOrderBean+" is duplicate***");
-                     } else{
-                         //TODO check DB
-                         ImapMailClient.citicNoSet.add(citicNo);
+//                     _logger.info(ImapMailClient.citicNoSet.size()+"***"+ImapMailClient.citicNoSet);
+//                     if (ImapMailClient.citicNoSet.contains(citicNo)){
+//                         _logger.error(citicOrderBean+" is duplicate***");
+//                     } else{
+//
+//                     }
+                     //TODO check DB
+//                         ImapMailClient.citicNoSet.add(citicNo);
 
-                         ConditionParse conditionParse1 = new ConditionParse();
-                         conditionParse1.addCondition("citicNo","=",citicNo);
-                         conditionParse1.addCondition("status","=",1);
-                         List<CiticOrderBean> beans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse1);
-                         if (!ListTools.isEmptyOrNull(beans)){
-                             _logger.error(citicOrderBean+" is duplicate***");
-                             continue;
-                         }
-                         try {
-                             OutImportBean bean = this.convertCitic(citicOrderBean);
-                             importItemListSuccess.add(bean);
-                         }catch(MYException e){
-                             if (e instanceof MailOrderException){
-                                 MailOrderException moe = (MailOrderException)e;
-                                 if(moe.getOrder() instanceof OutImportBean){
-                                     OutImportBean order = (OutImportBean)moe.getOrder();
-                                     order.setResult(moe.getErrorContent());
-                                     //失败批次
-                                     order.setStatus(3);
-                                     importItemListFail.add(order);
-                                 }
+                     ConditionParse conditionParse1 = new ConditionParse();
+                     conditionParse1.addCondition("citicNo","=",citicNo);
+                     conditionParse1.addCondition("status","=",1);
+                     List<CiticOrderBean> beans = this.citicOrderDAO.queryEntityBeansByCondition(conditionParse1);
+                     if (!ListTools.isEmptyOrNull(beans)){
+                         _logger.error(citicOrderBean+" is duplicate***");
+                         continue;
+                     }
+                     try {
+                         OutImportBean bean = this.convertCitic(citicOrderBean);
+                         importItemListSuccess.add(bean);
+                     }catch(MYException e){
+                         if (e instanceof MailOrderException){
+                             MailOrderException moe = (MailOrderException)e;
+                             if(moe.getOrder() instanceof OutImportBean){
+                                 OutImportBean order = (OutImportBean)moe.getOrder();
+                                 order.setResult(moe.getErrorContent());
+                                 //失败批次
+                                 order.setStatus(3);
+                                 importItemListFail.add(order);
                              }
                          }
                      }
