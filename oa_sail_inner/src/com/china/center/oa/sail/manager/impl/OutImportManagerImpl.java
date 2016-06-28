@@ -177,7 +177,11 @@ public class OutImportManagerImpl implements OutImportManager
 
                 each.setId(++i);
 
-                each.setStatus(OutImportConstant.STATUS_INIT);
+				if(each.getImportFromMail() == 1 && each.getStatus() == 3){
+					continue;
+				}else{
+					each.setStatus(OutImportConstant.STATUS_INIT);
+				}
 
                 if (each.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
                         && each.getPrice() != 0)

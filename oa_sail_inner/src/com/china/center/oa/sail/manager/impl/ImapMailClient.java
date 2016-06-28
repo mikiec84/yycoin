@@ -431,10 +431,15 @@ public class ImapMailClient {
                 _logger.error(msg);
                 throw new MailOrderException(msg, bean);
             } else{
+                bean.setProductId(productBean.getId());
                 bean.setProductCode(code);
                 //激励金额取t_center_product_import中的motivationmoney
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
             }
+        } else{
+            String msg = "产品编码不存在:"+orderBean.getProductCode();
+            _logger.error(msg);
+            throw new MailOrderException(msg, bean);
         }
 
         //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
