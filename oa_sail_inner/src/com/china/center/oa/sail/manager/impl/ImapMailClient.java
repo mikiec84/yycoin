@@ -432,15 +432,55 @@ public class ImapMailClient {
                 throw new MailOrderException(msg, bean);
             } else{
                 bean.setProductId(productBean.getId());
+                bean.setProductName(productBean.getName());
                 bean.setProductCode(code);
                 //激励金额取t_center_product_import中的motivationmoney
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
+
+                //购买日期必须满足(上线时间，下线时间)
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date citicOrderDate = null;
+                try{
+                    citicOrderDate = sdf.parse(bean.getCiticOrderDate());
+                }catch(Exception e){
+                    String msg = "购买日期必须为XXXX-XX-XX格式:"+orderBean.getCiticOrderDate();
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }
+
+                Date begin = null;
+                try{
+                    begin = sdf.parse(productImportBean.getOnMarketDate());
+                }catch(Exception e){
+                    String msg = "上线时间必须为XXXX-XX-XX格式:"+productImportBean.getCode();
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }
+
+                Date end = null;
+                try{
+                    end = sdf.parse(productImportBean.getOfflineDate());
+                }catch(Exception e){
+                    String msg = "下线时间必须为XXXX-XX-XX格式:"+productImportBean.getCode();
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }
+
+                if (citicOrderDate!= null && begin!= null && end!= null
+                        && !citicOrderDate.before(begin) && !citicOrderDate.after(end)){
+                    _logger.info(citicOrderDate+"***citicOrderDate in range***"+begin+"**"+end);
+                } else{
+                    String msg = "购买日期必须位于:"+productImportBean.getOnMarketDate()+"-"+productImportBean.getOfflineDate();
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }
             }
         } else{
             String msg = "产品编码不存在:"+orderBean.getProductCode();
             _logger.error(msg);
             throw new MailOrderException(msg, bean);
         }
+
 
         //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
         if(bean.getProductName().contains("姓氏")){
