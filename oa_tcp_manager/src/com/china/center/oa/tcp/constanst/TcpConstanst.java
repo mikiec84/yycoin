@@ -173,6 +173,9 @@ public interface TcpConstanst
 
     @Defined(key = "tcpStatus", value = "待营销管理部审批")
     int TCP_STATUS_MARKETING_MANAGER = 35;
+
+    @Defined(key = "tcpStatus", value = "待副总裁审批")
+    int TCP_STATUS_VICE_PRESIDENT = 36;
     
     /**
      * 结束
