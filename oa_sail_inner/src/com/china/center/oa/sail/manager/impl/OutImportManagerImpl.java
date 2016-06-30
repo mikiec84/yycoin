@@ -406,7 +406,7 @@ public class OutImportManagerImpl implements OutImportManager
 				
 				if (null == cbean)
 				{
-					throw new RuntimeException("客户（网点）不存在。");
+					throw new RuntimeException(each.getCiticNo()+" 客户（网点）不存在:"+each.getComunicatonBranchName());
 				}
 				else
 					each.setCustomerId(cbean.getId());

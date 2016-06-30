@@ -356,8 +356,8 @@ public class ImapMailClient {
         //TODO   职员 备注
         //库存默认 公共库-南京物流中心
         bean.setDepotId(DepotConstant.CENTER_DEPOT_ID);
-
-        //TODO  仓区
+        //默认为南京物流中心-物流中心库(销售可发)仓区
+        bean.setDepotpartId("1");
 
         bean.setProductName(orderBean.getProductName());
         bean.setProductCode(orderBean.getProductCode());
