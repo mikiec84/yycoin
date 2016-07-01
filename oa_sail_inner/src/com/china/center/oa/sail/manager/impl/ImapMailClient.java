@@ -19,6 +19,8 @@ import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
+import com.china.center.oa.publics.bean.EnumBean;
+import com.china.center.oa.publics.dao.EnumDAO;
 import com.china.center.oa.sail.bean.CiticOrderBean;
 import com.china.center.oa.sail.bean.OutImportBean;
 import com.china.center.oa.sail.bean.ZyOrderBean;
@@ -68,6 +70,16 @@ public class ImapMailClient {
     private StafferVSCustomerDAO stafferVSCustomerDAO = null;
 
     private CustomerDistAddrDAO  customerDistAddrDAO = null;
+
+    private EnumDAO enumDAO = null;
+
+    public EnumDAO getEnumDAO() {
+        return enumDAO;
+    }
+
+    public void setEnumDAO(EnumDAO enumDAO) {
+        this.enumDAO = enumDAO;
+    }
 
     public CustomerDistAddrDAO getCustomerDistAddrDAO() {
         return customerDistAddrDAO;
@@ -288,7 +300,8 @@ public class ImapMailClient {
                      try {
                          OutImportBean bean = this.convertCitic(citicOrderBean);
                          importItemListSuccess.add(bean);
-                     }catch(MYException e){
+                     }catch(Exception e){
+                         _logger.error(e);
                          if (e instanceof MailOrderException){
                              MailOrderException moe = (MailOrderException)e;
                              if(moe.getOrder() instanceof OutImportBean){
@@ -320,7 +333,7 @@ public class ImapMailClient {
 
         bean.setBranchName(orderBean.getBranchName());
         bean.setSecondBranch(orderBean.getSecondBranch());
-        bean.setComunicationBranch(orderBean.getComunicationBranch());
+
 
         //订单类型默认"销售出库"
         bean.setOutType(0);
@@ -358,39 +371,11 @@ public class ImapMailClient {
         bean.setDepotId(DepotConstant.CENTER_DEPOT_ID);
         //默认为南京物流中心-物流中心库(销售可发)仓区
         bean.setDepotpartId("1");
+        bean.setComunicationBranch(DepotConstant.DEFAULT_DEPOT_PART);
 
         bean.setProductName(orderBean.getProductName());
         bean.setProductCode(orderBean.getProductCode());
         bean.setDescription("Mail_" + orderBean.getMailId());
-
-        //TODO 凡是 中信银行重庆XXXX的就取邮件里的地址信息,其他的取客户的默认办公地址
-        if (custName.contains("中信银行重庆")){
-            //TODO 发货方式 运输方式 支付方式
-            bean.setShipping(0);
-            bean.setProvinceId(orderBean.getProvinceId());
-            bean.setCityId(orderBean.getCityId());
-            bean.setAddress(orderBean.getAddress());
-            bean.setReceiver(orderBean.getReceiver());
-            bean.setHandPhone(orderBean.getReceiverMobile());
-        } else{
-            List<CustomerDistAddrBean> customerDistAddrBeans = this.customerDistAddrDAO.queryEntityBeansByFK(bean.getCustomerId());
-            if (!ListTools.isEmptyOrNull(customerDistAddrBeans)){
-                for (CustomerDistAddrBean addr : customerDistAddrBeans){
-                    if (addr.getAtype() == 1){
-                        bean.setShipping(addr.getShipping());
-                        bean.setTransport1(addr.getTransport1());
-                        bean.setExpressPay(addr.getExpressPay());
-                        bean.setTransport2(addr.getTransport2());
-                        bean.setTransportPay(addr.getTransportPay());
-                        bean.setProvinceId(addr.getProvinceId());
-                        bean.setCityId(addr.getCityId());
-                        bean.setAddress(addr.getAddress());
-                        bean.setReceiver(addr.getContact());
-                        bean.setHandPhone(addr.getTelephone());
-                    }
-                }
-            }
-        }
 
         CustomerBean cBean = customerMainDAO.findByUnique(custName);
         if (null == cBean)
@@ -415,6 +400,54 @@ public class ImapMailClient {
                 }
             }else{
                 bean.setComunicatonBranchName("公共客户");
+            }
+        }
+
+        //TODO 凡是 中信银行重庆XXXX的就取邮件里的地址信息,其他的取客户的默认办公地址
+        if (custName.contains("中信银行重庆")){
+            //TODO 发货方式 运输方式 支付方式
+            bean.setShipping(0);
+            bean.setProvinceId(orderBean.getProvinceId());
+            bean.setCityId(orderBean.getCityId());
+            bean.setAddress(orderBean.getAddress());
+            bean.setReceiver(orderBean.getReceiver());
+            bean.setHandPhone(orderBean.getReceiverMobile());
+        } else{
+            String customerId = bean.getCustomerId();
+            boolean found = false;
+
+            List<CustomerDistAddrBean> customerDistAddrBeans = this.customerDistAddrDAO.queryEntityBeansByFK(customerId);
+            if (!ListTools.isEmptyOrNull(customerDistAddrBeans)){
+                for (CustomerDistAddrBean addr : customerDistAddrBeans){
+                    ConditionParse conditionParse = new ConditionParse();
+                    conditionParse.addWhereStr();
+                    conditionParse.addCondition("type","=","303");
+                    conditionParse.addCondition("keyss","=",addr.getAtype());
+                    List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                    if (!ListTools.isEmptyOrNull(enumBeans)){
+                        EnumBean enumBean = enumBeans.get(0);
+                        if ("办公地址".equals(enumBean.getValue())){
+                            found = true;
+                            bean.setShipping(addr.getShipping());
+                            bean.setTransport1(addr.getTransport1());
+                            bean.setExpressPay(addr.getExpressPay());
+                            bean.setTransport2(addr.getTransport2());
+                            bean.setTransportPay(addr.getTransportPay());
+                            bean.setProvinceId(addr.getProvinceId());
+                            bean.setCityId(addr.getCityId());
+                            bean.setAddress(addr.getAddress());
+                            bean.setReceiver(addr.getContact());
+                            bean.setHandPhone(addr.getTelephone());
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!found){
+                String msg = "没有默认办公地址："+customerId;
+                _logger.error(msg);
+                throw new MailOrderException(msg, bean);
             }
         }
 

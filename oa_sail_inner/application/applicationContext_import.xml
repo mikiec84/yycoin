@@ -128,6 +128,8 @@
 	<osgi:reference id="priceConfigManager" interface="com.china.center.oa.product.manager.PriceConfigManager" />
 
 	<osgi:reference id="attachmentDAO" interface="com.china.center.oa.publics.dao.AttachmentDAO" />
+
+	<osgi:reference id="enumDAO" interface="com.china.center.oa.publics.dao.EnumDAO" />
 	
 	<osgi:reference id="goldSilverPriceDAO" interface="com.china.center.oa.product.dao.GoldSilverPriceDAO" />
 	
