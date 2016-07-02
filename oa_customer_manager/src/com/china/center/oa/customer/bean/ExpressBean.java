@@ -8,7 +8,7 @@ import com.china.center.jdbc.annotation.Unique;
 import java.io.Serializable;
 
 /** 2016/5/17
- * #236 为避免sail和customer包相互依赖，只能复制一份代码
+ * #236 Make a copy from sail bundle to avoid cycling dependency
  */
 @Entity
 @Table(name = "T_CENTER_EXPRESS")
