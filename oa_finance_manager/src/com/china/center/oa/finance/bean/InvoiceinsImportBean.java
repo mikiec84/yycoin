@@ -583,4 +583,45 @@ public class InvoiceinsImportBean implements Serializable
 	public void setZzsInfo(String zzsInfo) {
 		this.zzsInfo = zzsInfo;
 	}
+
+	@Override
+	public String toString() {
+		return "InvoiceinsImportBean{" +
+				"id='" + id + '\'' +
+				", batchId='" + batchId + '\'' +
+				", outId='" + outId + '\'' +
+				", customerId='" + customerId + '\'' +
+				", stafferId='" + stafferId + '\'' +
+				", type=" + type +
+				", invoiceMoney=" + invoiceMoney +
+				", invoiceNum='" + invoiceNum + '\'' +
+				", virtualInvoiceNum='" + virtualInvoiceNum + '\'' +
+				", invoiceId='" + invoiceId + '\'' +
+				", invoiceHead='" + invoiceHead + '\'' +
+				", invoiceDate='" + invoiceDate + '\'' +
+				", refInsId='" + refInsId + '\'' +
+				", stafferName='" + stafferName + '\'' +
+				", logTime='" + logTime + '\'' +
+				", shipping=" + shipping +
+				", transport1=" + transport1 +
+				", transport2=" + transport2 +
+				", provinceId='" + provinceId + '\'' +
+				", cityId='" + cityId + '\'' +
+				", areaId='" + areaId + '\'' +
+				", address='" + address + '\'' +
+				", receiver='" + receiver + '\'' +
+				", mobile='" + mobile + '\'' +
+				", telephone='" + telephone + '\'' +
+				", expressPay=" + expressPay +
+				", transportPay=" + transportPay +
+				", description='" + description + '\'' +
+				", addrType=" + addrType +
+				", invoiceFollowOut='" + invoiceFollowOut + '\'' +
+				", productId='" + productId + '\'' +
+				", productName='" + productName + '\'' +
+				", amount=" + amount +
+				", zzsInfo='" + zzsInfo + '\'' +
+				", splitFlag=" + splitFlag +
+				'}';
+	}
 }

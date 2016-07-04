@@ -76,4 +76,6 @@ public interface DepotConstant
      * 生产库(销售是不可见的)
      */
     String MAKE_DEPOT_ID = "99000000000000000099";
+
+    String DEFAULT_DEPOT_PART = "南京物流中心-物流中心库(销售可发)";
 }
