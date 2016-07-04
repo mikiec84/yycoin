@@ -198,6 +198,7 @@ public class ImapMailClient {
                     Flags.Flag.SEEN), false));
             inbox.fetch(messages, profile);
             _logger.info("***unread mail count***" + inbox.getUnreadMessageCount());
+            System.out.println("***unread mail count***" + inbox.getUnreadMessageCount());
 
             int count = 0 ;
             for (Message message : messages) {
@@ -236,7 +237,7 @@ public class ImapMailClient {
                 }catch(Exception e){
                     e.printStackTrace();
                 }
-//                msg.setFlag(Flags.Flag.SEEN, true);
+                msg.setFlag(Flags.Flag.SEEN, true);
             }
         } catch(Exception e){
            e.printStackTrace();
@@ -540,18 +541,20 @@ public class ImapMailClient {
                 citicEL = citicOrderMail;
             }
 
-            Pattern citicPattern = Pattern.compile(citicEL);
+            Pattern citicPattern = Pattern.compile(citicEL.trim());
             Matcher citicMatcher = citicPattern.matcher(from);
-//            _logger.info(citicEL+"***citicEL**"+from);
+            boolean matches = citicMatcher.matches();
+
             //中信
-            if (citicMatcher.matches()){
+            if (matches){
                 type = MailType.citic;
             }
+
+            _logger.info(citicEL+"***citicEL**"+from+"***"+matches+"***getOrderTypeByEmail "+type);
         }catch(Exception e){
             e.printStackTrace();
+            _logger.error(e);
         }
-
-        _logger.info(from+"***getOrderTypeByEmail "+type);
 
         return type;
     }
@@ -583,21 +586,29 @@ public class ImapMailClient {
             int count = multipart.getCount();
             for (int idx = 0; idx < count; idx++) {
                 BodyPart bodyPart = multipart.getBodyPart(idx);
-                _logger.info(bodyPart.getContentType());
-                _logger.info("***fileName***" + bodyPart.getFileName());
+                String disposition = bodyPart.getDisposition();
+//                _logger.info(bodyPart.getContentType());
+                _logger.info("disposition***"+disposition+"***fileName***" + bodyPart.getFileName());
+//                System.out.println(bodyPart.getContentType()+"***fileName***" + bodyPart.getFileName());
+//                System.out.println(idx+"***fileName2***" + this.decodeText(bodyPart.getFileName()));
+//                System.out.println( disposition+"***disposition***" + bodyPart.getInputStream());
                 if (bodyPart.isMimeType("text/plain")) {
                     _logger.info("plain................." + bodyPart.getContent());
+//                    System.out.println("****1111");
                 } else if (bodyPart.isMimeType("text/html")) {
                     _logger.info("html..................." + bodyPart.getContent());
+//                    System.out.println("****2222");
                 } else if (bodyPart.isMimeType("multipart/*")) {
+//                    System.out.println("****3333");
                     Multipart mpart = (Multipart) bodyPart.getContent();
                     parseMultipart(mpart, type, subject);
-                } else if (bodyPart.isMimeType("application/octet-stream")) {
-                    String disposition = bodyPart.getDisposition();
-                    _logger.info(disposition + "***disposition***" + bodyPart.getInputStream());
+                } else if (bodyPart.isMimeType("application/octet-stream")
+                        || bodyPart.isMimeType("APPLICATION/VND.MS-EXCEL")) {
+//                    System.out.println("****4444");
                     if (BodyPart.ATTACHMENT.equalsIgnoreCase(disposition) || bodyPart.getInputStream()!= null) {
                         String fileName = MimeUtility.decodeText(bodyPart.getFileName());
                         _logger.info("****fileName***" + fileName + "***size" + bodyPart.getSize());
+//                        System.out.println("****fileName3***" + fileName + "***size" + bodyPart.getSize());
                         if (fileName.contains("xls")){
                             InputStream is = bodyPart.getInputStream();
 //                        String fullPath = "D:\\oa_attachment\\"+fileName;
@@ -637,6 +648,8 @@ public class ImapMailClient {
                             }
                         }
                     }
+                } else{
+                    System.out.println("****5555");
                 }
             }
         }
