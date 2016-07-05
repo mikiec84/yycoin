@@ -446,3 +446,37 @@ call auth_user('1501')
 --2016/6/24 #222
 alter table t_center_out_import add column result varchar(100) default ''
 alter table t_center_out_import add column importFromMail int(11) default 0
+
+--2016/7/5 #269
+create table T_CENTER_ZS_ORDER (	
+id int(11) NOT NULL AUTO_INCREMENT,
+mailId varchar(100) NOT NULL,
+status int(11) default 0,
+orderStatus varchar(40) default '',
+customerId varchar(40) NOT NULL,
+customerName varchar(40) NOT NULL ,
+dealDate varchar(40),
+dealTime varchar(40),
+account varchar(40),
+providerId varchar(100),
+pickupNode varchar(40),
+branchName varchar(40) NOT NULL,
+comunicatonBranchName varchar(40) NOT NULL,
+storageControlType varchar(40) default '',
+productId varchar(40),
+productCode varchar(40) NOT NULL,
+productName varchar(100) NOT NULL,
+productSpec varchar(100) default '',
+amount int(11) NOT NULL,
+price double default '0' NOT NULL,
+value double default '0' NOT NULL,
+fee double default '0' NOT NULL,
+citicNo varchar(40) NOT NULL,
+invoiceNature varchar(40) NOT NULL,
+invoiceHead varchar(40) NOT NULL,
+invoiceCondition varchar(40) NOT NULL,
+materialType varchar(40),
+logTime varchar(40),
+PRIMARY KEY (id),
+UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8

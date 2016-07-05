@@ -23,9 +23,11 @@ import com.china.center.oa.publics.bean.EnumBean;
 import com.china.center.oa.publics.dao.EnumDAO;
 import com.china.center.oa.sail.bean.CiticOrderBean;
 import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.bean.ZsOrderBean;
 import com.china.center.oa.sail.bean.ZyOrderBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.CiticOrderDAO;
+import com.china.center.oa.sail.dao.ZsOrderDAO;
 import com.china.center.oa.sail.dao.ZyOrderDAO;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
@@ -55,9 +57,11 @@ public class ImapMailClient {
 
     public static final String CITIC = "citic";
 
-    public static enum MailType {unknown, citic, zy}
+    public static enum MailType {unknown, citic, zs, pf, zy}
 
     private CiticOrderDAO citicOrderDAO = null;
+
+    private ZsOrderDAO zsOrderDAO = null;
 
     private ZyOrderDAO zyOrderDAO = null;
 
@@ -127,6 +131,14 @@ public class ImapMailClient {
 
     public void setCiticOrderDAO(CiticOrderDAO citicOrderDAO) {
         this.citicOrderDAO = citicOrderDAO;
+    }
+
+    public ZsOrderDAO getZsOrderDAO() {
+        return zsOrderDAO;
+    }
+
+    public void setZsOrderDAO(ZsOrderDAO zsOrderDAO) {
+        this.zsOrderDAO = zsOrderDAO;
     }
 
     public ZyOrderDAO getZyOrderDAO() {
@@ -223,6 +235,10 @@ public class ImapMailClient {
                     String mailId = "";
                     if (mailType == MailType.citic){
                         mailId = subject+"_citic_"+sdf.format(now);
+                    } else if (mailType == MailType.zs){
+                        mailId = subject+"_zhaoshang_"+sdf.format(now);
+                    } else if (mailType == MailType.pf){
+                        mailId = subject+"_pufa_"+sdf.format(now);
                     } else{
                         mailId = subject+"_"+sdf.format(now);
                     }
@@ -535,6 +551,7 @@ public class ImapMailClient {
     private MailType getOrderTypeByEmail(String from){
         MailType type = MailType.unknown;
         try{
+            //citic
             String citicEL = "\\w+@citicbank.com";
             String citicOrderMail = ConfigLoader.getProperty("citicOrderMail");
             if (!StringTools.isNullOrNone(citicOrderMail)){
@@ -543,14 +560,39 @@ public class ImapMailClient {
 
             Pattern citicPattern = Pattern.compile(citicEL.trim());
             Matcher citicMatcher = citicPattern.matcher(from);
-            boolean matches = citicMatcher.matches();
+            boolean citicMatches = citicMatcher.matches();
 
-            //中信
-            if (matches){
-                type = MailType.citic;
+            //zhaoshang
+            String zsEL = "\\w+@yycoin.com";
+            String zsOrderMail = ConfigLoader.getProperty("zsOrderMail");
+            if (!StringTools.isNullOrNone(zsOrderMail)){
+                zsEL = zsOrderMail;
             }
 
-            _logger.info(citicEL+"***citicEL**"+from+"***"+matches+"***getOrderTypeByEmail "+type);
+            Pattern zsPattern = Pattern.compile(zsEL.trim());
+            Matcher zsMatcher = zsPattern.matcher(from);
+            boolean zsMatches = zsMatcher.matches();
+
+            //pufa
+            String pfEL = "ebank@eb.spdb.com.cn";
+            String pfOrderMail = ConfigLoader.getProperty("pfOrderMail");
+            if (!StringTools.isNullOrNone(pfOrderMail)){
+                pfEL = pfOrderMail;
+            }
+
+            Pattern pfPattern = Pattern.compile(pfEL.trim());
+            Matcher pfMatcher = pfPattern.matcher(from);
+            boolean pfMatches = pfMatcher.matches();
+
+            if (citicMatches){
+                type = MailType.citic;
+            } else if (zsMatches){
+                type = MailType.zs;
+            } else if (pfMatches){
+                type = MailType.pf;
+            }
+
+            _logger.info(citicEL+"***citicEL**"+from+"***"+citicMatches+"***getOrderTypeByEmail "+type);
         }catch(Exception e){
             e.printStackTrace();
             _logger.error(e);
@@ -993,6 +1035,177 @@ public class ImapMailClient {
                     if(!StringTools.isNullOrNone(mobile)){
                         bean.setReceiverMobile(mobile);
                     }
+
+                    //TODO
+                    System.out.println(bean);
+                    items.add(bean);
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return items;
+    }
+
+    /** #269
+     * 招商银行订单
+     * @param is
+     * @return
+     * @throws IOException
+     */
+    public List<ZsOrderBean> parseZsOrder(InputStream is) throws IOException{
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+        List<ZsOrderBean> items = new ArrayList<ZsOrderBean>();
+        try
+        {
+            reader.readFile(is);
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+                int currentNumber = reader.getCurrentLineNumber();
+                System.out.println("****currentNumber***"+currentNumber);
+
+                // 前三行忽略
+                if (currentNumber <= 3)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+
+                if (obj.length >= 2 )
+                {
+                    ZsOrderBean bean = new ZsOrderBean();
+                    int i = 0;
+
+                    //订单号码
+                    String citicNo = obj[i++];
+                    if(!StringTools.isNullOrNone(citicNo)){
+                        bean.setCiticNo(citicNo);
+                    }
+
+                    //订单状态
+                    String orderStatus = obj[i++];
+                    if(!StringTools.isNullOrNone(orderStatus)){
+                        bean.setOrderStatus(orderStatus);
+                    }
+
+                    //TODO 序号
+
+                    //购买分行名称
+                    String branchName = obj[i++];
+                    if ( !StringTools.isNullOrNone(branchName))
+                    {
+                        bean.setBranchName(branchName);
+                    }
+
+                    //网点名称
+                    String commBranchName = obj[i++];
+                    if(!StringTools.isNullOrNone(commBranchName)){
+                        bean.setComunicatonBranchName(commBranchName);
+                    }
+
+                    //商品编码
+                    String productCode = obj[i++];
+                    if(!StringTools.isNullOrNone(productCode)){
+                        bean.setProductCode(productCode);
+                    }
+
+                    //商品名称
+                    String productName = obj[i++];
+                    if(!StringTools.isNullOrNone(productName)){
+                        bean.setProductName(productName);
+                    }
+
+                    //数量
+                    String amount = obj[i++];
+                    if(!StringTools.isNullOrNone(amount)){
+                        bean.setAmount(Integer.valueOf(amount.trim()));
+                    }
+
+                    //单价
+                    String price = obj[i++];
+                    if(!StringTools.isNullOrNone(price)){
+                        bean.setPrice(Double.valueOf(price));
+                    }
+
+                    //金额
+                    String value = obj[i++];
+                    if(!StringTools.isNullOrNone(value)){
+                        bean.setValue(Double.valueOf(value));
+                    }
+
+                    //费用
+                    String fee = obj[i++];
+                    if(!StringTools.isNullOrNone(fee)){
+                        bean.setFee(Double.valueOf(fee));
+                    }
+
+
+
+                    //开票性质
+                    String invoiceNature = obj[i++];
+                    if(!StringTools.isNullOrNone(invoiceNature)){
+                        bean.setInvoiceNature(invoiceNature);
+                    }
+
+                    //开票抬头
+                    String head = obj[i++];
+                    if(!StringTools.isNullOrNone(head)){
+                        bean.setInvoiceHead(head);
+                    }
+
+                    //开票条件
+                    String con = obj[i++];
+                    if(!StringTools.isNullOrNone(con)){
+                        bean.setInvoiceCondition(con);
+                    }
+
+
+                    //客户姓名
+                    String customer = obj[i++].trim();
+                    if(!StringTools.isNullOrNone(customer)){
+                        bean.setCustomerName(customer);
+                    }
+
+
+                    //客户号
+                    String customerId = obj[i++];
+                    if(!StringTools.isNullOrNone(customerId)){
+                        bean.setCustomerId(customerId);
+                    }
+
+                    //买卖时间
+                    String dealDate = obj[i++];
+                    if(!StringTools.isNullOrNone(dealDate)){
+                        bean.setDealDate(dealDate);
+                    }
+
+
+                    //提货网点号
+                    String node = obj[i++];
+                    if(!StringTools.isNullOrNone(node)){
+                        bean.setPickupNode(node);
+                    }
+
 
                     //TODO
                     System.out.println(bean);
