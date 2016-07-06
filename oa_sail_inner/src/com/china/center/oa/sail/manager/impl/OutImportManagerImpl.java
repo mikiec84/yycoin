@@ -386,12 +386,12 @@ public class OutImportManagerImpl implements OutImportManager
 	{
 		String batchId = list.get(0).getBatchId();
 		
-		List<OutImportBean> list1 = outImportDAO.queryEntityBeansByFK(batchId);
+//		List<OutImportBean> list1 = outImportDAO.queryEntityBeansByFK(batchId);
 		
-		if (!ListTools.isEmptyOrNull(list1))
+		if (!ListTools.isEmptyOrNull(list))
 		{
 			// 去掉处理中与成功处理的数据
-			if (list1.get(0).getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+			if (list.get(0).getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
 			{
 				throw new RuntimeException("已处理过的接口数据，不可再生成OA库单。");
 			}
@@ -399,7 +399,7 @@ public class OutImportManagerImpl implements OutImportManager
 			Map<String, List<OutImportBean>> map = new HashMap<String, List<OutImportBean>>();
 			
 			// 处理需要处理的 - 1.按客户与送货时间分组
-			for (OutImportBean each : list1)
+			for (OutImportBean each : list)
 			{
 				// 根据网点获取客户ID
 				CustomerBean cbean = customerMainDAO.findByUnique(each.getComunicatonBranchName());

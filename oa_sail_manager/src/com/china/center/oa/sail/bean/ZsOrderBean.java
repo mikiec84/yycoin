@@ -21,6 +21,11 @@ public class ZsOrderBean implements Serializable{
 	private String id = "";
 
     /**
+     * 订单序号
+     */
+    private String sn = "";
+
+    /**
      *  邮件标题+时间
      */
     private String mailId = "";
@@ -34,16 +39,6 @@ public class ZsOrderBean implements Serializable{
      * 订单状态
      */
     private String orderStatus = "";
-
-	/**
-	 * 客户号
-	 */
-	private String customerId = "";
-
-    /**
-     * 客户姓名
-     */
-    private String customerName = "";
 
 
 	/**
@@ -87,8 +82,6 @@ public class ZsOrderBean implements Serializable{
      * 库存控制类型
      */
     private String storageControlType = "";
-
-	private String productId = "";
 
 	/**
 	 * 产品编码
@@ -174,6 +167,14 @@ public class ZsOrderBean implements Serializable{
         this.id = id;
     }
 
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
     public String getMailId() {
         return mailId;
     }
@@ -196,22 +197,6 @@ public class ZsOrderBean implements Serializable{
 
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
-    }
-
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
     }
 
     public String getDealDate() {
@@ -276,14 +261,6 @@ public class ZsOrderBean implements Serializable{
 
     public void setStorageControlType(String storageControlType) {
         this.storageControlType = storageControlType;
-    }
-
-    public String getProductId() {
-        return productId;
-    }
-
-    public void setProductId(String productId) {
-        this.productId = productId;
     }
 
     public String getProductCode() {
@@ -397,8 +374,6 @@ public class ZsOrderBean implements Serializable{
                 ", mailId='" + mailId + '\'' +
                 ", status=" + status +
                 ", orderStatus='" + orderStatus + '\'' +
-                ", customerId='" + customerId + '\'' +
-                ", customerName='" + customerName + '\'' +
                 ", dealDate='" + dealDate + '\'' +
                 ", dealTime='" + dealTime + '\'' +
                 ", account='" + account + '\'' +
