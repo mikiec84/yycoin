@@ -46,6 +46,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 
 public class ImapMailClient {
@@ -773,7 +776,7 @@ public class ImapMailClient {
             boolean citicMatches = citicMatcher.matches();
 
             //zhaoshang
-            String zsEL = "\\w+@yycoin.com";
+            String zsEL = "\\w+@yycoin2.com";
             String zsOrderMail = ConfigLoader.getProperty("zsOrderMail");
             if (!StringTools.isNullOrNone(zsOrderMail)){
                 zsEL = zsOrderMail;
@@ -784,7 +787,9 @@ public class ImapMailClient {
             boolean zsMatches = zsMatcher.matches();
 
             //pufa
-            String pfEL = "ebank@eb.spdb.com.cn";
+//            String pfEL = "ebank@eb.spdb.com.cn";
+            //TODO
+            String pfEL = "zhousudong@yycoin.com";
             String pfOrderMail = ConfigLoader.getProperty("pfOrderMail");
             if (!StringTools.isNullOrNone(pfOrderMail)){
                 pfEL = pfOrderMail;
@@ -802,7 +807,9 @@ public class ImapMailClient {
                 type = MailType.pf;
             }
 
-            _logger.info(citicEL+"***citicEL**"+from+"***"+citicMatches+"***getOrderTypeByEmail "+type);
+            String msg =  citicEL+"***citicEL**"+from+"***"+citicMatches+"***getOrderTypeByEmail "+type;
+            _logger.info(msg);
+            System.out.println(msg);
         }catch(Exception e){
             e.printStackTrace();
             _logger.error(e);
@@ -841,9 +848,9 @@ public class ImapMailClient {
                 String disposition = bodyPart.getDisposition();
 //                _logger.info(bodyPart.getContentType());
                 _logger.info("disposition***"+disposition+"***fileName***" + bodyPart.getFileName());
-//                System.out.println(bodyPart.getContentType()+"***fileName***" + bodyPart.getFileName());
-//                System.out.println(idx+"***fileName2***" + this.decodeText(bodyPart.getFileName()));
-//                System.out.println( disposition+"***disposition***" + bodyPart.getInputStream());
+                System.out.println(bodyPart.getContentType()+"***fileName***" + bodyPart.getFileName());
+                System.out.println(idx+"***fileName2***" + this.decodeText(bodyPart.getFileName()));
+                System.out.println(disposition+"***disposition***" + bodyPart.getInputStream());
                 if (bodyPart.isMimeType("text/plain")) {
                     _logger.info("plain................." + bodyPart.getContent());
 //                    System.out.println("****1111");
@@ -859,10 +866,10 @@ public class ImapMailClient {
 //                    System.out.println("****4444");
                     if (BodyPart.ATTACHMENT.equalsIgnoreCase(disposition) || bodyPart.getInputStream()!= null) {
                         String fileName = MimeUtility.decodeText(bodyPart.getFileName());
-                        _logger.info("****fileName***" + fileName + "***size" + bodyPart.getSize());
+                        InputStream is = bodyPart.getInputStream();
+//                        _logger.info("****fileName***" + fileName + "***size" + bodyPart.getSize());
 //                        System.out.println("****fileName3***" + fileName + "***size" + bodyPart.getSize());
                         if (fileName.contains("xls")){
-                            InputStream is = bodyPart.getInputStream();
 //                        String fullPath = "D:\\oa_attachment\\"+fileName;
 //                        this.copy(is, new FileOutputStream(fullPath));
                             if (type == MailType.citic) {
@@ -892,7 +899,7 @@ public class ImapMailClient {
                                         }
                                     }
                                 }
-                            }  else if (type == MailType.zy){
+                            } else if (type == MailType.zy){
                                 List<ZyOrderBean> items = parseZyOrder(is);
                                 if (this.zyOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
                                     for(ZyOrderBean item :items){
@@ -910,6 +917,21 @@ public class ImapMailClient {
                                         }
                                     }
                                 }
+                            }
+                        }else if (fileName.contains(".rar")){
+                            if (type == MailType.pf) {
+                                List<ZsOrderBean> items = parsePfOrder(is);
+//                                if (this.zsOrderDAO!= null && !ListTools.isEmptyOrNull(items)){
+//                                    for(ZsOrderBean item :items){
+//                                        try{
+//                                            item.setMailId(subject);
+//                                            item.setLogTime(TimeTools.now());
+//                                            this.zsOrderDAO.saveEntityBean(item);
+//                                        } catch(Exception e){
+//                                            e.printStackTrace();
+//                                        }
+//                                    }
+//                                }
                             }
                         }
                     }
@@ -1481,6 +1503,224 @@ public class ImapMailClient {
 
         return items;
     }
+
+    /**
+     * 浦发银行订单
+     * @param is
+     * @return
+     * @throws IOException
+     */
+    public List<ZsOrderBean> parsePfOrder(InputStream is) throws IOException{
+        ZipInputStream zin = new ZipInputStream(is);
+        System.out.println("***parsePfOrder***"+zin);
+        System.out.println(zin.getNextEntry());
+
+        //TODO check commons-compress   ZipArchiveInputStream
+        //http://stackoverflow.com/questions/15521966/zipinputstream-getnextentry-returns-null-on-some-zip-files
+        for (ZipEntry zipEntry;(zipEntry = zin.getNextEntry()) != null; )
+        {
+            System.out.println("reading zipEntry " + zipEntry.getName());
+            Scanner sc = new Scanner(zin);
+            while (sc.hasNextLine())
+            {
+                System.out.println(sc.nextLine());
+            }
+            System.out.println("reading " + zipEntry.getName() + " completed");
+        }
+        zin.close();
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+        List<ZsOrderBean> items = new ArrayList<ZsOrderBean>();
+        try
+        {
+            reader.readFile(is);
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[]) reader.next());
+                int currentNumber = reader.getCurrentLineNumber();
+                System.out.println("****currentNumber***"+currentNumber);
+
+                // 前三行忽略
+                if (currentNumber <= 3)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+
+                if (obj.length >= 2 )
+                {
+                    ZsOrderBean bean = new ZsOrderBean();
+                    int i = 0;
+
+                    //订单号码
+                    String citicNo = obj[i++];
+                    if(!StringTools.isNullOrNone(citicNo)){
+                        bean.setCiticNo(citicNo);
+                    }
+
+                    //订单状态
+                    String orderStatus = obj[i++];
+                    if(!StringTools.isNullOrNone(orderStatus)){
+                        bean.setOrderStatus(orderStatus);
+                    }
+
+                    //序号
+                    String sn = obj[i++];
+                    if (!StringTools.isNullOrNone(sn)){
+                        bean.setSn(sn);
+                    }
+
+                    //交易日期
+                    String dealDate = obj[i++];
+                    if(!StringTools.isNullOrNone(dealDate)){
+                        bean.setDealDate(dealDate);
+                    }
+
+                    //交易时间
+                    String dealTime = obj[i++];
+                    if (!StringTools.isNullOrNone(dealTime)){
+                        bean.setDealTime(dealTime);
+                    }
+
+                    //交易户名
+                    String account = obj[i++];
+                    if (!StringTools.isNullOrNone(account)){
+                        bean.setAccount(account);
+                    }
+
+                    //供应商编码
+                    String providerId = obj[i++];
+                    if (!StringTools.isNullOrNone(providerId)){
+                        bean.setProviderId(providerId);
+                    }
+
+                    //产品类型
+                    String materialType = obj[i++];
+                    if (!StringTools.isNullOrNone(materialType)){
+                        bean.setMaterialType(materialType);
+                    }
+
+
+                    //商品编码
+                    String productCode = obj[i++];
+                    if(!StringTools.isNullOrNone(productCode)){
+                        bean.setProductCode(productCode);
+                    }
+
+                    //商品名称
+                    String productName = obj[i++];
+                    if(!StringTools.isNullOrNone(productName)){
+                        bean.setProductName(productName);
+                    }
+
+                    //产品规格
+                    String productSpec = obj[i++];
+                    if (!StringTools.isNullOrNone(productSpec)){
+                        bean.setProductSpec(productSpec);
+                    }
+
+
+                    //数量
+                    String amount = obj[i++];
+                    if(!StringTools.isNullOrNone(amount)){
+                        bean.setAmount(Integer.valueOf(amount.trim()));
+                    }
+
+                    //金额
+                    String value = obj[i++];
+                    if(!StringTools.isNullOrNone(value)){
+                        bean.setValue(Double.valueOf(value.replaceAll(",","")));
+                    }
+
+                    //费用
+                    String fee = obj[i++];
+                    if(!StringTools.isNullOrNone(fee)){
+                        bean.setFee(Double.valueOf(fee.replaceAll(",","")));
+                    }
+
+
+                    //@Deprecated 交易价格
+                    String price = obj[i++];
+                    if(!StringTools.isNullOrNone(price)){
+//                        bean.setPrice(Double.valueOf(price));
+                    }
+
+                    //交易分行
+                    String branchName = obj[i++];
+                    if ( !StringTools.isNullOrNone(branchName))
+                    {
+                        bean.setBranchName(branchName);
+                    }
+
+                    //交易机构
+                    String commBranchName = obj[i++];
+                    if(!StringTools.isNullOrNone(commBranchName)){
+                        bean.setComunicatonBranchName(commBranchName);
+                    }
+
+
+                    //库存控制类型
+                    String storageControlType = obj[i++];
+                    if (!StringTools.isNullOrNone(storageControlType)){
+                        bean.setStorageControlType(storageControlType);
+                    }
+
+
+                    //领取机构
+                    String node = obj[i++];
+                    if(!StringTools.isNullOrNone(node)){
+                        bean.setPickupNode(node);
+                    }
+
+                    //开票抬头
+                    String head = obj[i++];
+                    if(!StringTools.isNullOrNone(head)){
+                        bean.setInvoiceHead(head);
+                    }
+
+
+                    //开票方式
+                    String invoiceNature = obj[i++];
+                    if(!StringTools.isNullOrNone(invoiceNature)){
+                        bean.setInvoiceNature(invoiceNature);
+                    }
+
+                    //开票备注
+                    String con = obj[i++];
+                    if(!StringTools.isNullOrNone(con)){
+                        bean.setInvoiceCondition(con);
+                    }
+
+                    //TODO
+                    System.out.println(bean);
+                    items.add(bean);
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return items;
+    }
+
 
     /**
      * 解析中原银行订单

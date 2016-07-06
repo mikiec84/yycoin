@@ -382,7 +382,6 @@ public class ZsOrderBean implements Serializable{
                 ", branchName='" + branchName + '\'' +
                 ", comunicatonBranchName='" + comunicatonBranchName + '\'' +
                 ", storageControlType='" + storageControlType + '\'' +
-                ", productId='" + productId + '\'' +
                 ", productCode='" + productCode + '\'' +
                 ", productName='" + productName + '\'' +
                 ", productSpec='" + productSpec + '\'' +
