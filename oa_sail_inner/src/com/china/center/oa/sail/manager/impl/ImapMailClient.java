@@ -60,6 +60,8 @@ public class ImapMailClient {
 
     public static final String ZS = "zhaoshang";
 
+    public static final String PF = "pufa";
+
     public static enum MailType {unknown, citic, zs, pf, zy}
 
     private CiticOrderDAO citicOrderDAO = null;
@@ -385,16 +387,10 @@ public class ImapMailClient {
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
         bean.setPrice(orderBean.getPrice());
-
-        //TODO 规格
-//        bean.setStyle(orderBean.getst);
         bean.setValue(orderBean.getValue());
 
-        bean.setIbMoney(orderBean.getFee());
+        bean.setIbMoney(orderBean.getFee()/orderBean.getAmount());
         bean.setArriveDate(orderBean.getArriveDate());
-
-        //TODO 库存类型
-//        bean.setStorageType(orderBean);
 
 
         //TODO 开票性质
@@ -402,13 +398,7 @@ public class ImapMailClient {
         bean.setInvoiceHead(orderBean.getInvoiceHead());
         bean.setInvoiceCondition(orderBean.getInvoiceCondition());
 
-        //TODO 开票类型   开票品名    开票金额
-        //TODO 开票先不考虑
-//        bean.setInvoiceType(orderBean);
-//        bean.setInvoiceName(orderBean);
-//        bean.setInvoiceMoney(orderBean.getmo);
 
-        //TODO   职员 备注
         //库存默认 公共库-南京物流中心
         bean.setDepotId(DepotConstant.CENTER_DEPOT_ID);
         //默认为南京物流中心-物流中心库(销售可发)仓区
@@ -776,7 +766,7 @@ public class ImapMailClient {
             boolean citicMatches = citicMatcher.matches();
 
             //zhaoshang
-            String zsEL = "\\w+@yycoin2.com";
+            String zsEL = "\\w+@yycoin.com";
             String zsOrderMail = ConfigLoader.getProperty("zsOrderMail");
             if (!StringTools.isNullOrNone(zsOrderMail)){
                 zsEL = zsOrderMail;
@@ -787,9 +777,7 @@ public class ImapMailClient {
             boolean zsMatches = zsMatcher.matches();
 
             //pufa
-//            String pfEL = "ebank@eb.spdb.com.cn";
-            //TODO
-            String pfEL = "zhousudong@yycoin.com";
+            String pfEL = "ebank@eb.spdb.com.cn";
             String pfOrderMail = ConfigLoader.getProperty("pfOrderMail");
             if (!StringTools.isNullOrNone(pfOrderMail)){
                 pfEL = pfOrderMail;
@@ -1027,7 +1015,7 @@ public class ImapMailClient {
                     //网点名称
                     String commBranchName = obj[i++];
                     if(!StringTools.isNullOrNone(commBranchName)){
-                        bean.setComunicatonBranchName(commBranchName);
+                        bean.setComunicatonBranchName(commBranchName.trim());
                     }
 
                     //商品编码
@@ -1324,8 +1312,8 @@ public class ImapMailClient {
                 int currentNumber = reader.getCurrentLineNumber();
                 System.out.println("****currentNumber***"+currentNumber);
 
-                // 前三行忽略
-                if (currentNumber <= 3)
+                // 前1行忽略
+                if (currentNumber <= 1)
                 {
                     continue;
                 }
@@ -2067,11 +2055,15 @@ public class ImapMailClient {
      * @param beans
      */
     public void onCreateOA(String mailId,List<OutImportBean> beans){
-        //中信订单
         if (mailId.indexOf(CITIC)!= -1) {
             for(OutImportBean bean : beans){
                 _logger.info("***onCreateOA***"+bean.getCiticNo());
                 this.citicOrderDAO.updateStatus(bean.getCiticNo());
+            }
+        } else if ( mailId.indexOf(ZS)!= -1) {
+            for(OutImportBean bean : beans){
+                _logger.info("***onCreateOA***"+bean.getCiticNo());
+                this.zsOrderDAO.updateStatus(bean.getCiticNo());
             }
         }
     }

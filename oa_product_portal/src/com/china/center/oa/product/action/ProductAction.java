@@ -517,7 +517,7 @@ public class ProductAction extends DispatchAction
         condtion.addCondition("order by ComposeProductBean.logTime desc");
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCOMPOSE, request, condtion,
-            this.composeProductDAO);
+                this.composeProductDAO);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
@@ -1911,7 +1911,8 @@ public class ProductAction extends DispatchAction
             {
                 ComposeFeeBean each = new ComposeFeeBean();
                 each.setFeeItemId(feeItemIds[i]);
-                each.setPrice(CommonTools.parseFloat(feeItems[i]));
+//                each.setPrice(CommonTools.parseFloat(feeItems[i]));
+                each.setPrice(this.parseFloat(feeItems[i]));
                 each.setLogTime(bean.getLogTime());
                 each.setDescription(idescriptions[i]);
                 feeList.add(each);
@@ -1948,7 +1949,8 @@ public class ProductAction extends DispatchAction
             each.setDeportId(srcDepot);
             each.setDepotpartId(srcDepotparts[i]);
             each.setLogTime(bean.getLogTime());
-            each.setPrice(CommonTools.parseFloat(srcPrices[i]));
+//            each.setPrice(CommonTools.parseFloat(srcPrices[i]));
+            each.setPrice(this.parseFloat(srcPrices[i]));
             each.setProductId(srcProductIds[i]);
             each.setRelationId(srcRelations[i]);
             each.setInputRate(CommonTools.parseFloat(srcInputRates[i]));
