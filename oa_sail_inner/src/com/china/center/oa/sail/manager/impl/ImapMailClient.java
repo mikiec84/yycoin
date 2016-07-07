@@ -1505,6 +1505,10 @@ public class ImapMailClient {
 
         //TODO check commons-compress   ZipArchiveInputStream
         //http://stackoverflow.com/questions/15521966/zipinputstream-getnextentry-returns-null-on-some-zip-files
+        //TODO it is hard to extract .rar format in Java,maybe junrar https://github.com/edmund-wagner/junrar
+        //TODO download rar file to local system, and open it with 7-zip
+        //TODO 7z e 20160618_reportToOrg_10035.rar -og:\Download\rar  (ProcessBuilder)
+        //TODO JNA call 7z.dll?
         for (ZipEntry zipEntry;(zipEntry = zin.getNextEntry()) != null; )
         {
             System.out.println("reading zipEntry " + zipEntry.getName());
