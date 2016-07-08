@@ -2,6 +2,7 @@ package com.china.center.oa.product.manager.impl;
 
 import java.util.List;
 
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import org.apache.commons.logging.Log;
@@ -629,10 +630,22 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         _logger.info("***importProductForMailOut with size***"+productImportBeans.size());
         try{
             for(ProductImportBean bean : productImportBeans){
-                String id = commonDAO.getSquenceString();
-                bean.setId(id);
-                _logger.info("***save***"+bean);
-                this.productImportDAO.saveEntityBean(bean);
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addCondition("bank","=",bean.getBank());
+                conditionParse.addCondition("bankProductCode","=",bean.getBankProductCode());
+                conditionParse.addCondition("name","=",bean.getName());
+                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                if (ListTools.isEmptyOrNull(beans)){
+                    String id = commonDAO.getSquenceString();
+                    bean.setId(id);
+                    _logger.info("***save product import bean***"+bean);
+                    this.productImportDAO.saveEntityBean(bean);
+                } else{
+                    ProductImportBean bean2 = beans.get(0);
+                    bean.setId(bean2.getId());
+                    _logger.info("***update product import**"+bean);
+                    this.productImportDAO.updateEntityBean(bean);
+                }
             }
         }catch(Exception e){
             e.printStackTrace();

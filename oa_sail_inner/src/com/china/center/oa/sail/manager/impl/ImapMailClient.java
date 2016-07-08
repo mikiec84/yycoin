@@ -1015,8 +1015,16 @@ public class ImapMailClient {
                     //网点名称
                     String commBranchName = obj[i++];
                     if(!StringTools.isNullOrNone(commBranchName)){
+                        //去掉全角字符的空格
+                        commBranchName = commBranchName.replace((char) 12288, ' ');
                         bean.setComunicatonBranchName(commBranchName.trim());
                     }
+//                    System.out.println("************"+bean.getComunicatonBranchName());
+//                    System.out.println("************"+commBranchName.trim());
+//                    char ch = commBranchName.charAt(commBranchName.length()-1);
+//                    System.out.println("************"+ch+"***"+(int)ch);
+//                    char ch2 = ' ';
+//                    System.out.println("************"+ch2+"***"+(int)ch2);
 
                     //商品编码
                     String productCode = obj[i++];
@@ -1432,7 +1440,7 @@ public class ImapMailClient {
                     //交易机构
                     String commBranchName = obj[i++];
                     if(!StringTools.isNullOrNone(commBranchName)){
-                        bean.setComunicatonBranchName(commBranchName);
+                        bean.setComunicatonBranchName(commBranchName.trim());
                     }
 
 
@@ -1653,7 +1661,7 @@ public class ImapMailClient {
                     //交易机构
                     String commBranchName = obj[i++];
                     if(!StringTools.isNullOrNone(commBranchName)){
-                        bean.setComunicatonBranchName(commBranchName);
+                        bean.setComunicatonBranchName(commBranchName.trim());
                     }
 
 
