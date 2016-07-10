@@ -593,7 +593,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             throw new MYException("数据错误,请确认操作");
         }
 
-        String name = "出差报销公司支付剩余金额:" + bean.getId() + '.';
+//        String name = "出差报销公司支付剩余金额:" + bean.getId() + '.';
 
         FinanceItemBean itemIn = new FinanceItemBean();
 
@@ -601,7 +601,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         itemIn.setPareId(pareId);
 
-        itemIn.setName("其他应收款_备用金:" + name);
+        itemIn.setName(this.getInName(bean));
 
         itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
 
@@ -638,6 +638,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         itemOut.setPareId(pareId);
 
+        String name = "出差报销公司支付剩余金额:" + bean.getId() + '.';
         itemOut.setName("银行科目:" + name);
 
         itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
@@ -765,13 +766,16 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         itemList.add(itemOut);
     }
 
+
+    private String getInName(ExpenseApplyBean bean) {
+        String inName = "申请事由:"+bean.getDescription()+":"+bean.getId()+".";
+        return inName;
+    }
     /**
      * 各种费用/备用金
      * 
      * @param user
      * @param bean
-     * @param bank
-     * @param outBillBean
      * @param financeBean
      * @param itemList
      * @throws MYException
@@ -791,7 +795,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             throw new MYException("数据错误,请确认操作");
         }
 
-        String name = "报销最终入账:" + bean.getId() + '.';
+//        String name = "报销最终入账:" + bean.getId() + '.';
 
         String pareId = commonDAO.getSquenceString();
 
@@ -822,7 +826,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
             itemIn.setPareId(pareId);
 
-            itemIn.setName("报销费用:" + name);
+            itemIn.setName(this.getInName(bean));
 
             itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
 
@@ -860,6 +864,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         itemOut.setPareId(pareId);
 
+        String name = "报销最终入账:" + bean.getId() + '.';
         itemOut.setName("其他应收款_备用金:" + name);
 
         itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
@@ -1248,8 +1253,6 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
      * 
      * @param user
      * @param bean
-     * @param bank
-     * @param outBillBean
      * @param financeBean
      * @param itemList
      * @throws MYException
