@@ -74,6 +74,8 @@
 
     <bean id="zsOrderDAO" class="com.china.center.oa.sail.dao.impl.ZsOrderDAOImpl" />
 
+    <bean id="pfOrderDAO" class="com.china.center.oa.sail.dao.impl.PfOrderDAOImpl" />
+
     <bean id="zyOrderDAO" class="com.china.center.oa.sail.dao.impl.ZyOrderDAOImpl" />
 
 	<bean id="outImportResultDAO" class="com.china.center.oa.sail.dao.impl.OutImportResultDAOImpl" />

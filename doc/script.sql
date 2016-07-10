@@ -478,3 +478,28 @@ logTime varchar(40),
 PRIMARY KEY (id),
 UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
+
+--2016/7/9 #268
+create table T_CENTER_PF_ORDER (	
+id int(11) NOT NULL AUTO_INCREMENT,
+mailId varchar(100) NOT NULL,
+status int(11) default 0,
+dealDate varchar(40),
+dealTime varchar(40),
+branchName varchar(40) NOT NULL,
+comunicatonBranchName varchar(40) NOT NULL,
+productCode varchar(40) NOT NULL,
+productName varchar(100) NOT NULL,
+amount int(11) NOT NULL,
+price double default '0' NOT NULL,
+value double default '0' NOT NULL,
+arrivalDate varchar(40) default '',
+citicNo varchar(40) NOT NULL,
+logTime varchar(40),
+method varchar(40),
+pos varchar(40),
+description varchar(200),
+shippingOrg varchar(100),
+PRIMARY KEY (id),
+UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
