@@ -60,6 +60,8 @@ public class ImapMailClient {
 
     public static final String PF = "pufa";
 
+    public static final String ZY = "zhongyuan";
+
     public static enum MailType {unknown, citic, zs, pf, zy}
 
     private CiticOrderDAO citicOrderDAO = null;
@@ -383,6 +385,38 @@ public class ImapMailClient {
                     }
                     try {
                         OutImportBean bean = this.convertPf(zsOrderBean);
+                        importItemListSuccess.add(bean);
+                    }catch(Exception e){
+                        _logger.error(e);
+                        if (e instanceof MailOrderException){
+                            MailOrderException moe = (MailOrderException)e;
+                            if(moe.getOrder() instanceof OutImportBean){
+                                OutImportBean order = (OutImportBean)moe.getOrder();
+                                order.setResult(moe.getErrorContent());
+                                //失败批次
+                                order.setStatus(3);
+                                importItemListFail.add(order);
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (mailId.indexOf(ZY)!= -1) {
+            List<ZyOrderBean> zsOrderBeans = this.zyOrderDAO.queryEntityBeansByCondition(conditionParse);
+            _logger.info("***import zhongyuan orders with size:" + zsOrderBeans.size());
+            if (!ListTools.isEmptyOrNull(zsOrderBeans)){
+                for(ZyOrderBean zsOrderBean : zsOrderBeans){
+                    String citicNo = zsOrderBean.getCiticNo();
+                    ConditionParse conditionParse1 = new ConditionParse();
+                    conditionParse1.addCondition("citicNo","=",citicNo);
+                    conditionParse1.addCondition("status","=",1);
+                    List<ZyOrderBean> beans = this.zyOrderDAO.queryEntityBeansByCondition(conditionParse1);
+                    if (!ListTools.isEmptyOrNull(beans)){
+                        _logger.error(zsOrderBean +" is duplicate***");
+                        continue;
+                    }
+                    try {
+                        OutImportBean bean = this.convertZy(zsOrderBean);
                         importItemListSuccess.add(bean);
                     }catch(Exception e){
                         _logger.error(e);
@@ -826,7 +860,7 @@ public class ImapMailClient {
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
         bean.setPrice(orderBean.getPrice());
-        bean.setValue(orderBean.getAmount()*orderBean.getPrice());
+        bean.setValue(orderBean.getAmount() * orderBean.getPrice());
 
         //库存默认 公共库-南京物流中心
         bean.setDepotId(DepotConstant.CENTER_DEPOT_ID);
@@ -836,7 +870,7 @@ public class ImapMailClient {
 
         bean.setProductName(orderBean.getProductName());
         bean.setProductCode(orderBean.getProductCode());
-        bean.setDescription(orderBean.getDescription()+"_Mail_" + orderBean.getMailId());
+        bean.setDescription(orderBean.getDescription() + "_Mail_" + orderBean.getMailId());
 
         CustomerBean cBean = customerMainDAO.findByUnique(custName);
         if (null == cBean)
@@ -980,6 +1014,190 @@ public class ImapMailClient {
         }
 
         _logger.info("***convert pufa order bean success***"+bean);
+        return bean;
+    }
+
+    private   OutImportBean convertZy(ZyOrderBean orderBean) throws MailOrderException{
+        OutImportBean bean = new OutImportBean();
+
+        bean.setImportFromMail(1);
+        bean.setLogTime(TimeTools.now());
+        // 操作人
+        bean.setReason("import_from_mail");
+        bean.setCiticNo(orderBean.getCiticNo());
+        bean.setCiticOrderDate(orderBean.getDealDate());
+
+//        bean.setBranchName(orderBean.getBranchName());
+
+
+        //订单类型默认"销售出库"
+        bean.setOutType(0);
+        String branchName = orderBean.getComunicatonBranchName();
+        String custName = orderBean.getComunicatonBranchName();
+        String[] temp = branchName.split(":");
+        if (temp.length == 2){
+            custName = temp[1].trim()+"-银行";
+        }
+
+        bean.setComunicatonBranchName(custName);
+
+        bean.setFirstName("N/A");
+        bean.setAmount(orderBean.getAmount());
+        bean.setPrice(orderBean.getPrice());
+        bean.setValue(orderBean.getAmount()*orderBean.getPrice());
+        bean.setIbMoney(orderBean.getFee() / bean.getAmount());
+
+
+        //库存默认 公共库-南京物流中心
+        bean.setDepotId(DepotConstant.CENTER_DEPOT_ID);
+        //默认为南京物流中心-物流中心库(销售可发)仓区
+        bean.setDepotpartId("1");
+        bean.setComunicationBranch(DepotConstant.DEFAULT_DEPOT_PART);
+
+        bean.setProductName(orderBean.getProductName());
+        bean.setProductCode(orderBean.getProductCode());
+        bean.setDescription("Mail_" + orderBean.getMailId());
+
+        CustomerBean cBean = customerMainDAO.findByUnique(custName);
+        if (null == cBean)
+        {
+            String msg = "网点名称不存在："+custName;
+            _logger.error(msg);
+            throw new MailOrderException(msg, bean);
+        }else{
+            bean.setCustomerId(cBean.getId());
+            if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
+            {
+
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                if (null == vsBean)
+                {
+                    String msg = "网点名称没有与业务员挂靠关系："+custName;
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }else{
+                    //职员取客户对应的业务员，如果没有，此单和姓氏一样处理
+                    bean.setStafferId(vsBean.getStafferId());
+                }
+            }else{
+                bean.setComunicatonBranchName("公共客户");
+            }
+        }
+
+        //取客户的默认办公地址
+        String customerId = bean.getCustomerId();
+        boolean found = false;
+        List<CustomerDistAddrBean> customerDistAddrBeans = this.customerDistAddrDAO.queryEntityBeansByFK(customerId);
+        if (!ListTools.isEmptyOrNull(customerDistAddrBeans)){
+            for (CustomerDistAddrBean addr : customerDistAddrBeans){
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("type","=","303");
+                conditionParse.addCondition("keyss","=",addr.getAtype());
+                List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(enumBeans)){
+                    EnumBean enumBean = enumBeans.get(0);
+                    if ("办公地址".equals(enumBean.getValue())){
+                        found = true;
+                        bean.setShipping(addr.getShipping());
+                        bean.setTransport1(addr.getTransport1());
+                        bean.setExpressPay(addr.getExpressPay());
+                        bean.setTransport2(addr.getTransport2());
+                        bean.setTransportPay(addr.getTransportPay());
+                        bean.setProvinceId(addr.getProvinceId());
+                        bean.setCityId(addr.getCityId());
+                        bean.setAddress(addr.getAddress());
+                        bean.setReceiver(addr.getContact());
+                        bean.setHandPhone(addr.getTelephone());
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!found){
+            String msg = "没有默认办公地址："+customerId;
+            _logger.error(msg);
+            throw new MailOrderException(msg, bean);
+        }
+
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("bankProductCode", "=", orderBean.getProductCode());
+        List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(productImportBeans)){
+            ProductImportBean productImportBean = productImportBeans.get(0);
+            String code = productImportBean.getCode();
+            _logger.info(orderBean.getProductCode()+" product import vs product code***"+code);
+            ProductBean productBean = this.productDAO.findByUnique(code);
+            if (productBean == null){
+                String msg = "产品编码不存在:"+orderBean.getProductCode();
+                _logger.error(msg);
+                throw new MailOrderException(msg, bean);
+            } else{
+                bean.setProductId(productBean.getId());
+                bean.setProductName(productBean.getName());
+                bean.setProductCode(code);
+                //激励金额取t_center_product_import中的motivationmoney
+                bean.setMotivationMoney(productImportBean.getMotivationMoney());
+
+                //购买日期必须满足(上线时间，下线时间)
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date citicOrderDate = null;
+                try{
+                    citicOrderDate = sdf.parse(bean.getCiticOrderDate());
+                }catch(Exception e){
+                    String msg = "购买日期必须为XXXX-XX-XX格式:"+orderBean.getDealDate();
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }
+
+                Date begin = null;
+                try{
+                    begin = sdf.parse(productImportBean.getOnMarketDate());
+                }catch(Exception e){
+                    String msg = "上线时间必须为XXXX-XX-XX格式:"+productImportBean.getOnMarketDate();
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }
+
+                Date end = null;
+                if (!StringTools.isNullOrNone(productImportBean.getOfflineDate())) {
+                    try{
+                        end = sdf.parse(productImportBean.getOfflineDate());
+                    }catch(Exception e){
+                        String msg = "下线时间必须为XXXX-XX-XX格式:"+productImportBean.getOfflineDate();
+                        _logger.error(msg);
+                        throw new MailOrderException(msg, bean);
+                    }
+                }
+
+                if (citicOrderDate!= null && begin!= null && end!= null
+                        && !citicOrderDate.before(begin) && !citicOrderDate.after(end)){
+                    _logger.info(citicOrderDate+"***citicOrderDate in range***"+begin+"**"+end);
+                } else if (citicOrderDate!= null && begin!= null && end == null
+                        && !citicOrderDate.before(begin)){
+                    _logger.info(citicOrderDate+"***citicOrderDate >=***"+begin);
+                } else{
+                    String msg = "购买日期必须位于:"+productImportBean.getOnMarketDate()+"-"+productImportBean.getOfflineDate();
+                    _logger.error(msg);
+                    throw new MailOrderException(msg, bean);
+                }
+            }
+        } else{
+            String msg = "产品编码不存在:"+orderBean.getProductCode();
+            _logger.error(msg);
+            throw new MailOrderException(msg, bean);
+        }
+
+
+        //加一条规则，如果银行品名里含"姓氏“字符的，单独拆出来为一个批次导入，导入结果为失败，就放那
+        if(bean.getProductName().contains("姓氏")){
+            String msg = "银行品名不能包含姓氏:"+orderBean.getProductName();
+            _logger.error(msg);
+            throw new MailOrderException(msg, bean);
+        }
+
+        _logger.info("***convert zhongyuan order bean success***"+bean);
         return bean;
     }
 
@@ -1942,7 +2160,7 @@ public class ImapMailClient {
                     String sn = obj[i++];
                     if ( !StringTools.isNullOrNone(sn))
                     {
-                        bean.setSerialNumber(sn);
+                        bean.setCiticNo(sn);
                     }
 
                     //渠道流水号
@@ -1974,7 +2192,7 @@ public class ImapMailClient {
                     //交易机构
                     String dealAgent = obj[i++];
                     if(!StringTools.isNullOrNone(dealAgent)){
-                        bean.setDealAgent(dealAgent);
+                        bean.setComunicatonBranchName(dealAgent);
                     }
 
                     //内部客户号
@@ -2217,8 +2435,18 @@ public class ImapMailClient {
                         bean.setPickupNode(pickupNode);
                     }
 
-                    //TODO
-                    items.add(bean);
+//                    1.交易代码：890010:贵金属购买
+//                    2.公司名称：永银文化创意产业发展有限公司
+//                    3.返回信息：交易成功
+//                    4.交易状态：S:成功
+                    if ("890010:贵金属购买".equals(bean.getDealCode())
+                            && "永银文化创意产业发展有限公司".equals(bean.getEnterpriseName())
+                            && "交易成功".equals(bean.getReturnMessage())
+                            && "S:成功".equals(bean.getTradeStatus())){
+                        items.add(bean);
+                    } else{
+                        _logger.warn("Ignore zy order***"+bean);
+                    }
                     }catch(Exception e){e.printStackTrace();}
                 }
             }
