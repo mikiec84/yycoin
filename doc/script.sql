@@ -294,7 +294,7 @@ terminal varchar(40),
 dealDate varchar(40) NOT NULL,
 dealTime varchar(40) NOT NULL,
 dealCode varchar(40) NOT NULL,
-dealAgent varchar(40) NOT NULL,
+comunicatonBranchName varchar(100) NOT NULL,
 originalDealAgent varchar(40),
 tellerId varchar(40),
 sendMainframeId varchar(40) NOT NULL,
@@ -317,7 +317,7 @@ spec double default '0',
 businessType varchar(40),
 associateDate varchar(40),
 associateId varchar(40),
-serialNumber varchar(40),
+citicNo varchar(40) NOT NULL,
 channelSerialNumber varchar(40) NOT NULL,
 productId varchar(40),
 productCode varchar(40) NOT NULL,
@@ -343,7 +343,7 @@ logTime varchar(40),
 enterpriseCode varchar(40) NOT NULL,
 enterpriseName varchar(40) NOT NULL,
 PRIMARY KEY (id),
-UNIQUE KEY `INX_ALL` (`serialNumber`)
+UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
 
 --2016/4/20 发货邮件给销售人员

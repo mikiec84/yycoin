@@ -1215,6 +1215,17 @@ public class ImapMailClient {
             Matcher citicMatcher = citicPattern.matcher(from);
             boolean citicMatches = citicMatcher.matches();
 
+            //TODO zhongyuan
+            String zyEL = "\\w+@zhonguan.com";
+            String zyOrderMail = ConfigLoader.getProperty("zyOrderMail");
+            if (!StringTools.isNullOrNone(zyOrderMail)){
+                zyEL = zyOrderMail;
+            }
+
+            Pattern zyPattern = Pattern.compile(zyEL.trim());
+            Matcher zyMatcher = zyPattern.matcher(from);
+            boolean zyMatches = zyMatcher.matches();
+
             //zhaoshang
             String zsEL = "\\w+@yycoin.com";
             String zsOrderMail = ConfigLoader.getProperty("zsOrderMail");
@@ -1227,7 +1238,8 @@ public class ImapMailClient {
             boolean zsMatches = zsMatcher.matches();
 
             //pufa
-            String pfEL = "ebank@eb.spdb.com.cn";
+//            String pfEL = "ebank@eb.spdb.com.cn";
+            String pfEL = "liangjuanjuan@yycoin.com";
             String pfOrderMail = ConfigLoader.getProperty("pfOrderMail");
             if (!StringTools.isNullOrNone(pfOrderMail)){
                 pfEL = pfOrderMail;
@@ -1239,10 +1251,12 @@ public class ImapMailClient {
 
             if (citicMatches){
                 type = MailType.citic;
-            } else if (zsMatches){
-                type = MailType.zs;
             } else if (pfMatches){
                 type = MailType.pf;
+            }  else if (zsMatches){
+                type = MailType.zs;
+            } else if (zyMatches){
+                type = MailType.zy;
             }
 
             String msg = from+"***"+"***getOrderTypeByEmail "+type;
@@ -1286,7 +1300,7 @@ public class ImapMailClient {
                 String disposition = bodyPart.getDisposition();
 //                _logger.info(bodyPart.getContentType());
                 _logger.info("disposition***"+disposition+"***fileName***" + bodyPart.getFileName());
-                System.out.println(bodyPart.getContentType()+"***fileName***" + bodyPart.getFileName());
+                System.out.println("content type***"+bodyPart.getContentType()+"***fileName***" + bodyPart.getFileName());
                 System.out.println(idx+"***fileName2***" + this.decodeText(bodyPart.getFileName()));
                 System.out.println(disposition+"***disposition***" + bodyPart.getInputStream());
                 if (bodyPart.isMimeType("text/plain")) {
@@ -1294,19 +1308,19 @@ public class ImapMailClient {
                     System.out.println("****1111");
                 } else if (bodyPart.isMimeType("text/html")) {
                     _logger.info("html..................." + bodyPart.getContent());
-//                    System.out.println("****2222");
+                    System.out.println("****2222");
                 } else if (bodyPart.isMimeType("multipart/*")) {
-//                    System.out.println("****3333");
+                    System.out.println("****3333");
                     Multipart mpart = (Multipart) bodyPart.getContent();
                     parseMultipart(mpart, type, subject);
                 } else if (bodyPart.isMimeType("application/octet-stream")
                         || bodyPart.isMimeType("APPLICATION/VND.MS-EXCEL")) {
-//                    System.out.println("****4444");
+                    System.out.println("****4444");
                     if (BodyPart.ATTACHMENT.equalsIgnoreCase(disposition) || bodyPart.getInputStream()!= null) {
                         String fileName = MimeUtility.decodeText(bodyPart.getFileName());
                         InputStream is = bodyPart.getInputStream();
 //                        _logger.info("****fileName***" + fileName + "***size" + bodyPart.getSize());
-//                        System.out.println("****fileName3***" + fileName + "***size" + bodyPart.getSize());
+                        System.out.println("****fileName3***" + fileName + "***size" + bodyPart.getSize());
                         if (fileName.contains("xls")){
 //                        String fullPath = "D:\\oa_attachment\\"+fileName;
 //                        this.copy(is, new FileOutputStream(fullPath));

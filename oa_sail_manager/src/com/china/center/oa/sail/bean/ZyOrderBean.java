@@ -20,6 +20,11 @@ public class ZyOrderBean implements Serializable{
 	@Id(autoIncrement = true)
 	private String id = "";
 
+    /**
+     *  邮件标题+时间
+     */
+    private String mailId = "";
+
 	/**
 	 * 状态位，默认为0，如果成功创建SO单，就把状态位更新为1
 	 */
@@ -28,7 +33,7 @@ public class ZyOrderBean implements Serializable{
     /**
      * 流水号
      */
-    private String serialNumber = "";
+    private String citicNo = "";
 
     /**
      * 渠道流水号
@@ -108,7 +113,7 @@ public class ZyOrderBean implements Serializable{
     /**
      * 交易机构
      */
-    private String dealAgent = "";
+    private String comunicatonBranchName = "";
 
     /**
      * 原交易机构
@@ -355,6 +360,14 @@ public class ZyOrderBean implements Serializable{
         this.id = id;
     }
 
+    public String getMailId() {
+        return mailId;
+    }
+
+    public void setMailId(String mailId) {
+        this.mailId = mailId;
+    }
+
     public int getStatus() {
         return status;
     }
@@ -363,12 +376,12 @@ public class ZyOrderBean implements Serializable{
         this.status = status;
     }
 
-    public String getSerialNumber() {
-        return serialNumber;
+    public String getCiticNo() {
+        return citicNo;
     }
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
+    public void setCiticNo(String citicNo) {
+        this.citicNo = citicNo;
     }
 
     public String getChannelSerialNumber() {
@@ -483,12 +496,12 @@ public class ZyOrderBean implements Serializable{
         this.dealCode = dealCode;
     }
 
-    public String getDealAgent() {
-        return dealAgent;
+    public String getComunicatonBranchName() {
+        return comunicatonBranchName;
     }
 
-    public void setDealAgent(String dealAgent) {
-        this.dealAgent = dealAgent;
+    public void setComunicatonBranchName(String comunicatonBranchName) {
+        this.comunicatonBranchName = comunicatonBranchName;
     }
 
     public String getOriginalDealAgent() {
@@ -855,8 +868,9 @@ public class ZyOrderBean implements Serializable{
     public String toString() {
         return "ZyOrderBean{" +
                 "id='" + id + '\'' +
+                "mailId='" + mailId + '\'' +
                 ", status=" + status +
-                ", serialNumber='" + serialNumber + '\'' +
+                ", citicNo='" + citicNo + '\'' +
                 ", channelSerialNumber='" + channelSerialNumber + '\'' +
                 ", innerCustomerId='" + innerCustomerId + '\'' +
                 ", customerId='" + customerId + '\'' +
@@ -872,7 +886,7 @@ public class ZyOrderBean implements Serializable{
                 ", dealDate='" + dealDate + '\'' +
                 ", dealTime='" + dealTime + '\'' +
                 ", dealCode='" + dealCode + '\'' +
-                ", dealAgent='" + dealAgent + '\'' +
+                ", comunicatonBranchName='" + comunicatonBranchName + '\'' +
                 ", originalDealAgent='" + originalDealAgent + '\'' +
                 ", customerType='" + customerType + '\'' +
                 ", customerGroup='" + customerGroup + '\'' +
