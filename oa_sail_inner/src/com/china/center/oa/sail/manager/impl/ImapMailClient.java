@@ -254,6 +254,8 @@ public class ImapMailClient {
                         mailId = subject+"_zhaoshang_"+sdf.format(now);
                     } else if (mailType == MailType.pf){
                         mailId = subject+"_pufa_"+sdf.format(now);
+                    } else if (mailType == MailType.zy){
+                        mailId = subject+"_"+ZY+"_"+sdf.format(now);
                     } else{
                         mailId = subject+"_"+sdf.format(now);
                     }
@@ -1215,8 +1217,8 @@ public class ImapMailClient {
             Matcher citicMatcher = citicPattern.matcher(from);
             boolean citicMatches = citicMatcher.matches();
 
-            //TODO zhongyuan
-            String zyEL = "\\w+@zhonguan.com";
+            //zhongyuan
+            String zyEL = "yinlujie@yycoin.com";
             String zyOrderMail = ConfigLoader.getProperty("zyOrderMail");
             if (!StringTools.isNullOrNone(zyOrderMail)){
                 zyEL = zyOrderMail;
@@ -1253,10 +1255,10 @@ public class ImapMailClient {
                 type = MailType.citic;
             } else if (pfMatches){
                 type = MailType.pf;
-            }  else if (zsMatches){
-                type = MailType.zs;
             } else if (zyMatches){
                 type = MailType.zy;
+            } else if (zsMatches){
+                type = MailType.zs;
             }
 
             String msg = from+"***"+"***getOrderTypeByEmail "+type;
@@ -1396,7 +1398,7 @@ public class ImapMailClient {
 
     public static String[] fillObj(String[] obj)
     {
-        String[] result = new String[50];
+        String[] result = new String[60];
 
         for (int i = 0; i < result.length; i++ )
         {
@@ -1741,7 +1743,6 @@ public class ImapMailClient {
                         bean.setReceiverMobile(mobile);
                     }
 
-                    //TODO
                     System.out.println(bean);
                     items.add(bean);
                 }
@@ -2238,6 +2239,7 @@ public class ImapMailClient {
                     if(!StringTools.isNullOrNone(customerName)){
                         bean.setCustomerName(customerName);
                     }
+
                     //证件类型
                     String idType = obj[i++];
                     if(!StringTools.isNullOrNone(idType)){
@@ -2404,6 +2406,7 @@ public class ImapMailClient {
                     //手续费
                     String fee = obj[i++];
                     if(!StringTools.isNullOrNone(fee)){
+                        //TODO 是否/数量
                         bean.setFee(Double.valueOf(fee.replace(",","")));
                     }
 
@@ -2449,6 +2452,87 @@ public class ImapMailClient {
                         bean.setPickupNode(pickupNode);
                     }
 
+                    //发主机流水号
+                    String sendMainframeId = obj[i++];
+                    if (!StringTools.isNullOrNone(sendMainframeId)){
+                        bean.setSendMainframeId(sendMainframeId);
+                    }
+
+                    // 主机对账日期
+                     String mainframeCheckDate = obj[i++];
+                     if (!StringTools.isNullOrNone(mainframeCheckDate)){
+                         bean.setMainframeCheckDate(mainframeCheckDate);
+                     }
+
+                     //主机交易码
+                     String mainframeTradeCode = obj[i++];
+                     if (!StringTools.isNullOrNone(mainframeTradeCode)){
+                         bean.setMainframeTradeCode(mainframeTradeCode);
+                     }
+
+                     //主机日期
+                     String mainframeDate = obj[i++];
+                     if (!StringTools.isNullOrNone(mainframeDate)){
+                         bean.setMainframeDate(mainframeDate);
+                     }
+
+                     //主机流水号
+                     String mainframeId = obj[i++];
+                     if (!StringTools.isNullOrNone(mainframeId)){
+                         bean.setMainframeId(mainframeId);
+                     }
+
+                     //返回码
+                     String returnCode = obj[i++];
+                     if (!StringTools.isNullOrNone(returnCode)){
+                         bean.setReturnCode(returnCode);
+                     }
+
+                     // 返回信息
+                     String returnMessage = obj[i++];
+                     if (!StringTools.isNullOrNone(returnMessage)){
+                         bean.setReturnMessage(returnMessage);
+                     }
+
+                     //受理方式
+                     String acceptMethod = obj[i++];
+                     if (!StringTools.isNullOrNone(acceptMethod)){
+                         bean.setAcceptMethod(acceptMethod);
+                     }
+
+                     //交易状态
+                     String tradeStatus = obj[i++];
+                     if (!StringTools.isNullOrNone(tradeStatus)){
+                         bean.setTradeStatus(tradeStatus);
+                     }
+
+                     //对公帐号
+                     String corporateAccount = obj[i++];
+                     if (!StringTools.isNullOrNone(corporateAccount)){
+                         bean.setCorporateAccount(corporateAccount);
+                     }
+
+                     //是否提金结束
+                     String finished = obj[i++];
+                     if (!StringTools.isNullOrNone(finished) && finished.contains("是")){
+                          bean.setFinished(1);
+                     }
+
+                     //资金处理是否异常
+                     String exceptional = obj[i++];
+//                     if (!StringTools.isNullOrNone(exceptional)){
+//                         bean.setExceptional(1);
+//                     }
+
+                     //是否预约到货
+                     String appointmentOfArrival = obj[i++];
+
+                     //购买提金方式
+                     String pickupType = obj[i++];
+                     if (!StringTools.isNullOrNone(pickupType)){
+                         bean.setPickupType(pickupType);
+                     }
+
 //                    1.交易代码：890010:贵金属购买
 //                    2.公司名称：永银文化创意产业发展有限公司
 //                    3.返回信息：交易成功
@@ -2457,9 +2541,11 @@ public class ImapMailClient {
                             && "永银文化创意产业发展有限公司".equals(bean.getEnterpriseName())
                             && "交易成功".equals(bean.getReturnMessage())
                             && "S:成功".equals(bean.getTradeStatus())){
+                        System.out.println(bean);
                         items.add(bean);
                     } else{
                         _logger.warn("Ignore zy order***"+bean);
+                        System.out.println("Ignore zy order***"+bean);
                     }
                     }catch(Exception e){e.printStackTrace();}
                 }
