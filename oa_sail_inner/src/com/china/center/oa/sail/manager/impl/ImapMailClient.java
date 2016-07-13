@@ -1377,6 +1377,8 @@ public class ImapMailClient {
                                                 _logger.warn("item not saved***"+item);
                                                 continue;
                                             } else{
+                                                item.setMailId(subject);
+                                                item.setLogTime(TimeTools.now());
                                                 this.zyOrderDAO.saveEntityBean(item);
                                             }
                                         } catch(Exception e){
