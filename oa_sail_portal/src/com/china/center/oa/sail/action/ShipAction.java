@@ -2864,47 +2864,6 @@ public class ShipAction extends DispatchAction
         //#189 <productId_itemType,PackageItemBean>
         Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
 
-        //2015/1/25 取商务联系人及电话
-        if (!ListTools.isEmptyOrNull(itemList)){
-            PackageItemBean first = itemList.get(0);
-            String outId = first.getOutId();
-            String stafferName = "永银商务部";
-            String phone = "4006518859";
-            if (StringTools.isNullOrNone(outId)){
-                _logger.warn("****Empty OutId***********"+first.getId());
-            }else if (this.isOut(outId)){
-                String[] result = this.getStafferNameAndPhone(outId);
-                if (result.length>=2){
-                    stafferName = result[0];
-                    phone = result[1];
-                }
-            } else if(outId.startsWith("A")){
-                InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
-                if (bean!= null){
-                    String refIds = bean.getRefIds();
-                    _logger.info(outId+"*****refIds found********"+refIds);
-                    if (!StringTools.isNullOrNone(refIds)){
-                        String[] temp = refIds.split(";");
-                        String refOutId = null;
-                        for (String out: temp){
-                            if (out.startsWith("SO")){
-                                refOutId = out;
-                                break;
-                            }
-                        }
-                        String[] result2 = this.getStafferNameAndPhone(refOutId);
-                        if (result2.length>=2){
-                            stafferName = result2[0];
-                            phone = result2[1];
-                        }
-                    }
-                }
-            }
-            _logger.info("*****stafferName***********"+stafferName+"*******phone*************"+phone);
-            request.setAttribute("stafferName", stafferName);
-            request.setAttribute("phone",phone);
-        }
-
         for (PackageItemBean each : itemList)
         {
             _logger.info(each.getId() + "****iterate package item:" + "***" + each.getOutId() + "***" + each.getDescription() + "***" + each.getRefId());
@@ -3059,6 +3018,47 @@ public class ShipAction extends DispatchAction
         }
 
         vo.setItemList(itemList1);
+
+        //2015/1/25 取商务联系人及电话
+        if (!ListTools.isEmptyOrNull(itemList1)){
+            PackageItemBean first = itemList1.get(0);
+            String outId = first.getOutId();
+            String stafferName = "永银商务部";
+            String phone = "4006518859";
+            if (StringTools.isNullOrNone(outId)){
+                _logger.warn("****Empty OutId***********"+first.getId());
+            }else if (this.isOut(outId)){
+                String[] result = this.getStafferNameAndPhone(outId);
+                if (result.length>=2){
+                    stafferName = result[0];
+                    phone = result[1];
+                }
+            } else if(outId.startsWith("A")){
+                InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
+                if (bean!= null){
+                    String refIds = bean.getRefIds();
+                    _logger.info(outId+"*****refIds found********"+refIds);
+                    if (!StringTools.isNullOrNone(refIds)){
+                        String[] temp = refIds.split(";");
+                        String refOutId = null;
+                        for (String out: temp){
+                            if (out.startsWith("SO")){
+                                refOutId = out;
+                                break;
+                            }
+                        }
+                        String[] result2 = this.getStafferNameAndPhone(refOutId);
+                        if (result2.length>=2){
+                            stafferName = result2[0];
+                            phone = result2[1];
+                        }
+                    }
+                }
+            }
+            _logger.info("*****stafferName***********"+stafferName+"*******phone*************"+phone);
+            request.setAttribute("stafferName", stafferName);
+            request.setAttribute("phone",phone);
+        }
 
         request.setAttribute("total", totalAmount);
     }
