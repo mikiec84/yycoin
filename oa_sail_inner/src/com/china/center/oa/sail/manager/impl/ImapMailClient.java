@@ -856,7 +856,21 @@ public class ImapMailClient {
 
         //订单类型默认"销售出库"
         bean.setOutType(0);
+
         String custName = orderBean.getComunicatonBranchName()+"-银行";
+        String customerName = orderBean.getComunicatonBranchName();
+        if (customerName.startsWith("浦发银行")){
+            custName = orderBean.getComunicatonBranchName()+"-银行";
+        } else if (customerName.startsWith("浦发")){
+            //如没有“银行”字样，则将“浦发”更改为“浦发银行”
+            custName = orderBean.getComunicatonBranchName().replace("浦发","浦发银行")+"-银行";
+        } else if (customerName.startsWith("上海浦东发展银行")){
+            //例如有“上海浦发发展银行XXXX”，自动将前缀改为 "浦发银行XXXX"
+            custName = orderBean.getComunicatonBranchName().replace("上海浦东发展银行","浦发银行")+"-银行";
+        }  else{
+            //加上前缀"浦发银行"
+            custName = "浦发银行"+orderBean.getComunicatonBranchName()+"-银行";
+        }
         bean.setComunicatonBranchName(custName);
 
         bean.setFirstName("N/A");
