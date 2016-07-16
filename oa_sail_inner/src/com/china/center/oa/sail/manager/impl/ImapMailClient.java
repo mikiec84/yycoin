@@ -39,6 +39,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.search.FlagTerm;
 import java.io.*;
+import java.math.BigDecimal;
 import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -670,7 +671,7 @@ public class ImapMailClient {
         bean.setPrice(orderBean.getValue() / bean.getAmount());
         bean.setIbMoney(orderBean.getFee() / bean.getAmount());
 
-        //TODO 开票性质
+        //开票性质
         bean.setInvoiceHead(orderBean.getInvoiceHead());
         bean.setInvoiceCondition(orderBean.getInvoiceCondition());
 
@@ -751,12 +752,18 @@ public class ImapMailClient {
         conditionParse.addCondition("bankProductCode", "=", orderBean.getProductCode());
         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
         if (!ListTools.isEmptyOrNull(productImportBeans)){
-            ProductImportBean productImportBean = productImportBeans.get(0);
+            ProductImportBean productImportBean = this.getProduct(orderBean, productImportBeans);
+            if (productImportBean == null){
+                String msg = orderBean.getProductCode()+"产品weight不匹配:"+orderBean.getProductSpec();
+                _logger.error(msg);
+                throw new MailOrderException(msg, bean);
+            }
+
             String code = productImportBean.getCode();
             _logger.info(orderBean.getProductCode()+" product import vs product code***"+code);
             ProductBean productBean = this.productDAO.findByUnique(code);
             if (productBean == null){
-                String msg = "产品编码不存在:"+orderBean.getProductCode();
+                String msg = "product表产品编码不存在:"+code;
                 _logger.error(msg);
                 throw new MailOrderException(msg, bean);
             } else{
@@ -810,7 +817,7 @@ public class ImapMailClient {
                 }
             }
         } else{
-            String msg = "产品编码不存在:"+orderBean.getProductCode();
+            String msg = "product import表产品编码不存在:"+orderBean.getProductCode();
             _logger.error(msg);
             throw new MailOrderException(msg, bean);
         }
@@ -825,6 +832,55 @@ public class ImapMailClient {
 
         _logger.info("***convert zhaoshang bean success***"+bean);
         return bean;
+    }
+
+    //#269 招行有同一编码的不同规格的产品，对应不同的OA品名
+    //产品规格，把 ： 前的字符去掉，. 00后的字符去掉，去和product_import表的weight 字段对比
+    private ProductImportBean getProduct(ZsOrderBean bean, List<ProductImportBean> productImportBeans){
+        if (productImportBeans.size() == 1){
+            return productImportBeans.get(0);
+        } else{
+            for (ProductImportBean productImportBean: productImportBeans){
+                 if(this.isProductSpecMatchesWeight(bean.getProductSpec(), productImportBean.getWeight())){
+                     return productImportBean;
+                 }
+            }
+        }
+        return null;
+    }
+
+    private boolean isProductSpecMatchesWeight(String productSpec , String weight){
+        boolean result = false;
+        String[] temp = productSpec.split(":");
+        if (temp.length == 2){
+            String weight0 = temp[1];
+            if (productSpec.contains("盎司") && weight.contains("盎司")){
+                String  weight1 = weight0.replace("盎司","");
+                String  weight2 = weight.replace("盎司","");
+                System.out.println(weight0+":"+weight1+":"+weight2);
+                try{
+                    BigDecimal bd1 = new BigDecimal(weight1);
+                    BigDecimal bd2 = new BigDecimal(weight2);
+//                result = bd1.equals(bd2);
+                    //http://stackoverflow.com/questions/6787142/bigdecimal-equals-versus-compareto
+                    result = (bd1.compareTo(bd2) == 0);
+                } catch(NumberFormatException e){}
+            } else if (productSpec.contains("克") &&
+                    (weight.contains("克") || weight.contains("g"))){
+                String  weight1 = weight0.replace("克","");
+                String  weight2 = weight.replace("克","").replace("g","");
+                System.out.println(weight0+":"+weight1+":"+weight2);
+                try{
+                    BigDecimal bd1 = new BigDecimal(weight1);
+                    BigDecimal bd2 = new BigDecimal(weight2);
+//                result = bd1.equals(bd2);
+                    //http://stackoverflow.com/questions/6787142/bigdecimal-equals-versus-compareto
+                    result = (bd1.compareTo(bd2) == 0);
+                } catch(NumberFormatException e){}
+            }
+        }
+
+        return result;
     }
 
     private   OutImportBean convertPf(PfOrderBean orderBean) throws MailOrderException{
