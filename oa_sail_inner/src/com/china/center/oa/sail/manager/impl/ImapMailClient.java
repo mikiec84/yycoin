@@ -575,7 +575,7 @@ public class ImapMailClient {
             } else{
                 bean.setProductId(productBean.getId());
                 bean.setProductName(productBean.getName());
-                bean.setProductCode(code);
+//                bean.setProductCode(code);
                 //激励金额取t_center_product_import中的motivationmoney
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
 
@@ -769,7 +769,7 @@ public class ImapMailClient {
             } else{
                 bean.setProductId(productBean.getId());
                 bean.setProductName(productBean.getName());
-                bean.setProductCode(code);
+//                bean.setProductCode(code);
                 //激励金额取t_center_product_import中的motivationmoney
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
 
@@ -1022,7 +1022,7 @@ public class ImapMailClient {
             } else{
                 bean.setProductId(productBean.getId());
                 bean.setProductName(productBean.getName());
-                bean.setProductCode(code);
+//                bean.setProductCode(code);
                 //激励金额取t_center_product_import中的motivationmoney
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
                 //TODO 中收金额
@@ -1208,7 +1208,7 @@ public class ImapMailClient {
             } else{
                 bean.setProductId(productBean.getId());
                 bean.setProductName(productBean.getName());
-                bean.setProductCode(code);
+//                bean.setProductCode(code);
                 //激励金额取t_center_product_import中的motivationmoney
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
 
