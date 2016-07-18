@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.china.center.oa.stock.bean.StockItemBean;
+import com.china.center.oa.stock.constant.StockConstant;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -387,6 +388,28 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
             vsComp.setStockPayApplyId(each.getId());
             
             stockPayVSComposeDAO.saveEntityBean(vsComp);
+
+            //TODO #209
+            stockItemDAO.updatePay(stockItemId, StockConstant.STOCK_PAY_YES);
+
+            List<StockItemBean> itemList = stockItemDAO.queryEntityBeansByFK(item.getStockId());
+
+            boolean allPay = true;
+
+            for (StockItemBean stockItemBean : itemList)
+            {
+                if (stockItemBean.getPay() != StockConstant.STOCK_PAY_YES)
+                {
+                    allPay = false;
+                    break;
+                }
+            }
+
+            if (allPay)
+            {
+                // 修改采购单付款
+                stockDAO.updatePayStatus(item.getStockId(), StockConstant.STOCK_PAY_YES);
+            }
         }
 
         return true;
