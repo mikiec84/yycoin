@@ -383,32 +383,37 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
                 PublicConstant.OPRMODE_EXCEPTION);
             
             StockPayVSComposeBean vsComp = new StockPayVSComposeBean();
-            
+            String originalApplyId = each.getId();
             vsComp.setComposeId(apply.getId());
-            vsComp.setStockPayApplyId(each.getId());
+            vsComp.setStockPayApplyId(originalApplyId);
             
             stockPayVSComposeDAO.saveEntityBean(vsComp);
 
             //TODO #209
-            stockItemDAO.updatePay(stockItemId, StockConstant.STOCK_PAY_YES);
+            StockPayApplyBean original = this.stockPayApplyDAO.find(originalApplyId);
+            if (original!= null){
+                String stockItemId = original.getStockItemId();
+                String stockId = original.getStockId();
+                stockItemDAO.updatePay(stockItemId, StockConstant.STOCK_PAY_YES);
 
-            List<StockItemBean> itemList = stockItemDAO.queryEntityBeansByFK(item.getStockId());
+                List<StockItemBean> itemList = stockItemDAO.queryEntityBeansByFK(stockId);
 
-            boolean allPay = true;
+                boolean allPay = true;
 
-            for (StockItemBean stockItemBean : itemList)
-            {
-                if (stockItemBean.getPay() != StockConstant.STOCK_PAY_YES)
+                for (StockItemBean stockItemBean : itemList)
                 {
-                    allPay = false;
-                    break;
+                    if (stockItemBean.getPay() != StockConstant.STOCK_PAY_YES)
+                    {
+                        allPay = false;
+                        break;
+                    }
                 }
-            }
 
-            if (allPay)
-            {
-                // 修改采购单付款
-                stockDAO.updatePayStatus(item.getStockId(), StockConstant.STOCK_PAY_YES);
+                if (allPay)
+                {
+                    // 修改采购单付款
+                    stockDAO.updatePayStatus(stockId, StockConstant.STOCK_PAY_YES);
+                }
             }
         }
 
