@@ -393,7 +393,9 @@ public class OutImportManagerImpl implements OutImportManager
 			// 去掉处理中与成功处理的数据
 			if (list.get(0).getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
 			{
-				throw new RuntimeException("已处理过的接口数据，不可再生成OA库单。");
+                String msg = "已处理过的接口数据，不可再生成OA库单。";
+                _logger.error(msg);
+				throw new RuntimeException(msg);
 			}
 			
 			Map<String, List<OutImportBean>> map = new HashMap<String, List<OutImportBean>>();
@@ -406,7 +408,9 @@ public class OutImportManagerImpl implements OutImportManager
 				
 				if (null == cbean)
 				{
-					throw new RuntimeException(each.getCiticNo()+" 客户（网点）不存在:"+each.getComunicatonBranchName());
+                    String msg = each.getCiticNo()+" 客户（网点）不存在:"+each.getComunicatonBranchName();
+                    _logger.error(msg);
+					throw new RuntimeException(msg);
 				}
 				else
 					each.setCustomerId(cbean.getId());
@@ -430,7 +434,8 @@ public class OutImportManagerImpl implements OutImportManager
 			}
 			
 			List<OutImportBean> uList = new ArrayList<OutImportBean>();
-			
+
+            _logger.info("***before create out with map values "+map.values().size());
 			// 2.对分组根据库存情况再次分组 - 根据产品 +仓区+所有者生成销售单
 			for (List<OutImportBean> eachList : map.values())
 			{
@@ -542,7 +547,9 @@ public class OutImportManagerImpl implements OutImportManager
         //#222 2016/6/24 邮件下载订单失败
         if (bean.getImportFromMail() == 1 && bean.getStatus() == 3)
         {
-            throw new RuntimeException(bean.getCiticNo()+"生成邮件订单失败");
+            String msg =  bean.getCiticNo()+"生成邮件订单失败";
+            _logger.error(msg);
+            throw new RuntimeException(msg);
         }
 		
 		String mess = "";

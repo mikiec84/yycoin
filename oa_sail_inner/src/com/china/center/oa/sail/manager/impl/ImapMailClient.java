@@ -1115,8 +1115,8 @@ public class ImapMailClient {
 
         bean.setFirstName("N/A");
         bean.setAmount(orderBean.getAmount());
-        bean.setPrice(orderBean.getPrice());
-        bean.setValue(orderBean.getAmount()*orderBean.getPrice());
+        bean.setValue(orderBean.getValue());
+        bean.setPrice(orderBean.getValue()/orderBean.getAmount());
         bean.setIbMoney(orderBean.getFee() / bean.getAmount());
 
 
@@ -2656,6 +2656,16 @@ public class ImapMailClient {
             for(OutImportBean bean : beans){
                 _logger.info("***onCreateOA***"+bean.getCiticNo());
                 this.zsOrderDAO.updateStatus(bean.getCiticNo());
+            }
+        }  else if ( mailId.indexOf(ZY)!= -1) {
+            for(OutImportBean bean : beans){
+                _logger.info("***onCreateOA***"+bean.getCiticNo());
+                this.zyOrderDAO.updateStatus(bean.getCiticNo());
+            }
+        } else if ( mailId.indexOf(PF)!= -1) {
+            for(OutImportBean bean : beans){
+                _logger.info("***onCreateOA***"+bean.getCiticNo());
+                this.pfOrderDAO.updateStatus(bean.getCiticNo());
             }
         }
     }
