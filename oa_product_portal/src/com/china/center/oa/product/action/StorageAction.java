@@ -312,6 +312,12 @@ public class StorageAction extends DispatchAction
 
         condtion.addIntCondition("StorageRelationBean.amount", ">", 0);
 
+        User user = Helper.getUser(request);
+
+        _logger.info("****stafferId****"+user.getStafferId());
+
+        condtion.addCondition(" and exists (select ra.*,staffer.* from T_CENTER_ROLEAUTH ra left join T_CENTER_OAROLE r on r.id=ra.roleid left outer join t_center_oastaffer staffer on staffer.name=r.name where StorageRelationBean.locationId=ra.authid and staffer.id='"+user.getStafferId()+"')");
+
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPUBLICSTORAGERELATION, request,
             condtion, this.storageRelationDAO, new HandleResult<StorageRelationVO>()
             {
@@ -1396,7 +1402,6 @@ public class StorageAction extends DispatchAction
      * @param mapping
      * @param form
      * @param request
-     * @param reponse
      * @return
      * @throws ServletException
      */
@@ -1436,7 +1441,6 @@ public class StorageAction extends DispatchAction
      * @param mapping
      * @param form
      * @param request
-     * @param reponse
      * @return
      * @throws ServletException
      */
@@ -3365,7 +3369,6 @@ public class StorageAction extends DispatchAction
      * @param mapping
      * @param form
      * @param request
-     * @param response
      * @return
      * @throws ServletException
      */
