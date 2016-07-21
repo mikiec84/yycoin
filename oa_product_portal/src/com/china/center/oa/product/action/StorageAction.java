@@ -316,8 +316,9 @@ public class StorageAction extends DispatchAction
 
         _logger.info("****stafferId****"+user.getStafferId());
 
-        condtion.addCondition(" and exists (select ra.*,staffer.* from T_CENTER_ROLEAUTH ra left join T_CENTER_OAROLE r on r.id=ra.roleid left outer join t_center_oastaffer staffer on staffer.name=r.name where StorageRelationBean.locationId=ra.authid and staffer.id='"+user.getStafferId()+"')");
+        condtion.addCondition(" and exists (select ra.* from T_CENTER_ROLEAUTH ra left outer join t_center_oauser oauser on oauser.roleid=ra.roleid where StorageRelationBean.locationId=ra.authid and oauser.stafferid='" + user.getStafferId() + "')");
 
+        _logger.info("***queryPublicStorageRelation with condition***"+condtion.toString());
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPUBLICSTORAGERELATION, request,
             condtion, this.storageRelationDAO, new HandleResult<StorageRelationVO>()
             {
