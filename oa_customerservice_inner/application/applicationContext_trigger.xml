@@ -61,8 +61,8 @@
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<ref bean="statFeedBackVisitTrigger" />
-				<ref bean="statFeedBackCheckTrigger" />
+				<!--<ref bean="statFeedBackVisitTrigger" />-->
+				<!--<ref bean="statFeedBackCheckTrigger" />-->
 				<ref bean="checkShortMessageStatusTrigger" />
 				<ref bean="getShortMessageReplyTrigger" />				
 			</list>
