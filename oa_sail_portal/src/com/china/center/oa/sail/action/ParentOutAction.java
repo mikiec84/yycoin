@@ -6990,9 +6990,11 @@ public class ParentOutAction extends DispatchAction
             if (out.getType() == OutConstant.OUT_TYPE_INBILL
                     && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
                     || out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-                    || out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT))
+                    || out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT
+                    || out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT))
             {
-                if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT)
+                if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT
+                        || out.getStatus()!= OutConstant.BUY_STATUS_PASS)
                 {
                     request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
 

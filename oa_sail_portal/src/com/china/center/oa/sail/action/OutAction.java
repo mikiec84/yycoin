@@ -2549,9 +2549,16 @@ public class OutAction extends ParentOutAction
             List<DepotpartBean> depotpartList = depotpartDAO.queryOkDepotpartInDepot(bean
                 .getDestinationId());
 
-            request.setAttribute("depotpartList", depotpartList);
+            request.setAttribute("depotartList", depotpartList);
 
-            return mapping.findForward("handerInvokeBuy");
+            List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
+            //入库仓库列表
+            request.setAttribute("baseBeans", bean.getBaseList());
+            request.setAttribute("locationList", locationList);
+            request.setAttribute("stockInType","调拨");
+
+//            return mapping.findForward("handerInvokeBuy");
+            return mapping.findForward("stockIn");
         }
 
         // 修改发票类型
@@ -6142,6 +6149,7 @@ public class OutAction extends ParentOutAction
         request.setAttribute("amount", amount);
         return mapping.findForward("accessoryInStorage");
     }
+
     
     /**
      * @return the userDAO
