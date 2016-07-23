@@ -76,6 +76,34 @@
 //        backForm.submit();
     }
 
+function changeLocation(obj){
+    var value = obj.value;
+    console.log(value);
+//    console.log(obj.val())
+    var depotPartSelect = $(this).closest('tr').find('select[name="depotPart"]');
+    console.log(depotPartSelect);
+    var depotPartSelect2 = $(this).next('select');
+    console.log(depotPartSelect2);
+//    var selectedLocation = $("#budget option:selected");
+//    console.log("selectedLocation**"+selectedLocation);
+//    var locationId = selectedLocation.val();
+//    console.log("***budget id***"+locationId);
+    $ajax('../sail/out.do?method=queryDepotPart&locationId='+value,
+            function(data){
+            console.log(data);
+            var dataList = data.obj;
+            console.log(dataList);
+            //TODO render select
+            removeAllItem(depotPartSelect);
+            setOption(depotPartSelect, "-", "");
+            for (var j = 0; j < dataList.length; j++)
+            {
+                setOption(depotPartSelect, dataList[j].id, dataList[j].name);
+            }
+
+    });
+}
+
 </script>
 </head>
 <body class="body_class" onload="load()">
@@ -168,7 +196,7 @@
                         </td>
 
                         <td>
-                            <select name="location" class="select_class location" style="width: 100%">
+                            <select name="location" class="select_class location" style="width: 100%" onchange="changeLocation(this)">
                                 <option value="">--</option>
                                 <c:forEach items='${locationList}' var="item">
                                     <option value="${item.id}">${item.name}</option>
@@ -202,7 +230,7 @@
                             </td>
 
                             <td>
-                                <select name="location" class="select_class location" style="width: 100%">
+                                <select name="location" class="select_class location" style="width: 100%" onchange="changeLocation(this)">
                                     <option value="">--</option>
                                     <c:forEach items='${locationList}' var="location">
                                         <c:if test="${location.name == '公共库--南京物流中心'}">

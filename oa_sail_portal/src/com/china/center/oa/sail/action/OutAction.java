@@ -18,7 +18,6 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
 import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.constant.ProductConstant;
@@ -3058,7 +3057,38 @@ public class OutAction extends ParentOutAction
 
         return mapping.findForward("detailBuy");
     }
-    
+
+
+    /**
+     * #270 2016/7/23
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward queryDepotPart(ActionMapping mapping, ActionForm form,
+                                  HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        String locationId = request.getParameter("locationId");
+        _logger.info("***queryDepotPart***"+locationId);
+
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        List<DepotpartBean> depotpartList = depotpartDAO.queryOkDepotpartInDepot(locationId);
+
+        result.setSuccessAndObj("操作成功", depotpartList);
+
+        String jsonstr = mapper.toJson(result);
+
+        _logger.info("***queryDepotPart result***"+jsonstr);
+
+        return JSONTools.writeResponse(reponse, jsonstr);
+    }
+
     /**
      * 其它入库,关联原单
      * @param mapping
