@@ -2547,17 +2547,18 @@ public class OutAction extends ParentOutAction
             // 查询目的库的良品仓区
             List<DepotpartBean> depotpartList = depotpartDAO.queryOkDepotpartInDepot(bean
                 .getDestinationId());
-
             request.setAttribute("depotartList", depotpartList);
 
-            List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
+            //#270 2016/7/23 added
+            request.setAttribute("destinationId", bean.getDestinationId());
             //入库仓库列表
-            request.setAttribute("baseBeans", bean.getBaseList());
+            List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
             request.setAttribute("locationList", locationList);
+            request.setAttribute("baseBeans", bean.getBaseList());
             request.setAttribute("stockInType","调拨");
 
-//            return mapping.findForward("handerInvokeBuy");
-            return mapping.findForward("stockIn");
+            return mapping.findForward("handerInvokeBuy");
+//            return mapping.findForward("stockIn");
         }
 
         // 修改发票类型

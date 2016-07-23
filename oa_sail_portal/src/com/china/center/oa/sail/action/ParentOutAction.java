@@ -6994,7 +6994,7 @@ public class ParentOutAction extends DispatchAction
                     || out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT))
             {
                 if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT
-                        || out.getStatus()!= OutConstant.BUY_STATUS_PASS)
+                        && out.getStatus()!= OutConstant.BUY_STATUS_PASS)
                 {
                     request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
 
@@ -7150,6 +7150,7 @@ public class ParentOutAction extends DispatchAction
         String[] products = request.getParameterValues("productName");
         String[] amounts = request.getParameterValues("amount");
         String[] locations = request.getParameterValues("location");
+        String[] depotParts = request.getParameterValues("depotPart");
 
         if (products!= null && products.length>0){
            for (int i=0;i<products.length;i++){
@@ -7162,13 +7163,17 @@ public class ParentOutAction extends DispatchAction
                    bean.setAmount(Integer.valueOf(amount));
                    bean.setLocationId(location);
 
-                   //TODO deportpartid
-                   // 默认仓区
-                   DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(location);
-                   bean.setDepotpartId(defaultOKDepotpart.getId());
+                   if (depotParts!= null && depotParts.length>i){
+                       String depotPartId = depotParts[i];
+                       bean.setDepotpartId(depotPartId);
+                   } else{
+                       // 默认仓区
+                       DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(location);
+                       bean.setDepotpartId(defaultOKDepotpart.getId());
+                   }
 
                    baseBeans.add(bean);
-                   System.out.println("****成品行productId:"+productId+" amount:"+amount+" location:"+location);
+                   _logger.info("*******add base bean ***"+bean);
                }
            }
         }

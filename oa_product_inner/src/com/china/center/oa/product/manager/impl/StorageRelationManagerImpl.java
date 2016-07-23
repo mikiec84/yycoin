@@ -363,9 +363,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         if (user != null){
             logSb.append(user.getName());
         }
-        logSb.append("***changeStorageRelationWithoutTransaction******staffer****" + bean.getStafferId()
-                + "***relation**" + bean.getRelationId() + "***change**" + bean.getChange() + "***priceKey***" + priceKey);
-
+        logSb.append("***changeStorageRelationWithoutTransaction with param " + bean+"***priceKey***" + priceKey);
         _logger.info(logSb.toString());
 
         // 防止直接插入的(先给默认储位)

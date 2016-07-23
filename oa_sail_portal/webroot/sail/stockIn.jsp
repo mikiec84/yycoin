@@ -14,76 +14,37 @@
 <script language="JavaScript" src="../js/jquery/jquery.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
 <script language="JavaScript" src="../sail_js/accessoryInStorage.js"></script>
-<script language="JavaScript" src="../sail_js/localforage.min.js"></script>
 <script language="javascript">
-<%--<%@include file="../sail_js/out501.jsp"%>--%>
     var productList = [];
     <c:forEach items="${bean.baseList}" var="item">
     productList.push("${item.productId}")
     </c:forEach>
-//    console.log(productList);
 
     function load()
     {
         loadForm();
     }
 
-//    function accessoryInStorage(){
-//        window.open('../sail/out.do?method=accessoryInStorage&productId=product1&outId=' + getRadioValue("fullId"));
-//    }
-
     function confirmBack(){
-        var result = {};
-        var accessoryList = "";
-//        var len=productList.length;
-//        for(var i=0; i<len; i++) {
-//            var value = productList[i];
-//            console.log("product:"+value);
-//            localforage.getItem(value, function(err, value) {
-//                // Run this code once the value has been
-//                // loaded from the offline store.
-//                console.log(value);
-//                $O('productList').value = value;
-//            });
-//        }
-
-        localforage.iterate(function(value, key) {
-            // Resulting key/value pair -- this callback
-            // will be executed for every item in the
-            // database.
-//            console.log([key, value]);
-            result[key] = value;
-            temp = key+":"+value+";";
-//            console.log(temp);
-            accessoryList = accessoryList+temp
-        }, function() {
-//            console.log('Iteration has completed:'+accessoryList);
-//            $O('accessoryList').value = JSON.stringify(result);
-            $O('accessoryList').value = accessoryList;
-//            console.log('productList:'+JSON.stringify($('#backForm').serializeArray()));
-//            $O('productList').value = JSON.stringify($('#backForm').serializeArray());
-//            $O('productList').value = JSON.stringify(result);
-//            $O('accessoryList').value = JSON.stringify($('#backForm').serializeArray());
-            backForm.submit();
-
-            //Clear local DB
-            localforage.clear(function(err) {
-                // Run this code once the database has been entirely deleted.
-//                console.log('Database is now empty.');
-            });
-        });
-
-//        backForm.submit();
+        backForm.submit();
     }
 
 function changeLocation(obj){
     var value = obj.value;
     console.log(value);
 //    console.log(obj.val())
-    var depotPartSelect = $(this).closest('tr').find('select[name="depotPart"]');
+//    var depotPartSelect = $(this).closest('tr').find('select[name="depotPart"]');
+//    console.log(depotPartSelect);
+//    var depotPartSelect = $(this).next('select');
+//    console.log(depotPartSelect);
+
+    var os = obj.parentNode.parentNode;
+    console.log(os);
+    console.log(os.cells);
+    console.log(os.cells[0]);
+    console.log(os.cells[0].childNodes);
+    var depotPartSelect = os.cells[3].childNodes[1];
     console.log(depotPartSelect);
-    var depotPartSelect2 = $(this).next('select');
-    console.log(depotPartSelect2);
 //    var selectedLocation = $("#budget option:selected");
 //    console.log("selectedLocation**"+selectedLocation);
 //    var locationId = selectedLocation.val();
@@ -109,7 +70,6 @@ function changeLocation(obj){
 <body class="body_class" onload="load()">
 <form name="backForm" id="backForm" method="post" action="../sail/out.do?method=submitOut2">
 <input type=hidden name="productList" />
-<input type=hidden name="accessoryList" />
 <input type=hidden id="outId" name="outId" value="${bean.fullId}"/>
 
 <p:navigation
@@ -204,6 +164,15 @@ function changeLocation(obj){
                             </select>
                         </td>
 
+                        <td>
+                            <select name="depotPart" class="select_class" style="width: 100%">
+                                <option value="">--</option>
+                                <c:forEach items='${depotartList}' var="depotPart">
+                                    <option value="${depotPart.id}" selected>${depotPart.name}</option>
+                                </c:forEach>
+                            </select>
+                        </td>
+
 
 						<td align="center"></td>
 					</tr>
@@ -233,10 +202,10 @@ function changeLocation(obj){
                                 <select name="location" class="select_class location" style="width: 100%" onchange="changeLocation(this)">
                                     <option value="">--</option>
                                     <c:forEach items='${locationList}' var="location">
-                                        <c:if test="${location.name == '公共库--南京物流中心'}">
+                                        <c:if test="${location.id == destinationId}">
                                             <option value="${location.id}" selected>${location.name}</option>
                                         </c:if>
-                                        <c:if test="${location.name != '公共库--南京物流中心'}">
+                                        <c:if test="${location.id != destinationId}">
                                             <option value="${location.id}">${location.name}</option>
                                         </c:if>
                                     </c:forEach>
@@ -247,7 +216,7 @@ function changeLocation(obj){
                                 <select name="depotPart" class="select_class" style="width: 100%">
                                     <option value="">--</option>
                                     <c:forEach items='${depotartList}' var="depotPart">
-                                        <option value="${depotPart.id}" selected>${depotPart.name}</option>
+                                        <option value="${depotPart.id}">${depotPart.name}</option>
                                     </c:forEach>
                                 </select>
                             </td>
