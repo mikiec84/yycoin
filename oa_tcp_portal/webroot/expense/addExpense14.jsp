@@ -234,7 +234,8 @@ function checks()
 
         </td>
     </tr>
-    
+
+<c:if test="${!imp}">
      <p:title>
         <td class="caption">
          <strong>费用分担</strong>
@@ -287,7 +288,12 @@ function checks()
 
         </td>
     </tr>
-    
+</c:if>
+
+    <c:if test="${imp}">
+        <%@include file="share_update.jsp"%>
+    </c:if>
+
     <p:title>
         <td class="caption">
          <strong>提交/审核</strong>

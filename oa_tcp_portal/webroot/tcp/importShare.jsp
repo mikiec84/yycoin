@@ -91,6 +91,7 @@ function load()
                  <option value="11">出差报销</option>
                  <option value="12">业务招待报销</option>
                  <option value="13">日常费用报销</option>
+                 <option value="14">通用费用报销</option>
              </select>&nbsp;<font color="red">*</font>
             </p:cell>
 			<p:cell title="导入文件" end="true">
