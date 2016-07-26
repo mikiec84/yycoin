@@ -7145,7 +7145,7 @@ public class ParentOutAction extends DispatchAction
     }
 
     //获取成品行信息
-    private List<BaseBean> getBaseBeansFromRequest(HttpServletRequest request){
+    protected List<BaseBean> getBaseBeansFromRequest(HttpServletRequest request){
         List<BaseBean> baseBeans = new ArrayList<BaseBean>();
         String[] products = request.getParameterValues("productName");
         String[] amounts = request.getParameterValues("amount");

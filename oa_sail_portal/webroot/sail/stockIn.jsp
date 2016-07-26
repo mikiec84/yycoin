@@ -27,6 +27,15 @@
 
     function confirmBack(){
         backForm.submit();
+        <%--$l('../sail/out.do?method=processInvoke&outId=${bean.fullId}&flag=1&depotpartId=' + $$('depotpartId'));--%>
+    }
+
+    function rejects()
+    {
+        if (window.confirm('确定驳回此调出的库单?'))
+        {
+            document.location.href = '../sail/out.do?method=processInvoke&outId=${bean.fullId}&flag=3';
+        }
     }
 
 function changeLocation(obj){
@@ -68,10 +77,28 @@ function changeLocation(obj){
 </script>
 </head>
 <body class="body_class" onload="load()">
-<form name="backForm" id="backForm" method="post" action="../sail/out.do?method=submitOut2">
+<form name="backForm" id="backForm" method="post" action="../sail/out.do?method=processInvoke" enctype="multipart/form-data">
 <input type=hidden name="productList" />
 <input type=hidden id="outId" name="outId" value="${bean.fullId}"/>
-
+<input type=hidden name="method" value="addOut" />
+<input type=hidden name="nameList" />
+<input type=hidden name="idsList" />
+<input
+        type=hidden name="unitList" />
+<input type=hidden name="amontList" />
+<input type=hidden name="priceList" />
+<input type=hidden
+       name="totalList" />
+<input type=hidden name="totalss" />
+<input type=hidden name="customerId" value="${bean.customerId}"/>
+<input type=hidden name="type"
+       value='0' />
+<input type=hidden name="saves" value="" />
+<input type=hidden name="desList" value="" />
+<input type=hidden name="otherList" value="" />
+<input type=hidden name="showIdList" value="" />
+<input type=hidden name="showNameList" value="" />
+<input type=hidden name="customercreditlevel" value="" />
 <p:navigation
 	height="22">
 	<td width="550" class="navigation">入库 &gt;&gt; ${stockInType}</td>

@@ -252,9 +252,11 @@ public class OutAction extends ParentOutAction
 
         String flag = request.getParameter("flag");
 
-        String depotpartId = request.getParameter("depotpartId");
+//        String depotpartId = request.getParameter("depotpartId");
 
         User user = (User)request.getSession().getAttribute("user");
+
+
 
         if (StringTools.isNullOrNone(fullId))
         {
@@ -322,38 +324,51 @@ public class OutAction extends ParentOutAction
 
             List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(fullId);
 
-            if (StringTools.isNullOrNone(depotpartId))
-            {
-                DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(outBean
-                    .getDestinationId());
+            List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
 
-                if (defaultOKDepotpart == null)
-                {
-                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
 
-                    return mapping.findForward("error");
-                }
+//            if (StringTools.isNullOrNone(depotpartId))
+//            {
+//                DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(outBean
+//                    .getDestinationId());
+//
+//                if (defaultOKDepotpart == null)
+//                {
+//                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
+//
+//                    return mapping.findForward("error");
+//                }
+//
+//                depotpartId = defaultOKDepotpart.getId();
+//            }
 
-                depotpartId = defaultOKDepotpart.getId();
-            }
-
-            DepotpartBean depotpart = depotpartDAO.find(depotpartId);
-
-            if (depotpart == null)
-            {
-                request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
-
-                return mapping.findForward("error");
-            }
+//            DepotpartBean depotpart = depotpartDAO.find(depotpartId);
+//
+//            if (depotpart == null)
+//            {
+//                request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
+//
+//                return mapping.findForward("error");
+//            }
 
             for (BaseBean baseBean : baseList)
             {
                 // 获得仓库默认的仓区
-                baseBean.setDepotpartId(depotpartId);
-                baseBean.setValue( -baseBean.getValue());
+//                baseBean.setDepotpartId(depotpartId);
+                baseBean.setValue(-baseBean.getValue());
                 baseBean.setLocationId(outBean.getDestinationId());
-                baseBean.setAmount( -baseBean.getAmount());
-                baseBean.setDepotpartName(depotpart.getName());
+                baseBean.setAmount(-baseBean.getAmount());
+//                baseBean.setDepotpartName(depotpart.getName());
+
+                //根据数据库中BaseBean进行相应设置
+                if (!ListTools.isEmptyOrNull(baseBeans)){
+                    for (BaseBean base :baseBeans){
+                        String productId = base.getProductId();
+                        if (productId.equals(baseBean.getProductId()) && base.getAmount() == baseBean.getAmount()){
+                            baseBean.setDepotpartId(base.getDepotpartId());
+                        }
+                    }
+                }
             }
 
             List<BaseBean> lastList = OutHelper.trimBaseList(baseList);
@@ -2557,8 +2572,8 @@ public class OutAction extends ParentOutAction
             request.setAttribute("baseBeans", bean.getBaseList());
             request.setAttribute("stockInType","调拨");
 
-            return mapping.findForward("handerInvokeBuy");
-//            return mapping.findForward("stockIn");
+//            return mapping.findForward("handerInvokeBuy");
+            return mapping.findForward("stockIn");
         }
 
         // 修改发票类型
