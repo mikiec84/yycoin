@@ -249,13 +249,12 @@ public class OutAction extends ParentOutAction
         throws ServletException
     {
         String fullId = request.getParameter("outId");
-
         String flag = request.getParameter("flag");
+        _logger.info("***process invoke with fullId "+fullId+" flag "+flag);
 
 //        String depotpartId = request.getParameter("depotpartId");
 
         User user = (User)request.getSession().getAttribute("user");
-
 
 
         if (StringTools.isNullOrNone(fullId))
@@ -326,7 +325,22 @@ public class OutAction extends ParentOutAction
 
             List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
 
-
+            //根据数据库中BaseBean进行相应设置
+            if (!ListTools.isEmptyOrNull(baseBeans)){
+                for (BaseBean base :baseBeans){
+                    String productId = base.getProductId();
+                    for(BaseBean b : baseList){
+                        if (productId.equals(b.getProductId())){
+                            base.setCostPrice(b.getCostPrice());
+                            base.setOwner(b.getOwner());
+                            base.setInputRate(b.getInputRate());
+                            base.setPrice(b.getPrice());
+                            base.setValue(-base.getValue());
+                            base.setAmount(-base.getAmount());
+                        }
+                    }
+                }
+            }
 //            if (StringTools.isNullOrNone(depotpartId))
 //            {
 //                DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(outBean
@@ -351,25 +365,15 @@ public class OutAction extends ParentOutAction
 //                return mapping.findForward("error");
 //            }
 
-            for (BaseBean baseBean : baseList)
-            {
-                // 获得仓库默认的仓区
+//            for (BaseBean baseBean : baseList)
+//            {
+//                // 获得仓库默认的仓区
 //                baseBean.setDepotpartId(depotpartId);
-                baseBean.setValue(-baseBean.getValue());
-                baseBean.setLocationId(outBean.getDestinationId());
-                baseBean.setAmount(-baseBean.getAmount());
+//                baseBean.setValue(-baseBean.getValue());
+//                baseBean.setLocationId(outBean.getDestinationId());
+//                baseBean.setAmount(-baseBean.getAmount());
 //                baseBean.setDepotpartName(depotpart.getName());
-
-                //根据数据库中BaseBean进行相应设置
-                if (!ListTools.isEmptyOrNull(baseBeans)){
-                    for (BaseBean base :baseBeans){
-                        String productId = base.getProductId();
-                        if (productId.equals(baseBean.getProductId()) && base.getAmount() == baseBean.getAmount()){
-                            baseBean.setDepotpartId(base.getDepotpartId());
-                        }
-                    }
-                }
-            }
+//            }
 
             List<BaseBean> lastList = OutHelper.trimBaseList(baseList);
 

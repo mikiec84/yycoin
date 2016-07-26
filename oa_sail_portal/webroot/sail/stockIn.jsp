@@ -77,22 +77,20 @@ function changeLocation(obj){
 </script>
 </head>
 <body class="body_class" onload="load()">
-<form name="backForm" id="backForm" method="post" action="../sail/out.do?method=processInvoke" enctype="multipart/form-data">
+<form name="backForm" id="backForm" method="post" action="../sail/out.do?method=processInvoke">
+<input type=hidden name="flag" value="1" />
 <input type=hidden name="productList" />
 <input type=hidden id="outId" name="outId" value="${bean.fullId}"/>
 <input type=hidden name="method" value="addOut" />
 <input type=hidden name="nameList" />
 <input type=hidden name="idsList" />
-<input
-        type=hidden name="unitList" />
+<input type=hidden name="unitList" />
 <input type=hidden name="amontList" />
 <input type=hidden name="priceList" />
-<input type=hidden
-       name="totalList" />
+<input type=hidden name="totalList" />
 <input type=hidden name="totalss" />
 <input type=hidden name="customerId" value="${bean.customerId}"/>
-<input type=hidden name="type"
-       value='0' />
+<input type=hidden name="type" value='0' />
 <input type=hidden name="saves" value="" />
 <input type=hidden name="desList" value="" />
 <input type=hidden name="otherList" value="" />
@@ -281,6 +279,7 @@ function changeLocation(obj){
 		<td width="100%">
 		<div align="right">
 			<input type="button" class="button_class" value="确认退库" onClick="confirmBack()" />&nbsp;&nbsp;
+            <input type="button" class="button_class" value="驳回" onClick="rejects()" />&nbsp;&nbsp;
             <input type="button" class="button_class" value="返回" onclick="javascript:history.go(-1)" >
         </div>
 		</td>
