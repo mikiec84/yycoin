@@ -17,6 +17,10 @@
 
     <bean id="outDAO" class="com.china.center.oa.sail.dao.impl.OutDAOImpl" />
 
+    <bean id="olBaseDAO" class="com.china.center.oa.sail.dao.impl.OlBaseDAOImpl" />
+
+    <bean id="olOutDAO" class="com.china.center.oa.sail.dao.impl.OlOutDAOImpl" />
+
     <bean id="outUniqueDAO" class="com.china.center.oa.sail.dao.impl.OutUniqueDAOImpl" />
 
     <bean id="consignDAO" class="com.china.center.oa.sail.dao.impl.ConsignDAOImpl" />

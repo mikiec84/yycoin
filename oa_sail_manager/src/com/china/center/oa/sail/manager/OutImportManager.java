@@ -79,4 +79,10 @@ public interface OutImportManager
 	 * download attachment from mail and create OA out
 	 */
 	void downloadOrderFromMailAttachment();
+
+    /**
+     * #281 2016/7/27
+     * 线下订单转换为OA单JOB
+     */
+    void offlineOrderJob();
 }

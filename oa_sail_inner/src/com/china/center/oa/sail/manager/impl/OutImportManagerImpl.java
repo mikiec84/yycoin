@@ -151,6 +151,10 @@ public class OutImportManagerImpl implements OutImportManager
 
     private ImapMailClient imapMailClient = null;
 
+    private OlOutDAO olOutDAO = null;
+
+    private OlBaseDAO olBaseDAO = null;
+
 	private final static String SPLIT = "_";
 	
 	public OutImportManagerImpl()
@@ -3120,7 +3124,83 @@ public class OutImportManagerImpl implements OutImportManager
 		}
 	}
 
-	public PlatformTransactionManager getTransactionManager()
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void offlineOrderJob() {
+        //To change body of implemented methods use File | Settings | File Templates.
+        //status=0 and pricestatus=1 and ibmostatus=1 and oano=""同时满足这三个条件的订单被抓取生成OA订单
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("status","=","0");
+        conditionParse.addCondition("priceStatus","=","1");
+        conditionParse.addCondition("ibMotStatus","=","1");
+        conditionParse.addCondition("oaNo","=","");
+        List<OlOutBean> olOutBeans = this.olOutDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(olOutBeans)){
+            for (OlOutBean olOutBean : olOutBeans){
+                OutBean out = new OutBean();
+
+                out.setType(Integer.valueOf(olOutBean.getType()));
+                //TODO outType
+                out.setOutType(OutConstant.OUTTYPE_OUT_COMMON);
+                out.setStafferId(olOutBean.getStafferId());
+                out.setStafferName(olOutBean.getStafferName());
+                out.setCustomerId(olOutBean.getCustomerId());
+                out.setCustomerName(olOutBean.getCustomerName());
+                out.setDescription(olOutBean.getDescription());
+                out.setEmergency(olOutBean.getEmergency());
+                String now = TimeTools.now_short();
+                out.setOutTime(now);
+                out.setPodate(now);
+                out.setLogTime(TimeTools.now());
+
+                //total根据olfullid到表olbase中取对outid相同的行项目的，amount*price的合计
+                ConditionParse con2 = new ConditionParse();
+                con2.addCondition("outId","=",olOutBean.getOlFullId());
+                List<OlBaseBean> olBaseBeans = this.olBaseDAO.queryEntityBeansByCondition(con2);
+                if (ListTools.isEmptyOrNull(olBaseBeans)){
+                    _logger.error("No OlBaseBean found "+olOutBean.getOlFullId());
+                } else{
+                    double total = 0.0f;
+                    for(OlBaseBean olBaseBean : olBaseBeans){
+                         total += olBaseBean.getAmount()*olBaseBean.getPrice();
+                    }
+                    out.setTotal(total);
+                }
+
+                //industryid,2,3几个字段根据stafferid到表oastaffer表取对应值
+                StafferBean stafferBean = stafferDAO.find(out.getStafferId());
+                if (stafferBean == null){
+                    _logger.error("No staffer found "+out.getStafferId());
+                } else{
+                    out.setIndustryId(stafferBean.getIndustryId());
+                    out.setIndustryId2(stafferBean.getIndustryId2());
+                    out.setIndustryId3(stafferBean.getIndustryId3());
+                }
+
+                //TODO
+                DistributionBean distributionBean = new DistributionBean();
+                distributionBean.setOutId(out.getFullId());
+                out.setDistributeBean(distributionBean);
+
+                String id = getAll(commonDAO.getSquence());
+                String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+                String flag = OutHelper.getSailHead(out.getType(), out.getOutType());
+
+                String fullId = flag + time + id;
+                out.setId(getOutId(id));
+                out.setFullId(fullId);
+
+                this.outDAO.saveEntityBean(out);
+                _logger.info("create out in offlineOrderJob "+out);
+
+                //TODO olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
+
+                //生成OA订单后，回写OA单号至olout与olbase表的OANO字段
+            }
+        }
+    }
+
+    public PlatformTransactionManager getTransactionManager()
 	{
 		return transactionManager;
 	}
@@ -3550,5 +3630,21 @@ public class OutImportManagerImpl implements OutImportManager
 
     public void setImapMailClient(ImapMailClient imapMailClient) {
         this.imapMailClient = imapMailClient;
+    }
+
+    public OlOutDAO getOlOutDAO() {
+        return olOutDAO;
+    }
+
+    public void setOlOutDAO(OlOutDAO olOutDAO) {
+        this.olOutDAO = olOutDAO;
+    }
+
+    public OlBaseDAO getOlBaseDAO() {
+        return olBaseDAO;
+    }
+
+    public void setOlBaseDAO(OlBaseDAO olBaseDAO) {
+        this.olBaseDAO = olBaseDAO;
     }
 }
