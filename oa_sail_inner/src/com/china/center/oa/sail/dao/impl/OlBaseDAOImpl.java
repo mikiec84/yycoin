@@ -15,9 +15,9 @@ import com.china.center.oa.sail.dao.OlBaseDAO;
 public class OlBaseDAOImpl extends BaseDAO<OlBaseBean, OlBaseBean> implements OlBaseDAO {
 
     @Override
-    public void updateOaNo(String outId, String oaNo) {
-        String sql = "update t_center_olbase set oaNo = ? where outId = ?";
+    public void updateOaNo(String olBaseId, String oaNo) {
+        String sql = "update t_center_olbase set oaNo = ? where id = ?";
 
-        jdbcOperation.update(sql, oaNo, outId);
+        jdbcOperation.update(sql, oaNo, olBaseId);
     }
 }

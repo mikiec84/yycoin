@@ -175,6 +175,19 @@
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
+    <bean id="offlineOrderJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outImportManager" />
+        <property name="targetMethod" value="offlineOrderJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="offlineOrderJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="offlineOrderJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -191,6 +204,7 @@
                 <ref bean="autoApproveOutJobTrigger"/>
                 <ref bean="downloadOrderFromMailAttachmentJobTrigger"/>
                 <ref bean="sendShippingMailToSailsTrigger"/>
+                <ref bean="offlineOrderJob"/>
             </list>
         </property>
     </bean>

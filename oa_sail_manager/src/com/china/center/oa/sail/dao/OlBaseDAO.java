@@ -23,4 +23,5 @@ import com.china.center.oa.sail.bean.OlBaseBean;
  */
 public interface OlBaseDAO extends DAO<OlBaseBean, OlBaseBean>
 {
+    public void updateOaNo(String olBaseId, String oaNo);
 }
