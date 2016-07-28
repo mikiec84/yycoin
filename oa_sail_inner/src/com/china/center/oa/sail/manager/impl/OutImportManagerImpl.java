@@ -3139,14 +3139,14 @@ public class OutImportManagerImpl implements OutImportManager
             for (OlOutBean olOutBean : olOutBeans){
                 OutBean out = new OutBean();
 
-                out.setType(Integer.valueOf(olOutBean.getType()));
-                //TODO outType
-                out.setOutType(OutConstant.OUTTYPE_OUT_COMMON);
+				out.setType(OutConstant.OUT_TYPE_OUTBILL);
+                out.setOutType(Integer.valueOf(olOutBean.getType()));
                 out.setStafferId(olOutBean.getStafferId());
                 out.setStafferName(olOutBean.getStafferName());
                 out.setCustomerId(olOutBean.getCustomerId());
                 out.setCustomerName(olOutBean.getCustomerName());
-                out.setDescription(olOutBean.getDescription());
+				//在生成OA订单时，把olfullid写入订单备注
+                out.setDescription(olOutBean.getDescription()+"_"+olOutBean.getOlFullId());
                 out.setEmergency(olOutBean.getEmergency());
                 String now = TimeTools.now_short();
                 out.setOutTime(now);
@@ -3177,25 +3177,44 @@ public class OutImportManagerImpl implements OutImportManager
                     out.setIndustryId3(stafferBean.getIndustryId3());
                 }
 
-                //TODO
+				String id = getAll(commonDAO.getSquence());
+				String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+				String flag = OutHelper.getSailHead(out.getType(), out.getOutType());
+
+				String fullId = flag + time + id;
+				out.setId(getOutId(id));
+				out.setFullId(fullId);
+
                 DistributionBean distributionBean = new DistributionBean();
                 distributionBean.setOutId(out.getFullId());
+				distributionBean.setShipping(Integer.valueOf(olOutBean.getExpress()));
+				distributionBean.setExpressPay(Integer.valueOf(olOutBean.getExpressPay()));
+
+				//快递
+				if(distributionBean.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+					distributionBean.setTransport1(Integer.valueOf(olOutBean.getExpressCompany()));
+				} else if (distributionBean.getShipping() ==  OutConstant.OUT_SHIPPING_SELFSERVICE){
+					//自提
+					distributionBean.setTransport2(Integer.valueOf(olOutBean.getExpressCompany()));
+				}
+
+				distributionBean.setProvinceId(olOutBean.getProvinceId());
+				distributionBean.setCityId(olOutBean.getCityId());
+				distributionBean.setAddress(olOutBean.getAddress());
+				distributionBean.setReceiver(olOutBean.getReceiver());
+				distributionBean.setMobile(olOutBean.getTelephone());
+				distributionDAO.saveEntityBean(distributionBean);
+
                 out.setDistributeBean(distributionBean);
-
-                String id = getAll(commonDAO.getSquence());
-                String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
-                String flag = OutHelper.getSailHead(out.getType(), out.getOutType());
-
-                String fullId = flag + time + id;
-                out.setId(getOutId(id));
-                out.setFullId(fullId);
-
                 this.outDAO.saveEntityBean(out);
                 _logger.info("create out in offlineOrderJob "+out);
 
                 //TODO olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
 
                 //生成OA订单后，回写OA单号至olout与olbase表的OANO字段
+				this.olBaseDAO.updateOaNo(olOutBean.getOlFullId(), fullId);
+
+				//olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
             }
         }
     }

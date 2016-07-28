@@ -1,6 +1,7 @@
 package com.china.center.oa.sail.dao.impl;
 
 import com.china.center.jdbc.inter.impl.BaseDAO;
+import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.bean.OlBaseBean;
 import com.china.center.oa.sail.dao.OlBaseDAO;
 
@@ -12,4 +13,11 @@ import com.china.center.oa.sail.dao.OlBaseDAO;
  * To change this template use File | Settings | File Templates.
  */
 public class OlBaseDAOImpl extends BaseDAO<OlBaseBean, OlBaseBean> implements OlBaseDAO {
+
+    @Override
+    public void updateOaNo(String outId, String oaNo) {
+        String sql = "update t_center_olbase set oaNo = ? where outId = ?";
+
+        jdbcOperation.update(sql, oaNo, outId);
+    }
 }
