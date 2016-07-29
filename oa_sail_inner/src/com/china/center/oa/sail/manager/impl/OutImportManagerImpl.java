@@ -3129,18 +3129,17 @@ public class OutImportManagerImpl implements OutImportManager
     @Transactional(rollbackFor = MYException.class)
     public void offlineOrderJob() {
         //To change body of implemented methods use File | Settings | File Templates.
-        //status=0 and pricestatus=1 and ibmostatus=1 and oano=""同时满足这三个条件的订单被抓取生成OA订单
+        //status=0 and pricestatus=1 and ibmostatus=1 同时满足这三个条件的订单被抓取生成OA订单
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("status","=","0");
         conditionParse.addCondition("priceStatus","=","1");
         conditionParse.addCondition("ibMotStatus","=","1");
-        conditionParse.addCondition("oaNo","=","");
         List<OlOutBean> olOutBeans = this.olOutDAO.queryEntityBeansByCondition(conditionParse);
+		//<code,product>
+		Map<String,ProductBean> productCodeMap = new HashMap<String,ProductBean>();
+		_logger.info("***offlineOrderJob running with size "+olOutBeans.size());
         if (!ListTools.isEmptyOrNull(olOutBeans)){
             for (OlOutBean olOutBean : olOutBeans){
-
-
-                //total根据olfullid到表olbase中取对outid相同的行项目的，amount*price的合计
                 ConditionParse con2 = new ConditionParse();
                 con2.addCondition("outId","=",olOutBean.getOlFullId());
                 List<OlBaseBean> olBaseBeans = this.olBaseDAO.queryEntityBeansByCondition(con2);
@@ -3151,10 +3150,13 @@ public class OutImportManagerImpl implements OutImportManager
                     //<税率,List<OlBaseBean>
                     Map<String, List<OlBaseBean>> sailInvoice2OlBaseMap = new HashMap<String, List<OlBaseBean>>();
                     for(OlBaseBean olBaseBean : olBaseBeans){
-                        ProductBean productBean = this.productDAO.findByUnique(olBaseBean.getProductCode());
+						String productCode = olBaseBean.getProductCode();
+                        ProductBean productBean = this.productDAO.findByUnique(productCode);
                         if (productBean == null){
                             _logger.error("No product found "+olBaseBean.getProductCode());
+							continue;
                         } else{
+							productCodeMap.put(productCode, productBean);
                             String sailInvoice = productBean.getSailInvoice();
                             if (StringTools.isNullOrNone(sailInvoice)){
                                 _logger.error("sailInvoice is empty for product "+olBaseBean.getProductCode());
@@ -3227,24 +3229,23 @@ public class OutImportManagerImpl implements OutImportManager
                         distributionBean.setMobile(olOutBean.getTelephone());
                         distributionDAO.saveEntityBean(distributionBean);
 
-
-
-                        //TODO olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
+                        //olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
                         double total = 0.0f;
                         List<OlBaseBean> olBaseBeansList = sailInvoice2OlBaseMap.get(key);
                         List<BaseBean> baseBeans = new ArrayList<BaseBean>();
-                        for(OlBaseBean olBaseBean : olBaseBeansList){
+						//total根据olfullid到表olbase中取对outid相同的行项目的，amount*price的合计
+						for(OlBaseBean olBaseBean : olBaseBeansList){
                             total += olBaseBean.getAmount()*olBaseBean.getPrice();
                             //olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
                             BaseBean baseBean = new BaseBean();
                             baseBean.setId(commonDAO.getSquenceString());
                             baseBean.setOutId(fullId);
-                            //TODO
                             baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
                             baseBean.setDepotpartId("1");
-                            baseBean.setDepotpartName("南京物流中心-物流中心库(销售可发)");
-                            //TODO
-                            baseBean.setProductId(olBaseBean.getProductCode());
+                            baseBean.setDepotpartName("可发成品仓");
+
+							ProductBean product = productCodeMap.get(olBaseBean.getProductCode());
+							baseBean.setProductId(product.getId());
                             baseBean.setProductName(olBaseBean.getProductName());
 
                             baseBean.setAmount(olBaseBean.getAmount());
@@ -3258,13 +3259,6 @@ public class OutImportManagerImpl implements OutImportManager
                             baseBean.setOwnerName("公共");
 
                             // 业务员结算价，总部结算价
-                            ProductBean product = productDAO.find(baseBean.getProductId());
-
-                            if (null == product)
-                            {
-                                throw new RuntimeException("产品不存在");
-                            }
-
                             double sailPrice = product.getSailPrice();
 
                             // 根据配置获取结算价
@@ -3323,11 +3317,11 @@ public class OutImportManagerImpl implements OutImportManager
                         }
                         out.setTotal(total);
                         out.setStatus(OutConstant.STATUS_SUBMIT);
-                        //TODO location
                         out.setLocation(DepotConstant.CENTER_DEPOT_ID);
                         outDAO.saveEntityBean(out);
                         baseDAO.saveAllEntityBeans(baseBeans);
-                        _logger.info("create out in offlineOrderJob "+out);
+						_logger.info("create out in offlineOrderJob "+out);
+						this.olOutDAO.updateStatus(olOutBean.getOlFullId(), 9);
                     }
                 }
 

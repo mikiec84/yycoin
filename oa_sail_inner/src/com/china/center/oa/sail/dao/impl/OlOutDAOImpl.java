@@ -12,4 +12,11 @@ import com.china.center.oa.sail.dao.OlOutDAO;
  * To change this template use File | Settings | File Templates.
  */
 public class OlOutDAOImpl extends BaseDAO<OlOutBean, OlOutBean> implements OlOutDAO {
+
+    @Override
+    public void updateStatus(String olFullId, int status) {
+        String sql = "update t_center_olout set status = ? where olfullid = ?";
+
+        jdbcOperation.update(sql, status, olFullId);
+    }
 }

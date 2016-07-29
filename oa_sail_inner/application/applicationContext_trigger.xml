@@ -204,7 +204,7 @@
                 <ref bean="autoApproveOutJobTrigger"/>
                 <ref bean="downloadOrderFromMailAttachmentJobTrigger"/>
                 <ref bean="sendShippingMailToSailsTrigger"/>
-                <ref bean="offlineOrderJob"/>
+                <ref bean="offlineOrderJobTrigger"/>
             </list>
         </property>
     </bean>

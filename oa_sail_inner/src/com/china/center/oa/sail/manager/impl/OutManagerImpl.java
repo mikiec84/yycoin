@@ -2099,7 +2099,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     wrap.setStafferId(element.getOwner());
                 }
 
-                wrap.setChange(element.getAmount());
+//                //#270 2016/7/29 调入取绝对值
+//                wrap.setChange(Math.abs(element.getAmount()));
+
                 wrap.setDescription("库单[" + outBean.getFullId() + "]调入操作");
                 wrap.setSerializeId(sequence);
                 wrap.setType(StorageConstant.OPR_STORAGE_REDEPLOY);
