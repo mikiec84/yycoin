@@ -6,8 +6,11 @@ import java.util.Map.Entry;
 
 import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.product.constant.DepotConstant;
+import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.BaseVO;
 import org.apache.commons.logging.Log;
@@ -44,20 +47,8 @@ import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.product.wrap.ProductChangeWrap;
-import com.china.center.oa.publics.bean.AreaBean;
-import com.china.center.oa.publics.bean.CityBean;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.bean.ProvinceBean;
-import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.dao.AreaDAO;
-import com.china.center.oa.publics.dao.CityDAO;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.LocationDAO;
-import com.china.center.oa.publics.dao.ProvinceDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.SailConstant;
@@ -155,6 +146,8 @@ public class OutImportManagerImpl implements OutImportManager
     private OlOutDAO olOutDAO = null;
 
     private OlBaseDAO olBaseDAO = null;
+
+    private InvoiceDAO invoiceDAO = null;
 
 	private final static String SPLIT = "_";
 	
@@ -3152,8 +3145,10 @@ public class OutImportManagerImpl implements OutImportManager
                     continue;
                 } else{
                     //olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
-                    //<税率,List<OlBaseBean>
-                    Map<String, List<OlBaseBean>> sailInvoice2OlBaseMap = new HashMap<String, List<OlBaseBean>>();
+                    //<sailInvoice,List<OlBaseBean>
+                    Map<String, List<OlBaseBean>> sailInvoice2lBaseMap = new HashMap<String, List<OlBaseBean>>();
+                    //<sailInvoice,taxRate>
+                    Map<String, Double> sailInvoice2TaxRateMap = new HashMap<String, Double>();
                     for(OlBaseBean olBaseBean : olBaseBeans){
 						String productCode = olBaseBean.getProductCode();
                         ProductBean productBean = this.productDAO.findByUnique(productCode);
@@ -3167,20 +3162,30 @@ public class OutImportManagerImpl implements OutImportManager
                                 _logger.error("sailInvoice is empty for product "+olBaseBean.getProductCode());
                                 continue;
                             } else{
-                                if (sailInvoice2OlBaseMap.get(sailInvoice) == null){
+                                if (sailInvoice2lBaseMap.get(sailInvoice) == null){
                                     List<OlBaseBean> olBaseBeanList = new ArrayList<OlBaseBean>();
                                     olBaseBeanList.add(olBaseBean);
-                                    sailInvoice2OlBaseMap.put(sailInvoice, olBaseBeanList);
+                                    sailInvoice2lBaseMap.put(sailInvoice, olBaseBeanList);
                                 } else{
-                                    List<OlBaseBean> olBaseBeanList = sailInvoice2OlBaseMap.get(sailInvoice);
+                                    List<OlBaseBean> olBaseBeanList = sailInvoice2lBaseMap.get(sailInvoice);
                                     olBaseBeanList.add(olBaseBean);
+                                }
+
+                                if (sailInvoice2TaxRateMap.get(sailInvoice) == null){
+                                    InvoiceBean  invoiceBean = this.invoiceDAO.find(sailInvoice);
+                                    if (invoiceBean == null){
+                                        _logger.error("Invoice not found "+sailInvoice);
+                                        continue;
+                                    } else{
+                                        sailInvoice2TaxRateMap.put(sailInvoice, invoiceBean.getVal()/100);
+                                    }
                                 }
                             }
                         }
                     }
 
-                    _logger.info(olOutBean.getOlFullId()+"***sailInvoice2OlBaseMap key size "+sailInvoice2OlBaseMap.keySet().size());
-                    for (String key : sailInvoice2OlBaseMap.keySet()){
+                    _logger.info(olOutBean.getOlFullId()+"***sailInvoice2OlBaseMap key size "+sailInvoice2lBaseMap.keySet().size());
+                    for (String key : sailInvoice2lBaseMap.keySet()){
                         OutBean out = new OutBean();
 
                         out.setType(OutConstant.OUT_TYPE_OUTBILL);
@@ -3245,7 +3250,7 @@ public class OutImportManagerImpl implements OutImportManager
 
                         //olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
                         double total = 0.0f;
-                        List<OlBaseBean> olBaseBeansList = sailInvoice2OlBaseMap.get(key);
+                        List<OlBaseBean> olBaseBeansList = sailInvoice2lBaseMap.get(key);
                         List<BaseBean> baseBeans = new ArrayList<BaseBean>();
 						//total根据olfullid到表olbase中取对outid相同的行项目的，amount*price的合计
 						for(OlBaseBean olBaseBean : olBaseBeansList){
@@ -3325,6 +3330,8 @@ public class OutImportManagerImpl implements OutImportManager
 
                             baseBean.setProfit(profit);
                             baseBean.setProfitRatio(profitRatio);
+
+                            baseBean.setTaxrate(sailInvoice2TaxRateMap.get(key));
 
                             baseBeans.add(baseBean);
 
@@ -3799,5 +3806,13 @@ public class OutImportManagerImpl implements OutImportManager
 
     public void setOlBaseDAO(OlBaseDAO olBaseDAO) {
         this.olBaseDAO = olBaseDAO;
+    }
+
+    public InvoiceDAO getInvoiceDAO() {
+        return invoiceDAO;
+    }
+
+    public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
+        this.invoiceDAO = invoiceDAO;
     }
 }
