@@ -25,4 +25,5 @@ import com.china.center.oa.sail.bean.OlOutBean;
  */
 public interface OlOutDAO extends DAO<OlOutBean, OlOutBean>
 {
+    public void updateStatus(String olFullId, int status);
 }

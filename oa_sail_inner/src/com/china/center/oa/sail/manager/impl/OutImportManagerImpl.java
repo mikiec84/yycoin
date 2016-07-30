@@ -2229,7 +2229,11 @@ public class OutImportManagerImpl implements OutImportManager
     {
         FlowLogBean log = new FlowLogBean();
 
-        log.setActor(user.getStafferName());
+        if (user == null){
+            log.setActor("线下移动订单Job");
+        }else{
+            log.setActor(user.getStafferName());
+        }
 
         log.setDescription(des);
         log.setFullId(fullId);
@@ -3145,6 +3149,7 @@ public class OutImportManagerImpl implements OutImportManager
                 List<OlBaseBean> olBaseBeans = this.olBaseDAO.queryEntityBeansByCondition(con2);
                 if (ListTools.isEmptyOrNull(olBaseBeans)){
                     _logger.error("No OlBaseBean found "+olOutBean.getOlFullId());
+                    continue;
                 } else{
                     //olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
                     //<税率,List<OlBaseBean>
@@ -3160,6 +3165,7 @@ public class OutImportManagerImpl implements OutImportManager
                             String sailInvoice = productBean.getSailInvoice();
                             if (StringTools.isNullOrNone(sailInvoice)){
                                 _logger.error("sailInvoice is empty for product "+olBaseBean.getProductCode());
+                                continue;
                             } else{
                                 if (sailInvoice2OlBaseMap.get(sailInvoice) == null){
                                     List<OlBaseBean> olBaseBeanList = new ArrayList<OlBaseBean>();
@@ -3173,7 +3179,7 @@ public class OutImportManagerImpl implements OutImportManager
                         }
                     }
 
-                    _logger.error("***sailInvoice2OlBaseMap key size "+sailInvoice2OlBaseMap.keySet().size());
+                    _logger.info(olOutBean.getOlFullId()+"***sailInvoice2OlBaseMap key size "+sailInvoice2OlBaseMap.keySet().size());
                     for (String key : sailInvoice2OlBaseMap.keySet()){
                         OutBean out = new OutBean();
 
@@ -3189,12 +3195,19 @@ public class OutImportManagerImpl implements OutImportManager
                         String now = TimeTools.now_short();
                         out.setOutTime(now);
                         out.setPodate(now);
-                        out.setLogTime(TimeTools.now());
+                        out.setRedate(now);
+                        out.setArriveDate(now);
+                        String nowLong = TimeTools.now();
+                        out.setLogTime(nowLong);
+                        out.setChangeTime(nowLong);
+
+                        out.setOperatorName("系统");
 
                         //industryid,2,3几个字段根据stafferid到表oastaffer表取对应值
                         StafferBean stafferBean = stafferDAO.find(out.getStafferId());
                         if (stafferBean == null){
                             _logger.error("No staffer found "+out.getStafferId());
+                            continue;
                         } else{
                             out.setIndustryId(stafferBean.getIndustryId());
                             out.setIndustryId2(stafferBean.getIndustryId2());
@@ -3210,6 +3223,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setFullId(fullId);
 
                         DistributionBean distributionBean = new DistributionBean();
+                        distributionBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX));
                         distributionBean.setOutId(out.getFullId());
                         distributionBean.setShipping(Integer.valueOf(olOutBean.getExpress()));
                         distributionBean.setExpressPay(Integer.valueOf(olOutBean.getExpressPay()));
@@ -3248,6 +3262,7 @@ public class OutImportManagerImpl implements OutImportManager
 							baseBean.setProductId(product.getId());
                             baseBean.setProductName(olBaseBean.getProductName());
 
+                            baseBean.setUnit("套");
                             baseBean.setAmount(olBaseBean.getAmount());
                             baseBean.setPrice(olBaseBean.getPrice());
                             baseBean.setValue(olBaseBean.getAmount()*olBaseBean.getPrice());
@@ -3290,6 +3305,7 @@ public class OutImportManagerImpl implements OutImportManager
                             if (baseBean.getInputPrice() == 0)
                             {
                                 _logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+                                continue;
                             }
 
                             // 配送 方式及毛利率
@@ -3318,10 +3334,18 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setTotal(total);
                         out.setStatus(OutConstant.STATUS_SUBMIT);
                         out.setLocation(DepotConstant.CENTER_DEPOT_ID);
+                        out.setLocationId("999");
+
+                        out.setInvoiceId(key);
+                        out.setDutyId("90201008080000000001");
+                        out.setReserve3(OutConstant.OUT_SAIL_TYPE_CREDIT_AND_CUR);
+                        out.setFlowId("CITIC");
                         outDAO.saveEntityBean(out);
                         baseDAO.saveAllEntityBeans(baseBeans);
 						_logger.info("create out in offlineOrderJob "+out);
 						this.olOutDAO.updateStatus(olOutBean.getOlFullId(), 9);
+
+                        addOutLog(fullId, null, out, "提交", SailConstant.OPR_OUT_PASS, 1);
                     }
                 }
 
