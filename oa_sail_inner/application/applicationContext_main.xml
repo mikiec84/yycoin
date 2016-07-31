@@ -120,6 +120,7 @@
 	<bean id="packageVSCustomerDAO" class="com.china.center.oa.sail.dao.impl.PackageVSCustomerDAOImpl" />
 	
 	<bean id="outBackDAO" class="com.china.center.oa.sail.dao.impl.OutBackDAOImpl" />
+    <bean id="outBackItemDAO" class="com.china.center.oa.sail.dao.impl.OutBackItemDAOImpl" />
 	<bean id="outBackManager" class="com.china.center.oa.sail.manager.impl.OutBackManagerImpl" />
 	
 	<bean id="zjrcOutDAO" class="com.china.center.oa.extsail.dao.impl.ZJRCOutDAOImpl" />

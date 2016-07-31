@@ -85,4 +85,9 @@ public interface OutImportManager
      * 线下订单转换为OA单JOB
      */
     void offlineOrderJob();
+
+    /**
+     * #283 线下入库单
+     */
+    void offlineStorageInJob();
 }

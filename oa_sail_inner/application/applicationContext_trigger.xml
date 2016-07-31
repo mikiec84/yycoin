@@ -188,6 +188,19 @@
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
+    <bean id="offlineStorageInJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outImportManager" />
+        <property name="targetMethod" value="offlineStorageInJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="offlineStorageInJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="offlineStorageInJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -205,6 +218,7 @@
                 <ref bean="downloadOrderFromMailAttachmentJobTrigger"/>
                 <ref bean="sendShippingMailToSailsTrigger"/>
                 <ref bean="offlineOrderJobTrigger"/>
+                <ref bean="offlineStorageInJobTrigger"/>
             </list>
         </property>
     </bean>

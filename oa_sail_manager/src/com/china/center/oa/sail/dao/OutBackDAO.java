@@ -6,5 +6,6 @@ import com.china.center.oa.sail.vo.OutBackVO;
 
 public interface OutBackDAO extends DAO<OutBackBean, OutBackVO>
 {
+    public void updateDescription(String id, String description);
 
 }

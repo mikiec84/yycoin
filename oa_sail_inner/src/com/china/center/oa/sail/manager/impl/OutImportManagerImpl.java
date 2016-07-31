@@ -149,6 +149,10 @@ public class OutImportManagerImpl implements OutImportManager
 
     private InvoiceDAO invoiceDAO = null;
 
+    private OutBackItemDAO outBackItemDAO = null;
+
+    private OutBackDAO outBackDAO = null;
+
 	private final static String SPLIT = "_";
 	
 	public OutImportManagerImpl()
@@ -3360,6 +3364,273 @@ public class OutImportManagerImpl implements OutImportManager
         }
     }
 
+    private void mergeItem(List<OutBackItemBean> items,OutBackItemBean item){
+        boolean merged = false;
+        for (OutBackItemBean itemBean: items){
+            if (itemBean.getOutId().equals(item.getOutId()) && itemBean.getProductId().equals(item.getProductId())) {
+                int sum =  Integer.valueOf(itemBean.getAmount())+Integer.valueOf(item.getAmount());
+                itemBean.setAmount(String.valueOf(sum));
+                merged = true;
+                break;
+            }
+        }
+
+        if(!merged){
+            items.add(item);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void offlineStorageInJob() {
+        //To change body of implemented methods use File | Settings | File Templates.
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("status","=","0");
+        List<OutBackItemBean> outBackItemBeans = this.outBackItemDAO.queryEntityBeansByCondition(conditionParse);
+        _logger.info("***offlineStorageInJob with item size "+outBackItemBeans.size());
+        Map<String, List<OutBackItemBean>> outId2ItemMap = new HashMap<String, List<OutBackItemBean>>();
+        if (!ListTools.isEmptyOrNull(outBackItemBeans)){
+            //step1 同一outid合并起来,里面如果有同一productid也合并，把数量加起来
+            for (OutBackItemBean item : outBackItemBeans){
+                String outId = item.getOutId();
+                if (outId2ItemMap.get(outId) == null){
+                    List<OutBackItemBean> items = new ArrayList<OutBackItemBean>();
+                    items.add(item);
+                    outId2ItemMap.put(outId, items);
+                } else{
+                    List<OutBackItemBean> items = outId2ItemMap.get(outId);
+                    this.mergeItem(items, item);
+                }
+            }
+
+            //step2 生成out/base表
+            for (String outId : outId2ItemMap.keySet()){
+                //检查对应销售单的出库数量，减去已退库数量，与outback_item当前行的数量比较，如大于，则生成退库单
+                OutBean originalOut = this.outDAO.find(outId);
+                if (originalOut == null){
+                    _logger.error("No out found "+outId);
+                    continue;
+                } else{
+                    List<OutBackItemBean> items = outId2ItemMap.get(outId);
+                    _logger.info("***items size "+items.size());
+                    OutBackItemBean firstItem = items.get(0);
+                    List<BaseBean> baseBeanList = new ArrayList<BaseBean>();
+                    double value = 0;
+
+                    OutBean outBean = new OutBean();
+
+                    outBean.setType(OutConstant.OUT_TYPE_INBILL);
+                    outBean.setOutType(Integer.valueOf(firstItem.getType()));
+
+                    outBean.setStafferId(originalOut.getStafferId());
+                    outBean.setStafferName(originalOut.getStafferName());
+                    outBean.setCustomerId(originalOut.getCustomerId());
+                    if ("99".equals(outBean.getCustomerId())){
+                        outBean.setCustomerName("系统内置供应商");
+                    } else{
+                        outBean.setCustomerName(originalOut.getCustomerName());
+                    }
+
+                    outBean.setDescription("线下入库"+"_"+outId);
+//                    outBean.setEmergency(originalOut.getEmergency());
+                    String now = TimeTools.now_short();
+                    outBean.setOutTime(now);
+                    outBean.setPodate(now);
+                    outBean.setRedate(now);
+                    outBean.setArriveDate(now);
+                    String nowLong = TimeTools.now();
+                    outBean.setLogTime(nowLong);
+                    outBean.setChangeTime(nowLong);
+
+                    outBean.setOperatorName("系统");
+
+                    //industryid,2,3几个字段根据stafferid到表oastaffer表取对应值
+                    StafferBean stafferBean = stafferDAO.find(originalOut.getStafferId());
+                    if (stafferBean == null){
+                        _logger.error("No staffer found "+originalOut.getStafferId());
+                        continue;
+                    } else{
+                        outBean.setIndustryId(stafferBean.getIndustryId());
+                        outBean.setIndustryId2(stafferBean.getIndustryId2());
+                        outBean.setIndustryId3(stafferBean.getIndustryId3());
+                    }
+
+                    String id = getAll(commonDAO.getSquence());
+                    String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+                    String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+
+                    String fullId = flag + time + id;
+                    outBean.setId(getOutId(id));
+                    outBean.setFullId(fullId);
+
+                    for (OutBackItemBean item: items){
+                        //对应销售单的出库数量
+                        int total = 0;
+                        ConditionParse conditionParse1 = new ConditionParse();
+                        conditionParse1.addCondition("outId","=",outId);
+                        conditionParse1.addCondition("productId","=",item.getProductId());
+                        List<BaseBean> baseList = baseDAO.queryEntityBeansByCondition(conditionParse1);
+                        if (ListTools.isEmptyOrNull(baseList)){
+                            _logger.error("No base beans found "+outId);
+                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"base表记录不存在:"+outId);
+                            continue;
+                        } else{
+                            for (BaseBean baseBean : baseList){
+                                total += baseBean.getAmount();
+                            }
+                        }
+
+                        // 减去已退库数量
+                        //拿outid,到out表的refoutid里找相同的单号且状态为3或4，type为1
+                        int stockInAmount = 0;
+                        ConditionParse conditionParse2 = new ConditionParse();
+                        conditionParse2.addCondition("refOutFullId","=", outId);
+                        conditionParse2.addCondition("type","=", 1);
+                        conditionParse2.addCondition(" and status in (3,4)");
+                        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse2);
+                        if (!ListTools.isEmptyOrNull(outBeans)){
+                            for (OutBean bean: outBeans){
+                                ConditionParse conditionParse3 = new ConditionParse();
+                                conditionParse3.addCondition("outId","=",bean.getFullId());
+                                conditionParse3.addCondition("productId","=",item.getProductId());
+                                List<BaseBean> baseBeans = baseDAO.queryEntityBeansByCondition(conditionParse3);
+                                if (!ListTools.isEmptyOrNull(baseBeans)){
+                                    for (BaseBean baseBean : baseBeans){
+                                        stockInAmount += baseBean.getAmount();
+                                    }
+                                }
+                            }
+                        }
+
+                        _logger.info("***total "+total+"***stockInAmount***"+stockInAmount+"***to in**"+item.getAmount());
+                        if (total - stockInAmount>=Integer.valueOf(item.getAmount())){
+                            BaseBean baseBean = new BaseBean();
+
+                            baseBean.setId(commonDAO.getSquenceString());
+                            baseBean.setOutId(fullId);
+
+                            baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
+                            baseBean.setDepotpartId("1");
+                            baseBean.setDepotpartName("可发成品仓");
+
+                            ProductBean product = this.productDAO.find(item.getProductId());
+                            if (product == null){
+                                _logger.error("No product found "+item.getProductId());
+                                this.updateDescription(item,item.getDescription()+"_ERROR_"+"产品不存在:"+item.getProductId());
+                                continue;
+                            }
+                            baseBean.setProductId(item.getProductId());
+                            baseBean.setProductName(item.getProductName());
+
+                            baseBean.setUnit("套");
+                            baseBean.setAmount(Integer.valueOf(item.getAmount()));
+                            //TODO
+                            baseBean.setPrice(baseList.get(0).getPrice());
+                            baseBean.setValue(baseBean.getAmount()*baseBean.getPrice());
+
+                            //TODO
+//                            baseBean.setIbMoney(olBaseBean.getIbMoney());
+//                            baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
+
+                            baseBean.setOwner("0");
+                            baseBean.setOwnerName("公共");
+
+                            // 业务员结算价，总部结算价
+                            double sailPrice = product.getSailPrice();
+
+                            // 根据配置获取结算价
+                            List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+                            if (!ListTools.isEmptyOrNull(pcblist))
+                            {
+                                PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+                                sailPrice = cb.getSailPrice();
+                            }
+
+                            // 获取销售配置
+                            SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                                    product);
+
+                            // 总部结算价(产品结算价 * (1 + 总部结算率))
+                            baseBean.setPprice(sailPrice
+                                    * (1 + sailConf.getPratio() / 1000.0d));
+
+                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                            baseBean.setIprice(sailPrice
+                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                    .getPratio() / 1000.0d));
+
+                            // 业务员结算价就是事业部结算价
+                            baseBean.setInputPrice(baseBean.getIprice());
+
+                            if (baseBean.getInputPrice() == 0)
+                            {
+                                _logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+                                this.updateDescription(item,item.getDescription()+"_ERROR_"+baseBean.getProductName() + " 业务员结算价不能为0");
+                                continue;
+                            }
+
+                            // TODO 配送 方式及毛利率
+//                            baseBean.setDeliverType(0);
+
+                            //  毛利，毛利率（针对业务员的）
+//                            double profit = 0.0d;
+//
+//                            double profitRatio = 0.0d;
+//
+//                            if (baseBean.getValue() != 0)
+//                            {
+//                                profit = baseBean.getAmount() * (baseBean.getPrice() - baseBean.getInputPrice());
+//
+//                                profitRatio = profit / baseBean.getValue();
+//                            }
+//
+//                            baseBean.setProfit(profit);
+//                            baseBean.setProfitRatio(profitRatio);
+
+//                            baseBean.setTaxrate(sailInvoice2TaxRateMap.get(key));
+
+                            value += baseBean.getValue();
+                            baseBeanList.add(baseBean);
+
+                            //生成退货单号时，也同时写入t_center_outback表的description字段中，增加在现有字段后，根据outbackid 到outback表找对应的id
+                            OutBackBean outBackBean = this.outBackDAO.find(item.getOutBackId());
+                            if (outBackBean!= null){
+                                this.outBackDAO.updateDescription(item.getOutBackId(), outBackBean.getDescription()+"_"+fullId);
+                            }
+                        } else{
+                            _logger.error("Can not in stock "+outId);
+                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"入库数量超出");
+                            continue;
+                        }
+                    }
+
+                    if (!ListTools.isEmptyOrNull(baseBeanList)) {
+                        outBean.setTotal(value);
+                        outBean.setStatus(OutConstant.STATUS_SUBMIT);
+                        outBean.setLocation(DepotConstant.CENTER_DEPOT_ID);
+                        outBean.setLocationId("999");
+
+                        outBean.setInvoiceId(originalOut.getInvoiceId());
+                        outBean.setDutyId("90201008080000000001");
+                        outBean.setRefOutFullId(outId);
+                        outDAO.saveEntityBean(outBean);
+                        baseDAO.saveAllEntityBeans(baseBeanList);
+                        this.outBackItemDAO.updateOanoWithOutId(outId, fullId);
+                        _logger.info("create out in offlineStorageInJob "+outBean);
+                    }
+            }
+        }
+        }
+    }
+
+    private void updateDescription(OutBackItemBean item, String description){
+        if (StringTools.isNullOrNone(item.getDescription()) || !item.getDescription().contains("ERROR")){
+            this.outBackItemDAO.updateDescription(item.getId(),description);
+        }
+    }
+
     public PlatformTransactionManager getTransactionManager()
 	{
 		return transactionManager;
@@ -3814,5 +4085,21 @@ public class OutImportManagerImpl implements OutImportManager
 
     public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
+    }
+
+    public OutBackItemDAO getOutBackItemDAO() {
+        return outBackItemDAO;
+    }
+
+    public void setOutBackItemDAO(OutBackItemDAO outBackItemDAO) {
+        this.outBackItemDAO = outBackItemDAO;
+    }
+
+    public OutBackDAO getOutBackDAO() {
+        return outBackDAO;
+    }
+
+    public void setOutBackDAO(OutBackDAO outBackDAO) {
+        this.outBackDAO = outBackDAO;
     }
 }
