@@ -1356,11 +1356,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     public String coloneOutAndSubmitWithOutAffair(OutBean outBean, User user, int type)
         throws MYException
     {
+        _logger.info("***coloneOutAndSubmitWithOutAffair***"+outBean);
         String fullId = coloneOutWithoutAffair(outBean, user, type);
-
+        _logger.info(fullId+"***coloneOutAndSubmitWithOutAffair11111***"+outBean);
         // 提交(上级已经使用全局锁了)
         this.submitWithOutAffair(fullId, user, type);
-
+        _logger.info("***coloneOutAndSubmitWithOutAffair22222***"+outBean);
         return fullId;
     }
 
@@ -1673,6 +1674,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private int submitWithOutAffair(final String fullId, final User user, int type)
         throws MYException
     {
+        _logger.info("***submitWithOutAffair fullId***"+fullId);
         final OutBean outBean = outDAO.find(fullId);
 
         if (outBean == null)
@@ -1682,7 +1684,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 检查日志核对
         int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
-        System.out.println("**********************outStatusInLog*********************" + outStatusInLog);
 
         if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
             && outStatusInLog != outBean.getStatus())
@@ -2028,6 +2029,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private int processBuyOutInWay(final User user, final String fullId, final OutBean outBean)
         throws MYException
     {
+        _logger.info(fullId+"***processBuyOutInWay**"+outBean);
         int result = -1;
 
         // 调出直接变动库存 /回滚也是直接变动库存(CORE 这里特殊不产生任何凭证)
@@ -2101,6 +2103,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
 //                //#270 2016/7/29 调入取绝对值
 //                wrap.setChange(Math.abs(element.getAmount()));
+                wrap.setChange(element.getAmount());
 
                 wrap.setDescription("库单[" + outBean.getFullId() + "]调入操作");
                 wrap.setSerializeId(sequence);
@@ -2520,7 +2523,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                     final List<BaseBean> baseList, int type)
         throws MYException
     {
-        _logger.info("processBuyBaseList*************processBuyBaseList*************1111111111111111");
+        _logger.info("******processBuyBaseList with out "+outBean);
         // 入库单提交后就直接移动库存了,销售需要在库管通过后生成发货单前才会变动库存
         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
         {
@@ -2590,6 +2593,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             }
             _logger.info("processBuyBaseList*************finished*************"+outBean.getFullId());
         }
+        _logger.info("******processBuyBaseList exit ");
     }
 
     /**
@@ -8476,7 +8480,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         this.saveDistributionForRemoteAllocate(outBean);
 
-        _logger.info("*****finish saveOutInner*****"+outBean.getFullId());
+        _logger.info("*****finish saveOutInner*****"+outBean);
     }
 
     private void saveDistributionForRemoteAllocate(OutBean outBean){

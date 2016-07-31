@@ -6990,11 +6990,9 @@ public class ParentOutAction extends DispatchAction
             if (out.getType() == OutConstant.OUT_TYPE_INBILL
                     && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
                     || out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-                    || out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT
-                    || out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT))
+                    || out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT))
             {
-                if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT
-                        && out.getStatus()!= OutConstant.BUY_STATUS_PASS)
+                if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT)
                 {
                     request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
 
@@ -7150,7 +7148,7 @@ public class ParentOutAction extends DispatchAction
         String[] products = request.getParameterValues("productName");
         String[] amounts = request.getParameterValues("amount");
         String[] locations = request.getParameterValues("location");
-        String[] depotParts = request.getParameterValues("depotPart");
+//        String[] depotParts = request.getParameterValues("depotPart");
 
         if (products!= null && products.length>0){
            for (int i=0;i<products.length;i++){
@@ -7163,14 +7161,19 @@ public class ParentOutAction extends DispatchAction
                    bean.setAmount(Integer.valueOf(amount));
                    bean.setLocationId(location);
 
-                   if (depotParts!= null && depotParts.length>i){
-                       String depotPartId = depotParts[i];
-                       bean.setDepotpartId(depotPartId);
-                   } else{
-                       // 默认仓区
-                       DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(location);
-                       bean.setDepotpartId(defaultOKDepotpart.getId());
-                   }
+                   // 默认仓区
+                   DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(location);
+                   bean.setDepotpartId(defaultOKDepotpart.getId());
+
+                   //#270
+//                   if (depotParts!= null && depotParts.length>i){
+//                       String depotPartId = depotParts[i];
+//                       bean.setDepotpartId(depotPartId);
+//                   } else{
+//                       // 默认仓区
+//                       DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(location);
+//                       bean.setDepotpartId(defaultOKDepotpart.getId());
+//                   }
 
                    baseBeans.add(bean);
                    _logger.info("*******add base bean ***"+bean);

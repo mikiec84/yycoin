@@ -234,7 +234,7 @@ public class OutAction extends ParentOutAction
         return queryBuy(mapping, form, request, reponse);
     }
 
-    /**
+    /** #270 TODO
      * 处理调出的库单(入库单的处理)
      * 
      * @param mapping
@@ -244,7 +244,7 @@ public class OutAction extends ParentOutAction
      * @return
      * @throws ServletException
      */
-    public ActionForward processInvoke(ActionMapping mapping, ActionForm form,
+    public ActionForward processInvoke2(ActionMapping mapping, ActionForm form,
                                        HttpServletRequest request, HttpServletResponse reponse)
         throws ServletException
     {
@@ -422,6 +422,202 @@ public class OutAction extends ParentOutAction
 
                 request
                     .setAttribute(KeyConstant.ERROR_MESSAGE, "库单不能转调，请核实:" + e.getErrorContent());
+
+                return mapping.findForward("error");
+            }
+
+            request.setAttribute(KeyConstant.MESSAGE, fullId + "成功转调");
+        }
+
+        // 直接驳回
+        if ("3".equals(flag))
+        {
+            try
+            {
+                outManager.reject(fullId, user, "调出驳回");
+
+                request.setAttribute(KeyConstant.MESSAGE, fullId + "成功驳回:" + fullId);
+            }
+            catch (MYException e)
+            {
+                _logger.warn(e, e);
+
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                return mapping.findForward("error");
+            }
+        }
+
+        request.setAttribute("forward", "10");
+
+        request.setAttribute("queryType", "4");
+
+        return queryBuy(mapping, form, request, reponse);
+    }
+
+    public ActionForward processInvoke(ActionMapping mapping, ActionForm form,
+                                       HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        String fullId = request.getParameter("outId");
+        String flag = request.getParameter("flag");
+        _logger.info("***process invoke with fullId "+fullId+" flag "+flag);
+
+        String depotpartId = request.getParameter("depotpartId");
+
+        User user = (User)request.getSession().getAttribute("user");
+
+
+        if (StringTools.isNullOrNone(fullId))
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在，请重新操作");
+
+            return mapping.findForward("error");
+        }
+
+        OutBean outBean = outDAO.find(fullId);
+
+        if (outBean == null)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在，请重新操作");
+
+            return mapping.findForward("error");
+        }
+
+        if ( ! ((outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                ||outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY))
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不能转调，请核实");
+
+            return mapping.findForward("error");
+        }
+
+        if (outBean.getInway() != OutConstant.IN_WAY)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不在在途中，不能处理");
+
+            return mapping.findForward("error");
+        }
+
+        // 直接接受自动生成一个调入的库单
+        if ("1".equals(flag))
+        {
+            OutBean newOut = new OutBean(outBean);
+
+            newOut.setStatus(0);
+
+            newOut.setLocationId(user.getLocationId());
+
+            // 仓库就是调出的目的仓区
+            newOut.setLocation(outBean.getDestinationId());
+
+            newOut.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
+
+            newOut.setFullId("");
+
+            newOut.setRefOutFullId(fullId);
+
+            newOut.setDestinationId(outBean.getLocation());
+
+            newOut.setDescription("自动接收调拨单:" + fullId + ".生成的调入单据");
+
+            newOut.setInway(OutConstant.IN_WAY_NO);
+
+            newOut.setChecks("");
+
+            // 调入的单据
+            newOut.setReserve1(OutConstant.MOVEOUT_IN);
+
+            newOut.setPay(OutConstant.PAY_NOT);
+
+            newOut.setTotal( -newOut.getTotal());
+
+            List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(fullId);
+
+            if (StringTools.isNullOrNone(depotpartId))
+            {
+                DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(outBean
+                    .getDestinationId());
+
+                if (defaultOKDepotpart == null)
+                {
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
+
+                    return mapping.findForward("error");
+                }
+
+                depotpartId = defaultOKDepotpart.getId();
+            }
+
+            DepotpartBean depotpart = depotpartDAO.find(depotpartId);
+
+            if (depotpart == null)
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
+
+                return mapping.findForward("error");
+            }
+
+            for (BaseBean baseBean : baseList)
+            {
+                // 获得仓库默认的仓区
+                baseBean.setDepotpartId(depotpartId);
+                baseBean.setValue(-baseBean.getValue());
+                baseBean.setLocationId(outBean.getDestinationId());
+                baseBean.setAmount(-baseBean.getAmount());
+                baseBean.setDepotpartName(depotpart.getName());
+            }
+
+            List<BaseBean> lastList = OutHelper.trimBaseList(baseList);
+
+            newOut.setBaseList(lastList);
+
+            for(BaseBean baseBean:lastList){
+                _logger.info("*****************base bean"+baseBean);
+            }
+            try
+            {
+                String ful = outManager.coloneOutAndSubmitAffair(newOut, user,
+                        StorageConstant.OPR_STORAGE_REDEPLOY);
+
+                request.setAttribute(KeyConstant.MESSAGE, fullId + "成功自动接收:" + ful);
+            }
+            catch (MYException e)
+            {
+                _logger.warn(e, e);
+
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不能自动接收，请核实:"
+                        + e.getErrorContent());
+
+                return mapping.findForward("error");
+            }
+
+        }
+
+        // 转调处理
+        if ("2".equals(flag))
+        {
+            String changeLocationId = request.getParameter("changeLocationId");
+
+            if (outBean.getLocation().equals(changeLocationId))
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "转调区域不能是产品调出区域，请核实");
+
+                return mapping.findForward("error");
+            }
+
+            outBean.setDestinationId(changeLocationId);
+
+            try
+            {
+                outManager.updateOut(outBean);
+            }
+            catch (MYException e)
+            {
+                _logger.warn(e, e);
+
+                request
+                        .setAttribute(KeyConstant.ERROR_MESSAGE, "库单不能转调，请核实:" + e.getErrorContent());
 
                 return mapping.findForward("error");
             }
@@ -1722,8 +1918,7 @@ public class OutAction extends ParentOutAction
                                         request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
                                         return mapping.findForward("error");
                                     } else{
-                                        String msg2 = base.getProductName()+"更新结算价:"+base.getInputPrice()+":"+base.getPprice();
-                                        _logger.info(msg2);
+                                        _logger.info("update base bean "+base);
                                         try{
                                             this.outManager.updateBase(base);
                                         }catch(Exception e){
@@ -2566,18 +2761,19 @@ public class OutAction extends ParentOutAction
             // 查询目的库的良品仓区
             List<DepotpartBean> depotpartList = depotpartDAO.queryOkDepotpartInDepot(bean
                 .getDestinationId());
-            request.setAttribute("depotartList", depotpartList);
+            _logger.info(bean.getDestinationId()+" depotpartList size:"+depotpartList.size());
+            request.setAttribute("depotpartList", depotpartList);
 
             //#270 2016/7/23 added
-            request.setAttribute("destinationId", bean.getDestinationId());
-            //入库仓库列表
-            List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
-            request.setAttribute("locationList", locationList);
-            request.setAttribute("baseBeans", bean.getBaseList());
-            request.setAttribute("stockInType","调拨");
+//            request.setAttribute("destinationId", bean.getDestinationId());
+//            //入库仓库列表
+//            List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
+//            request.setAttribute("locationList", locationList);
+//            request.setAttribute("baseBeans", bean.getBaseList());
+//            request.setAttribute("stockInType","调拨");
 
-//            return mapping.findForward("handerInvokeBuy");
-            return mapping.findForward("stockIn");
+            return mapping.findForward("handerInvokeBuy");
+//            return mapping.findForward("stockIn");
         }
 
         // 修改发票类型
