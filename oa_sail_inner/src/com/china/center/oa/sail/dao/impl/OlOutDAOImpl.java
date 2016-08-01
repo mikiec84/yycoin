@@ -19,4 +19,11 @@ public class OlOutDAOImpl extends BaseDAO<OlOutBean, OlOutBean> implements OlOut
 
         jdbcOperation.update(sql, status, olFullId);
     }
+
+    @Override
+    public void updateDescription(String olFullId, String description) {
+        String sql = "update t_center_olout set description = ? where olfullid = ?";
+
+        jdbcOperation.update(sql, description, olFullId);
+    }
 }

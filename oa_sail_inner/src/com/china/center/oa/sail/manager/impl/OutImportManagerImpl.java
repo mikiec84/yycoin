@@ -3146,6 +3146,7 @@ public class OutImportManagerImpl implements OutImportManager
                 List<OlBaseBean> olBaseBeans = this.olBaseDAO.queryEntityBeansByCondition(con2);
                 if (ListTools.isEmptyOrNull(olBaseBeans)){
                     _logger.error("No OlBaseBean found "+olOutBean.getOlFullId());
+					this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表没有对应记录");
                     continue;
                 } else{
                     //olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
@@ -3157,14 +3158,16 @@ public class OutImportManagerImpl implements OutImportManager
 						String productCode = olBaseBean.getProductCode();
                         ProductBean productBean = this.productDAO.findByUnique(productCode);
                         if (productBean == null){
-                            _logger.error("No product found "+olBaseBean.getProductCode());
+                            _logger.error("No product found "+productCode);
+							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "product code不存在:" + productCode);
 							continue;
                         } else{
 							productCodeMap.put(productCode, productBean);
                             String sailInvoice = productBean.getSailInvoice();
                             if (StringTools.isNullOrNone(sailInvoice)){
-                                _logger.error("sailInvoice is empty for product "+olBaseBean.getProductCode());
-                                continue;
+                                _logger.error("sailInvoice is empty for product "+productCode);
+								this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "product表sailInvoice为空:" + productCode);
+								continue;
                             } else{
                                 if (sailInvoice2lBaseMap.get(sailInvoice) == null){
                                     List<OlBaseBean> olBaseBeanList = new ArrayList<OlBaseBean>();
@@ -3179,6 +3182,7 @@ public class OutImportManagerImpl implements OutImportManager
                                     InvoiceBean  invoiceBean = this.invoiceDAO.find(sailInvoice);
                                     if (invoiceBean == null){
                                         _logger.error("Invoice not found "+sailInvoice);
+										this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "invoice表不存在:" + sailInvoice);
                                         continue;
                                     } else{
                                         sailInvoice2TaxRateMap.put(sailInvoice, invoiceBean.getVal()/100);
@@ -3213,10 +3217,12 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setOperatorName("系统");
 
                         //industryid,2,3几个字段根据stafferid到表oastaffer表取对应值
-                        StafferBean stafferBean = stafferDAO.find(out.getStafferId());
+						String stafferId = out.getStafferId();
+                        StafferBean stafferBean = stafferDAO.find(stafferId);
                         if (stafferBean == null){
-                            _logger.error("No staffer found "+out.getStafferId());
-                            continue;
+                            _logger.error("No staffer found "+stafferId);
+							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "stafferId不存在:" + stafferId);
+							continue;
                         } else{
                             out.setIndustryId(stafferBean.getIndustryId());
                             out.setIndustryId2(stafferBean.getIndustryId2());
@@ -3314,6 +3320,7 @@ public class OutImportManagerImpl implements OutImportManager
                             if (baseBean.getInputPrice() == 0)
                             {
                                 _logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+								this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + baseBean.getProductName() + " 业务员结算价不能为0");
                                 continue;
                             }
 
@@ -3359,10 +3366,15 @@ public class OutImportManagerImpl implements OutImportManager
                         addOutLog(fullId, null, out, "提交", SailConstant.OPR_OUT_PASS, 1);
                     }
                 }
-
             }
         }
     }
+
+	private void updateOlOutDescription(OlOutBean item, String description){
+		if (StringTools.isNullOrNone(item.getDescription()) || !item.getDescription().contains("ERROR")){
+			this.olOutDAO.updateDescription(item.getOlFullId(),description);
+		}
+	}
 
     private void mergeItem(List<OutBackItemBean> items,OutBackItemBean item){
         boolean merged = false;
