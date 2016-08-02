@@ -3540,10 +3540,6 @@ public class OutImportManagerImpl implements OutImportManager
                             baseBean.setPrice(baseList.get(0).getPrice());
                             baseBean.setValue(baseBean.getAmount()*baseBean.getPrice());
 
-                            //TODO
-//                            baseBean.setIbMoney(olBaseBean.getIbMoney());
-//                            baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
-
                             baseBean.setOwner("0");
                             baseBean.setOwnerName("公共");
 
@@ -3583,26 +3579,6 @@ public class OutImportManagerImpl implements OutImportManager
                                 continue;
                             }
 
-                            // TODO 配送 方式及毛利率
-//                            baseBean.setDeliverType(0);
-
-                            //  毛利，毛利率（针对业务员的）
-//                            double profit = 0.0d;
-//
-//                            double profitRatio = 0.0d;
-//
-//                            if (baseBean.getValue() != 0)
-//                            {
-//                                profit = baseBean.getAmount() * (baseBean.getPrice() - baseBean.getInputPrice());
-//
-//                                profitRatio = profit / baseBean.getValue();
-//                            }
-//
-//                            baseBean.setProfit(profit);
-//                            baseBean.setProfitRatio(profitRatio);
-
-//                            baseBean.setTaxrate(sailInvoice2TaxRateMap.get(key));
-
                             value += baseBean.getValue();
                             baseBeanList.add(baseBean);
 
@@ -3610,6 +3586,8 @@ public class OutImportManagerImpl implements OutImportManager
                             OutBackBean outBackBean = this.outBackDAO.find(item.getOutBackId());
                             if (outBackBean!= null){
                                 this.outBackDAO.updateDescription(item.getOutBackId(), outBackBean.getDescription()+"_"+fullId);
+								//更新out表的transportNo
+								this.outDAO.updateTransportNo(fullId, outBackBean.getTransportNo());
                             }
                         } else{
                             _logger.error("Can not in stock "+outId);
