@@ -3378,11 +3378,11 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String money = obj[5];
                         //导入时未检查申请金额是否等于系统记录的中收或激励金额，不等应该报错
-                        ConditionParse con1 = new ConditionParse();
-                        con1.addWhereStr();
-                        con1.addCondition("BaseBean.outId","=",item.getFullId());
-                        con1.addCondition("and exists(select p.id from t_center_product p where p.name = '"+item.getProductName()+"' and p.id=BaseBean.productId)");
-                        List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con1);
+//                        ConditionParse con1 = new ConditionParse();
+//                        con1.addWhereStr();
+//                        con1.addCondition("BaseBean.outId","=",item.getFullId());
+//                        con1.addCondition("and exists(select p.id from t_center_product p where p.name = '"+item.getProductName()+"' and p.id=BaseBean.productId)");
+//                        List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con1);
 
                         if (type == TcpConstanst.IB_TYPE){
                             item.setIbMoney(MathTools.parseDouble(money));
