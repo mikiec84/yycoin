@@ -3654,7 +3654,7 @@ public class OutImportManagerImpl implements OutImportManager
                             if (outBackBean!= null){
                                 this.outBackDAO.updateDescription(item.getOutBackId(), outBackBean.getDescription()+"_"+fullId);
 								//更新out表的transportNo
-								this.outDAO.updateTransportNo(fullId, outBackBean.getTransportNo());
+                                outBean.setTransportNo(outBackBean.getTransportNo());
                             }
                         } else{
                             _logger.error("Can not in stock "+outId);
