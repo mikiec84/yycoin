@@ -690,40 +690,38 @@ public class PackageManagerImpl implements PackageManager {
 				createNewPackage(out, baseList, distVO, fullAddress, location);
 			}else
 			{
-                _logger.info(fullId+"****add SO to existent package now***"+packBean.getId());
-
                 //#18 2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
                 List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
                 if (!ListTools.isEmptyOrNull(currentItems)){
-                   _logger.info("****current package items****"+currentItems.size());
-                    PackageItemBean first = currentItems.get(0);
-                    OutVO outBean = outDAO.findVO(first.getOutId());
-                    if (outBean!= null){
-                        String lo = outBean.getLocation();
-                        //#18 2016/6/15 如果销售单对应depot表中industryId2不一致，就不能合并。而不管仓库是否一致
-                        DepotBean depot2 = this.depotDAO.find(lo);
-                        if (depot2!= null && !location.equals(depot2.getIndustryId2())) {
-                            String msg = first.getOutId()+"****industryId2 is not same****"+out.getFullId();
-                            blockedLog.warn(out.getFullId()+":"+packBean.getId());
-                            _logger.warn(msg);
-                            preConsignDAO.deleteEntityBean(pre.getId());
-                            return ;
-                        }
-//                        if (!StringTools.isNullOrNone(lo) && !lo.equals(out.getLocation())){
-//                            _logger.warn(first.getOutId()+"****location is not same****"+out.getFullId());
-//                            return ;
-////                            createNewPackage(out, baseList, distVO, fullAddress, location);
-//                        }
-                    }
+					_logger.info(fullId+"****add SO to existent package "+packBean.getId()+" current size:"+currentItems.size());
+                   PackageItemBean first = currentItems.get(0);
+					if (fullId.contains("DB") && first.getOutId().contains("SO")){
+						_logger.warn("***not merge with different out type***"+first.getOutId());
+						createNewPackage(out, baseList, distVO, fullAddress, location);
+					}else{
+						OutVO outBean = outDAO.findVO(first.getOutId());
+						if (outBean!= null){
+							String lo = outBean.getLocation();
+							//#18 2016/6/15 如果销售单对应depot表中industryId2不一致，就不能合并。而不管仓库是否一致
+							DepotBean depot2 = this.depotDAO.find(lo);
+							if (depot2!= null && !location.equals(depot2.getIndustryId2())) {
+								String msg = first.getOutId()+"****industryId2 is not same****"+out.getFullId();
+								blockedLog.warn(out.getFullId()+":"+packBean.getId());
+								_logger.warn(msg);
+								preConsignDAO.deleteEntityBean(pre.getId());
+								return ;
+							}
+						}
 
-                    //2015/2/15 检查重复SO单
-                    for (PackageItemBean p: currentItems){
-                        if (out.getFullId().equals(p.getOutId())){
-                            _logger.warn("****duplicate package item***"+fullId);
-                            preConsignDAO.deleteEntityBean(pre.getId());
-                            return;
-                        }
-                    }
+						//2015/2/15 检查重复SO单
+						for (PackageItemBean p: currentItems){
+							if (out.getFullId().equals(p.getOutId())){
+								_logger.warn("****duplicate package item***"+fullId);
+								preConsignDAO.deleteEntityBean(pre.getId());
+								return;
+							}
+						}
+					}
                 } else{
                     _logger.warn("***no package items exist***"+packBean.getId());
                 }
