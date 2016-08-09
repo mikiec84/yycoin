@@ -503,3 +503,6 @@ shippingOrg varchar(100),
 PRIMARY KEY (id),
 UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
+
+
+alter table T_CENTER_TCPIBREPORT_ITEM add column price double default '0'

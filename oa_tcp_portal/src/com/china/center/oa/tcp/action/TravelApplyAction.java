@@ -4154,6 +4154,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("订单号");
             line.writeColumn("商品名");
+            line.writeColumn("商品单价");
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
@@ -4183,6 +4184,7 @@ public class TravelApplyAction extends DispatchAction
                     line.writeColumn(ib.getCustomerName());
                     line.writeColumn(fullId);
                     line.writeColumn(ib.getProductName());
+                    line.writeColumn(ib.getPrice());
                     line.writeColumn(ib.getAmount());
                     line.writeColumn(ib.getIbMoney());
                     line.writeColumn(ib.getMotivationMoney());
@@ -4286,6 +4288,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("订单号");
             line.writeColumn("商品名");
+            line.writeColumn("商品单价");
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
@@ -4301,6 +4304,7 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getCustomerName());
                 line.writeColumn(ib.getFullId());
                 line.writeColumn(ib.getProductName());
+                line.writeColumn(ib.getPrice());
                 line.writeColumn(ib.getAmount());
                 line.writeColumn(ib.getIbMoney());
                 line.writeColumn(ib.getMotivationMoney());

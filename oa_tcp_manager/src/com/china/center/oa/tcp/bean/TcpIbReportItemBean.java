@@ -50,6 +50,8 @@ public class TcpIbReportItemBean implements Serializable
 
     private String productName = "";
 
+    private double price = 0.0d;
+
     private int amount = 0;
 
     /**
@@ -161,6 +163,14 @@ public class TcpIbReportItemBean implements Serializable
 
     public void setRefId(String refId) {
         this.refId = refId;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     @Override
