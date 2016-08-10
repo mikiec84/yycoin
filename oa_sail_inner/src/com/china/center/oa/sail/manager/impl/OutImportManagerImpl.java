@@ -3491,7 +3491,7 @@ public class OutImportManagerImpl implements OutImportManager
                     continue;
                 } else{
                     List<OutBackItemBean> items = outId2ItemMap.get(outId);
-                    _logger.info("***items size "+items.size());
+                    _logger.info(outId+"***out back item size "+items.size());
                     OutBackItemBean firstItem = items.get(0);
                     List<BaseBean> baseBeanList = new ArrayList<BaseBean>();
                     double value = 0;
@@ -3551,7 +3551,7 @@ public class OutImportManagerImpl implements OutImportManager
                         List<BaseBean> baseList = baseDAO.queryEntityBeansByCondition(conditionParse1);
                         if (ListTools.isEmptyOrNull(baseList)){
                             _logger.error("No base beans found "+outId);
-                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"base表记录不存在:"+outId);
+                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"t_center_base does not exist:"+outId);
                             continue;
                         } else{
                             for (BaseBean baseBean : baseList){
@@ -3595,7 +3595,7 @@ public class OutImportManagerImpl implements OutImportManager
                             ProductBean product = this.productDAO.find(item.getProductId());
                             if (product == null){
                                 _logger.error("No product found "+item.getProductId());
-                                this.updateDescription(item,item.getDescription()+"_ERROR_"+"产品不存在:"+item.getProductId());
+                                this.updateDescription(item,item.getDescription()+"_ERROR_"+"no product:"+item.getProductId());
                                 continue;
                             }
                             baseBean.setProductId(item.getProductId());
@@ -3642,7 +3642,7 @@ public class OutImportManagerImpl implements OutImportManager
                             if (baseBean.getInputPrice() == 0)
                             {
                                 _logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
-                                this.updateDescription(item,item.getDescription()+"_ERROR_"+baseBean.getProductName() + " 业务员结算价不能为0");
+                                this.updateDescription(item,item.getDescription()+"_ERROR_"+baseBean.getProductName() + " t_center_base inputPrice should not be 0");
                                 continue;
                             }
 
@@ -3658,7 +3658,7 @@ public class OutImportManagerImpl implements OutImportManager
                             }
                         } else{
                             _logger.error("Can not in stock "+outId);
-                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"入库数量超出");
+                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"amount exceed");
                             continue;
                         }
                     }
