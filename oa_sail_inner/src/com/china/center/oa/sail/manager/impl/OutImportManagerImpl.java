@@ -3151,7 +3151,7 @@ public class OutImportManagerImpl implements OutImportManager
                 } else{
                     //olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
                     //<sailInvoice,List<OlBaseBean>
-                    Map<String, List<OlBaseBean>> sailInvoice2lBaseMap = new HashMap<String, List<OlBaseBean>>();
+//                    Map<String, List<OlBaseBean>> sailInvoice2lBaseMap = new HashMap<String, List<OlBaseBean>>();
                     //<sailInvoice,taxRate>
                     Map<String, Double> sailInvoice2TaxRateMap = new HashMap<String, Double>();
                     for(OlBaseBean olBaseBean : olBaseBeans){
@@ -3169,14 +3169,14 @@ public class OutImportManagerImpl implements OutImportManager
 								this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "product表sailInvoice为空:" + productCode);
 								continue;
                             } else{
-                                if (sailInvoice2lBaseMap.get(sailInvoice) == null){
-                                    List<OlBaseBean> olBaseBeanList = new ArrayList<OlBaseBean>();
-                                    olBaseBeanList.add(olBaseBean);
-                                    sailInvoice2lBaseMap.put(sailInvoice, olBaseBeanList);
-                                } else{
-                                    List<OlBaseBean> olBaseBeanList = sailInvoice2lBaseMap.get(sailInvoice);
-                                    olBaseBeanList.add(olBaseBean);
-                                }
+//                                if (sailInvoice2lBaseMap.get(sailInvoice) == null){
+//                                    List<OlBaseBean> olBaseBeanList = new ArrayList<OlBaseBean>();
+//                                    olBaseBeanList.add(olBaseBean);
+//                                    sailInvoice2lBaseMap.put(sailInvoice, olBaseBeanList);
+//                                } else{
+//                                    List<OlBaseBean> olBaseBeanList = sailInvoice2lBaseMap.get(sailInvoice);
+//                                    olBaseBeanList.add(olBaseBean);
+//                                }
 
                                 if (sailInvoice2TaxRateMap.get(sailInvoice) == null){
                                     InvoiceBean  invoiceBean = this.invoiceDAO.find(sailInvoice);
@@ -3192,11 +3192,10 @@ public class OutImportManagerImpl implements OutImportManager
                         }
                     }
 
-                    _logger.info(olOutBean.getOlFullId()+"***sailInvoice2OlBaseMap key size "+sailInvoice2lBaseMap.keySet().size());
+                    _logger.info(olOutBean.getOlFullId() + "***olBaseBeans size " + olBaseBeans.size());
 
-                    for (String key : sailInvoice2lBaseMap.keySet()){
-						_logger.info("key11111111111"+key);
-                        OutBean out = new OutBean();
+					for (OlBaseBean olBaseBean : olBaseBeans){
+						OutBean out = new OutBean();
 
                         out.setType(OutConstant.OUT_TYPE_OUTBILL);
 						try {
@@ -3206,8 +3205,7 @@ public class OutImportManagerImpl implements OutImportManager
 							this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"Type不是整数");
 							continue;
 						}
-						_logger.info("key22222222222222"+key);
-                        out.setStafferId(olOutBean.getStafferId());
+						out.setStafferId(olOutBean.getStafferId());
                         out.setStafferName(olOutBean.getStafferName());
                         out.setCustomerId(olOutBean.getCustomerId());
                         out.setCustomerName(olOutBean.getCustomerName());
@@ -3218,8 +3216,7 @@ public class OutImportManagerImpl implements OutImportManager
 						} else{
 							out.setDescription(olOutBean.getDescription() + prefix + olOutBean.getOlFullId());
 						}
-						_logger.info("key**333333333333333"+key);
-                        out.setEmergency(olOutBean.getEmergency());
+						out.setEmergency(olOutBean.getEmergency());
                         String now = TimeTools.now_short();
                         out.setOutTime(now);
                         out.setPodate(now);
@@ -3243,16 +3240,15 @@ public class OutImportManagerImpl implements OutImportManager
                             out.setIndustryId2(stafferBean.getIndustryId2());
                             out.setIndustryId3(stafferBean.getIndustryId3());
                         }
-						_logger.info("key**4444444444444"+key);
-                        String id = getAll(commonDAO.getSquence());
+						String id = getAll(commonDAO.getSquence());
                         String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
                         String flag = OutHelper.getSailHead(out.getType(), out.getOutType());
 
                         String fullId = flag + time + id;
                         out.setId(getOutId(id));
                         out.setFullId(fullId);
-						_logger.info("key**4444444444444" + key);
-                        DistributionBean distributionBean = new DistributionBean();
+
+						DistributionBean distributionBean = new DistributionBean();
                         distributionBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX));
                         distributionBean.setOutId(out.getFullId());
 						try {
@@ -3270,7 +3266,6 @@ public class OutImportManagerImpl implements OutImportManager
 							continue;
 						}
 
-						_logger.info("key**5555555555555"+key);
                         //快递
                         if(distributionBean.getShipping() == OutConstant.OUT_SHIPPING_3PL){
 							try {
@@ -3290,7 +3285,7 @@ public class OutImportManagerImpl implements OutImportManager
 								continue;
 							}
                         }
-						_logger.info("key**666666666666"+key);
+
                         distributionBean.setProvinceId(olOutBean.getProvinceId());
                         distributionBean.setCityId(olOutBean.getCityId());
                         distributionBean.setAddress(olOutBean.getAddress());
@@ -3300,108 +3295,107 @@ public class OutImportManagerImpl implements OutImportManager
 
                         //olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
                         double total = 0.0f;
-                        List<OlBaseBean> olBaseBeansList = sailInvoice2lBaseMap.get(key);
+//                        List<OlBaseBean> olBaseBeansList = sailInvoice2lBaseMap.get(key);
                         List<BaseBean> baseBeans = new ArrayList<BaseBean>();
-						_logger.info(key+"key**7777777777"+olBaseBeansList.size());
+
 						//total根据olfullid到表olbase中取对outid相同的行项目的，amount*price的合计
-						for(OlBaseBean olBaseBean : olBaseBeansList){
-                            total += olBaseBean.getAmount()*olBaseBean.getPrice();
-                            //olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
-                            BaseBean baseBean = new BaseBean();
-                            baseBean.setId(commonDAO.getSquenceString());
-                            baseBean.setOutId(fullId);
-                            baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
-                            baseBean.setDepotpartId("1");
-                            baseBean.setDepotpartName("可发成品仓");
+						total += olBaseBean.getAmount()*olBaseBean.getPrice();
+						//olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
+						BaseBean baseBean = new BaseBean();
+						baseBean.setId(commonDAO.getSquenceString());
+						baseBean.setOutId(fullId);
+						baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
+						baseBean.setDepotpartId("1");
+						baseBean.setDepotpartName("可发成品仓");
 
-							_logger.info("key**9999999999999"+key);
-							ProductBean product = productCodeMap.get(olBaseBean.getProductCode());
-							if (product == null) {
-								_logger.error("no product");
-								continue;
-							} else{
-								baseBean.setProductId(product.getId());
-							}
-                            baseBean.setProductName(olBaseBean.getProductName());
+						ProductBean product = productCodeMap.get(olBaseBean.getProductCode());
+						if (product == null) {
+							_logger.error("no product");
+							continue;
+						} else{
+							baseBean.setProductId(product.getId());
+						}
+						baseBean.setProductName(olBaseBean.getProductName());
 
-                            baseBean.setUnit("套");
-                            baseBean.setAmount(olBaseBean.getAmount());
-                            baseBean.setPrice(olBaseBean.getPrice());
-                            baseBean.setValue(olBaseBean.getAmount() * olBaseBean.getPrice());
+						baseBean.setUnit("套");
+						baseBean.setAmount(olBaseBean.getAmount());
+						baseBean.setPrice(olBaseBean.getPrice());
+						baseBean.setValue(olBaseBean.getAmount() * olBaseBean.getPrice());
 
-                            baseBean.setIbMoney(olBaseBean.getIbMoney());
-                            baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
+						baseBean.setIbMoney(olBaseBean.getIbMoney());
+						baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
 
-                            baseBean.setOwner("0");
-                            baseBean.setOwnerName("公共");
-							_logger.info("key**aaaaaaaaaaa" + key);
-                            // 业务员结算价，总部结算价
-                            double sailPrice = product.getSailPrice();
+						baseBean.setOwner("0");
+						baseBean.setOwnerName("公共");
 
-                            // 根据配置获取结算价
-                            List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+						// 业务员结算价，总部结算价
+						double sailPrice = product.getSailPrice();
 
-                            if (!ListTools.isEmptyOrNull(pcblist))
-                            {
-                                PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+						// 根据配置获取结算价
+						List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
 
-                                sailPrice = cb.getSailPrice();
-                            }
+						if (!ListTools.isEmptyOrNull(pcblist))
+						{
+							PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
 
-                            // 获取销售配置
-                            SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-                                    product);
+							sailPrice = cb.getSailPrice();
+						}
 
-                            // 总部结算价(产品结算价 * (1 + 总部结算率))
-                            baseBean.setPprice(sailPrice
-                                    * (1 + sailConf.getPratio() / 1000.0d));
+						// 获取销售配置
+						SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+								product);
 
-                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                            baseBean.setIprice(sailPrice
-                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                    .getPratio() / 1000.0d));
+						// 总部结算价(产品结算价 * (1 + 总部结算率))
+						baseBean.setPprice(sailPrice
+								* (1 + sailConf.getPratio() / 1000.0d));
 
-                            // 业务员结算价就是事业部结算价
-                            baseBean.setInputPrice(baseBean.getIprice());
+						// 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+						baseBean.setIprice(sailPrice
+								* (1 + sailConf.getIratio() / 1000.0d + sailConf
+								.getPratio() / 1000.0d));
 
-                            if (baseBean.getInputPrice() == 0)
-                            {
-                                _logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
-								this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + baseBean.getProductName() + " 业务员结算价不能为0");
-                                continue;
-                            }
-							_logger.info("key**bbbbbbbbb"+key);
-                            // 配送 方式及毛利率
-                            baseBean.setDeliverType(0);
+						// 业务员结算价就是事业部结算价
+						baseBean.setInputPrice(baseBean.getIprice());
 
-                            // 毛利，毛利率（针对业务员的）
-                            double profit = 0.0d;
+						if (baseBean.getInputPrice() == 0)
+						{
+							_logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + baseBean.getProductName() + " 业务员结算价不能为0");
+							continue;
+						}
 
-                            double profitRatio = 0.0d;
+						// 配送 方式及毛利率
+						baseBean.setDeliverType(0);
 
-                            if (baseBean.getValue() != 0)
-                            {
-                                profit = baseBean.getAmount() * (baseBean.getPrice() - baseBean.getInputPrice());
+						// 毛利，毛利率（针对业务员的）
+						double profit = 0.0d;
 
-                                profitRatio = profit / baseBean.getValue();
-                            }
+						double profitRatio = 0.0d;
 
-                            baseBean.setProfit(profit);
-                            baseBean.setProfitRatio(profitRatio);
+						if (baseBean.getValue() != 0)
+						{
+							profit = baseBean.getAmount() * (baseBean.getPrice() - baseBean.getInputPrice());
 
-							if (sailInvoice2TaxRateMap.get(key) == null){
-								_logger.error("税率为空");
-								this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + " 税率为空"+key);
-								continue;
-							} else{
-								baseBean.setTaxrate(sailInvoice2TaxRateMap.get(key));
-							}
+							profitRatio = profit / baseBean.getValue();
+						}
 
-							baseBeans.add(baseBean);
+						baseBean.setProfit(profit);
+						baseBean.setProfitRatio(profitRatio);
 
-                            //生成OA订单后，回写OA单号至olout与olbase表的OANO字段
-							this.olBaseDAO.updateOaNo(olBaseBean.getId(), fullId);
-                        }
+						String key = product.getSailInvoice().trim();
+						if (sailInvoice2TaxRateMap.get(key) == null){
+							_logger.error("税率为空");
+							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + " 税率为空"+key);
+							continue;
+						} else{
+							baseBean.setTaxrate(sailInvoice2TaxRateMap.get(key));
+						}
+
+						baseBeans.add(baseBean);
+
+						//生成OA订单后，回写OA单号至olout与olbase表的OANO字段
+						this.olBaseDAO.updateOaNo(olBaseBean.getId(), fullId);
+
                         out.setTotal(total);
                         out.setStatus(OutConstant.STATUS_SUBMIT);
                         out.setLocation(DepotConstant.CENTER_DEPOT_ID);
@@ -3411,7 +3405,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setDutyId("90201008080000000001");
                         out.setReserve3(OutConstant.OUT_SAIL_TYPE_CREDIT_AND_CUR);
                         out.setFlowId("CITIC");
-						_logger.info("key**cccccccccccccc"+key);
+
 						try {
 							outDAO.saveEntityBean(out);
 							baseDAO.saveAllEntityBeans(baseBeans);
