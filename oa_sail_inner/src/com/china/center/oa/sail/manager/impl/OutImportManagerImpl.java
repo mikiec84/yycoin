@@ -2428,7 +2428,7 @@ public class OutImportManagerImpl implements OutImportManager
 		
 		for (ConsignBean each : list)
 		{
-            _logger.info("each*****************" + each);
+            _logger.info("each consign bean " + each);
 			Set<String> set = new HashSet<String>();
 			
 			// each.getDistId() 改为导入的是 出库单，根据出库单找到销售单
@@ -2462,6 +2462,8 @@ public class OutImportManagerImpl implements OutImportManager
 					oldBean.setReveiver(each.getReveiver());
 					oldBean.setApplys(each.getApplys());
                     oldBean.setSfReceiveDate(each.getSfReceiveDate());
+					oldBean.setShipping(each.getShipping());
+					oldBean.setPay(each.getPay());
 					
 					consignDAO.updateConsign(oldBean);
 
@@ -2494,11 +2496,12 @@ public class OutImportManagerImpl implements OutImportManager
 						oldBean.setReveiver(each.getReveiver());
 						oldBean.setApplys(each.getApplys());
                         oldBean.setSfReceiveDate(each.getSfReceiveDate());
+						oldBean.setShipping(each.getShipping());
+						oldBean.setPay(each.getPay());
 						
 			            consignDAO.addConsign(oldBean);
 					}
 				}
-
 
 				// 2016/2/29
 				// #168 将对应的销售单的状态更新为 已发货
@@ -2516,6 +2519,8 @@ public class OutImportManagerImpl implements OutImportManager
                 if (packageBean!= null){
                     packageBean.setTransportNo(each.getTransportNo());
                     packageBean.setSfReceiveDate(each.getSfReceiveDate());
+					packageBean.setShipping(each.getShipping());
+
                     this.packageDAO.updateEntityBean(packageBean);
                     _logger.info("update packageBean to setSfReceiveDate ***" + packageBean);
                 } else{

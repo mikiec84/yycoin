@@ -48,6 +48,16 @@ public class ConsignBean implements Serializable
     @Join(tagClass = OutBean.class, type = JoinType.LEFT)
     private String fullId = "";
 
+    /**
+     * 发货方式
+     */
+    private int shipping = 0;
+
+    /**
+     * 支付方式
+     */
+    private int pay = -1;
+
     private String transport = "";
 
     private String transportNo = "";
@@ -555,87 +565,53 @@ public class ConsignBean implements Serializable
 		this.addrType = addrType;
 	}
 
-	/**
-     * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
-     * @return a <code>String</code> representation of this object.
-     */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("ConsignBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("gid = ")
-            .append(this.gid)
-            .append(TAB)
-            .append("fullId = ")
-            .append(this.fullId)
-            .append(TAB)
-            .append("transport = ")
-            .append(this.transport)
-            .append(TAB)
-            .append("transportNo = ")
-            .append(this.transportNo)
-            .append(TAB)
-            .append("currentStatus = ")
-            .append(this.currentStatus)
-            .append(TAB)
-            .append("reprotType = ")
-            .append(this.reprotType)
-            .append(TAB)
-            .append("promitType = ")
-            .append(this.promitType)
-            .append(TAB)
-            .append("applys = ")
-            .append(this.applys)
-            .append(TAB)
-            .append("arriveDate = ")
-            .append(this.arriveDate)
-            .append(TAB)
-            .append("checker = ")
-            .append(this.checker)
-            .append(TAB)
-            .append("packager = ")
-            .append(this.packager)
-            .append(TAB)
-            .append("packageTime = ")
-            .append(this.packageTime)
-            .append(TAB)
-            .append("packageAmount = ")
-            .append(this.packageAmount)
-            .append(TAB)
-            .append("packageWeight = ")
-            .append(this.packageWeight)
-            .append(TAB)
-            .append("visitTime = ")
-            .append(this.visitTime)
-            .append(TAB)
-            .append("arriveTime = ")
-            .append(this.arriveTime)
-            .append(TAB)
-            .append("preparer = ")
-            .append(this.preparer)
-            .append(TAB)
-            .append("mathine = ")
-            .append(this.mathine)
-            .append(TAB)
-            .append("transportFee = ")
-            .append(this.transportFee)
-            .append(TAB)
-            .append("reveiver = ")
-            .append(this.reveiver)
-            .append(TAB)
-            .append("sendPlace = ")
-            .append(this.sendPlace)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    public int getShipping() {
+        return shipping;
     }
 
+    public void setShipping(int shipping) {
+        this.shipping = shipping;
+    }
+
+    public int getPay() {
+        return pay;
+    }
+
+    public void setPay(int pay) {
+        this.pay = pay;
+    }
+
+    @Override
+    public String toString() {
+        return "ConsignBean{" +
+                "gid='" + gid + '\'' +
+                ", distId='" + distId + '\'' +
+                ", fullId='" + fullId + '\'' +
+                ", shipping=" + shipping +
+                ", pay=" + pay +
+                ", transport='" + transport + '\'' +
+                ", transportNo='" + transportNo + '\'' +
+                ", currentStatus=" + currentStatus +
+                ", passDate='" + passDate + '\'' +
+                ", reprotType=" + reprotType +
+                ", promitType=" + promitType +
+                ", applys='" + applys + '\'' +
+                ", arriveDate='" + arriveDate + '\'' +
+                ", checker='" + checker + '\'' +
+                ", packager='" + packager + '\'' +
+                ", packageTime='" + packageTime + '\'' +
+                ", packageAmount='" + packageAmount + '\'' +
+                ", packageWeight='" + packageWeight + '\'' +
+                ", visitTime='" + visitTime + '\'' +
+                ", arriveTime='" + arriveTime + '\'' +
+                ", preparer='" + preparer + '\'' +
+                ", mathine='" + mathine + '\'' +
+                ", transportFee='" + transportFee + '\'' +
+                ", sfReceiveDate='" + sfReceiveDate + '\'' +
+                ", reveiver='" + reveiver + '\'' +
+                ", sendPlace='" + sendPlace + '\'' +
+                ", prints=" + prints +
+                ", addrType=" + addrType +
+                '}';
+    }
 }
