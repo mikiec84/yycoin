@@ -3834,40 +3834,118 @@ public class OutImportAction extends DispatchAction
             		{
             			bean.setApplys(obj[2]);
             		}
-            		
-            		// 
+
+                    // 发货方式
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        boolean has = false;
+
+                        String shipping = obj[3].trim();
+
+                        for (int i = 0 ; i < OutImportConstant.shipping.length; i++)
+                        {
+                            if (OutImportConstant.shipping[i].equals(shipping))
+                            {
+                                has = true;
+
+                                bean.setShipping(OutImportConstant.ishipping[i]);
+
+                                break;
+                            }
+                        }
+
+                        if (!has)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发货方式不对,须为[自提,公司,第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发货方式不能为空,须为[自提,公司,第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    //发货公司
             		if ( !StringTools.isNullOrNone(obj[4]))
             		{
             			// transport 须是在transport1 下面的
             			String transport = obj[4].trim();
+
+                        ExpressBean express = expressDAO.findByUnique(transport);
+
+//            			TransportBean tb = consignDAO.findTransportByName(transport);
             			
-            			TransportBean tb = consignDAO.findTransportByName(transport);
-            			
-            			if (null == tb)
+            			if (null == express)
             			{
                 			builder
                             .append("第[" + currentNumber + "]错误:")
-                            .append("运输单位不存在")
+                            .append("发货公司不存在")
                             .append("<br>");
                         
                 			importError = true;
             			} else{
-            			    bean.setTransport(tb.getId());
+            			    bean.setTransport(express.getId());
                         }
             		}
             		else
             		{
             			builder
                         .append("第[" + currentNumber + "]错误:")
-                        .append("运输单位不能为空")
+                        .append("发货公司不能为空")
                         .append("<br>");
                     
             			importError = true;
             		}
+
+                    //支付方式
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        String expressPay = obj[5].trim();
+
+                        boolean isexists = false;
+
+                        for (int i = 0; i < OutImportConstant.expressPay.length; i++)
+                        {
+                            if (expressPay.equals(OutImportConstant.expressPay[i]))
+                            {
+                                isexists = true;
+
+                                bean.setPay(OutImportConstant.iexpressPay[i]);
+
+                                break;
+                            }
+                        }
+
+                        if (!isexists)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
+                                .append("<br>");
+
+                        importError = true;
+                    }
             		
-            		if ( !StringTools.isNullOrNone(obj[5]))
+            		if ( !StringTools.isNullOrNone(obj[6]))
             		{
-            			bean.setTransportNo(obj[5]);
+            			bean.setTransportNo(obj[6]);
             		}else
             		{
             			builder
@@ -3878,60 +3956,60 @@ public class OutImportAction extends DispatchAction
             			importError = true;
             		}
             		
-            		if ( !StringTools.isNullOrNone(obj[6]))
-            		{
-            			bean.setSendPlace(obj[6]);
-            		}
-            		
             		if ( !StringTools.isNullOrNone(obj[7]))
             		{
-            			bean.setPreparer(obj[7]);
+            			bean.setSendPlace(obj[7]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[8]))
             		{
-            			bean.setChecker(obj[8]);
+            			bean.setPreparer(obj[8]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[9]))
             		{
-            			bean.setPackager(obj[9]);
+            			bean.setChecker(obj[9]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[10]))
             		{
-            			bean.setPackageTime(obj[10]);
+            			bean.setPackager(obj[10]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[11]))
             		{
-            			bean.setPackageTime(bean.getPackageTime() + " " + obj[11]);
+            			bean.setPackageTime(obj[11]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[12]))
             		{
-            			bean.setMathine(obj[12]);
+            			bean.setPackageTime(bean.getPackageTime() + " " + obj[12]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[13]))
             		{
-            			bean.setPackageAmount(obj[13]);
+            			bean.setMathine(obj[13]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[14]))
             		{
-            			bean.setPackageWeight(obj[14]);
+            			bean.setPackageAmount(obj[14]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[15]))
             		{
-            			bean.setTransportFee(obj[15]);
+            			bean.setPackageWeight(obj[15]);
+            		}
+            		
+            		if ( !StringTools.isNullOrNone(obj[16]))
+            		{
+            			bean.setTransportFee(obj[16]);
             		}
 
                     //2015/6/25 顺丰收货日期必填
-                    if ( !StringTools.isNullOrNone(obj[16]))
+                    if ( !StringTools.isNullOrNone(obj[17]))
                     {
-						String date = obj[16].trim();
+						String date = obj[17].trim();
 						try {
 							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 							sdf.parse(date);
@@ -3961,7 +4039,7 @@ public class OutImportAction extends DispatchAction
                 {
                     builder
                         .append("第[" + currentNumber + "]错误:")
-                        .append("数据长度不足26格错误")
+                        .append("数据长度不足27格错误")
                         .append("<br>");
                     
                     importError = true;

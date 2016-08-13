@@ -364,6 +364,18 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateFeedBackCheck(String fullId, int feedBackCheck);
     
     boolean updateRebate(String fullId, int rebate);
+
+    /**
+     * #287
+     * @param invoiceId
+     * @param shipping
+     * @param expressPay
+     * @param transport1
+     * @param transportPay
+     * @param transport2
+     * @return
+     */
+    boolean updateInvoiceIns(String invoiceId, int shipping, int expressPay, int transport1, int transportPay, int transport2);
     
     List<OutBean> queryOutByOneCondition(ConditionParse con);
     

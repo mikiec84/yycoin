@@ -3,7 +3,6 @@ package com.china.center.oa.sail.manager.impl;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
-
 import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.publics.bean.*;
@@ -2445,7 +2444,8 @@ public class OutImportManagerImpl implements OutImportManager
 			for (String s : set)
 			{
 				ConsignBean oldBean = consignDAO.findDefaultConsignByFullId(s);
-				
+                List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(s);
+
 				if (null != oldBean)
 				{
 					oldBean.setTransport(each.getTransport());
@@ -2466,10 +2466,7 @@ public class OutImportManagerImpl implements OutImportManager
 					oldBean.setPay(each.getPay());
 					
 					consignDAO.updateConsign(oldBean);
-
-
 				} else {
-					List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(s);
 					
 					if (!ListTools.isEmptyOrNull(distList)) {
 						oldBean = new ConsignBean();
@@ -2503,14 +2500,47 @@ public class OutImportManagerImpl implements OutImportManager
 					}
 				}
 
+                //#287 2016/8/13 update distribution
+                if (!ListTools.isEmptyOrNull(distList)){
+                    for (DistributionBean distributionBean : distList){
+                        distributionBean.setShipping(each.getShipping());
+                        distributionBean.setExpressPay(each.getPay());
+                        distributionBean.setTransport1(Integer.valueOf(each.getTransport()));
+                        distributionBean.setTransportPay(each.getPay());
+                        distributionBean.setTransport2(Integer.valueOf(each.getTransport()));
+                        this.distributionDAO.updateEntityBean(distributionBean);
+                    }
+                }
+
 				// 2016/2/29
 				// #168 将对应的销售单的状态更新为 已发货
 				OutBean outBean = this.outDAO.find(s);
-				if (outBean!= null){
-					outBean.setStatus(OutConstant.STATUS_SEC_PASS);
-					this.outDAO.updateEntityBean(outBean);
-					_logger.info("update out to STATUS_SEC_PASS***"+s);
-				}
+				if (outBean == null && s.startsWith("A")){
+                    //#287 2016/8/13 update invoiceins
+//                    InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(s);
+//                    if (invoiceinsBean!= null){
+//                        invoiceinsBean.setShipping(each.getShipping());
+//                        if (each.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+//                            invoiceinsBean.setExpressPay(each.getPay());
+//                            invoiceinsBean.setTransport1(Integer.valueOf(each.getTransport()));
+//                        } else if (each.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
+//                            invoiceinsBean.setTransportPay(each.getPay());
+//                            invoiceinsBean.setTransport2(Integer.valueOf(each.getTransport()));
+//                        } else if (each.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+//                            invoiceinsBean.setExpressPay(each.getPay());
+//                            invoiceinsBean.setTransport1(Integer.valueOf(each.getTransport()));
+//                            invoiceinsBean.setTransportPay(each.getPay());
+//                            invoiceinsBean.setTransport2(Integer.valueOf(each.getTransport()));
+//                        }
+//                        this.invoiceinsDAO.updateEntityBean(invoiceinsBean);
+                        this.outDAO.updateInvoiceIns(s, each.getShipping(), each.getPay(), Integer.valueOf(each.getTransport()),
+                                each.getPay(), Integer.valueOf(each.getTransport()));
+                        _logger.info("update invoiceinsBean "+s);
+				} else{
+                    outBean.setStatus(OutConstant.STATUS_SEC_PASS);
+                    this.outDAO.updateEntityBean(outBean);
+                    _logger.info("update out to STATUS_SEC_PASS***"+s);
+                }
 			}
 
             //2015/6/27 把发货单号和发货日期写入CK单
@@ -2520,6 +2550,18 @@ public class OutImportManagerImpl implements OutImportManager
                     packageBean.setTransportNo(each.getTransportNo());
                     packageBean.setSfReceiveDate(each.getSfReceiveDate());
 					packageBean.setShipping(each.getShipping());
+                    if (each.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+                        packageBean.setExpressPay(each.getPay());
+                        packageBean.setTransport1(Integer.valueOf(each.getTransport()));
+                    } else if (each.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
+                        packageBean.setTransportPay(each.getPay());
+                        packageBean.setTransport2(Integer.valueOf(each.getTransport()));
+                    } else if (each.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+                        packageBean.setExpressPay(each.getPay());
+                        packageBean.setTransport1(Integer.valueOf(each.getTransport()));
+                        packageBean.setTransportPay(each.getPay());
+                        packageBean.setTransport2(Integer.valueOf(each.getTransport()));
+                    }
 
                     this.packageDAO.updateEntityBean(packageBean);
                     _logger.info("update packageBean to setSfReceiveDate ***" + packageBean);

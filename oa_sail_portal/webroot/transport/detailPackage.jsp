@@ -74,7 +74,7 @@ function load()
 
 					<tr class="content2">
 						<td width="15%" align="right">运输公司：</td>
-						<td width="35%">${bean.transportName1}</td>
+						<td width="35%">${bean.transportName1}/${bean.transportName2}</td>
 						<td width="15%" align="right">支付方式：</td>
 						<td width="35%">${my:get('deliverPay',bean.expressPay)}</td>					
 					</tr>

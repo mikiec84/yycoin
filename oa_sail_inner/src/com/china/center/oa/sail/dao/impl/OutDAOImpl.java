@@ -1071,8 +1071,18 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
 
         return i != 0;
 	}
-	
-	public List<OutBean> queryOutByOneCondition(ConditionParse con)
+
+    @Override
+    public boolean updateInvoiceIns(String invoiceId, int shipping, int expressPay, int transport1, int transportPay, int transport2) {
+        String sql = "update T_CENTER_INVOICEINS set shipping = ? ,expressPay = ?,transport1 = ?, transportPay = ?, " +
+                " transport2 = ? where id = ?";
+
+        int i = jdbcOperation.update(sql, shipping, expressPay, transport1, transportPay, transport2, invoiceId);
+
+        return i != 0;
+    }
+
+    public List<OutBean> queryOutByOneCondition(ConditionParse con)
 	{
 		String sql = "select distinct OutBean.* from T_CENTER_BASE BaseBean, t_center_out OutBean where BaseBean.outid = OutBean.fullid " + con.toString();
 		

@@ -506,3 +506,6 @@ UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
 
 
 alter table T_CENTER_TCPIBREPORT_ITEM add column price double default '0'
+
+--#287
+alter table T_CENTER_OUTPRODUCT add column shipping int(11) default 0, add column pay int(11) default -1
