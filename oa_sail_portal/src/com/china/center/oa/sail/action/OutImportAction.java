@@ -2500,14 +2500,74 @@ public class OutImportAction extends DispatchAction
 
                             importError = true;
                         }else{
-                            bean.setTransport1(MathTools.parseInt(express.getId()));
+							int expressId = MathTools.parseInt(express.getId());
+//							if (bean.getShipping() == 2){
+//								bean.setTransport1();
+//							}
+
+							if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+								bean.setTransport1(expressId);
+							} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
+								bean.setTransport2(expressId);
+							} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+								bean.setTransport1(expressId);
+								bean.setTransport2(expressId);
+							}
                         }
                     }
 
+					//#290 支付方式
+					if ( !StringTools.isNullOrNone(obj[8]))
+					{
+						String expressPay = obj[8].trim();
+
+						boolean isexists = false;
+
+						for (int i = 0; i < OutImportConstant.expressPay.length; i++)
+						{
+							if (expressPay.equals(OutImportConstant.expressPay[i]))
+							{
+								isexists = true;
+
+								int pay = OutImportConstant.iexpressPay[i];
+
+								if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+									bean.setExpressPay(pay);
+								} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
+									bean.setTransportPay(pay);
+								} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+									bean.setExpressPay(pay);
+									bean.setTransportPay(pay);
+								}
+
+								break;
+							}
+						}
+
+						if (!isexists)
+						{
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
+									.append("<br>");
+
+							importError = true;
+						}
+					}else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
+								.append("<br>");
+
+						importError = true;
+					}
+
+
                     // 销售单备注
-                    if ( !StringTools.isNullOrNone(obj[8]))
+                    if ( !StringTools.isNullOrNone(obj[9]))
                     {
-                        bean.setDescription(obj[8].trim());
+                        bean.setDescription(obj[9].trim());
                     }
             		
                     importItemList.add(bean);
