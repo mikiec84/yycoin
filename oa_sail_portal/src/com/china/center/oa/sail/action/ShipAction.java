@@ -107,6 +107,8 @@ public class ShipAction extends DispatchAction
 
     private EnumDAO enumDAO = null;
 
+    private ProductImportDAO productImportDAO = null;
+
     private final static String QUERYPACKAGE = "queryPackage";
 
     private final static String QUERYPICKUP = "queryPickup";
@@ -2315,13 +2317,24 @@ public class ShipAction extends DispatchAction
         {
             OutImportBean bean = importBeans.get(0);
             String productCode = bean.getProductCode();
+//            if (!StringTools.isNullOrNone(productCode)){
+//                ConditionParse conditionParse =  new ConditionParse();
+//                conditionParse.addCondition("citicProductCode", "=", productCode);
+//                List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
+//                if (!ListTools.isEmptyOrNull(beans)){
+//                    productName = beans.get(0).getCiticProductName();
+//                    _logger.info("***getCiticProductName***"+productName);
+//                }
+//            }
+
+            //#291
             if (!StringTools.isNullOrNone(productCode)){
                 ConditionParse conditionParse =  new ConditionParse();
-                conditionParse.addCondition("citicProductCode", "=", productCode);
-                List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
+                conditionParse.addCondition("bankProductCode", "=", productCode);
+                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 if (!ListTools.isEmptyOrNull(beans)){
-                    productName = beans.get(0).getCiticProductName();
-                    _logger.info("***getCiticProductName***"+productName);
+                    productName = beans.get(0).getBankProductName();
+                    _logger.info("***getBankProductName***"+productName);
                 }
             }
         }
@@ -4610,5 +4623,13 @@ public class ShipAction extends DispatchAction
 
     public void setEnumDAO(EnumDAO enumDAO) {
         this.enumDAO = enumDAO;
+    }
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
     }
 }

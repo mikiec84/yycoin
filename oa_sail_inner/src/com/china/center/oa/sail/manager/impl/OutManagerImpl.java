@@ -986,7 +986,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         // 增加单个产品到base表
                         baseDAO.saveEntityBean(base);
 
-                        _logger.info("***************create BaseBean ************");
+                        _logger.info("***create BaseBean "+base);
 
                         addSub = true;
                     }

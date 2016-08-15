@@ -289,57 +289,82 @@ public class DistributionBean implements Serializable
 		this.outboundDate = outboundDate;
 	}
 
-	public String toString()
-	{
-        final String TAB = ",";
+//	public String toString()
+//	{
+//        final String TAB = ",";
+//
+//        StringBuilder retValue = new StringBuilder();
+//
+//        retValue
+//            .append("DistributionBean ( ")
+//            .append(super.toString())
+//            .append(TAB)
+//            .append("id = ")
+//            .append(this.id)
+//            .append(TAB)
+//            .append("outId = ")
+//            .append(this.outId)
+//            .append(TAB)
+//            .append("refAddId = ")
+//            .append(this.refAddId)
+//            .append(TAB)
+//            .append("shipping = ")
+//            .append(this.shipping)
+//            .append(TAB)
+//            .append("transport1 = ")
+//            .append(this.transport1)
+//            .append(TAB)
+//            .append("transport2 = ")
+//            .append(this.transport2)
+//            .append(TAB)
+//            .append("provinceId = ")
+//            .append(this.provinceId)
+//            .append(TAB)
+//            .append("cityId = ")
+//            .append(this.cityId)
+//            .append(TAB)
+//            .append("address = ")
+//            .append(this.address)
+//            .append(TAB)
+//            .append("receiver = ")
+//            .append(this.receiver)
+//            .append(TAB)
+//            .append("mobile = ")
+//            .append(this.mobile)
+//            .append(TAB)
+//            .append("telephone = ")
+//            .append(this.telephone)
+//            .append(TAB)
+//            .append("description = ")
+//            .append(this.description)
+//            .append(TAB)
+//            .append(" )");
+//
+//        return retValue.toString();
+//    }
 
-        StringBuilder retValue = new StringBuilder();
 
-        retValue
-            .append("DistributionBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("outId = ")
-            .append(this.outId)
-            .append(TAB)
-            .append("refAddId = ")
-            .append(this.refAddId)
-            .append(TAB)
-            .append("shipping = ")
-            .append(this.shipping)
-            .append(TAB)
-            .append("transport1 = ")
-            .append(this.transport1)
-            .append(TAB)
-            .append("transport2 = ")
-            .append(this.transport2)
-            .append(TAB)
-            .append("provinceId = ")
-            .append(this.provinceId)
-            .append(TAB)
-            .append("cityId = ")
-            .append(this.cityId)
-            .append(TAB)
-            .append("address = ")
-            .append(this.address)
-            .append(TAB)
-            .append("receiver = ")
-            .append(this.receiver)
-            .append(TAB)
-            .append("mobile = ")
-            .append(this.mobile)
-            .append(TAB)
-            .append("telephone = ")
-            .append(this.telephone)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "DistributionBean{" +
+                "id='" + id + '\'' +
+                ", outId='" + outId + '\'' +
+                ", refAddId='" + refAddId + '\'' +
+                ", shipping=" + shipping +
+                ", transport1=" + transport1 +
+                ", transport2=" + transport2 +
+                ", provinceId='" + provinceId + '\'' +
+                ", cityId='" + cityId + '\'' +
+                ", areaId='" + areaId + '\'' +
+                ", address='" + address + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", description='" + description + '\'' +
+                ", expressPay=" + expressPay +
+                ", transportPay=" + transportPay +
+                ", printCount=" + printCount +
+                ", outboundDate='" + outboundDate + '\'' +
+                '}';
     }
 }
