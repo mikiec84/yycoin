@@ -2597,7 +2597,7 @@ public class OutImportManagerImpl implements OutImportManager
             }
             if (ListTools.isEmptyOrNull(distList))
 			{
-				throw new MYException("导入异常，请退出重新登陆");
+				throw new MYException("T_CENTER_DISTRIBUTION不存在:"+each.getOutId());
 			}
 			
 			for (DistributionBean reach : distList)

@@ -2253,6 +2253,7 @@ public class OutImportAction extends DispatchAction
     		HttpServletRequest request, HttpServletResponse response)
     throws ServletException
     {
+		_logger.info("***batchUpdateDistAddr***");
         RequestDataStream rds = new RequestDataStream(request);
         
         boolean importError = false;
