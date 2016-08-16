@@ -2517,26 +2517,16 @@ public class OutImportManagerImpl implements OutImportManager
 				OutBean outBean = this.outDAO.find(s);
 				if (outBean == null && s.startsWith("A")){
                     //#287 2016/8/13 update invoiceins
-//                    InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(s);
-//                    if (invoiceinsBean!= null){
-//                        invoiceinsBean.setShipping(each.getShipping());
-//                        if (each.getShipping() == OutConstant.OUT_SHIPPING_3PL){
-//                            invoiceinsBean.setExpressPay(each.getPay());
-//                            invoiceinsBean.setTransport1(Integer.valueOf(each.getTransport()));
-//                        } else if (each.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
-//                            invoiceinsBean.setTransportPay(each.getPay());
-//                            invoiceinsBean.setTransport2(Integer.valueOf(each.getTransport()));
-//                        } else if (each.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
-//                            invoiceinsBean.setExpressPay(each.getPay());
-//                            invoiceinsBean.setTransport1(Integer.valueOf(each.getTransport()));
-//                            invoiceinsBean.setTransportPay(each.getPay());
-//                            invoiceinsBean.setTransport2(Integer.valueOf(each.getTransport()));
-//                        }
-//                        this.invoiceinsDAO.updateEntityBean(invoiceinsBean);
                         this.outDAO.updateInvoiceIns(s, each.getShipping(), each.getPay(), Integer.valueOf(each.getTransport()),
-                                each.getPay(), Integer.valueOf(each.getTransport()));
+								each.getPay(), Integer.valueOf(each.getTransport()));
                         _logger.info("update invoiceinsBean "+s);
-				} else{
+				} else if (outBean == null && s.startsWith("FP")){
+					//预开票
+					//#287 2016/8/13 update invoiceins
+					this.outDAO.updatePreInvoiceIns(s, each.getShipping(), each.getPay(), Integer.valueOf(each.getTransport()),
+							each.getPay(), Integer.valueOf(each.getTransport()));
+					_logger.info("update T_CENTER_PREINVOICE "+s);
+				} else if (outBean!= null){
                     outBean.setStatus(OutConstant.STATUS_SEC_PASS);
                     this.outDAO.updateEntityBean(outBean);
                     _logger.info("update out to STATUS_SEC_PASS***"+s);
