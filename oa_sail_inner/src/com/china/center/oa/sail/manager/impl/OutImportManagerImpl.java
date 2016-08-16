@@ -3593,7 +3593,7 @@ public class OutImportManagerImpl implements OutImportManager
                         List<BaseBean> baseList = baseDAO.queryEntityBeansByCondition(conditionParse1);
                         if (ListTools.isEmptyOrNull(baseList)){
                             _logger.error("No base beans found "+outId);
-                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"t_center_base does not exist:"+outId);
+                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"t_center_base does not exist:"+outId+":productId:"+item.getProductId());
                             continue;
                         } else{
                             for (BaseBean baseBean : baseList){

@@ -1407,6 +1407,7 @@ public class ImapMailClient {
                                             this.citicOrderDAO.saveEntityBean(item);
                                         } catch(Exception e){
                                             e.printStackTrace();
+                                            _logger.error("Fail to save citic order "+item);
                                         }
                                     }
                                 }
@@ -1420,6 +1421,7 @@ public class ImapMailClient {
                                             this.zsOrderDAO.saveEntityBean(item);
                                         } catch(Exception e){
                                             e.printStackTrace();
+                                            _logger.error("Fail to save ZS order "+item);
                                         }
                                     }
                                 }
@@ -1433,6 +1435,7 @@ public class ImapMailClient {
                                             this.pfOrderDAO.saveEntityBean(item);
                                         } catch(Exception e){
                                             e.printStackTrace();
+                                            _logger.error("Fail to save PF order "+item);
                                         }
                                     }
                                 }
@@ -1453,6 +1456,7 @@ public class ImapMailClient {
                                             }
                                         } catch(Exception e){
                                             e.printStackTrace();
+                                            _logger.error("Fail to save ZY order "+item);
                                         }
                                     }
                                 }
