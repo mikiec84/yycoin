@@ -2309,6 +2309,10 @@ public class ShipAction extends DispatchAction
         if (outId.startsWith("ZS")){
             //2016/5/19 赠送单直接取品名
             return item.getProductName();
+        } else if (outId.contains("<br>")){
+            //2016/8/16 合并商品行的outId也合并过了
+            String[] outIds = item.getOutId().split("<br>");
+            outId = outIds[0];
         }
 
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
