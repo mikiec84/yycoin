@@ -402,7 +402,7 @@ public class BillListenerTaxGlueImpl implements BillListener
      * 
      * @param user
      * @param bank
-     * @param outBean
+     * @param target
      * @param inBillBean
      * @param financeBean
      * @param itemList
@@ -528,9 +528,7 @@ public class BillListenerTaxGlueImpl implements BillListener
      * 银行对应的暂记户科目/预收账款
      * 
      * @param user
-     * @param bean
      * @param bank
-     * @param apply
      * @param financeBean
      * @param itemList
      * @throws MYException
@@ -697,7 +695,12 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         financeBean.setDutyId(PublicConstant.DEFAULR_DUTY_ID);
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user == null){
+            financeBean.setCreaterId("系统");
+        } else{
+            financeBean.setCreaterId(user.getStafferId());
+        }
+
 
         financeBean.setDescription(financeBean.getName());
 
@@ -943,7 +946,11 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         financeBean.setDutyId(bank.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user == null){
+            financeBean.setCreaterId("系统");
+        } else{
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -966,7 +973,6 @@ public class BillListenerTaxGlueImpl implements BillListener
      * 
      * @param user
      * @param bank
-     * @param outBillBean
      * @param financeBean
      * @param itemList
      * @throws MYException

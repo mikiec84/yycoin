@@ -1706,7 +1706,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     public boolean payStockItemWithoutTransaction(User user, String stockItemId)
         throws MYException
     {
-        JudgeTools.judgeParameterIsNull(user, stockItemId);
+//        JudgeTools.judgeParameterIsNull(user, stockItemId);
+        JudgeTools.judgeParameterIsNull(stockItemId);
 
         StockItemBean item = stockItemDAO.find(stockItemId);
 

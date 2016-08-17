@@ -365,7 +365,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
     public boolean addOutBillBeanWithoutTransaction(User user, OutBillBean bean)
         throws MYException
     {
-        JudgeTools.judgeParameterIsNull(user, bean);
+//        JudgeTools.judgeParameterIsNull(user, bean);
 
         double total = statBankManager.findTotalByBankId(bean.getBankId());
 
@@ -618,7 +618,13 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
 
         inbill.setDestBankId(bean.getBankId());
 
-        inbill.setLocationId(user.getLocationId());
+        if (user == null){
+            inbill.setLocationId("系统");
+            inbill.setStafferId("系统");
+        } else{
+            inbill.setLocationId(user.getLocationId());
+            inbill.setStafferId(user.getStafferId());
+        }
 
         inbill.setLock(FinanceConstant.BILL_LOCK_YES);
 
@@ -628,7 +634,6 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
 
         inbill.setRefBillId(id);
 
-        inbill.setStafferId(user.getStafferId());
 
         inbill.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
 

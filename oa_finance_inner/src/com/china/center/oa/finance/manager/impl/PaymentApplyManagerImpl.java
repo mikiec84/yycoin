@@ -2621,33 +2621,31 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         //后台Job必须以显示的Transaction方式操作，否则数据库操作有问题：写入后无法查询得到数据。
             TransactionTemplate tran = new TransactionTemplate(transactionManager);
 
-            tran.execute(new TransactionCallback()
-            {
-                public Object doInTransaction(TransactionStatus arg0)
-                {
-                    try
-                    {
+            tran.execute(new TransactionCallback() {
+                public Object doInTransaction(TransactionStatus arg0) {
+                    try {
                         ConditionParse condtion = new ConditionParse();
 
                         condtion.addWhereStr();
                         condtion.addIntCondition("PaymentApplyBean.status", "=",
                                 FinanceConstant.PAYAPPLY_STATUS_INIT);
-                        condtion.addIntCondition("PaymentApplyBean.badMoney", "=",0);
+                        condtion.addIntCondition("PaymentApplyBean.badMoney", "=", 0);
 //                        triggerLog.info("handleCheckPay 暂停统计，款到发货1小时内未付款，不会自动驳回...");
                         List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
-                        if (!ListTools.isEmptyOrNull(beans)){
-                            for (PaymentApplyBean bean: beans){
-                                System.out.println("PaymentApplyBean with badMoney==0**********"+beans.size());
-                                _logger.info("PaymentApplyBean with badMoney==0**********"+beans.size());
-                                synchronized (PAYMENT_APPLY_LOCK)
-                                {
-                                    //TODO
-                                    passPaymentApplyForJob(null, bean.getId(), "", "");
+                        if (!ListTools.isEmptyOrNull(beans)) {
+                            for (PaymentApplyBean bean : beans) {
+                                System.out.println("PaymentApplyBean with badMoney==0**********" + beans.size());
+                                _logger.info("PaymentApplyBean with badMoney==0**********" + beans.size());
+                                synchronized (PAYMENT_APPLY_LOCK) {
+                                    try {
+                                        passPaymentApplyForJob(null, bean.getId(), "", "");
+                                    } catch (Exception e) {
+                                        _logger.error(bean.getId()+" Fail to passPaymentApplyForJob "+e.getMessage());
+                                    }
                                 }
                             }
                         }
-                    }
-                    catch(Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                         _logger.warn(e, e);
                         throw new RuntimeException(e);
@@ -2682,6 +2680,9 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
 
+        // 2014/12/30
+        // 为自动审批job设置flag
+        apply.setAutoPayFlag(true);
         // CORE 生成收款单,更新销售单和委托清单付款状态/或者转成费用
         createInbillForJob(apply, payment, reason,description);
 
@@ -2691,9 +2692,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
-        // 2014/12/30
-        // 为自动审批job设置flag
-        apply.setAutoPayFlag(true);
+
         for (PaymentApplyListener listener : listenerMapValues)
         {
             listener.onPassBean(user, apply);
