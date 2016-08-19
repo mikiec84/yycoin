@@ -159,4 +159,27 @@ public class OlBaseBean implements Serializable
                 ", changeTime='" + changeTime + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OlBaseBean that = (OlBaseBean) o;
+
+        if (getAmount() != that.getAmount()) return false;
+        if (!getOutId().equals(that.getOutId())) return false;
+        if (!getProductCode().equals(that.getProductCode())) return false;
+        return getProductName().equals(that.getProductName());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getOutId().hashCode();
+        result = 31 * result + getProductCode().hashCode();
+        result = 31 * result + getProductName().hashCode();
+        result = 31 * result + getAmount();
+        return result;
+    }
 }

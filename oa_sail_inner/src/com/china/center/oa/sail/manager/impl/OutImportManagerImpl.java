@@ -3164,6 +3164,16 @@ public class OutImportManagerImpl implements OutImportManager
 		}
 	}
 
+	private List<OlBaseBean> removeDuplicateOlBaseBeans(List<OlBaseBean> olOutBeans){
+		List<OlBaseBean> result = new ArrayList<OlBaseBean>();
+		for (OlBaseBean olOutBean: olOutBeans){
+			if (!result.contains(olOutBean)){
+				result.add(olOutBean);
+			}
+		}
+		return result;
+	}
+
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void offlineOrderJob() {
@@ -3181,13 +3191,21 @@ public class OutImportManagerImpl implements OutImportManager
             for (OlOutBean olOutBean : olOutBeans){
                 ConditionParse con2 = new ConditionParse();
                 con2.addCondition("outId","=",olOutBean.getOlFullId());
-                List<OlBaseBean> olBaseBeans = this.olBaseDAO.queryEntityBeansByCondition(con2);
-                if (ListTools.isEmptyOrNull(olBaseBeans)){
+                List<OlBaseBean> olBaseBeans2 = this.olBaseDAO.queryEntityBeansByCondition(con2);
+                if (ListTools.isEmptyOrNull(olBaseBeans2)){
                     _logger.error("No OlBaseBean found "+olOutBean.getOlFullId());
 					this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表没有对应记录");
                     continue;
                 } else{
-                    //olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
+					//check duplicate olbase bean
+					List<OlBaseBean> olBaseBeans = this.removeDuplicateOlBaseBeans(olBaseBeans2);
+					_logger.info(olOutBean.getOlFullId() + "***olBaseBeans size " + olBaseBeans.size()+"  remove duplicate "+olBaseBeans.size());
+					if (olBaseBeans.size() >=50){
+						_logger.error("Too many OlBaseBean found "+olOutBean.getOlFullId());
+						this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表记录太多");
+						continue;
+					}
+					//olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
                     //<sailInvoice,List<OlBaseBean>
 //                    Map<String, List<OlBaseBean>> sailInvoice2lBaseMap = new HashMap<String, List<OlBaseBean>>();
                     //<sailInvoice,taxRate>
@@ -3229,8 +3247,6 @@ public class OutImportManagerImpl implements OutImportManager
                             }
                         }
                     }
-
-                    _logger.info(olOutBean.getOlFullId() + "***olBaseBeans size " + olBaseBeans.size());
 
 					for (OlBaseBean olBaseBean : olBaseBeans){
 						OutBean out = new OutBean();
