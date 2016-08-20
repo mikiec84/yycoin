@@ -7610,8 +7610,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 throw new MYException("领样转销售或者退库数量不够[%s],请重新操作", baseBean.getProductName());
             }
             
-            if (baseBean.getAmount() > 0)
+            if (baseBean.getAmount() > 0) {
+                _logger.info(baseBean+" checkIfAllSwithToSail hasBack "+hasBack);
                 ret = false;
+            }
+
         }
 
         return ret;

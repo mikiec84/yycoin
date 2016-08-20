@@ -1,31 +1,31 @@
 alter table t_center_out add column remoteAllocate int(11) DEFAULT 0
---2015/6/6 ²úÆ·ÅäÖÃÔö¼Ó¼¤Àø×Ö¶Î
+--2015/6/6 ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½
 alter table T_CENTER_ZJRCPRODUCT add column motivationMoney double DEFAULT '0'
 alter table T_CENTER_ZJRCBASE add column motivationMoney double DEFAULT '0'
 
---2015/7 Íâ²¿Æ·ÃûÅäÖÃ
-insert into t_center_oamenuitem values('0124','Íâ²¿Æ·ÃûÅäÖÃ','../product/importProductVsBank.jsp','01',1,'0112',24,'Íâ²¿Æ·ÃûÅäÖÃ')
+--2015/7 ï¿½â²¿Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values('0124','ï¿½â²¿Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½','../product/importProductVsBank.jsp','01',1,'0112',24,'ï¿½â²¿Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
 
---2015/8/15 ÐÂ²úÆ·ÉêÇëÈ¥µô²úÆ·¹ÜÀí²¿ÉóÅú»·½Ú
-delete from t_center_oamenuitem where menuitemname ='ÐÂ²úÆ·-²úÆ·¹ÜÀí²¿ÉóÅú' and id='1021'
+--2015/8/15 ï¿½Â²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+delete from t_center_oamenuitem where menuitemname ='ï¿½Â²ï¿½Æ·-ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' and id='1021'
 
---2015/8/16 ÅúÁ¿¸üÐÂÖÐÐÅ²úÆ·ÅäÖÃ
-insert into t_center_oamenuitem values(9035,'ÅúÁ¿¸üÐÂ²úÆ·ÅäÖÃ','../sailImport/batchUpdateZJRCProduct.jsp',90,1,9030,99,'ÅúÁ¿¸üÐÂ²úÆ·ÅäÖÃ')
+--2015/8/16 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values(9035,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½','../sailImport/batchUpdateZJRCProduct.jsp',90,1,9030,99,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½')
 
---2015/8/27 ÅúÁ¿¸üÐÂ·¢Æ±×ªÒÆ
-insert into t_center_oamenuitem values(1492,'·¢Æ±×ªÒÆ','../invoiceins/batchTransferInvoiceins.jsp',14,1,1402,99,'·¢Æ±×ªÒÆ')
+--2015/8/27 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½Æ±×ªï¿½ï¿½
+insert into t_center_oamenuitem values(1492,'ï¿½ï¿½Æ±×ªï¿½ï¿½','../invoiceins/batchTransferInvoiceins.jsp',14,1,1402,99,'ï¿½ï¿½Æ±×ªï¿½ï¿½')
 
---2015/9/18 ÖÐÐÅÊý¾Ý´¦Àí²éÑ¯-¡µÅúÁ¿Ô¤Õ¼¹¦ÄÜ
-insert into t_center_oamenuitem values(9036,'ÅúÁ¿Ô¤Õ¼¿â´æ','../sailImport/batchProcessSplitOut.jsp',90,1,9003,99,'ÅúÁ¿Ô¤Õ¼¿â´æ')
+--2015/9/18 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¤Õ¼ï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values(9036,'ï¿½ï¿½ï¿½ï¿½Ô¤Õ¼ï¿½ï¿½ï¿½ï¿½','../sailImport/batchProcessSplitOut.jsp',90,1,9003,99,'ï¿½ï¿½ï¿½ï¿½Ô¤Õ¼ï¿½ï¿½ï¿½ï¿½')
 
---2015/9/29 ÖÐÐÅµ¼ÈëÔö¼Ó¿Í»§ÐÕÃûÀ¸Î»
+--2015/9/29 ï¿½ï¿½ï¿½Åµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿Í»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»
 alter table t_center_out_import add column customerName varchar(200) DEFAULT ''
 
---2015/10/17 Èë¿â-»»»õ¹¦ÄÜ
-insert into t_center_oamenuitem values(1518,'Èë¿â-ÉÌÆ·µ÷»»','../sail/out.do?method=preForAddBuyExchange&flag=1',15,1,1501,14,'ÉÌÆ·µ÷»»')
+--2015/10/17 ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values(1518,'ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½','../sail/out.do?method=preForAddBuyExchange&flag=1',15,1,1501,14,'ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½')
 
---2015/10/30 ÉÌÆ·»»»õ
-insert into t_center_oamenuitem values('0125','ÉÌÆ·×ª»»ÅäÖÃ','../sail/queryProductExchange.jsp','01',1,'0112',25,'ÉÌÆ·×ª»»ÅäÖÃ')
+--2015/10/30 ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values('0125','ï¿½ï¿½Æ·×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½','../sail/queryProductExchange.jsp','01',1,'0112',25,'ï¿½ï¿½Æ·×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
 CREATE TABLE T_CENTER_PRODUCT_EXCHANGE (
 id int(11) NOT NULL AUTO_INCREMENT,
 srcProductId varchar(200) NOT NULL,
@@ -36,18 +36,18 @@ PRIMARY KEY (id),
 CONSTRAINT uc_ProductAmount UNIQUE (srcProductId,srcAmount)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
 
---2015/11/05 µ¼ÈëÐÂ²úÆ·
-insert into t_center_oamenuitem values(1033,'ÅúÁ¿µ¼ÈëÐÂ²úÆ·ÉêÇë','../product/importProductApply.jsp',10,1,101001,26,'ÅúÁ¿µ¼ÈëÐÂ²úÆ·ÉêÇë')
+--2015/11/05 ï¿½ï¿½ï¿½ï¿½ï¿½Â²ï¿½Æ·
+insert into t_center_oamenuitem values(1033,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½','../product/importProductApply.jsp',10,1,101001,26,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½')
 alter table T_PRODUCT_APPLY add column className varchar(100) DEFAULT ''
 
---2015/11/16 È¡Ïû²É¹ºÈë¿âÔ¤È·ÈÏ
-delete from t_center_oamenuitem where menuitemname ='²É¹ºÈë¿âÔ¤È·ÈÏ'
+--2015/11/16 È¡ï¿½ï¿½ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½Ô¤È·ï¿½ï¿½
+delete from t_center_oamenuitem where menuitemname ='ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½Ô¤È·ï¿½ï¿½'
 
---2015/11/21 °ÑÐÂ²úÆ·ÉêÇëÀïµÄÏúÊÛÖÜÆÚ/ÏúÊÛ¶ÔÏó/Ö½±ÒÀàÐÍ/ÍâÐÍÀ¸Î»£¬·Ö±ð¸ÄÎª ÊµÎïÊýÁ¿¡¢°ü×°ÊýÁ¿¡¢Ö¤ÊéÊýÁ¿¡¢²úÆ·¿ËÖØ
+--2015/11/21 ï¿½ï¿½ï¿½Â²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½Û¶ï¿½ï¿½ï¿½/Ö½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Îª Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½
 alter table T_PRODUCT_APPLY add column productAmount int(11) DEFAULT -1,add column packageAmount int(11) DEFAULT -1,add column certificateAmount int(11) DEFAULT -1,add column productWeight double DEFAULT 0 
 alter table T_CENTER_PRODUCT add column productAmount int(11) DEFAULT -1,add column packageAmount int(11) DEFAULT -1,add column certificateAmount int(11) DEFAULT -1,add column productWeight double DEFAULT 0 
 
---2015/12/1 ²É¹ºµ½»õÐÅÏ¢
+--2015/12/1 ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 CREATE TABLE `T_CENTER_STOCKITEMARRIAL` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `stockId` varchar(40) DEFAULT NULL,
@@ -90,19 +90,19 @@ alter table T_CENTER_STOCKITEM add column deliveryDate varchar(200) default '', 
 
 alter table T_CENTER_PACKAGE_ITEM modify productId varchar(200)
 
--- 2015/12/21 Äþ²¨ÒøÐÐÓÊ¼þ
+-- 2015/12/21 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½
 alter table t_center_out_import add column nbyhNo varchar(200) default ''
 alter table T_CENTER_PACKAGE add column sendMailFlagNbyh int(11) default -1
 
---2015/12/26 ×Ô¶¯¿â¹ÜÉóÅúÍ¨¹ý
-insert into t_center_oamenuitem values(1493,'µ¼Èë×Ô¶¯¿â¹ÜÉóÅú¶©µ¥','../sailImport/importOutAutoApprove.jsp',14,1,1402,99,'×Ô¶¯¿â¹ÜÉóÅúÍ¨¹ý')
+--2015/12/26 ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½
+insert into t_center_oamenuitem values(1493,'ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½','../sailImport/importOutAutoApprove.jsp',14,1,1402,99,'ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½')
 CREATE TABLE t_center_auto_approve (
 id int(11) NOT NULL AUTO_INCREMENT,
 fullId varchar(200) NOT NULL,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
 
---2015/12/29 ÒøÐÐÓà¶îÍ³¼Æ
+--2015/12/29 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í³ï¿½ï¿½
 CREATE TABLE T_CENTER_BANK_BALANCE (
 id int(11) NOT NULL AUTO_INCREMENT,
 bankId varchar(200) NOT NULL,
@@ -110,112 +110,112 @@ statDate varchar(200) NOT NULL,
 balance double DEFAULT NULL,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
-insert into t_center_oamenuitem values(1654,'ÒøÐÐÓà¶î²éÑ¯','../finance/bank.do?method=queryBankBalance&load=1',16,1,1312,99,'ÒøÐÐÓà¶î²éÑ¯')
+insert into t_center_oamenuitem values(1654,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯','../finance/bank.do?method=queryBankBalance&load=1',16,1,1312,99,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯')
 
---2016/1/5 ÔùÆ·Æ½Ì¨ÓÅ»¯
+--2016/1/5 ï¿½ï¿½Æ·Æ½Ì¨ï¿½Å»ï¿½
 alter table T_CENTER_VS_GIFT add column industryName varchar(100) default '', add column industryName2 varchar(100) default '', add column industryName3 varchar(100) default '', add column city varchar(100) default '', add column stafferName varchar(100) default ''
 alter table T_CENTER_VS_GIFT add column province varchar(100) default ''
 
---2016/1/13 µ¼Èë¿Í»§
-insert into t_center_oamenuitem values('0231','µ¼Èë¿Í»§','../client/importCustomer.jsp','02',1,'0201',99,'µ¼Èë¿Í»§')
+--2016/1/13 ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½
+insert into t_center_oamenuitem values('0231','ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½','../client/importCustomer.jsp','02',1,'0201',99,'ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½')
 
---2016/1/18 µ¼Èë»ã¿îÐÂÔö×Ö¶ÎPOSÖÕ¶ËºÅ
+--2016/1/18 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½POSï¿½Õ¶Ëºï¿½
 alter table T_CENTER_PAYMENT add column posTerminalNumber varchar(100) default ''
 
---2016/1/21 ÔùÆ·B,C,D
+--2016/1/21 ï¿½ï¿½Æ·B,C,D
 alter table T_CENTER_VS_GIFT add column giftProductId2 varchar(100) default '', add column amount2 int(11) default 0, add column giftProductId3 varchar(100) default '', add column amount3 int(11) default 0
 
---2016/2/13 ÅúÁ¿¸üÐÂÎ´ÉóÅúÔ­Òò
-insert into t_center_oamenuitem values(1494,'ÅúÁ¿¸üÐÂÎ´ÉóÅúÔ­Òò','../sailImport/batchUpdateReason.jsp',14,1,1402,99,'ÅúÁ¿¸üÐÂÎ´ÉóÅúÔ­Òò')
-insert into T_CENTER_ENUMDEFINE values(118, '310','ÏúÊÛ_ÅúÁ¿¸üÐÂÎ´ÉóÅúÔ­Òò','',0)
+--2016/2/13 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½
+insert into t_center_oamenuitem values(1494,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½','../sailImport/batchUpdateReason.jsp',14,1,1402,99,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½')
+insert into T_CENTER_ENUMDEFINE values(118, '310','ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½','',0)
 alter table t_center_out add column reason varchar(100) DEFAULT ''
 
---2016/2/15 ·¢Æ±Á÷³Ì±ä¸ü
+--2016/2/15 ï¿½ï¿½Æ±ï¿½ï¿½ï¿½Ì±ï¿½ï¿½ï¿½
 alter table T_CENTER_INVOICEINS_IMPORT add column virtualInvoiceNum varchar(100) default ''
 alter table T_CENTER_INVOICEINS_IMPORT add column productId varchar(100) default '',add column productName varchar(100) default '',add column amount int(11) default 0, add column splitFlag int(11) default 0
-insert into t_center_oamenuitem values(9037,'ÅúÁ¿µ¼Èë¿ªÆ±ÉêÇë','../invoiceins/importInvoiceinsApply.jsp',90,1,9031,99,'ÅúÁ¿µ¼Èë¿ªÆ±ÉêÇë')
+insert into t_center_oamenuitem values(9037,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë¿ªÆ±ï¿½ï¿½ï¿½ï¿½','../invoiceins/importInvoiceinsApply.jsp',90,1,9031,99,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë¿ªÆ±ï¿½ï¿½ï¿½ï¿½')
 
---2016/2/29 stored function »ñÈ¡ÏúÊÛµ¥ÀàÐÍ
+--2016/2/29 stored function ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ûµï¿½ï¿½ï¿½ï¿½ï¿½
 drop function get_out_type
 CREATE FUNCTION get_out_type(out_type int, type2 int) returns varchar(100)
   DETERMINISTIC
 BEGIN
   DECLARE result varchar(100);
-  /*ÏúÊÛµ¥*/
+  /*ï¿½ï¿½ï¿½Ûµï¿½*/
   if type2 = 0 then
     if out_type = 0 then
-       set result = 'ÏúÊÛ³ö¿â';
+       set result = 'ï¿½ï¿½ï¿½Û³ï¿½ï¿½ï¿½';
     elseif out_type = 1 then
-       set result = '¸öÈËÁìÑù';
+       set result = 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½';
     elseif out_type = 2 then
-       set result = 'ÁãÊÛ';
+       set result = 'ï¿½ï¿½ï¿½ï¿½';
     elseif out_type = 3 then
-       set result = 'Î¯ÍÐ´úÏú';
+       set result = 'Î¯ï¿½Ð´ï¿½ï¿½ï¿½';
     elseif out_type = 4 then
-       set result = 'ÔùËÍ';  
+       set result = 'ï¿½ï¿½ï¿½ï¿½';  
     elseif out_type = 5 then
-       set result = '¿Í»§ÆÌ»õ'; 
+       set result = 'ï¿½Í»ï¿½ï¿½Ì»ï¿½'; 
     elseif out_type = 6 then
-       set result = 'Ñ²Õ¹ÁìÑù'; 
+       set result = 'Ñ²Õ¹ï¿½ï¿½ï¿½ï¿½'; 
     elseif out_type = 7 then
-       set result = 'ÒøÐÐÁìÑù';     
+       set result = 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½';     
     END if;
-  /*³ö¿âµ¥*/
+  /*ï¿½ï¿½ï¿½âµ¥*/
   elseif type2 = 1 then
     if out_type = 0 then
-       set result = '²É¹ºÈë¿â';
+       set result = 'ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½';
     elseif out_type = 1 then
-       set result = 'µ÷²¦';
+       set result = 'ï¿½ï¿½ï¿½ï¿½';
     elseif out_type = 2 then
-       set result = '±¨·Ï';
+       set result = 'ï¿½ï¿½ï¿½ï¿½';
     elseif out_type = 3 then
-       set result = 'ÏµÍ³¾ÀÕý';
+       set result = 'ÏµÍ³ï¿½ï¿½ï¿½ï¿½';
     elseif out_type = 4 then
-       set result = 'ÁìÑùÍË¿â';  
+       set result = 'ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½';  
     elseif out_type = 5 then
-       set result = 'ÏúÊÛÍË¿â'; 
+       set result = 'ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½'; 
     elseif out_type = 6 then
-       set result = '²É¹ºÍË»õ'; 
+       set result = 'ï¿½É¹ï¿½ï¿½Ë»ï¿½'; 
     elseif out_type = 7 then
-       set result = 'ÔùÆ·ÍË»õ';  
+       set result = 'ï¿½ï¿½Æ·ï¿½Ë»ï¿½';  
     elseif out_type = 8 then
-       set result = 'ÉÌÆ·µ÷»»';  
+       set result = 'ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½';  
     elseif out_type = 99 then
-       set result = 'ÆäËûÈë¿â'; 
+       set result = 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'; 
     elseif out_type = 25 then
-       set result = 'µ÷²¦ÉêÇë'; 
+       set result = 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'; 
     elseif out_type = 98 then
-       set result = 'Î¯ÍÐÍË»õ';    
+       set result = 'Î¯ï¿½ï¿½ï¿½Ë»ï¿½';    
     END if;
   END if;
   return (result);
 END 
 
---2016/3/10 ÅúÁ¿¸üÐÂ²úÆ·Ãû
-insert into t_center_oamenuitem values(9038,'ÅúÁ¿¸üÐÂÏúÊÛµ¥Æ·Ãû','../sailImport/batchUpdateProductName.jsp',90,1,9031,99,'ÅúÁ¿¸üÐÂÏúÊÛµ¥Æ·Ãû')
+--2016/3/10 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â²ï¿½Æ·ï¿½ï¿½
+insert into t_center_oamenuitem values(9038,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ûµï¿½Æ·ï¿½ï¿½','../sailImport/batchUpdateProductName.jsp',90,1,9031,99,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ûµï¿½Æ·ï¿½ï¿½')
 
---2016/3/16 ÅúÁ¿¸üÐÂÖÐÊÕ¼¤Àø½ð¶î
-insert into t_center_oamenuitem values(1495,'ÅúÁ¿¸üÐÂÖÐÊÕ¼¤Àø½ð¶î','../tcp/batchUpdateIbMoney.jsp',14,1,1402,99,'ÅúÁ¿¸üÐÂÖÐÊÕ¼¤Àø½ð¶î')
+--2016/3/16 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values(1495,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½','../tcp/batchUpdateIbMoney.jsp',14,1,1402,99,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
 
 
---2016/3/18 ÐÂÔöÔöÖµË°·¢Æ±17
-insert into T_CENTER_INVOICE values('90000000000000000034','ÔöÖµË°×¨ÓÃ·¢Æ±17%',0,1,1,17,'ÔöÖµË°×¨ÓÃ·¢Æ±17%')
+--2016/3/18 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÖµË°ï¿½ï¿½Æ±17
+insert into T_CENTER_INVOICE values('90000000000000000034','ï¿½ï¿½ÖµË°×¨ï¿½Ã·ï¿½Æ±17%',0,1,1,17,'ï¿½ï¿½ÖµË°×¨ï¿½Ã·ï¿½Æ±17%')
 insert into T_CENTER_VS_DUTYINV values('16',4, '90000000000000000034')
 alter table T_CENTER_INVOICEINS_IMPORT add column zzsInfo varchar(200) default '';
 alter table T_CENTER_INVOICEINS add column zzsInfo varchar(200) default '';
 
---2016/3/19 ÍË¿âÊ±Ôö¼ÓÀ¸Î»¿ìµÝµ¥ºÅ
+--2016/3/19 ï¿½Ë¿ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½
 alter table t_center_out add column transportNo varchar(100) default ''
 alter table T_CENTER_BATCHSWATCH add column transportNo varchar(100) default ''
 
---2016/3/20 ÊÕ»õµÇ¼ÇÁ÷³Ì±ä¸ü
+--2016/3/20 ï¿½Õ»ï¿½ï¿½Ç¼ï¿½ï¿½ï¿½ï¿½Ì±ï¿½ï¿½ï¿½
 alter table T_CENTER_OUTBACK add column note varchar(1024) default '',add column handoverReason varchar(100) default ''
 alter table T_CENTER_OUTBACK add column handoverChecker varchar(16) default '',add column handoverCheckTime varchar(100) default '', add column confirmChecker varchar(16) default '',add column confirmCheckTime varchar(100) default ''
-insert into t_center_oamenuitem values(1519,'Ñé»õ½»½Ó','../sail/queryOutBack.jsp?mode=4',15,1,1501,12,'Ñé»õ½»½Ó')
-insert into t_center_oamenuitem values(1520,'ÉÌÎñÈ·ÈÏ','../sail/queryOutBack.jsp?mode=5',15,1,1501,13,'Ñé»õ½»½Ó')
+insert into t_center_oamenuitem values(1519,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½','../sail/queryOutBack.jsp?mode=4',15,1,1501,12,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
+insert into t_center_oamenuitem values(1520,'ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½','../sail/queryOutBack.jsp?mode=5',15,1,1501,13,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
 update t_center_oamenuitem set indexPos = indexPos+2 where id in ('1516','1517','1518')
 
---2016/4/14 ÓÊ¼þÏÂÔØÉú³ÉÏúÊÛµ¥
+--2016/4/14 ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ûµï¿½
 create table T_CENTER_CITIC_ORDER (	
 id int(11) NOT NULL AUTO_INCREMENT,
 mailId varchar(100) NOT NULL,
@@ -346,10 +346,10 @@ PRIMARY KEY (id),
 UNIQUE KEY `INX_ALL` (`citicNo`,`productName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
 
---2016/4/20 ·¢»õÓÊ¼þ¸øÏúÊÛÈËÔ±
+--2016/4/20 ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±
 alter table T_CENTER_PACKAGE add column sendMailFlagSails int(11) default -1
 
---2016/4/23 Æ±Ëæ»õ·¢ÐÞ¸Ä
+--2016/4/23 Æ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½
 CREATE TABLE `T_CENTER_TEMPCONSIGN` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `outId` varchar(1024) DEFAULT NULL,
@@ -357,8 +357,8 @@ CREATE TABLE `T_CENTER_TEMPCONSIGN` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---2016/4/30 ÒøÐÐÒµÎñ²¿²ã¼¶¹ØÏµµ¼Èë
-insert into t_center_oamenuitem values('1924','ÒøÐÐÒµÎñ²¿²ã¼¶¹ØÏµµ¼Èë','../tcp/importBankBuLevel.jsp','19',1,'0000',21,'ÒøÐÐÒµÎñ²¿²ã¼¶¹ØÏµµ¼Èë')
+--2016/4/30 ï¿½ï¿½ï¿½ï¿½Òµï¿½ñ²¿²ã¼¶ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values('1924','ï¿½ï¿½ï¿½ï¿½Òµï¿½ñ²¿²ã¼¶ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½','../tcp/importBankBuLevel.jsp','19',1,'0000',21,'ï¿½ï¿½ï¿½ï¿½Òµï¿½ñ²¿²ã¼¶ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½')
 CREATE TABLE `T_CENTER_BANKBU_LEVEL` (
   `id` varchar(40) NOT NULL,
   `name` varchar(40) NOT NULL,
@@ -374,11 +374,11 @@ alter table T_CENTER_COMPOSE add column description varchar(1024) default ''
 
 alter table T_CENTER_TEMPCONSIGN modify column outId varchar(1024);
 
---2016/5/17 µ¼Èë¿Í»§µØÖ·ÐÅÏ¢
+--2016/5/17 ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ï¢
 alter table T_CENTER_VS_CUSTADDR add column shipping int(11) DEFAULT -1,add column transport1 int(11) DEFAULT 0,add column transport2 int(11) DEFAULT 0, add column expressPay int(11) DEFAULT -1,add column transportPay int(11) DEFAULT -1
-insert into t_center_oamenuitem values('0232','µ¼Èë¿Í»§µØÖ·ÐÅÏ¢','../client/importCustomerAddress.jsp','02',1,'0201',99,'µ¼Èë¿Í»§µØÖ·ÐÅÏ¢')
+insert into t_center_oamenuitem values('0232','ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ï¢','../client/importCustomerAddress.jsp','02',1,'0201',99,'ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ï¢')
 
---2016/5/25 µ¼ÈëÖ÷²úÆ·Êý¾Ý
+--2016/5/25 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½
 CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   `id` varchar(40) NOT NULL,
   `bank` varchar(40) NOT NULL,
@@ -404,11 +404,11 @@ CREATE TABLE `T_CENTER_PRODUCT_IMPORT` (
   `invoiceContent` varchar(256) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-insert into t_center_oamenuitem values(1034,'ÅúÁ¿µ¼Èë²úÆ·Ö÷Êý¾Ý','../product/importProductForMailOut.jsp',10,1,101001,27,'ÅúÁ¿µ¼Èë²úÆ·Ö÷Êý¾Ý')
+insert into t_center_oamenuitem values(1034,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½','../product/importProductForMailOut.jsp',10,1,101001,27,'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
 
---2016/6/5 ÐÂ²úÆ·ÉêÇëÁ÷³Ì
-insert into t_center_oamenuitem values(1021,'ÐÂ²úÆ·-²ÆÎñ×Ü¼àÉóÅú','../product/queryProductApply.jsp?forward=1',10,1,101003,14,null)
-update t_center_oamenuitem set menuitemname='ÐÂ²úÆ·-Õ½ÂÔÉóÅú' where id=1022 and menuitemname='ÐÂ²úÆ·-ÔËÓªÖÐÐÄÉóÅú'
+--2016/6/5 ï¿½Â²ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+insert into t_center_oamenuitem values(1021,'ï¿½Â²ï¿½Æ·-ï¿½ï¿½ï¿½ï¿½ï¿½Ü¼ï¿½ï¿½ï¿½ï¿½ï¿½','../product/queryProductApply.jsp?forward=1',10,1,101003,14,null)
+update t_center_oamenuitem set menuitemname='ï¿½Â²ï¿½Æ·-Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' where id=1022 and menuitemname='ï¿½Â²ï¿½Æ·-ï¿½ï¿½Óªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'
 
 --2016/6/5 #256
 drop PROCEDURE if exists auth_user
@@ -509,3 +509,37 @@ alter table T_CENTER_TCPIBREPORT_ITEM add column price double default '0'
 
 --#287
 alter table T_CENTER_OUTPRODUCT add column shipping int(11) default 0, add column pay int(11) default -1
+
+-- #294
+drop PROCEDURE if exists update_pay
+CREATE PROCEDURE update_pay(in po_date varchar(100))
+BEGIN
+   DECLARE outId varchar(100) DEFAULT "";
+   DECLARE total int(11) default -1;
+   DECLARE total_in int(11) default -1;
+   DECLARE no_more_rows BOOLEAN;
+   
+   DEClARE out_cursor CURSOR FOR select OutBean.fullId,OutBean.total from T_CENTER_out OutBean where OutBean.poDate>=po_date and OutBean.type=0 and OutBean.pay=0 and OutBean.outType=1 and exists (select OutBean2.* from T_CENTER_out OutBean2 where OutBean2.refOutFullId=OutBean.fullId and OutBean2.type=1 and OutBean2.status in(3,4));
+   DECLARE CONTINUE HANDLER FOR NOT FOUND
+    SET no_more_rows = TRUE;
+          
+   OPEN out_cursor;
+   the_loop: LOOP
+   FETCH out_cursor INTO outId,total;
+    IF no_more_rows THEN
+        CLOSE out_cursor;
+        LEAVE the_loop;
+    END IF;
+   select outId,total;
+   select sum(OutBean2.total) into total_in from T_CENTER_out OutBean2 where OutBean2.type=1 and OutBean2.status in(3,4) and OutBean2.refOutFullId=outId;
+   select total_in;
+   select abs(total-total_in);
+   if abs(total-total_in)<=0.01 then 
+      #select "all in ";
+      update t_center_out set pay=1 where fullid=outId;
+      SELECT ROW_COUNT();
+   end if;
+   END LOOP the_loop; 
+END 
+
+call update_pay('2016-01-01')
