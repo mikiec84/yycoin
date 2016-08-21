@@ -40,7 +40,7 @@
 
 function changeLocation(obj){
     var value = obj.value;
-    console.log(value);
+//    console.log(value);
 //    console.log(obj.val())
 //    var depotPartSelect = $(this).closest('tr').find('select[name="depotPart"]');
 //    console.log(depotPartSelect);
@@ -48,22 +48,22 @@ function changeLocation(obj){
 //    console.log(depotPartSelect);
 
     var os = obj.parentNode.parentNode;
-    console.log(os);
-    console.log(os.cells);
-    console.log(os.cells[0]);
-    console.log(os.cells[0].childNodes);
+//    console.log(os);
+//    console.log(os.cells);
+//    console.log(os.cells[0]);
+//    console.log(os.cells[0].childNodes);
     var depotPartSelect = os.cells[3].childNodes[1];
-    console.log(depotPartSelect);
+//    console.log(depotPartSelect);
 //    var selectedLocation = $("#budget option:selected");
 //    console.log("selectedLocation**"+selectedLocation);
 //    var locationId = selectedLocation.val();
 //    console.log("***budget id***"+locationId);
     $ajax('../sail/out.do?method=queryDepotPart&locationId='+value,
             function(data){
-            console.log(data);
+//            console.log(data);
             var dataList = data.obj;
-            console.log(dataList);
-            //TODO render select
+//            console.log(dataList);
+            //render select
             removeAllItem(depotPartSelect);
             setOption(depotPartSelect, "-", "");
             for (var j = 0; j < dataList.length; j++)
