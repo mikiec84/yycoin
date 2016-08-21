@@ -34,7 +34,7 @@
     {
         if (window.confirm('确定驳回此调出的库单?'))
         {
-            document.location.href = '../sail/out.do?method=processInvoke&outId=${bean.fullId}&flag=3';
+            document.location.href = '../sail/out.do?method=processInvoke2&outId=${bean.fullId}&flag=3';
         }
     }
 
@@ -77,7 +77,7 @@ function changeLocation(obj){
 </script>
 </head>
 <body class="body_class" onload="load()">
-<form name="backForm" id="backForm" method="post" action="../sail/out.do?method=processInvoke">
+<form name="backForm" id="backForm" method="post" action="../sail/out.do?method=processInvoke2">
 <input type=hidden name="flag" value="1" />
 <input type=hidden name="productList" />
 <input type=hidden id="outId" name="outId" value="${bean.fullId}"/>
@@ -168,7 +168,7 @@ function changeLocation(obj){
                     <!--用来作为新增行时copy只用 -->
 					<tr class="content1" id="trCopy" style="display: none;">
                         <td>
-                            <select name="productName" class="select_class product" style="width: 100%">
+                            <select name="productId" class="select_class product" style="width: 100%">
                                 <option value="">--</option>
                                 <c:forEach items='${bean.baseList}' var="item">
                                     <option value="${item.productId}">${item.productName}</option>
@@ -192,7 +192,7 @@ function changeLocation(obj){
                         <td>
                             <select name="depotPart" class="select_class" style="width: 100%">
                                 <option value="">--</option>
-                                <c:forEach items='${depotartList}' var="depotPart">
+                                <c:forEach items='${depotpartList}' var="depotPart">
                                     <option value="${depotPart.id}" selected>${depotPart.name}</option>
                                 </c:forEach>
                             </select>
@@ -206,7 +206,7 @@ function changeLocation(obj){
                     <c:forEach items="${bean.baseList}" var="item" varStatus="vs">
                         <tr class="content1">
                             <td>
-                                <select name="productName" class="select_class product" style="width: 100%">
+                                <select name="productId" class="select_class product" style="width: 100%">
                                     <option value="">--</option>
                                     <c:forEach items='${baseBeans}' var="base">
                                         <c:if test="${base.productName == item.productName}">
@@ -240,7 +240,7 @@ function changeLocation(obj){
                             <td>
                                 <select name="depotPart" class="select_class" style="width: 100%">
                                     <option value="">--</option>
-                                    <c:forEach items='${depotartList}' var="depotPart">
+                                    <c:forEach items='${depotpartList}' var="depotPart">
                                         <option value="${depotPart.id}">${depotPart.name}</option>
                                     </c:forEach>
                                 </select>

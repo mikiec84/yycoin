@@ -252,8 +252,6 @@ public class OutAction extends ParentOutAction
         String flag = request.getParameter("flag");
         _logger.info("***process invoke with fullId "+fullId+" flag "+flag);
 
-//        String depotpartId = request.getParameter("depotpartId");
-
         User user = (User)request.getSession().getAttribute("user");
 
 
@@ -322,60 +320,64 @@ public class OutAction extends ParentOutAction
             newOut.setTotal( -newOut.getTotal());
 
             List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(fullId);
+            List<BaseBean> baseBeans = this.getBaseBeansFromRequestForInvoke(request);
 
-            List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
+            Map<String ,Integer> product2AmountMap1 = new HashMap<String , Integer>();
+            if (!ListTools.isEmptyOrNull(baseList)){
+                for (BaseBean baseBean: baseList){
+                    String productId = baseBean.getProductId();
+                     if (product2AmountMap1.get(productId) == null){
+                         product2AmountMap1.put(productId, baseBean.getAmount());
+                     } else{
+                         product2AmountMap1.put(productId, baseBean.getAmount()+product2AmountMap1.get(productId));
+                     }
+                }
+            }
+            Map<String ,Integer> product2AmountMap2 = new HashMap<String , Integer>();
 
             //根据数据库中BaseBean进行相应设置
             if (!ListTools.isEmptyOrNull(baseBeans)){
                 for (BaseBean base :baseBeans){
                     String productId = base.getProductId();
+                    if (product2AmountMap2.get(productId) == null){
+                        product2AmountMap2.put(productId, base.getAmount());
+                    } else{
+                        product2AmountMap2.put(productId, base.getAmount()+product2AmountMap2.get(productId));
+                    }
+
                     for(BaseBean b : baseList){
                         if (productId.equals(b.getProductId())){
+                            base.setProductName(b.getProductName());
                             base.setCostPrice(b.getCostPrice());
+                            base.setCostPriceKey(b.getCostPriceKey());
                             base.setOwner(b.getOwner());
                             base.setInputRate(b.getInputRate());
                             base.setPrice(b.getPrice());
-                            base.setValue(-base.getValue());
                             base.setAmount(-base.getAmount());
+                            base.setValue(base.getAmount()*base.getPrice());
+
+                            DepotpartBean depotpart = depotpartDAO.find(base.getDepotpartId());
+                            if (depotpart!= null){
+                                base.setDepotpartName(depotpart.getName());
+                            }
+                            continue;
                         }
                     }
                 }
             }
-//            if (StringTools.isNullOrNone(depotpartId))
-//            {
-//                DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(outBean
-//                    .getDestinationId());
-//
-//                if (defaultOKDepotpart == null)
-//                {
-//                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
-//
-//                    return mapping.findForward("error");
-//                }
-//
-//                depotpartId = defaultOKDepotpart.getId();
-//            }
 
-//            DepotpartBean depotpart = depotpartDAO.find(depotpartId);
-//
-//            if (depotpart == null)
-//            {
-//                request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓库下没有良品仓，请核实");
-//
-//                return mapping.findForward("error");
-//            }
+            for(String productId : product2AmountMap1.keySet()){
+                if (!product2AmountMap1.get(productId).equals(product2AmountMap2.get(productId))){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "退库数量不符,productId:"+productId);
 
-//            for (BaseBean baseBean : baseList)
-//            {
-//                // 获得仓库默认的仓区
-//                baseBean.setDepotpartId(depotpartId);
-//                baseBean.setValue(-baseBean.getValue());
-//                baseBean.setLocationId(outBean.getDestinationId());
-//                baseBean.setAmount(-baseBean.getAmount());
-//                baseBean.setDepotpartName(depotpart.getName());
-//            }
+                    return mapping.findForward("error");
+                }
+            }
 
-            List<BaseBean> lastList = OutHelper.trimBaseList(baseList);
+            List<BaseBean> lastList = OutHelper.trimBaseList(baseBeans);
+            for(BaseBean baseBean : lastList){
+                _logger.info("***add base bean***"+baseBean);
+            }
 
             newOut.setBaseList(lastList);
 
@@ -453,6 +455,43 @@ public class OutAction extends ParentOutAction
         request.setAttribute("queryType", "4");
 
         return queryBuy(mapping, form, request, reponse);
+    }
+
+    protected List<BaseBean> getBaseBeansFromRequestForInvoke(HttpServletRequest request){
+        List<BaseBean> baseBeans = new ArrayList<BaseBean>();
+        String[] products = request.getParameterValues("productId");
+        String[] amounts = request.getParameterValues("amount");
+        String[] locations = request.getParameterValues("location");
+        String[] depotParts = request.getParameterValues("depotPart");
+
+        if (products!= null && products.length>0){
+            for (int i=0;i<products.length;i++){
+                String productId = products[i];
+                String amount = amounts[i];
+                String location = locations[i];
+                if (!StringTools.isNullOrNone(productId)){
+                    BaseBean bean = new BaseBean();
+                    bean.setProductId(productId);
+                    bean.setAmount(Integer.valueOf(amount));
+                    bean.setLocationId(location);
+
+                    //#270
+                   if (depotParts!= null && depotParts.length>i){
+                       String depotPartId = depotParts[i];
+                       bean.setDepotpartId(depotPartId);
+                   } else{
+                       // 默认仓区
+                       DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(location);
+                       bean.setDepotpartId(defaultOKDepotpart.getId());
+                   }
+
+                    baseBeans.add(bean);
+                    _logger.info("*******getBaseBeansFromRequestForInvoke ***"+bean);
+                }
+            }
+        }
+
+        return baseBeans;
     }
 
     public ActionForward processInvoke(ActionMapping mapping, ActionForm form,
@@ -2765,15 +2804,14 @@ public class OutAction extends ParentOutAction
             request.setAttribute("depotpartList", depotpartList);
 
             //#270 2016/7/23 added
-//            request.setAttribute("destinationId", bean.getDestinationId());
-//            //入库仓库列表
-//            List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
-//            request.setAttribute("locationList", locationList);
-//            request.setAttribute("baseBeans", bean.getBaseList());
-//            request.setAttribute("stockInType","调拨");
+            request.setAttribute("destinationId", bean.getDestinationId());
+            List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
+            request.setAttribute("locationList", locationList);
+            request.setAttribute("baseBeans", bean.getBaseList());
+            request.setAttribute("stockInType","调拨");
 
-            return mapping.findForward("handerInvokeBuy");
-//            return mapping.findForward("stockIn");
+//            return mapping.findForward("handerInvokeBuy");
+            return mapping.findForward("stockIn");
         }
 
         // 修改发票类型

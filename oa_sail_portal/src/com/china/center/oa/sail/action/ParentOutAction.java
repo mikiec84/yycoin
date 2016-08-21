@@ -7148,7 +7148,6 @@ public class ParentOutAction extends DispatchAction
         String[] products = request.getParameterValues("productName");
         String[] amounts = request.getParameterValues("amount");
         String[] locations = request.getParameterValues("location");
-//        String[] depotParts = request.getParameterValues("depotPart");
 
         if (products!= null && products.length>0){
            for (int i=0;i<products.length;i++){
