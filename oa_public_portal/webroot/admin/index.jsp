@@ -266,7 +266,7 @@ function load()
 	    {
 	        isActive = false;
 	        
-	        alert('安全控件初始化失败,请使用IE内核浏览器且下载安全控件');
+//	        alert('安全控件初始化失败,请使用IE内核浏览器且下载安全控件');
 	    }
     }
 }

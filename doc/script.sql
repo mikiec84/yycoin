@@ -511,6 +511,11 @@ alter table T_CENTER_TCPIBREPORT_ITEM add column price double default '0'
 alter table T_CENTER_OUTPRODUCT add column shipping int(11) default 0, add column pay int(11) default -1
 
 -- #294
+CREATE TABLE t_center_tempout (
+  `Id` int(11) NOT NULL AUTO_INCREMENT,
+  `outId` varchar(40) DEFAULT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8
 drop PROCEDURE if exists update_pay
 CREATE PROCEDURE update_pay(in po_date varchar(100))
 BEGIN
@@ -530,16 +535,17 @@ BEGIN
         CLOSE out_cursor;
         LEAVE the_loop;
     END IF;
-   select outId,total;
+   #select outId,total;
    select sum(OutBean2.total) into total_in from T_CENTER_out OutBean2 where OutBean2.type=1 and OutBean2.status in(3,4) and OutBean2.refOutFullId=outId;
-   select total_in;
-   select abs(total-total_in);
+   #select total_in;
+   #select abs(total-total_in);
    if abs(total-total_in)<=0.01 then 
-      #select "all in ";
       update t_center_out set pay=1 where fullid=outId;
-      SELECT ROW_COUNT();
+      insert into t_center_tempout(outid) values(outId);
+      #SELECT ROW_COUNT();
    end if;
    END LOOP the_loop; 
+   select * from t_center_tempout;
 END 
 
 call update_pay('2016-01-01')
