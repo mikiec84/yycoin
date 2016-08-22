@@ -3358,9 +3358,23 @@ public class OutImportManagerImpl implements OutImportManager
 						BaseBean baseBean = new BaseBean();
 						baseBean.setId(commonDAO.getSquenceString());
 						baseBean.setOutId(fullId);
-						baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
-						baseBean.setDepotpartId("1");
-						baseBean.setDepotpartName("可发成品仓");
+
+                        if (StringTools.isNullOrNone(olBaseBean.getDepot())){
+                            baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
+                            baseBean.setDepotpartId("1");
+                            baseBean.setDepotpartName("可发成品仓");
+                        } else{
+                            baseBean.setLocationId(olBaseBean.getDepot());
+                            DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(olBaseBean.getDepot());
+                            if (defaultOKDepotpart == null){
+                                _logger.error("defaultOKDepotpart is null:"+olBaseBean.getDepot());
+                                this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"depot不存在");
+                                continue;
+                            } else{
+                                baseBean.setDepotpartId(defaultOKDepotpart.getId());
+                                baseBean.setDepotpartName(defaultOKDepotpart.getName());
+                            }
+                        }
 
 						ProductBean product = productCodeMap.get(olBaseBean.getProductCode());
 						if (product == null) {
@@ -3635,6 +3649,23 @@ public class OutImportManagerImpl implements OutImportManager
 
                             baseBean.setId(commonDAO.getSquenceString());
                             baseBean.setOutId(fullId);
+
+                            if (StringTools.isNullOrNone(item.getDepot())){
+                                baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
+                                baseBean.setDepotpartId("1");
+                                baseBean.setDepotpartName("可发成品仓");
+                            } else{
+                                baseBean.setLocationId(item.getDepot());
+                                DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(item.getDepot());
+                                if (defaultOKDepotpart == null){
+                                    _logger.error("defaultOKDepotpart is null:"+item.getDepot());
+                                    this.updateDescription(item,item.getDescription()+"_ERROR_"+"depot does not exist:"+item.getDepot());
+                                    continue;
+                                } else{
+                                    baseBean.setDepotpartId(defaultOKDepotpart.getId());
+                                    baseBean.setDepotpartName(defaultOKDepotpart.getName());
+                                }
+                            }
 
                             baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
                             baseBean.setDepotpartId("1");

@@ -47,6 +47,8 @@ public class OutBackItemBean implements Serializable
 
     private String changeTime = "";
 
+    private String depot = "";
+
     public String getId() {
         return id;
     }
@@ -151,6 +153,14 @@ public class OutBackItemBean implements Serializable
         this.changeTime = changeTime;
     }
 
+    public String getDepot() {
+        return depot;
+    }
+
+    public void setDepot(String depot) {
+        this.depot = depot;
+    }
+
     @Override
     public String toString() {
         return "OutBackItemBean{" +
@@ -167,6 +177,7 @@ public class OutBackItemBean implements Serializable
                 ", invoiceNum='" + invoiceNum + '\'' +
                 ", description='" + description + '\'' +
                 ", changeTime='" + changeTime + '\'' +
+                ", depot='" + depot + '\'' +
                 '}';
     }
 }

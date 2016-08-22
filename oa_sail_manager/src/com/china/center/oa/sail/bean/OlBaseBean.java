@@ -57,6 +57,8 @@ public class OlBaseBean implements Serializable
 
     private String changeTime = "";
 
+    private String depot = "";
+
     /**
      * default constructor
      */
@@ -144,6 +146,14 @@ public class OlBaseBean implements Serializable
         this.changeTime = changeTime;
     }
 
+    public String getDepot() {
+        return depot;
+    }
+
+    public void setDepot(String depot) {
+        this.depot = depot;
+    }
+
     @Override
     public String toString() {
         return "OlBaseBean{" +
@@ -157,6 +167,7 @@ public class OlBaseBean implements Serializable
                 ", ibMoney=" + ibMoney +
                 ", motivationMoney=" + motivationMoney +
                 ", changeTime='" + changeTime + '\'' +
+                ", depot='" + depot + '\'' +
                 '}';
     }
 
