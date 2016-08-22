@@ -539,7 +539,7 @@ BEGIN
    select sum(OutBean2.total) into total_in from T_CENTER_out OutBean2 where OutBean2.type=1 and OutBean2.status in(3,4) and OutBean2.refOutFullId=outId;
    #select total_in;
    #select abs(total-total_in);
-   if abs(total-total_in)<=0.01 then 
+   if abs(total-total_in)<=0.001 then 
       update t_center_out set pay=1 where fullid=outId;
       insert into t_center_tempout(outid) values(outId);
       #SELECT ROW_COUNT();
@@ -548,4 +548,4 @@ BEGIN
    select * from t_center_tempout;
 END 
 
-call update_pay('2016-01-01')
+call update_pay('2016-08-22')
