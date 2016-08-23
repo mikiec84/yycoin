@@ -3643,8 +3643,19 @@ public class OutImportManagerImpl implements OutImportManager
                             }
                         }
 
-                        _logger.info("***total "+total+"***stockInAmount***"+stockInAmount+"***to in**"+item.getAmount());
-                        if (total - stockInAmount>=Integer.valueOf(item.getAmount())){
+                        _logger.info("***total " + total + "***stockInAmount***" + stockInAmount + "***to in**" + item.getAmount());
+
+						int amount = 0;
+
+						try {
+							amount = Integer.valueOf(item.getAmount());
+						}catch(NumberFormatException e){
+							_logger.error("amount should be integer "+item.getAmount());
+							this.updateDescription(item,item.getDescription()+"_ERROR_"+"amount should be integer:"+item.getAmount());
+							continue;
+						}
+
+                        if (total - stockInAmount>= amount){
                             BaseBean baseBean = new BaseBean();
 
                             baseBean.setId(commonDAO.getSquenceString());
@@ -3667,10 +3678,6 @@ public class OutImportManagerImpl implements OutImportManager
                                 }
                             }
 
-                            baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
-                            baseBean.setDepotpartId("1");
-                            baseBean.setDepotpartName("可发成品仓");
-
                             ProductBean product = this.productDAO.find(item.getProductId());
                             if (product == null){
                                 _logger.error("No product found "+item.getProductId());
@@ -3681,7 +3688,8 @@ public class OutImportManagerImpl implements OutImportManager
                             baseBean.setProductName(item.getProductName());
 
                             baseBean.setUnit("套");
-                            baseBean.setAmount(Integer.valueOf(item.getAmount()));
+							baseBean.setAmount(amount);
+
                             //TODO
                             baseBean.setPrice(baseList.get(0).getPrice());
                             baseBean.setValue(baseBean.getAmount()*baseBean.getPrice());
@@ -3731,13 +3739,13 @@ public class OutImportManagerImpl implements OutImportManager
                             //生成退货单号时，也同时写入t_center_outback表的description字段中，增加在现有字段后，根据outbackid 到outback表找对应的id
                             OutBackBean outBackBean = this.outBackDAO.find(item.getOutBackId());
                             if (outBackBean!= null){
-                                this.outBackDAO.updateDescription(item.getOutBackId(), outBackBean.getDescription()+"_"+fullId);
+                                this.outBackDAO.updateDescription(item.getOutBackId(), outBackBean.getDescription() + "_"+fullId);
 								//更新out表的transportNo
-                                outBean.setTransportNo(outBackBean.getTransportNo());
+								outBean.setTransportNo(outBackBean.getTransportNo());
                             }
                         } else{
-                            _logger.error("Can not in stock "+outId);
-                            this.updateDescription(item,item.getDescription()+"_ERROR_"+"amount exceed");
+                            _logger.error("Can not in stock " + outId);
+                            this.updateDescription(item, item.getDescription() + "_ERROR_" + "amount exceed");
                             continue;
                         }
                     }
@@ -3762,7 +3770,9 @@ public class OutImportManagerImpl implements OutImportManager
     }
 
     private void updateDescription(OutBackItemBean item, String description){
+		_logger.info(item.getId()+" updateDescription***"+item.getDescription()+":"+description);
         if (StringTools.isNullOrNone(item.getDescription()) || !item.getDescription().contains("ERROR")){
+			_logger.info(item.getId()+" updateDescription now***"+item.getDescription()+":"+description);
             this.outBackItemDAO.updateDescription(item.getId(),description);
         }
     }
