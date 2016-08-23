@@ -357,7 +357,10 @@ public class OutAction extends ParentOutAction
                             base.setValue(base.getAmount()*base.getPrice());
 
                             DepotpartBean depotpart = depotpartDAO.find(base.getDepotpartId());
-                            if (depotpart!= null){
+                            if (depotpart == null){
+                                request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓区不能为空!");
+                                return mapping.findForward("error");
+                            } else{
                                 base.setDepotpartName(depotpart.getName());
                             }
                             continue;
@@ -2805,6 +2808,10 @@ public class OutAction extends ParentOutAction
 
             //#270 2016/7/23 added
             request.setAttribute("destinationId", bean.getDestinationId());
+            DepotpartBean depotpartBean = this.depotpartDAO.findDefaultOKDepotpart(bean.getDestinationId());
+            if (depotpartBean!= null){
+                request.setAttribute("defaultDepotpart", depotpartBean.getId());
+            }
             List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
             request.setAttribute("locationList", locationList);
             request.setAttribute("baseBeans", bean.getBaseList());

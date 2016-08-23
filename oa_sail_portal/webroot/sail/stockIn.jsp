@@ -224,7 +224,7 @@ function changeLocation(obj){
                             </td>
 
                             <td>
-                                <select name="location" class="select_class location" style="width: 100%" onchange="changeLocation(this)">
+                                <select name="location" class="select_class location" style="width: 100%" onchange="changeLocation(this)" oncheck="notNone;">
                                     <option value="">--</option>
                                     <c:forEach items='${locationList}' var="location">
                                         <c:if test="${location.id == destinationId}">
@@ -238,10 +238,15 @@ function changeLocation(obj){
                             </td>
 
                             <td>
-                                <select name="depotPart" class="select_class" style="width: 100%">
+                                <select name="depotPart" class="select_class" style="width: 100%" oncheck="notNone;">
                                     <option value="">--</option>
                                     <c:forEach items='${depotpartList}' var="depotPart">
-                                        <option value="${depotPart.id}">${depotPart.name}</option>
+                                        <c:if test="${depotPart.id == defaultDepotpart}">
+                                            <option value="${depotPart.id}" selected>${depotPart.name}</option>
+                                        </c:if>
+                                        <c:if test="${depotPart.id != defaultDepotpart}">
+                                            <option value="${depotPart.id}">${depotPart.name}</option>
+                                        </c:if>
                                     </c:forEach>
                                 </select>
                             </td>
