@@ -549,3 +549,16 @@ BEGIN
 END 
 
 call update_pay('2016-08-22')
+
+#294
+show processlist;
+SET GLOBAL event_scheduler = ON;
+DROP EVENT IF EXISTS update_pay_minutely
+CREATE EVENT update_pay_minutely
+    ON SCHEDULE
+      EVERY 10 MINUTE
+    DO
+      BEGIN
+        call update_pay('2016-01-01');
+        insert into t_center_tempout(outid) values(now());
+      END
