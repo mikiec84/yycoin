@@ -2817,8 +2817,8 @@ public class OutAction extends ParentOutAction
             request.setAttribute("baseBeans", bean.getBaseList());
             request.setAttribute("stockInType","调拨");
 
-//            return mapping.findForward("handerInvokeBuy");
-            return mapping.findForward("stockIn");
+            return mapping.findForward("handerInvokeBuy");
+//            return mapping.findForward("stockIn");
         }
 
         // 修改发票类型
