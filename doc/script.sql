@@ -524,7 +524,7 @@ BEGIN
    DECLARE total_in int(11) default -1;
    DECLARE no_more_rows BOOLEAN;
    
-   DEClARE out_cursor CURSOR FOR select OutBean.fullId,OutBean.total from T_CENTER_out OutBean where OutBean.poDate>=po_date and OutBean.type=0 and OutBean.pay=0 and OutBean.outType=1 and exists (select OutBean2.* from T_CENTER_out OutBean2 where OutBean2.refOutFullId=OutBean.fullId and OutBean2.type=1 and OutBean2.status in(3,4));
+   DEClARE out_cursor CURSOR FOR select OutBean.fullId,OutBean.total from T_CENTER_out OutBean where OutBean.poDate>=po_date and OutBean.type=0 and OutBean.pay=0  and exists (select OutBean2.* from T_CENTER_out OutBean2 where OutBean2.refOutFullId=OutBean.fullId and OutBean2.type=1 and OutBean2.status in(3,4));
    DECLARE CONTINUE HANDLER FOR NOT FOUND
     SET no_more_rows = TRUE;
           
