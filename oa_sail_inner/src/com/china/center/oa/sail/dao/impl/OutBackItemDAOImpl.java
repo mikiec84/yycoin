@@ -33,4 +33,10 @@ public class OutBackItemDAOImpl extends BaseDAO<OutBackItemBean, OutBackItemBean
         jdbcOperation.update(sql, description, TimeTools.now(), itemId);
     }
 
+    @Override
+    public void updateDescriptionByOutId(String outId, String description) {
+        String sql = "update t_center_outback_item set description = ?,changeTime=? where outId = ?";
+
+        jdbcOperation.update(sql, description, TimeTools.now(), outId);
+    }
 }

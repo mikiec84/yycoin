@@ -3508,7 +3508,11 @@ public class OutImportManagerImpl implements OutImportManager
     private void mergeItem(List<OutBackItemBean> items,OutBackItemBean item){
         boolean merged = false;
         for (OutBackItemBean itemBean: items){
-            if (itemBean.getOutId().equals(item.getOutId()) && itemBean.getProductId().equals(item.getProductId())) {
+			if (itemBean.equals(item)){
+				itemBean.setDuplicate(true);
+				item.setDuplicate(true);
+				break;
+			} else if (itemBean.getOutId().equals(item.getOutId()) && itemBean.getProductId().equals(item.getProductId())) {
                 int sum =  Integer.valueOf(itemBean.getAmount())+Integer.valueOf(item.getAmount());
                 itemBean.setAmount(String.valueOf(sum));
                 merged = true;
@@ -3548,13 +3552,15 @@ public class OutImportManagerImpl implements OutImportManager
             for (String outId : outId2ItemMap.keySet()){
                 //检查对应销售单的出库数量，减去已退库数量，与outback_item当前行的数量比较，如大于，则生成退库单
                 OutBean originalOut = this.outDAO.find(outId);
+				List<OutBackItemBean> items = outId2ItemMap.get(outId);
+				_logger.info(outId+"***out back item size "+items.size());
+				OutBackItemBean firstItem = items.get(0);
+
                 if (originalOut == null){
                     _logger.error("No out found "+outId);
+					this.updateDescriptionByOutId(firstItem,firstItem.getDescription()+"_ERROR_"+"no t_center_out found");
                     continue;
                 } else{
-                    List<OutBackItemBean> items = outId2ItemMap.get(outId);
-                    _logger.info(outId+"***out back item size "+items.size());
-                    OutBackItemBean firstItem = items.get(0);
                     List<BaseBean> baseBeanList = new ArrayList<BaseBean>();
                     double value = 0;
 
@@ -3605,6 +3611,11 @@ public class OutImportManagerImpl implements OutImportManager
                     outBean.setFullId(fullId);
 
                     for (OutBackItemBean item: items){
+						if (item.isDuplicate()){
+							_logger.error("Duplicate item "+item.getId());
+							this.updateDescription(item,item.getDescription()+"_ERROR_"+"duplicate item");
+							continue;
+						}
                         //对应销售单的出库数量
                         int total = 0;
                         ConditionParse conditionParse1 = new ConditionParse();
@@ -3776,6 +3787,12 @@ public class OutImportManagerImpl implements OutImportManager
             this.outBackItemDAO.updateDescription(item.getId(),description);
         }
     }
+
+	private void updateDescriptionByOutId(OutBackItemBean item, String description){
+		if (StringTools.isNullOrNone(item.getDescription()) || !item.getDescription().contains("ERROR")){
+			this.outBackItemDAO.updateDescriptionByOutId(item.getOutId(),description);
+		}
+	}
 
     public PlatformTransactionManager getTransactionManager()
 	{

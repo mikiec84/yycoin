@@ -12,4 +12,6 @@ public interface OutBackItemDAO extends DAO<OutBackItemBean, OutBackItemBean>
 
     public void updateDescription(String itemId, String description);
 
+    public void updateDescriptionByOutId(String outId, String description);
+
 }

@@ -49,6 +49,9 @@ public class OutBackItemBean implements Serializable
 
     private String depot = "";
 
+    @Ignore
+    private boolean duplicate = false;
+
     public String getId() {
         return id;
     }
@@ -161,6 +164,14 @@ public class OutBackItemBean implements Serializable
         this.depot = depot;
     }
 
+    public boolean isDuplicate() {
+        return duplicate;
+    }
+
+    public void setDuplicate(boolean duplicate) {
+        this.duplicate = duplicate;
+    }
+
     @Override
     public String toString() {
         return "OutBackItemBean{" +
@@ -179,5 +190,26 @@ public class OutBackItemBean implements Serializable
                 ", changeTime='" + changeTime + '\'' +
                 ", depot='" + depot + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OutBackItemBean that = (OutBackItemBean) o;
+
+        if (!getOutId().equals(that.getOutId())) return false;
+        if (!getProductId().equals(that.getProductId())) return false;
+        return getAmount().equals(that.getAmount());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getOutId().hashCode();
+        result = 31 * result + getProductId().hashCode();
+        result = 31 * result + getAmount().hashCode();
+        return result;
     }
 }
