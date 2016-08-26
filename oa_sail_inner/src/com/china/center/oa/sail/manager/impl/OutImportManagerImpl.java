@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.product.constant.DepotConstant;
+import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.StafferVO;
@@ -3199,7 +3200,7 @@ public class OutImportManagerImpl implements OutImportManager
                 } else{
 					//check duplicate olbase bean
 					List<OlBaseBean> olBaseBeans = this.removeDuplicateOlBaseBeans(olBaseBeans2);
-					_logger.info(olOutBean.getOlFullId() + "***olBaseBeans size " + olBaseBeans.size()+"  remove duplicate "+olBaseBeans.size());
+					_logger.info(olOutBean.getOlFullId() + "***olBaseBeans " + olBaseBeans.size()+" after remove duplicate "+olBaseBeans.size());
 					if (olBaseBeans.size() >=50){
 						_logger.error("Too many OlBaseBean found "+olOutBean.getOlFullId());
 						this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表记录太多");
@@ -3264,7 +3265,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setCustomerId(olOutBean.getCustomerId());
                         out.setCustomerName(olOutBean.getCustomerName());
                         //在生成OA订单时，把olfullid写入订单备注
-						String prefix = "OLFULLID";
+						String prefix = "OLFULLID_";
 						if (StringTools.isNullOrNone(olOutBean.getDescription())){
 							out.setDescription(prefix+ olOutBean.getOlFullId());
 						} else{
@@ -3616,11 +3617,13 @@ public class OutImportManagerImpl implements OutImportManager
 							this.updateDescription(item,item.getDescription()+"_ERROR_"+"duplicate item");
 							continue;
 						}
-                        //对应销售单的出库数量
+
+                        //原销售单出库数量
                         int total = 0;
                         ConditionParse conditionParse1 = new ConditionParse();
                         conditionParse1.addCondition("outId","=",outId);
                         conditionParse1.addCondition("productId","=",item.getProductId());
+						//原销售单base表
                         List<BaseBean> baseList = baseDAO.queryEntityBeansByCondition(conditionParse1);
                         if (ListTools.isEmptyOrNull(baseList)){
                             _logger.error("No base beans found "+outId);
@@ -3640,6 +3643,8 @@ public class OutImportManagerImpl implements OutImportManager
                         conditionParse2.addCondition("type","=", 1);
                         conditionParse2.addCondition(" and status in (3,4)");
                         List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse2);
+						//所有已退库的base记录
+						List<BaseBean> allBackBaseBeans = new ArrayList<BaseBean>();
                         if (!ListTools.isEmptyOrNull(outBeans)){
                             for (OutBean bean: outBeans){
                                 ConditionParse conditionParse3 = new ConditionParse();
@@ -3647,6 +3652,7 @@ public class OutImportManagerImpl implements OutImportManager
                                 conditionParse3.addCondition("productId","=",item.getProductId());
                                 List<BaseBean> baseBeans = baseDAO.queryEntityBeansByCondition(conditionParse3);
                                 if (!ListTools.isEmptyOrNull(baseBeans)){
+									allBackBaseBeans.addAll(baseBeans);
                                     for (BaseBean baseBean : baseBeans){
                                         stockInAmount += baseBean.getAmount();
                                     }
@@ -3702,8 +3708,18 @@ public class OutImportManagerImpl implements OutImportManager
 							baseBean.setAmount(amount);
 
                             //TODO
-                            baseBean.setPrice(baseList.get(0).getPrice());
-                            baseBean.setValue(baseBean.getAmount()*baseBean.getPrice());
+							BaseBean refBaseBean = this.findBaseBeanToBack(baseList, allBackBaseBeans);
+							if (refBaseBean == null){
+								_logger.error("No base bean found "+item.getProductId());
+								this.updateDescription(item,item.getDescription()+"_ERROR_"+"no base bean with same productId:"+item.getProductId());
+								continue;
+							} else{
+								baseBean.setPrice(refBaseBean.getPrice());
+								baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
+								baseBean.setCostPrice(refBaseBean.getCostPrice());
+								baseBean.setCostPriceKey(StorageRelationHelper
+										.getPriceKey(baseBean.getCostPrice()));
+							}
 
                             baseBean.setOwner("0");
                             baseBean.setOwnerName("公共");
@@ -3779,6 +3795,30 @@ public class OutImportManagerImpl implements OutImportManager
         }
         }
     }
+
+	/**
+	 * 找到可退库的baseBean
+	 * @param outBaseBeans
+	 * @param inBaseBeans
+	 * @return
+	 */
+	private BaseBean findBaseBeanToBack(List<BaseBean> outBaseBeans, List<BaseBean> inBaseBeans){
+		_logger.info("***find"+outBaseBeans.size()+"**"+inBaseBeans.size());
+		//减掉已入库
+		outBaseBeans.removeAll(inBaseBeans);
+		_logger.info("***2222222find"+outBaseBeans.size());
+		if (!ListTools.isEmptyOrNull(outBaseBeans)){
+			//同一商品按成本价从高到低取
+			Collections.sort(outBaseBeans, new Comparator<BaseBean>() {
+				public int compare(BaseBean o1, BaseBean o2) {
+					return (int)(o2.getCostPrice() - o1.getCostPrice());
+				}
+			});
+			return outBaseBeans.get(0);
+		}
+
+		return null;
+	}
 
     private void updateDescription(OutBackItemBean item, String description){
 		_logger.info(item.getId()+" updateDescription***"+item.getDescription()+":"+description);
