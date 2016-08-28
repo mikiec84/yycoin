@@ -43,7 +43,7 @@
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<ref bean="checkPriceAskOverTimeTrigger" />
+				<!--<ref bean="checkPriceAskOverTimeTrigger" />-->
 				<ref bean="statsStockWorkTrigger" />
 			</list>
 		</property>

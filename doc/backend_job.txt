@@ -1,0 +1,118 @@
+1. BlackManagerImpl.statsBlack()   
+统计超期的数据，并根据规则计算黑名单人员  
+每日12:00/17:10各执行一次  
+2. BlackManagerImpl.statsBlackOutDetail()   
+黑名单统计明细表  
+每日3:30执行一次  
+3. ShipManagerImpl.sortPackagesJob()  
+更新CK单billsTime,insFollowOut,zsFollowOut字段  
+每分钟执行  
+4. ShipManagerImpl.sendMailForShipping()  
+发送发货邮件给银行    
+每天10点执行  
+5. ShipManagerImpl.sendShippingMailToSails()  
+发送发货邮件给销售员    
+每天9:45执行  
+4. OutManager.autoApproveOutJob()  
+自动库管审批通过  
+每分钟执行  
+5. outImportManager.downloadOrderFromMailAttachment()  
+邮件订单  
+每分钟执行  
+6. outImportManager.offlineOrderJob()  
+线下订单  
+每分钟执行  
+7. outImportManager.offlineStorageInJob()  
+线下入库单  
+每分钟执行  
+8. outStatManager.statsPersonalSwatch()  
+统计领样金额  
+每天23:40执行  
+9. T_CENTER_APPOUT表转为OA单，已废弃?  
+10. OutManager.exportAllStafferCredit()  
+导出职员信用额度  
+每天23:58执行  
+11. BudgetManager.initCarryStatus()  
+预算执行状态变更  
+每天00:10执行  
+12. customerMainDAO.updateCustomerReserve2Job()  
+设置客户线上/线下标识reserve2字段  
+每天1:00执行  
+13. shortMessageManager.checkShortMessageStatus()  
+定时获取短信发送状态，且更新发送记录状态,T_CENTER_SHORTMESSAGE  
+每天2点执行  
+14. shortMessageManager.getShortMessageReply()  
+定时获取短信回复状态  
+每天2点执行
+15. statBankManager.statBank()  
+统计银行月结_CENTER_STATBANK    
+每天2:30执行  
+16. statBankManager.statBankBalance()  
+银行余额统计   
+每天1点执行  
+17. BankManager.exportAllCurrentBankStat()  
+导出银行统计T_CENTER_BANK    
+每天23:58执行  
+18. invoiceinsManager.clearRejectInvoiceinsBean()  
+清除被驳回的发票  
+每天3点执行  
+19. autoPayManager.autoProcessPaymentToPre()  
+自动认款，暂记户-预收  
+每小时执行  
+20. autoPayManager.autoRefInbillToSail()  
+自动勾款(销售出库,委托代销结算单)      
+每两小时执行  
+21. packageManager.createPackage()  
+生成CK单  
+每三秒执行　
+22. paymentApplyManager.passPaymentApplyJob()  
+收款审核,只要申请中的“坏帐金额”为0的申请，均自动审批通过  
+每5分钟  
+22. mailCleanManager.cleanMail()  
+删除过期邮件  
+每天2点执行  
+23. noteManager.synReceiveToSend()  
+T_CENTER_RECEIVETASK为空,已废弃?  
+23. processShortMessage.handleMessage() 
+处理SMS消息,T_CENTER_SMTASK  
+每四个小时执行一次  
+24. sendMessageManager.sendShortMessage()  
+发送SMS消息,T_CENTER_SMTASK   
+每四个小时执行一次  
+24. noteManager.changeInitToWaitSend()  
+更新SMS状态为等待发送,T_CENTER_SMTASK    
+每四个小时执行一次 
+25. curOutManager.statOut()  
+更新客户信用等级  
+每天3:30执行  
+26. curOutManager.deleteHis()  
+定期清理客户信用日志    
+每天4点执行 
+27. storageRelationManager.exportAllStorageRelation() 
+导出库存数据   
+每天23:59执行     
+28. storageRelationManager.checkStorageLog() 
+体检库存异动     
+每天3:50执行  
+29. taskManager.statsTaskForMail()  
+统计任务状态为进行中时需要发的邮件,t_center_task已废弃?  
+30. taskManager.sendTaskMail()  
+发送计划中的邮件  
+T_CENTER_TASKPLAN已废弃?  
+31. stockWorkManager.statsStockWork()  
+统计T_CENTER_STOCK_WORK  
+每天23:40  
+32. financeTagManager.processInvoiceinsTagData()  
+财务-金蝶 OA 标记数据,T_CENTER_FINANCE_TAG  
+每天23:10  
+32. financeTagManager.processOutPayTagData()  
+销售单回款标识.doc,T_CENTER_FINANCE_TAG  
+每天23点   
+33. travelApplyManager.ibReportJob()  
+中收激励统计　
+每小时执行  
+34. mysql event.update_pay_minutely()
+更新out表回款标识pay  
+每十分钟  
+
+
