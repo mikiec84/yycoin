@@ -2376,6 +2376,23 @@ public class ShipManagerImpl implements ShipManager
                         _logger.info(packBean.getId()+" set to INVOICE_SHIP_FOLLOW_OUT****");
                         packBean.setInsFollowOut(ShipConstant.INVOICE_SHIP_FOLLOW_OUT);
                     }
+
+                    int count2 = 0;
+                    for (PackageItemBean item : items){
+                        String outId = item.getOutId();
+                        if (outId.startsWith("ZS")){
+                            count2++;
+                        }else{
+                            break;
+                        }
+                    }
+                    if (count2 == items.size()){
+                        _logger.info(packBean.getId()+" set to ZS_SHIP_ALONE****");
+                        packBean.setZsFollowOut(ShipConstant.ZS_SHIP_ALONE);
+                    } else{
+                        _logger.info(packBean.getId()+" set to ZS_SHIP_FOLLOW_OUT****");
+                        packBean.setZsFollowOut(ShipConstant.ZS_SHIP_FOLLOW_OUT);
+                    }
                     this.packageDAO.updateEntityBean(packBean);
                     _logger.info(packBean.getId()+" update billsTime ************");
                 }

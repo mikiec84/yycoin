@@ -562,3 +562,6 @@ CREATE EVENT update_pay_minutely
         call update_pay('2016-01-01');
         insert into t_center_tempout(outid) values(now());
       END
+
+#300
+alter table T_CENTER_PACKAGE add column zsFollowOut integer DEFAULT 1      

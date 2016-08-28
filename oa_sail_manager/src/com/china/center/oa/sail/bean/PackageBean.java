@@ -160,9 +160,13 @@ public class PackageBean implements Serializable
      */
     private int insFollowOut = ShipConstant.INVOICE_SHIP_FOLLOW_OUT;
 
+    /**
+     * #300 赠品单发
+     */
+    private int zsFollowOut = ShipConstant.ZS_SHIP_FOLLOW_OUT;
+
     //2015/6/27 顺丰发货单号
-    private String
-            transportNo = "";
+    private String transportNo = "";
     //2015/6/27 顺丰收货日期
     private String sfReceiveDate = "";
 
@@ -171,6 +175,14 @@ public class PackageBean implements Serializable
 
     public PackageBean()
     {
+    }
+
+    public int getZsFollowOut() {
+        return zsFollowOut;
+    }
+
+    public void setZsFollowOut(int zsFollowOut) {
+        this.zsFollowOut = zsFollowOut;
     }
 
     public String getTransportNo() {
@@ -574,10 +586,14 @@ public class PackageBean implements Serializable
                 ", cityId='" + cityId + '\'' +
                 ", emergency=" + emergency +
                 ", sendMailFlag=" + sendMailFlag +
+                ", sendMailFlagSails=" + sendMailFlagSails +
+                ", sendMailFlagNbyh=" + sendMailFlagNbyh +
                 ", billsTime='" + billsTime + '\'' +
                 ", insFollowOut=" + insFollowOut +
+                ", zsFollowOut=" + zsFollowOut +
                 ", transportNo='" + transportNo + '\'' +
                 ", sfReceiveDate='" + sfReceiveDate + '\'' +
+                ", itemList=" + itemList +
                 '}';
     }
 }

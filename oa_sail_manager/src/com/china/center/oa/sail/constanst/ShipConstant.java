@@ -38,6 +38,10 @@ public interface ShipConstant
 
     @Defined(key = "invoiceShipStatus", value = "非发票单发")
     int INVOICE_SHIP_FOLLOW_OUT = 1;
-	
-	
+
+    @Defined(key = "zsShipStatus", value = "赠品单发")
+    int ZS_SHIP_ALONE = 0;
+
+    @Defined(key = "zsShipStatus", value = "混合")
+    int ZS_SHIP_FOLLOW_OUT = 1;
 }

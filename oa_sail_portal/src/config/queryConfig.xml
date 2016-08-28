@@ -348,6 +348,12 @@
             <type>select</type>
             <option>$invoiceShipStatus</option>
         </condtion>
+        <condtion name="zsFollowOut" caption="赠品单发">
+            <opr>=</opr>
+            <datatype>1</datatype>
+            <type>select</type>
+            <option>$zsShipStatus</option>
+        </condtion>
     </item>	
     
      <item name="queryOutBack" deaultpfix="OutBackBean">
