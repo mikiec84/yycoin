@@ -288,7 +288,7 @@ public class PackageManagerImpl implements PackageManager {
 	private void createNewPackage(OutVO outBean,
 			List<BaseBean> baseList, DistributionVO distVO, String fullAddress, String location)
 	{
-        _logger.info("**************createNewPackage for Out now:"+outBean.getId());
+        _logger.info("**************createNewPackage for Out now "+outBean.getFullId());
 
         String id = commonDAO.getSquenceString20("CK");
 		
@@ -663,7 +663,7 @@ public class PackageManagerImpl implements PackageManager {
 		}
 		
 		String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
-
+        String fullAddressTrim = fullAddress.trim();
 		// 此客户是否存在同一个发货包裹,且未拣配
 		ConditionParse con = new ConditionParse();
 		
@@ -676,7 +676,7 @@ public class PackageManagerImpl implements PackageManager {
 		if (ListTools.isEmptyOrNull(packageList))
 		{
             _logger.info("****create new package now***"+fullId);
-			createNewPackage(out, baseList, distVO, fullAddress, location);
+			createNewPackage(out, baseList, distVO, fullAddressTrim, location);
 		}else{
             _logger.info(location+"****package already exist***"+fullId);
             String id = packageList.get(0).getId();
@@ -687,7 +687,7 @@ public class PackageManagerImpl implements PackageManager {
 			if (null == packBean || packBean.getStatus() != 0)
 			{
                 _logger.info(fullId+"****added to new package***");
-				createNewPackage(out, baseList, distVO, fullAddress, location);
+				createNewPackage(out, baseList, distVO, fullAddressTrim, location);
 			}else
 			{
                 //#18 2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
@@ -697,7 +697,7 @@ public class PackageManagerImpl implements PackageManager {
                    PackageItemBean first = currentItems.get(0);
 					if (fullId.contains("DB") && first.getOutId().contains("SO")){
 						_logger.warn("***not merge with different out type***"+first.getOutId());
-						createNewPackage(out, baseList, distVO, fullAddress, location);
+						createNewPackage(out, baseList, distVO, fullAddressTrim, location);
 					}else{
 						OutVO outBean = outDAO.findVO(first.getOutId());
 						if (outBean!= null){
