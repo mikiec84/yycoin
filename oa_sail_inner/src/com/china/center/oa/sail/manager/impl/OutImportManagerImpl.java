@@ -3514,8 +3514,10 @@ public class OutImportManagerImpl implements OutImportManager
 				item.setDuplicate(true);
 				break;
 			} else if (itemBean.getOutId().equals(item.getOutId()) && itemBean.getProductId().equals(item.getProductId())) {
-                int sum =  Integer.valueOf(itemBean.getAmount())+Integer.valueOf(item.getAmount());
-                itemBean.setAmount(String.valueOf(sum));
+				try {
+					int sum = Integer.valueOf(itemBean.getAmount()) + Integer.valueOf(item.getAmount());
+					itemBean.setAmount(String.valueOf(sum));
+				}catch(NumberFormatException e){e.printStackTrace();}
                 merged = true;
                 break;
             }
