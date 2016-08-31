@@ -37,8 +37,8 @@
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<ref bean="statsTaskForMailTrigger" />
-				<ref bean="sendTaskMailTrigger" />
+				<!--<ref bean="statsTaskForMailTrigger" />-->
+				<!--<ref bean="sendTaskMailTrigger" />-->
 			</list>
 		</property>
 	</bean>

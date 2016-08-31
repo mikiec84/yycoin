@@ -72,9 +72,9 @@
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<ref bean="synReceiveToSendTrigger" />
-				<ref bean="handleMessageTrigger" />
-				<ref bean="sendMessageTrigger" />
+				<!--<ref bean="synReceiveToSendTrigger" />-->
+				<!--<ref bean="handleMessageTrigger" />-->
+				<!--<ref bean="sendMessageTrigger" />-->
 				<ref bean="changeInitToWaitSendTrigger" />
 			</list>
 		</property>

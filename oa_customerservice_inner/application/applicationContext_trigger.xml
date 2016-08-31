@@ -63,8 +63,8 @@
 			<list>
 				<!--<ref bean="statFeedBackVisitTrigger" />-->
 				<!--<ref bean="statFeedBackCheckTrigger" />-->
-				<ref bean="checkShortMessageStatusTrigger" />
-				<ref bean="getShortMessageReplyTrigger" />				
+				<!--<ref bean="checkShortMessageStatusTrigger" />-->
+				<!--<ref bean="getShortMessageReplyTrigger" />				-->
 			</list>
 		</property>
 	</bean>
