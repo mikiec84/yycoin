@@ -12,8 +12,8 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
-<script language="JavaScript" src="../js/prototype.js"></script>
-<script language="JavaScript" src="../js/buffalo.js"></script>
+<%--<script language="JavaScript" src="../js/prototype.js"></script>--%>
+<%--<script language="JavaScript" src="../js/buffalo.js"></script>--%>
 <script src="../js/jquery/jquery.js"></script>
 <script src="../js/plugin/dialog/jquery.dialog.js"></script>
 <SCRIPT src="../js/jquery/jquery.tabs.js"></SCRIPT>
