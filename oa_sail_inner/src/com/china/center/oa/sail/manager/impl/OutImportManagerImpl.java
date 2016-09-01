@@ -3801,23 +3801,32 @@ public class OutImportManagerImpl implements OutImportManager
 	/**
 	 * 找到可退库的baseBean
 	 * @param outBaseBeans
-	 * @param inBaseBeans
+	 * @param inBaseBeans  with same productId as  outBaseBeans
 	 * @return
 	 */
 	private BaseBean findBaseBeanToBack(List<BaseBean> outBaseBeans, List<BaseBean> inBaseBeans){
-		_logger.info("***find"+outBaseBeans.size()+"**"+inBaseBeans.size());
-		//减掉已入库
-		outBaseBeans.removeAll(inBaseBeans);
-		_logger.info("***2222222find"+outBaseBeans.size());
-		if (!ListTools.isEmptyOrNull(outBaseBeans)){
-			//同一商品按成本价从高到低取
-			Collections.sort(outBaseBeans, new Comparator<BaseBean>() {
-				public int compare(BaseBean o1, BaseBean o2) {
-					return (int)(o2.getCostPrice() - o1.getCostPrice());
-				}
-			});
-			return outBaseBeans.get(0);
-		}
+		_logger.info("***outBaseBeans "+outBaseBeans.size()+" vs inBaseBeans "+inBaseBeans.size());
+        if (ListTools.isEmptyOrNull(inBaseBeans) && !ListTools.isEmptyOrNull(outBaseBeans)){
+            //尚未入库
+            return outBaseBeans.get(0);
+        } else if (outBaseBeans.size() == 1){
+            //原base表仅有一行
+            return outBaseBeans.get(0);
+        } else {
+            //减掉已入库
+            outBaseBeans.removeAll(inBaseBeans);
+            _logger.info("***after remove***"+outBaseBeans.size());
+            if (!ListTools.isEmptyOrNull(outBaseBeans)){
+                //同一商品按成本价从高到低取
+                Collections.sort(outBaseBeans, new Comparator<BaseBean>() {
+                    public int compare(BaseBean o1, BaseBean o2) {
+                        return (int)(o2.getCostPrice() - o1.getCostPrice());
+                    }
+                });
+                return outBaseBeans.get(0);
+            }
+            _logger.info("***outBaseBeans size2 ***"+outBaseBeans.size());
+        }
 
 		return null;
 	}
