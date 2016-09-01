@@ -515,7 +515,7 @@ public class StorageAction extends DispatchAction
         setCondition(request, condition);
 
         // 获取指定时间内的仓区的异动(仅仅查询最近的1000个)
-        List<StorageLogVO> list = storageLogDAO.queryEntityVOsByLimit(condition, 1000);
+        List<StorageLogVO> list = storageLogDAO.queryEntityVOsByLimit(condition, 10000);
 
         for (StorageLogVO storageLogBean : list)
         {
