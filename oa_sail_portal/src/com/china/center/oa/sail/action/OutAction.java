@@ -1892,17 +1892,7 @@ public class OutAction extends ParentOutAction
                             _logger.info("***销售商务审批时检查结算价是否为0***");
                             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
                             if (!ListTools.isEmptyOrNull(baseBeans)){
-                                _logger.info("***baseBeans size***"+baseBeans.size());
                                 for (BaseBean base : baseBeans){
-//                                    if (base.getInputPrice() == 0)
-//                                    {
-//                                        String msg = base.getProductName() + " 业务员结算价不能为0";
-//                                        _logger.warn(msg);
-//                                        request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
-//
-//                                        return mapping.findForward("error");
-//                                    }
-
                                     // 业务员结算价，总部结算价
                                     ProductBean product = productDAO.find(base.getProductId());
 
@@ -2006,7 +1996,6 @@ public class OutAction extends ParentOutAction
                             }
                         }
 
-                        _logger.info("****************库管审批111111111111*************"+statuss);
                         // 这里需要计算客户的信用金额-是否报送物流中心经理审批
                         boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
 
@@ -2061,7 +2050,6 @@ public class OutAction extends ParentOutAction
                             if(resultStatus == OutConstant.STATUS_PASS)
                             {
                                 outManager.updateCusAndBusVal(newOut,user.getId());
-//                            outDAO.updateEntityBean(newOut);
                             }
                             
                         }

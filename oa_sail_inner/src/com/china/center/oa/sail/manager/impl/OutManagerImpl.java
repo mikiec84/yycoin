@@ -3309,7 +3309,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     {
         final OutBean outBean = outDAO.find(fullId);
 
-        _logger.info(fullId+"*********pass111111111111*************"+nextStatus+"***getType**"+outBean.getType());
+        _logger.info("***pass out***"+outBean);
         checkPass(outBean);
         final int oldStatus = outBean.getStatus();
 
@@ -3371,6 +3371,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     										try
     										{
     											newBaseList = splitBase(baseList);
+                                                if (newNextStatus == OutConstant.STATUS_FLOW_PASS){
+                                                    //#304 2016/9/4 商务审批通过时检查成本价不能为0
+                                                    for (BaseBean baseBean: newBaseList){
+//                                                        _logger.info("***baseBean***"+baseBean);
+                                                        if (baseBean.getCostPrice()<0.001){
+                                                            _logger.error("base bean cost price is 0 "+baseBean);
+                                                            throw new RuntimeException("base表成本价不能为0:"+fullId);
+                                                        }
+                                                    }
+                                                }
     										}
     										catch (MYException e)
     										{

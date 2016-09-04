@@ -4074,7 +4074,7 @@ public class OutImportManagerImpl implements OutImportManager
 	}
 
     /**
-     *
+     *  refer to OutManagerImpl.splitBase()
      * @param inAmount 待入库数量
      * @param outBaseBeans 出库记录
      * @param inBaseBeans 已入库记录
@@ -4091,9 +4091,9 @@ public class OutImportManagerImpl implements OutImportManager
             }
         });
 
-        for (BaseBean out: outBaseBeans){
-            _logger.info("***out base***"+out);
-        }
+//        for (BaseBean out: outBaseBeans){
+//            _logger.info("***out base***"+out);
+//        }
 
         Collections.sort(inBaseBeans, new Comparator<BaseBean>() {
             public int compare(BaseBean o1, BaseBean o2) {
@@ -4101,9 +4101,9 @@ public class OutImportManagerImpl implements OutImportManager
             }
         });
 
-        for (BaseBean in: inBaseBeans){
-            _logger.info("***in base**"+in);
-        }
+//        for (BaseBean in: inBaseBeans){
+//            _logger.info("***in base**"+in);
+//        }
 
 //        if (ListTools.isEmptyOrNull(inBaseBeans) && !ListTools.isEmptyOrNull(outBaseBeans)){
 //            //尚未入库
@@ -4117,11 +4117,11 @@ public class OutImportManagerImpl implements OutImportManager
 //            outBaseBeans.removeAll(inBaseBeans);
             this.subtract(outBaseBeans, inBaseBeans);
 //            _logger.info("***after remove***"+outBaseBeans);
-            for (BaseBean in: outBaseBeans){
-                _logger.info("***after in base**"+in);
-            }
+//            for (BaseBean in: outBaseBeans){
+//                _logger.info("***after in base**"+in);
+//            }
             //检查是否拆单
-            _logger.info(outBaseBeans+"***outBaseBeans size2 ***"+outBaseBeans.size());
+//            _logger.info(outBaseBeans+"***outBaseBeans size2 ***"+outBaseBeans.size());
             int amount = inAmount;
             for (BaseBean baseBean: outBaseBeans){
                 if (amount <= baseBean.getAmount()){
@@ -4133,6 +4133,11 @@ public class OutImportManagerImpl implements OutImportManager
                     result.add(baseBean);
                 }
                 amount -= baseBean.getAmount();
+            }
+
+            if (amount != 0)
+            {
+                _logger.error("入库拆分行项目出错");
             }
         }
 
