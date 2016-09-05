@@ -3207,9 +3207,6 @@ public class OutImportManagerImpl implements OutImportManager
 						this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表记录太多");
 						continue;
 					}
-					//olbase表中，同一个olfullid的，要根据商品税率是否一致来拆单
-                    //<sailInvoice,List<OlBaseBean>
-//                    Map<String, List<OlBaseBean>> sailInvoice2lBaseMap = new HashMap<String, List<OlBaseBean>>();
                     //<sailInvoice,taxRate>
                     Map<String, Double> sailInvoice2TaxRateMap = new HashMap<String, Double>();
                     for(OlBaseBean olBaseBean : olBaseBeans){
@@ -3227,15 +3224,6 @@ public class OutImportManagerImpl implements OutImportManager
 								this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "product表sailInvoice为空:" + productCode);
 								continue;
                             } else{
-//                                if (sailInvoice2lBaseMap.get(sailInvoice) == null){
-//                                    List<OlBaseBean> olBaseBeanList = new ArrayList<OlBaseBean>();
-//                                    olBaseBeanList.add(olBaseBean);
-//                                    sailInvoice2lBaseMap.put(sailInvoice, olBaseBeanList);
-//                                } else{
-//                                    List<OlBaseBean> olBaseBeanList = sailInvoice2lBaseMap.get(sailInvoice);
-//                                    olBaseBeanList.add(olBaseBean);
-//                                }
-
                                 if (sailInvoice2TaxRateMap.get(sailInvoice) == null){
                                     InvoiceBean  invoiceBean = this.invoiceDAO.find(sailInvoice);
                                     if (invoiceBean == null){
@@ -3475,6 +3463,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setDutyId("90201008080000000001");
                         out.setReserve3(OutConstant.OUT_SAIL_TYPE_CREDIT_AND_CUR);
                         out.setFlowId("CITIC");
+						out.setDepotpartId(baseBean.getDepotpartId());
 
 						try {
 							outDAO.saveEntityBean(out);
@@ -3753,6 +3742,7 @@ public class OutImportManagerImpl implements OutImportManager
                             outBean.setInvoiceId(originalOut.getInvoiceId());
                             outBean.setDutyId("90201008080000000001");
                             outBean.setRefOutFullId(outId);
+							outBean.setDepotpartId(baseBean.getDepotpartId());
                             outDAO.saveEntityBean(outBean);
                             baseDAO.saveEntityBean(baseBean);
                             _logger.info("create out in offlineStorageInJob "+outBean+"***with base bean***"+baseBean);
