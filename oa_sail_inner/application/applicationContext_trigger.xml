@@ -172,7 +172,7 @@
     <bean id="downloadOrderFromMailAttachmentJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="downloadOrderFromMailAttachmentJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/16 * * * ?" />
     </bean>
 
     <bean id="offlineOrderJob"
@@ -185,7 +185,7 @@
     <bean id="offlineOrderJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="offlineOrderJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/15 * * * ?" />
     </bean>
 
     <bean id="offlineStorageInJob"
@@ -198,7 +198,7 @@
     <bean id="offlineStorageInJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="offlineStorageInJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/15 * * * ?" />
     </bean>
 
     <bean
