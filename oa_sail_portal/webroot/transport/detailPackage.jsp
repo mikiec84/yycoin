@@ -62,7 +62,9 @@ function load()
 
 					<tr class="content1">
 						<td width="15%" align="right">事业部：</td>
-						<td width="85%" colspan="3">${bean.industryName}</td>
+						<td width="35%">${bean.industryName}</td>
+						<td width="15%" align="right">客户：</td>
+						<td width="35%">${bean.customerName}</td>
 					</tr>
 					
 					<tr class="content1">

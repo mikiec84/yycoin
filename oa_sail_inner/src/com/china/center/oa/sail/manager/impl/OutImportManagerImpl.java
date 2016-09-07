@@ -457,6 +457,9 @@ public class OutImportManagerImpl implements OutImportManager
 					
 					// create Out
 					OutBean outBean = createOut(useList);
+					if (outBean == null){
+						continue;
+					}
 					
 					// 中信类型 产生赠品订单
                     //#153:赠品订单类型判断对0和2有效（中信和招商）
@@ -552,7 +555,8 @@ public class OutImportManagerImpl implements OutImportManager
         {
             String msg =  bean.getCiticNo()+"生成邮件订单失败";
             _logger.error(msg);
-            throw new RuntimeException(msg);
+//            throw new RuntimeException(msg);
+			return null;
         }
 		
 		String mess = "";

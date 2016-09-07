@@ -3390,7 +3390,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                         	baseDAO.deleteEntityBeansByFK(outBean.getFullId());
                                         	
                                         	baseDAO.saveAllEntityBeans(newBaseList);
-                                        	
+
+                                            for (BaseBean baseBean: newBaseList){
+                                                _logger.info("***split new base**"+baseBean);
+                                            }
                                         	// 同步更新未拆分到具体批次前就开票的明细（规定：这样销售单须一次性开完发票）
                                         	outBean.setForceBuyType(999);
                                 		}
