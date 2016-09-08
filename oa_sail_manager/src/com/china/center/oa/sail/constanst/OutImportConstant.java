@@ -93,8 +93,8 @@ public interface OutImportConstant
 	
 	int outTypeiArr [] = new int []{0,1,2,3,4,5,6,7};
 	
-	String shipping [] = new String []{"自提","公司","第三方快递","第三方货运","第三方快递+货运","空发"};
-	int ishipping [] = new int []{0,1,2,3,4,99};
+	String shipping [] = new String []{"自提","公司","第三方快递","第三方货运","第三方快递+货运","代收货款","空发"};
+	int ishipping [] = new int []{0,1,2,3,4,5,99};
 	
 	String expressPay [] = new String []{"业务员支付","公司支付","客户支付"};
 	int iexpressPay [] = new int []{1,2,3};

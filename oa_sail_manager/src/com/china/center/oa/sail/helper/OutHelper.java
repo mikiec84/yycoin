@@ -534,6 +534,10 @@ public abstract class OutHelper
     	{
     		return "第三方快递";
     	}
+        else if (shipping == OutConstant.OUT_SHIPPING_PROXY)
+        {
+            return "代收货款";
+        }
     	else if (shipping == OutConstant.OUT_SHIPPING_TRANSPORT)
     	{
     		return "第三方货运";

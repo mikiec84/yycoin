@@ -134,6 +134,7 @@ function pagePrint()
              <input type="radio" name="shipping" value="2" >第三方快递&nbsp;&nbsp;
              <input type="radio" name="shipping" value="3" >第三方货运&nbsp;&nbsp;
              <input type="radio" name="shipping" value="4" >第三方快递+货运&nbsp;&nbsp;
+			 <input type="radio" name="shipping" value="5" >代收货款&nbsp;&nbsp;
              <input type="radio" name="shipping" value="99" >空发&nbsp;&nbsp;
           </p:cell>
 		

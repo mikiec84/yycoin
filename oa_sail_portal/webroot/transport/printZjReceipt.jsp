@@ -108,7 +108,7 @@ function callBackPrintFun()
 				<table width="100%" cellspacing='0' cellpadding="0">
 					<tr class="content2">
 						<td colspan="2" width="50%"><table><tr><td></td></tr></table></td>
-						<td colspan="2" width="50%"><table><tr><td>No.        #</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>No.&nbsp;&nbsp;&nbsp;&nbsp;#</td></tr></table></td>
 					</tr>
 				</table>
 				</td>
@@ -170,13 +170,13 @@ function callBackPrintFun()
 						<td width="50%"><table><tr><td></td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td><table><tr><td></td></tr></table></td>
+						<td width="50%"><table><tr><td></td></tr></table></td>
 						<td><table><tr><td>监交人员：</td></tr></table></td>
 						<td><table><tr><td>经办人员（签名）：</td></tr></table></td>
 						<td><table><tr><td>监交人员（签名）：</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="3" width="50%"><table><tr><td>交接时间：        年    月    日    时    分</td></tr></table></td>
+						<td colspan="3" width="50%"><table><tr><td>交接时间：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日&nbsp;&nbsp;&nbsp;&nbsp;时&nbsp;&nbsp;&nbsp;&nbsp;分</td></tr></table></td>
 						<td width="50%"><table><tr><td></td></tr></table></td>
 					</tr>
 					<tr class="content2">

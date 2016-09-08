@@ -845,7 +845,7 @@ public class OutImportAction extends DispatchAction
 			{
 				builder
 	            .append("第[" + currentNumber + "]错误:")
-	            .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+	            .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
 	            .append("<br>");
 				
 				importError = true;
@@ -854,13 +854,14 @@ public class OutImportAction extends DispatchAction
 		{
 			builder
             .append("第[" + currentNumber + "]错误:")
-            .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+            .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
             .append("<br>");
 			
 			importError = true;
 		}
 		
-		if (bean.getShipping() == 2 || bean.getShipping() == 4)
+		if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT
+				|| bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY)
 		{
 			// 如果发货方式是快递或快递+货运 ,则快递须为必填
 			if ( !StringTools.isNullOrNone(obj[35]))
@@ -929,9 +930,9 @@ public class OutImportAction extends DispatchAction
 			}
 		}
 		
-		if (bean.getShipping() == 3 || bean.getShipping() == 4)
+		if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT)
 		{
-			// 如果发货方式是快递或快递+货运 ,则快递须为必填
+			// 如果发货方式是第三方货运或快递+货运 ,则快递须为必填
 			if ( !StringTools.isNullOrNone(obj[37]))
 			{
 				String transport1 = obj[37].trim();
@@ -1864,7 +1865,7 @@ public class OutImportAction extends DispatchAction
 			{
 				builder
 	            .append("第[" + currentNumber + "]错误:")
-	            .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+	            .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
 	            .append("<br>");
 				
 				importError = true;
@@ -1873,13 +1874,14 @@ public class OutImportAction extends DispatchAction
 		{
 			builder
             .append("第[" + currentNumber + "]错误:")
-            .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+            .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
             .append("<br>");
 			
 			importError = true;
 		}
 		
-		if (bean.getShipping() == 2 || bean.getShipping() == 4)
+		if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT
+				|| bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY)
 		{
 			// 如果发货方式是快递或快递+货运 ,则快递须为必填
 			if ( !StringTools.isNullOrNone(obj[35]))
@@ -1948,9 +1950,9 @@ public class OutImportAction extends DispatchAction
 			}
 		}
 		
-		if (bean.getShipping() == 3 || bean.getShipping() == 4)
+		if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT)
 		{
-			// 如果发货方式是快递或快递+货运 ,则快递须为必填
+			// 如果发货方式是货运或快递+货运 ,则快递须为必填
 			if ( !StringTools.isNullOrNone(obj[37]))
 			{
 				String transport1 = obj[37].trim();
@@ -2471,7 +2473,7 @@ public class OutImportAction extends DispatchAction
             			{
             				builder
             	            .append("第[" + currentNumber + "]错误:")
-            	            .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+            	            .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
             	            .append("<br>");
             				
             				importError = true;
@@ -2480,7 +2482,7 @@ public class OutImportAction extends DispatchAction
             		{
             			builder
                         .append("第[" + currentNumber + "]错误:")
-                        .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                        .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
                         .append("<br>");
             			
             			importError = true;
@@ -2502,11 +2504,9 @@ public class OutImportAction extends DispatchAction
                             importError = true;
                         }else{
 							int expressId = MathTools.parseInt(express.getId());
-//							if (bean.getShipping() == 2){
-//								bean.setTransport1();
-//							}
 
-							if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+							if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL
+									|| bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY){
 								bean.setTransport1(expressId);
 							} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
 								bean.setTransport2(expressId);
@@ -2532,7 +2532,8 @@ public class OutImportAction extends DispatchAction
 
 								int pay = OutImportConstant.iexpressPay[i];
 
-								if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+								if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL
+										|| bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY){
 									bean.setExpressPay(pay);
 								} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
 									bean.setTransportPay(pay);
@@ -3919,7 +3920,7 @@ public class OutImportAction extends DispatchAction
                         {
                             builder
                                     .append("第[" + currentNumber + "]错误:")
-                                    .append("发货方式不对,须为[自提,公司,第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                    .append("发货方式不对,须为[自提,公司,第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
                                     .append("<br>");
 
                             importError = true;
@@ -3928,7 +3929,7 @@ public class OutImportAction extends DispatchAction
                     {
                         builder
                                 .append("第[" + currentNumber + "]错误:")
-                                .append("发货方式不能为空,须为[自提,公司,第三方快递,第三方货运,第三方快递+货运,空发]中之一")
+                                .append("发货方式不能为空,须为[自提,公司,第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
                                 .append("<br>");
 
                         importError = true;

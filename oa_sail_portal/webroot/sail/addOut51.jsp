@@ -197,6 +197,7 @@ function getAddress(oos)
              <input type="radio" name="shipping" value="2" onClick="radio_click(this)">第三方快递&nbsp;&nbsp;
              <input type="radio" name="shipping" value="3" onClick="radio_click(this)">第三方货运&nbsp;&nbsp;
              <input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运&nbsp;&nbsp;
+			  <input type="radio" name="shipping" value="5" onClick="radio_click(this)">代收货款&nbsp;&nbsp;
              <input type="radio" name="shipping" value="99" onClick="radio_click(this)">空发&nbsp;&nbsp;             
           </p:cell>
 		

@@ -2546,7 +2546,8 @@ public class OutImportManagerImpl implements OutImportManager
                     packageBean.setTransportNo(each.getTransportNo());
                     packageBean.setSfReceiveDate(each.getSfReceiveDate());
 					packageBean.setShipping(each.getShipping());
-                    if (each.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+                    if (each.getShipping() == OutConstant.OUT_SHIPPING_3PL
+							|| each.getShipping() == OutConstant.OUT_SHIPPING_PROXY){
                         packageBean.setExpressPay(each.getPay());
                         packageBean.setTransport1(Integer.valueOf(each.getTransport()));
                     } else if (each.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
@@ -3315,7 +3316,8 @@ public class OutImportManagerImpl implements OutImportManager
 						}
 
                         //快递
-                        if(distributionBean.getShipping() == OutConstant.OUT_SHIPPING_3PL){
+                        if(distributionBean.getShipping() == OutConstant.OUT_SHIPPING_3PL
+								|| distributionBean.getShipping() == OutConstant.OUT_SHIPPING_PROXY){
 							try {
 								distributionBean.setTransport1(Integer.valueOf(olOutBean.getExpressCompany()));
 							}catch (NumberFormatException e){

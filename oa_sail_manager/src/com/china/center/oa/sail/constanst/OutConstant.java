@@ -688,6 +688,9 @@ public interface OutConstant
      */
     @Defined(key = "outShipment", value = "第三方物流+货运")
     int OUT_SHIPPING_3PLANDDTRANSPORT = 4;
+
+    @Defined(key = "outShipment", value = "代收货款")
+    int OUT_SHIPPING_PROXY = 5;
     
     /**
      * 空发

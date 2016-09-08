@@ -3606,7 +3606,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             {
             	DistributionBean distBean = distList.get(0);
             	
-            	if (distBean.getShipping() == OutConstant.OUT_SHIPPING_3PL
+            	if ((distBean.getShipping() == OutConstant.OUT_SHIPPING_3PL || distBean.getShipping() == OutConstant.OUT_SHIPPING_PROXY)
             			&& (StringTools.isNullOrNone(distBean.getAddress()) || distBean.getAddress().trim().equals("0")) 
             					&& (StringTools.isNullOrNone(distBean.getReceiver()) || distBean.getReceiver().trim().equals("0")))
             	{

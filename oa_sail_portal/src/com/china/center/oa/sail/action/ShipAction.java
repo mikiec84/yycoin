@@ -2374,6 +2374,47 @@ public class ShipAction extends DispatchAction
                 if (!ListTools.isEmptyOrNull(beans)){
                     ProductImportBean productImportBean = beans.get(0);
                     productName = productImportBean.getBankProductName();
+                    _logger.info("***getBankProductName***"+productName);
+                }
+            }
+        }
+
+        //default pick from package item table
+        if (StringTools.isNullOrNone(productName)){
+            productName = item.getProductName();
+        }
+
+        String template = "fullID %s product name %s converted to %s";
+        _logger.info(String.format(template, outId, item.getProductName(), productName));
+
+        return productName;
+    }
+
+    private String convertProductNameForZj(PackageItemBean item, String customerName){
+        String productName = "";
+        String outId = item.getOutId();
+        if (outId.startsWith("ZS")){
+            //2016/5/19 赠送单直接取品名
+            return item.getProductName();
+        } else if (outId.contains("<br>")){
+            //2016/8/16 合并商品行的outId也合并过了
+            String[] outIds = item.getOutId().split("<br>");
+            outId = outIds[0];
+        }
+
+        String productId = item.getProductId();
+        ProductBean productBean = this.productDAO.find(productId);
+        if (productBean!= null){
+            String productCode = productBean.getCode();
+            //#291
+            if (!StringTools.isNullOrNone(productCode)){
+                ConditionParse conditionParse =  new ConditionParse();
+                conditionParse.addCondition("code", "=", productCode);
+                conditionParse.addCondition("bank", "=", customerName.substring(0,4));
+                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(beans)){
+                    ProductImportBean productImportBean = beans.get(0);
+                    productName = productImportBean.getBankProductName();
 
                     //#310
                     String material = productImportBean.getMaterial();
@@ -3784,6 +3825,13 @@ public class ShipAction extends DispatchAction
         request.setAttribute("total", totalAmount);
     }
 
+    /**
+     * #310 紫金农商
+     * @param request
+     * @param vo
+     * @param itemList
+     * @param compose
+     */
     private void prepareForZjPrint(HttpServletRequest request, PackageVO vo,
                                    List<PackageItemBean> itemList, String compose)
     {
@@ -3971,10 +4019,12 @@ public class ShipAction extends DispatchAction
             totalAmount += each.getAmount();
         }
 
+        String customerName = this.getCustomerName(vo.getCustomerName());
+        vo.setCustomerName(customerName);
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForZj(item, customerName);
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
@@ -3987,7 +4037,7 @@ public class ShipAction extends DispatchAction
         }
 
         //2015/11/13 中原银行回执单：调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
-        vo.setCustomerName(this.getCustomerName(vo.getCustomerName()));
+
         vo.setItemList(itemList1);
 
         request.setAttribute("total", totalAmount);

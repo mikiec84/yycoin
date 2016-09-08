@@ -320,7 +320,7 @@ function clearProm()
 // 
 function radio_click(obj)
 {
-	if (obj.value == '2')
+	if (obj.value == '2' || obj.value == '5')
 	{
 		$O('transport1').disabled = false;
 		removeAllItem($O('transport1'));
