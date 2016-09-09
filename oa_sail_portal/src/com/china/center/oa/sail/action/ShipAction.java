@@ -2375,6 +2375,9 @@ public class ShipAction extends DispatchAction
                     ProductImportBean productImportBean = beans.get(0);
                     productName = productImportBean.getBankProductName();
                     _logger.info("***getBankProductName***"+productName);
+                    try {
+                        item.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                    }catch(Exception e){}
                 }
             }
         }
@@ -2418,8 +2421,12 @@ public class ShipAction extends DispatchAction
 
                     //#310
                     String material = productImportBean.getMaterial();
+
                     _logger.info("***getBankProductName***"+productName+"***material"+material);
                     item.setMateriaType(material);
+                    try {
+                        item.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                    }catch(Exception e){}
                 }
             }
         }
@@ -3358,7 +3365,6 @@ public class ShipAction extends DispatchAction
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
-//            this.convertProductNameForBank(item);
 
             itemList1.add(item);
             _logger.info("***convertProductNameForBank***" + item.getProductName());
@@ -3811,10 +3817,10 @@ public class ShipAction extends DispatchAction
                 item.setProductName(productName);
             }
 
-            ProductBean product = productDAO.find(item.getProductId());
-            if (product!= null) {
-                this.setProductInfoForNb(item, product);
-            }
+//            ProductBean product = productDAO.find(item.getProductId());
+//            if (product!= null) {
+//                this.setProductInfoForNb(item, product);
+//            }
             itemList1.add(item);
         }
 

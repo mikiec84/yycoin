@@ -860,7 +860,7 @@ public class OutImportAction extends DispatchAction
 			importError = true;
 		}
 		
-		if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT
+		if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT
 				|| bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY)
 		{
 			// 如果发货方式是快递或快递+货运 ,则快递须为必填

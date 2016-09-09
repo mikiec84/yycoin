@@ -4106,7 +4106,13 @@ public class OutImportManagerImpl implements OutImportManager
 //        }
         if (outBaseBeans.size() == 1){
             //原base表仅有一行
-            result.add(outBaseBeans.get(0));
+			BaseBean baseBean = outBaseBeans.get(0);
+			if (inAmount <= baseBean.getAmount()){
+				baseBean.setAmount(inAmount);
+				result.add(baseBean);
+			} else{
+				_logger.error("入库拆分行项目出错,amount exceed");
+			}
         } else {
             //TODO 减掉已入库的数量,productId+costPriceKey一致
 //            outBaseBeans.removeAll(inBaseBeans);
