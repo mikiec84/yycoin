@@ -752,7 +752,18 @@ public class ProductApplyAction extends DispatchAction {
                     // 克重
                     if ( !StringTools.isNullOrNone(obj[7]))
                     {
-                        bean.setWeight(obj[7]);
+                        String weight = obj[7].trim();
+                        try{
+                            Double.valueOf(weight);
+                        }catch (NumberFormatException e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("克重必须为数值")
+                                    .append("<br>");
+                        }
+                        bean.setWeight(weight);
                     }
 
                     // 材质
