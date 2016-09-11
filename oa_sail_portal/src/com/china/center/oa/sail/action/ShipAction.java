@@ -4663,6 +4663,39 @@ public class ShipAction extends DispatchAction
 //        return this.queryPackage(mapping,form, request, response);
     }
 
+    public ActionForward preForUpdateShipping(ActionMapping mapping, ActionForm form,
+                                          HttpServletRequest request, HttpServletResponse response){
+        return mapping.findForward("updateShipping");
+    }
+
+    private void fillDistribution(HttpServletRequest rds)
+    {
+        DistributionBean distributionBean = new DistributionBean();
+        BeanUtil.getBean(distributionBean, rds);
+    }
+
+    public ActionForward updateShipping(ActionMapping mapping, ActionForm form,
+                                    HttpServletRequest request, HttpServletResponse response){
+        String id = request.getParameter("id");
+        try
+        {
+            DistributionBean distributionBean = new DistributionBean();
+            BeanUtil.getBean(distributionBean, request);
+            _logger.info(id+"***distribution bean***"+distributionBean);
+            //TODO
+            request.setAttribute(KeyConstant.MESSAGE, "更新发货方式成功");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "更新发货方式出错:"+ e.getMessage());
+
+            return mapping.findForward("queryPickup");
+        }
+
+        return mapping.findForward("queryPickup");
+    }
+
     public ActionForward preForAutoPickup(ActionMapping mapping, ActionForm form,
                                     HttpServletRequest request, HttpServletResponse response){
         _logger.info("***************preForAutoPickup**************");

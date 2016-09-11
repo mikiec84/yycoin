@@ -1306,7 +1306,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 //        itemIn.setDepartmentId(staffer.getPrincipalshipId());
 
         //2014/12/24 使用承担人替换掉当前登录帐号
-        // itemIn.setStafferId(staffer.getId());
+        boolean flag = false;
         if (bean instanceof TravelApplyVO){
             TravelApplyVO vo = (TravelApplyVO)bean;
             List<TcpShareVO> beans = vo.getShareVOList();
@@ -1321,6 +1321,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
                 StafferBean st = stafferDAO.find(bearId);
                 if (st!= null){
                     itemIn.setDepartmentId(st.getPrincipalshipId());
+                    flag = true;
                 }
             }
         }
@@ -1354,6 +1355,12 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         itemOut.setOutmoney(type * bean.getTotal() * 100);
 
         itemOut.setDescription(itemOut.getName());
+
+        //#308 2016/9/11
+        if (flag){
+            itemOut.setStafferId(itemIn.getStafferId());
+            itemOut.setDepartmentId(itemIn.getDepartmentId());
+        }
 
         // 辅助核算 NA
         itemList.add(itemOut);

@@ -57,6 +57,7 @@ function load()
              {id: 'del', bclass: 'del', caption : '撤销', onpress : undoBean},
              {id: 'autoPickup', bclass: 'add', caption : '自动拣配数量', onpress : autoPickup},
              {id: 'mergePackages', bclass: 'add', caption : '合并', onpress : mergePackages},
+             {id: 'updateShipping', bclass: 'add', caption : '修改发货方式', onpress : updateShipping},
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],
         <p:conf/>
@@ -84,6 +85,17 @@ function load()
 function autoPickup()
 {
     $l(gurl + 'preForAutoPickup');
+}
+
+function updateShipping(){
+    var clis = getCheckBox('checkb');
+
+    if (clis.length ==1)
+    {
+        $l(gurl+'preForUpdateShipping&id=' + clis[0]);
+    } else{
+        alert("只能选择一个CK单！");
+    }
 }
 
 function mergePackages()
