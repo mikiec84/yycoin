@@ -4683,6 +4683,7 @@ public class ShipAction extends DispatchAction
             BeanUtil.getBean(distributionBean, request);
             _logger.info(id+"***distribution bean***"+distributionBean);
             //TODO
+            this.shipManager.updateShipping(id, distributionBean);
             request.setAttribute(KeyConstant.MESSAGE, "更新发货方式成功");
         }
         catch(Exception e)
