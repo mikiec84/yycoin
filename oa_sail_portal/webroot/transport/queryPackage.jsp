@@ -92,7 +92,7 @@ function updateShipping(){
 
     if (clis.length ==1)
     {
-        $l(gurl+'preForUpdateShipping&id=' + clis[0]);
+        $l(gurl+'preForUpdateShipping&id=' + clis[0].value);
     } else{
         alert("只能选择一个CK单！");
     }

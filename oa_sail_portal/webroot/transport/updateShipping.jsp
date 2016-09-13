@@ -144,23 +144,28 @@
                 showTr('distribution1', true);
                 showTr('distribution2', true);
                 showTr('distribution3', true);
-                showTr('distribution4', true);
-                showTr('distribution5', true);
             }
             else if (obj.value == '0')
             {
                 showTr('distribution1', false);
                 showTr('distribution2', false);
                 showTr('distribution3', false);
-                showTr('distribution4', false);
-                showTr('distribution5', false);
+            }
+        }
+
+        function sub()
+        {
+            if (window.confirm('确定修改发货单?'))
+            {
+                shippingForm.submit();
             }
         }
     </script>
 </head>
-<body class="body_class" onload="load()">
-<form name="outForm" method=post action="../sail/ship.do">
+<body class="body_class">
+<form name="shippingForm" method=post action="../sail/ship.do">
     <input type=hidden name="method" value="updateShipping" />
+    <input type=hidden name="id" value="${id}" />
 
     <p:navigation
             height="22">
@@ -206,36 +211,6 @@
                                             <select name="transportPay" quick=true class="select_class" style="width:20%">
                                                 <p:option type="deliverPay"></p:option>
                                             </select>
-                                        </td>
-                                    </tr>
-                                    <tr class="content1" id="distribution4">
-                                        <td width="15%" align="right">送货地址：</td>
-                                        <td width="35%">
-                                            <select name="provinceId" quick=true onchange="change_city(this)" class="select_class" >
-                                                <option>-</option>
-                                                <c:forEach items="${provinceList}" var="province">
-                                                    <option value="${province.id}">${province.name}</option>
-                                                </c:forEach>
-                                            </select>&nbsp;&nbsp;
-                                            <select name="cityId" quick=true class="select_class" >
-                                                <option>-</option>
-                                            </select>&nbsp;&nbsp;
-                                        </td>
-                                        <td width="15%" align="right">收货人：</td>
-                                        <td width="35%">
-                                            <input type="text" name='receiver' id ='receiver' maxlength="10" required="required" /><font color="#FF0000">*</font>
-                                        </td>
-                                    </tr>
-                                    <tr class="content2" id="distribution5">
-                                        <td width="15%" align="right">地址：</td>
-
-                                        <td width="35%">
-                                            <input type="text" name="address" id="address" maxlength="60" required="required" /><font color="#FF0000">*</font>
-                                        </td>
-
-                                        <td width="15%" align="right">电话：</td>
-                                        <td width="35%">
-                                            <input type="text" name="mobile" id ="mobile" maxlength="13" required="required"/><font color="#FF0000">*</font>
                                         </td>
                                     </tr>
 

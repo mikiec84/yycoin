@@ -4665,6 +4665,18 @@ public class ShipAction extends DispatchAction
 
     public ActionForward preForUpdateShipping(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response){
+        String id = request.getParameter("id");
+        //运输方式
+        List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
+        request.setAttribute("expressList", expressList);
+
+        //省市
+        List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+        request.setAttribute("provinceList", provinceList);
+        List<CityBean> cityList = this.cityDAO.listEntityBeans();
+        request.setAttribute("cityList", cityList);
+        request.setAttribute("id", id);
+        _logger.info("***preForUpdateShipping "+id);
         return mapping.findForward("updateShipping");
     }
 

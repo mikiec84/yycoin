@@ -2481,7 +2481,7 @@ public class ShipManagerImpl implements ShipManager
         List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(packageId);
         for (PackageItemBean item : itemList){
             List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(item.getOutId());
-            if (ListTools.isEmptyOrNull(distList)){
+            if (!ListTools.isEmptyOrNull(distList)){
                 for (DistributionBean dist : distList){
                     dist.setShipping(distributionBean.getShipping());
                     dist.setExpressPay(distributionBean.getExpressPay());
@@ -2489,6 +2489,7 @@ public class ShipManagerImpl implements ShipManager
                     dist.setTransportPay(distributionBean.getTransportPay());
                     dist.setTransport2(distributionBean.getTransport2());
                     this.distributionDAO.updateEntityBean(dist);
+                    _logger.info("***update distribution***"+dist);
                 }
             }
         }
