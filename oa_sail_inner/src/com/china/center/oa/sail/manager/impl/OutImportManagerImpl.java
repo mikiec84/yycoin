@@ -2469,7 +2469,7 @@ public class OutImportManagerImpl implements OutImportManager
 					oldBean.setApplys(each.getApplys());
                     oldBean.setSfReceiveDate(each.getSfReceiveDate());
 					oldBean.setShipping(each.getShipping());
-					oldBean.setPay(each.getPay());
+//					oldBean.setPay(each.getPay());
 					
 					consignDAO.updateConsign(oldBean);
 				} else {
@@ -2500,7 +2500,7 @@ public class OutImportManagerImpl implements OutImportManager
 						oldBean.setApplys(each.getApplys());
                         oldBean.setSfReceiveDate(each.getSfReceiveDate());
 						oldBean.setShipping(each.getShipping());
-						oldBean.setPay(each.getPay());
+//						oldBean.setPay(each.getPay());
 						
 			            consignDAO.addConsign(oldBean);
 					}
@@ -2510,9 +2510,9 @@ public class OutImportManagerImpl implements OutImportManager
                 if (!ListTools.isEmptyOrNull(distList)){
                     for (DistributionBean distributionBean : distList){
                         distributionBean.setShipping(each.getShipping());
-                        distributionBean.setExpressPay(each.getPay());
+//                        distributionBean.setExpressPay(each.getPay());
                         distributionBean.setTransport1(Integer.valueOf(each.getTransport()));
-                        distributionBean.setTransportPay(each.getPay());
+//                        distributionBean.setTransportPay(each.getPay());
                         distributionBean.setTransport2(Integer.valueOf(each.getTransport()));
                         this.distributionDAO.updateEntityBean(distributionBean);
                     }
@@ -2548,15 +2548,15 @@ public class OutImportManagerImpl implements OutImportManager
 					packageBean.setShipping(each.getShipping());
                     if (each.getShipping() == OutConstant.OUT_SHIPPING_3PL
 							|| each.getShipping() == OutConstant.OUT_SHIPPING_PROXY){
-                        packageBean.setExpressPay(each.getPay());
+//                        packageBean.setExpressPay(each.getPay());
                         packageBean.setTransport1(Integer.valueOf(each.getTransport()));
                     } else if (each.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
-                        packageBean.setTransportPay(each.getPay());
+//                        packageBean.setTransportPay(each.getPay());
                         packageBean.setTransport2(Integer.valueOf(each.getTransport()));
                     } else if (each.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
-                        packageBean.setExpressPay(each.getPay());
+//                        packageBean.setExpressPay(each.getPay());
                         packageBean.setTransport1(Integer.valueOf(each.getTransport()));
-                        packageBean.setTransportPay(each.getPay());
+//                        packageBean.setTransportPay(each.getPay());
                         packageBean.setTransport2(Integer.valueOf(each.getTransport()));
                     }
 
@@ -4106,7 +4106,13 @@ public class OutImportManagerImpl implements OutImportManager
 //        }
         if (outBaseBeans.size() == 1){
             //原base表仅有一行
-            result.add(outBaseBeans.get(0));
+			BaseBean baseBean = outBaseBeans.get(0);
+			if (inAmount <= baseBean.getAmount()){
+				baseBean.setAmount(inAmount);
+				result.add(baseBean);
+			} else{
+				_logger.error("入库拆分行项目出错,amount exceed");
+			}
         } else {
             //TODO 减掉已入库的数量,productId+costPriceKey一致
 //            outBaseBeans.removeAll(inBaseBeans);

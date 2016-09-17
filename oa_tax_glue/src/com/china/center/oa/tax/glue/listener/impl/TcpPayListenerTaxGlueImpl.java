@@ -530,8 +530,11 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         itemIn.setDescription(itemIn.getName());
 
         // 辅助核算 部门和职员
-        itemIn.setDepartmentId(staffer.getPrincipalshipId());
-        itemIn.setStafferId(staffer.getId());
+//        itemIn.setDepartmentId(staffer.getPrincipalshipId());
+//        itemIn.setStafferId(staffer.getId());
+
+        //#308 2016/9/12 使用承担人替换掉当前登录帐号
+        this.setStafferId(bean, itemIn);
 
         itemList.add(itemIn);
 
@@ -567,6 +570,30 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         // 辅助核算 NA
         itemList.add(itemOut);
+    }
+
+    /**#308
+     * 辅助核算 部门和职员 使用承担人部门替换掉当前登录帐号
+     * @param bean
+     * @param itemIn
+     */
+    private void setStafferId(TravelApplyBean bean, FinanceItemBean itemIn){
+        if (bean instanceof TravelApplyVO){
+            TravelApplyVO vo = (TravelApplyVO)bean;
+            List<TcpShareVO> beans = vo.getShareVOList();
+            if (ListTools.isEmptyOrNull(beans)){
+                _logger.warn("TcpShareVO can not be empty!");
+            }else {
+                String bearId = beans.get(0).getBearId();
+                itemIn.setStafferId(bearId);
+                //2014/12/25
+                // // 辅助核算 部门和职员 使用承担人部门替换掉当前登录帐号
+                StafferBean st = stafferDAO.find(bearId);
+                if (st!= null){
+                    itemIn.setDepartmentId(st.getPrincipalshipId());
+                }
+            }
+        }
     }
 
     /**
@@ -1208,11 +1235,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 	@Override
 	public void onSubmitMidTravelApply(User user, TravelApplyBean bean, int type)
 			throws MYException {
-
-        System.out.println("***************onSubmitMidTravelApply**********"+user);
         _logger.info("***************onSubmitMidTravelApply**********"+user);
 
-		
         FinanceBean financeBean = new FinanceBean();
 
         String name = bean.getDescription()+","+DefinedCommon.getValue("tcpType", bean.getType()) + "申请提交:"
@@ -1261,7 +1285,6 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
                                 List<FinanceItemBean> itemList, int type)
         throws MYException
     {
-        System.out.println("****************bean class************"+bean.getClass()+"*****************");
         // 收款人
         StafferBean staffer = stafferDAO.find(bean.getStafferId());
 
@@ -1305,25 +1328,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         // 辅助核算 部门和职员
 //        itemIn.setDepartmentId(staffer.getPrincipalshipId());
 
-        //2014/12/24 使用承担人替换掉当前登录帐号
-        // itemIn.setStafferId(staffer.getId());
-        if (bean instanceof TravelApplyVO){
-            TravelApplyVO vo = (TravelApplyVO)bean;
-            List<TcpShareVO> beans = vo.getShareVOList();
-            if (ListTools.isEmptyOrNull(beans)){
-                System.out.println("TcpShareVO can not be empty!");
-                _logger.warn("TcpShareVO can not be empty!");
-            }else {
-                String bearId = beans.get(0).getBearId();
-                itemIn.setStafferId(bearId);
-                //2014/12/25
-                // // 辅助核算 部门和职员 使用承担人部门替换掉当前登录帐号
-                StafferBean st = stafferDAO.find(bearId);
-                if (st!= null){
-                    itemIn.setDepartmentId(st.getPrincipalshipId());
-                }
-            }
-        }
+        this.setStafferId(bean, itemIn);
 
         itemList.add(itemIn);
 
@@ -1354,6 +1359,12 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         itemOut.setOutmoney(type * bean.getTotal() * 100);
 
         itemOut.setDescription(itemOut.getName());
+
+//        //#308 2016/9/11
+//        if (flag){
+//            itemOut.setStafferId(itemIn.getStafferId());
+//            itemOut.setDepartmentId(itemIn.getDepartmentId());
+//        }
 
         // 辅助核算 NA
         itemList.add(itemOut);

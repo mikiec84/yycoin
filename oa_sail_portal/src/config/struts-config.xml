@@ -184,6 +184,7 @@
             <forward name="importBranchRelation" path="/sailImport/importBranchRelation.jsp" />
             <forward name="addAutoPickup" path="/transport/addAutoPickup.jsp" />
             <forward name="mergePackages" path="/transport/mergePackages.jsp" />
+            <forward name="updateShipping" path="/transport/updateShipping.jsp" />
             <forward name="printHandover" path="/transport/printHandover.jsp" />
             
         </action>

@@ -860,7 +860,7 @@ public class OutImportAction extends DispatchAction
 			importError = true;
 		}
 		
-		if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT
+		if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT
 				|| bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY)
 		{
 			// 如果发货方式是快递或快递+货运 ,则快递须为必填
@@ -3943,8 +3943,6 @@ public class OutImportAction extends DispatchAction
 
                         ExpressBean express = expressDAO.findByUnique(transport);
 
-//            			TransportBean tb = consignDAO.findTransportByName(transport);
-            			
             			if (null == express)
             			{
                 			builder
@@ -3967,47 +3965,48 @@ public class OutImportAction extends DispatchAction
             			importError = true;
             		}
 
-                    //支付方式
-                    if ( !StringTools.isNullOrNone(obj[5]))
-                    {
-                        String expressPay = obj[5].trim();
-
-                        boolean isexists = false;
-
-                        for (int i = 0; i < OutImportConstant.expressPay.length; i++)
-                        {
-                            if (expressPay.equals(OutImportConstant.expressPay[i]))
-                            {
-                                isexists = true;
-
-                                bean.setPay(OutImportConstant.iexpressPay[i]);
-
-                                break;
-                            }
-                        }
-
-                        if (!isexists)
-                        {
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
-                                    .append("<br>");
-
-                            importError = true;
-                        }
-                    }else
-                    {
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
-                                .append("<br>");
-
-                        importError = true;
-                    }
+//#307
+//                    //支付方式
+//                    if ( !StringTools.isNullOrNone(obj[5]))
+//                    {
+//                        String expressPay = obj[5].trim();
+//
+//                        boolean isexists = false;
+//
+//                        for (int i = 0; i < OutImportConstant.expressPay.length; i++)
+//                        {
+//                            if (expressPay.equals(OutImportConstant.expressPay[i]))
+//                            {
+//                                isexists = true;
+//
+//                                bean.setPay(OutImportConstant.iexpressPay[i]);
+//
+//                                break;
+//                            }
+//                        }
+//
+//                        if (!isexists)
+//                        {
+//                            builder
+//                                    .append("第[" + currentNumber + "]错误:")
+//                                    .append("支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
+//                                    .append("<br>");
+//
+//                            importError = true;
+//                        }
+//                    }else
+//                    {
+//                        builder
+//                                .append("第[" + currentNumber + "]错误:")
+//                                .append("支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
+//                                .append("<br>");
+//
+//                        importError = true;
+//                    }
             		
-            		if ( !StringTools.isNullOrNone(obj[6]))
+            		if ( !StringTools.isNullOrNone(obj[5]))
             		{
-            			bean.setTransportNo(obj[6]);
+            			bean.setTransportNo(obj[5]);
             		}else
             		{
             			builder
@@ -4018,60 +4017,60 @@ public class OutImportAction extends DispatchAction
             			importError = true;
             		}
             		
+            		if ( !StringTools.isNullOrNone(obj[6]))
+            		{
+            			bean.setSendPlace(obj[6]);
+            		}
+            		
             		if ( !StringTools.isNullOrNone(obj[7]))
             		{
-            			bean.setSendPlace(obj[7]);
+            			bean.setPreparer(obj[7]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[8]))
             		{
-            			bean.setPreparer(obj[8]);
+            			bean.setChecker(obj[8]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[9]))
             		{
-            			bean.setChecker(obj[9]);
+            			bean.setPackager(obj[9]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[10]))
             		{
-            			bean.setPackager(obj[10]);
+            			bean.setPackageTime(obj[10]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[11]))
             		{
-            			bean.setPackageTime(obj[11]);
+            			bean.setPackageTime(bean.getPackageTime() + " " + obj[11]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[12]))
             		{
-            			bean.setPackageTime(bean.getPackageTime() + " " + obj[12]);
+            			bean.setMathine(obj[12]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[13]))
             		{
-            			bean.setMathine(obj[13]);
+            			bean.setPackageAmount(obj[13]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[14]))
             		{
-            			bean.setPackageAmount(obj[14]);
+            			bean.setPackageWeight(obj[14]);
             		}
             		
             		if ( !StringTools.isNullOrNone(obj[15]))
             		{
-            			bean.setPackageWeight(obj[15]);
-            		}
-            		
-            		if ( !StringTools.isNullOrNone(obj[16]))
-            		{
-            			bean.setTransportFee(obj[16]);
+            			bean.setTransportFee(obj[15]);
             		}
 
                     //2015/6/25 顺丰收货日期必填
-                    if ( !StringTools.isNullOrNone(obj[17]))
+                    if ( !StringTools.isNullOrNone(obj[16]))
                     {
-						String date = obj[17].trim();
+						String date = obj[16].trim();
 						try {
 							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 							sdf.parse(date);

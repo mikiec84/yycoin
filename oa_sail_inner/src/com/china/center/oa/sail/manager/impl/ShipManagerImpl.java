@@ -2453,6 +2453,48 @@ public class ShipManagerImpl implements ShipManager
         return name;
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void updateShipping(String packageId, DistributionBean distributionBean) {
+        _logger.info(packageId+"***update shipping "+distributionBean);
+        PackageBean packageBean = this.packageDAO.find(packageId);
+        if (packageBean!= null){
+            packageBean.setShipping(distributionBean.getShipping());
+            if (distributionBean.getShipping() == OutConstant.OUT_SHIPPING_3PL
+                    || distributionBean.getShipping() == OutConstant.OUT_SHIPPING_PROXY){
+                packageBean.setExpressPay(distributionBean.getExpressPay());
+                packageBean.setTransport1(distributionBean.getTransport1());
+            } else if (distributionBean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT){
+                packageBean.setTransportPay(distributionBean.getTransportPay());
+                packageBean.setTransport2(distributionBean.getTransport2());
+            } else if (distributionBean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+                packageBean.setExpressPay(distributionBean.getExpressPay());
+                packageBean.setTransport1(distributionBean.getTransport1());
+                packageBean.setTransportPay(distributionBean.getTransportPay());
+                packageBean.setTransport2(distributionBean.getTransport2());
+            }
+
+            this.packageDAO.updateEntityBean(packageBean);
+            _logger.info("update packageBean ***" + packageBean);
+        }
+
+        List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(packageId);
+        for (PackageItemBean item : itemList){
+            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(item.getOutId());
+            if (!ListTools.isEmptyOrNull(distList)){
+                for (DistributionBean dist : distList){
+                    dist.setShipping(distributionBean.getShipping());
+                    dist.setExpressPay(distributionBean.getExpressPay());
+                    dist.setTransport1(distributionBean.getTransport1());
+                    dist.setTransportPay(distributionBean.getTransportPay());
+                    dist.setTransport2(distributionBean.getTransport2());
+                    this.distributionDAO.updateEntityBean(dist);
+                    _logger.info("***update distribution***"+dist);
+                }
+            }
+        }
+    }
+
     /**
      * @return the preConsignDAO
      */

@@ -2380,6 +2380,9 @@ public class ShipAction extends DispatchAction
                     ProductImportBean productImportBean = beans.get(0);
                     productName = productImportBean.getBankProductName();
                     _logger.info("***getBankProductName***"+productName);
+                    try {
+                        item.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                    }catch(Exception e){}
                 }
             }
         }
@@ -2423,8 +2426,12 @@ public class ShipAction extends DispatchAction
 
                     //#310
                     String material = productImportBean.getMaterial();
+
                     _logger.info("***getBankProductName***"+productName+"***material"+material);
                     item.setMateriaType(material);
+                    try {
+                        item.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                    }catch(Exception e){}
                 }
             }
         }
@@ -3372,7 +3379,6 @@ public class ShipAction extends DispatchAction
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
-//            this.convertProductNameForBank(item);
 
             itemList1.add(item);
             _logger.info("***convertProductNameForBank***" + item.getProductName());
@@ -3825,10 +3831,10 @@ public class ShipAction extends DispatchAction
                 item.setProductName(productName);
             }
 
-            ProductBean product = productDAO.find(item.getProductId());
-            if (product!= null) {
-                this.setProductInfoForNb(item, product);
-            }
+//            ProductBean product = productDAO.find(item.getProductId());
+//            if (product!= null) {
+//                this.setProductInfoForNb(item, product);
+//            }
             itemList1.add(item);
         }
 
@@ -4669,6 +4675,52 @@ public class ShipAction extends DispatchAction
 
         return mapping.findForward("queryPickup");
 //        return this.queryPackage(mapping,form, request, response);
+    }
+
+    public ActionForward preForUpdateShipping(ActionMapping mapping, ActionForm form,
+                                          HttpServletRequest request, HttpServletResponse response){
+        String id = request.getParameter("id");
+        //运输方式
+        List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
+        request.setAttribute("expressList", expressList);
+
+        //省市
+        List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+        request.setAttribute("provinceList", provinceList);
+        List<CityBean> cityList = this.cityDAO.listEntityBeans();
+        request.setAttribute("cityList", cityList);
+        request.setAttribute("id", id);
+        _logger.info("***preForUpdateShipping "+id);
+        return mapping.findForward("updateShipping");
+    }
+
+    private void fillDistribution(HttpServletRequest rds)
+    {
+        DistributionBean distributionBean = new DistributionBean();
+        BeanUtil.getBean(distributionBean, rds);
+    }
+
+    public ActionForward updateShipping(ActionMapping mapping, ActionForm form,
+                                    HttpServletRequest request, HttpServletResponse response){
+        String id = request.getParameter("id");
+        try
+        {
+            DistributionBean distributionBean = new DistributionBean();
+            BeanUtil.getBean(distributionBean, request);
+            _logger.info(id+"***distribution bean***"+distributionBean);
+            //TODO
+            this.shipManager.updateShipping(id, distributionBean);
+            request.setAttribute(KeyConstant.MESSAGE, "更新发货方式成功");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "更新发货方式出错:"+ e.getMessage());
+
+            return mapping.findForward("queryPickup");
+        }
+
+        return mapping.findForward("queryPickup");
     }
 
     public ActionForward preForAutoPickup(ActionMapping mapping, ActionForm form,

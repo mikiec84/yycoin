@@ -1074,20 +1074,20 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
 
     @Override
     public boolean updateInvoiceIns(String invoiceId, int shipping, int expressPay, int transport1, int transportPay, int transport2) {
-        String sql = "update T_CENTER_INVOICEINS set shipping = ? ,expressPay = ?,transport1 = ?, transportPay = ?, " +
+        String sql = "update T_CENTER_INVOICEINS set shipping = ? ,transport1 = ?, " +
                 " transport2 = ? where id = ?";
 
-        int i = jdbcOperation.update(sql, shipping, expressPay, transport1, transportPay, transport2, invoiceId);
+        int i = jdbcOperation.update(sql, shipping,  transport1, transport2, invoiceId);
 
         return i != 0;
     }
 
     @Override
     public boolean updatePreInvoiceIns(String invoiceId, int shipping, int expressPay, int transport1, int transportPay, int transport2) {
-        String sql = "update T_CENTER_PREINVOICE set shipping = ? ,expressPay = ?,transport1 = ?, transportPay = ?, " +
+        String sql = "update T_CENTER_PREINVOICE set shipping = ? ,transport1 = ?, " +
                 " transport2 = ? where id = ?";
 
-        int i = jdbcOperation.update(sql, shipping, expressPay, transport1, transportPay, transport2, invoiceId);
+        int i = jdbcOperation.update(sql, shipping, transport1, transport2, invoiceId);
 
         return i != 0;
     }
