@@ -1232,6 +1232,11 @@ public class ShipAction extends DispatchAction
 
                 wrap.setOutId(eachItem.getOutId());
                 wrap.setDescription(eachItem.getDescription());
+                //#315
+                OutBean out = this.outDAO.find(eachItem.getOutId());
+                if (out!= null && !StringTools.isNullOrNone(out.getSwbz())){
+                    wrap.setDescription(out.getSwbz());
+                }
 
                 map1.put(eachItem.getOutId(), wrap);
             }
@@ -2666,16 +2671,25 @@ public class ShipAction extends DispatchAction
         return name;
     }
 
+    enum Bank{
+        ZY, OTHER
+    }
+
     /**
      * 2015/11/13 中原银行回执单产品编码取 out_import表里的商品编码字段productCode
      * @param item
      */
-    private void getProductCode(PackageItemBean item){
+    private void getProductCode(PackageItemBean item, Bank bank){
         String outId = item.getOutId();
         if (StringTools.isNullOrNone(outId) || outId.startsWith("A")){
             _logger.warn("****Empty OutId or invoiceins***********"+outId);
         }else {
-            item.setProductCode(this.getProductCodeFromOutImport(outId));
+            if (bank == Bank.ZY && outId.startsWith("ZS")){
+                _logger.info("****ZS orders of ZY bank***********"+outId);
+                item.setProductCode("");
+            }else{
+                item.setProductCode(this.getProductCodeFromOutImport(outId));
+            }
         }
     }
 
@@ -2776,7 +2790,7 @@ public class ShipAction extends DispatchAction
             this.getCustomerNameForXy(each);
 
             //2015/12/26 #152: 产品编码要在此处获取，因为相同的产品会合并，在后边处理会有问题。
-            this.getProductCode(each);
+            this.getProductCode(each, Bank.OTHER);
 
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
@@ -2972,7 +2986,7 @@ public class ShipAction extends DispatchAction
 
             //2015/12/26 #145:回执单打印CK单合并多客户名称问题
             this.getCustomerName(each);
-            this.getProductCode(each);
+            this.getProductCode(each, Bank.OTHER);
 
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
@@ -3471,7 +3485,7 @@ public class ShipAction extends DispatchAction
             }
 
             //2015/12/26 #153: 中原银行回执单，合并同一产品后，无法取到产品代码
-            this.getProductCode(each);
+            this.getProductCode(each, Bank.ZY);
 
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
@@ -3680,7 +3694,7 @@ public class ShipAction extends DispatchAction
             }
 
             //2015/12/26 #152: 产品编码要在此处获取，因为相同的产品会合并，在后边处理会有问题。
-            this.getProductCode(each);
+            this.getProductCode(each, Bank.OTHER);
 
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
@@ -3897,7 +3911,7 @@ public class ShipAction extends DispatchAction
             }
 
             //2015/12/26 #152: 产品编码要在此处获取，因为相同的产品会合并，在后边处理会有问题。
-            this.getProductCode(each);
+            this.getProductCode(each, Bank.OTHER);
 
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();

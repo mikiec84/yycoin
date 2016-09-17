@@ -472,6 +472,11 @@ public class OutBean implements Serializable
      * 2016/3/18 #202: 销售退单时必填
      */
     private String transportNo = "";
+
+    /**
+     * #315 出库单备注
+     */
+    private String swbz = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2086,6 +2091,14 @@ public class OutBean implements Serializable
         this.transportNo = transportNo;
     }
 
+    public String getSwbz() {
+        return swbz;
+    }
+
+    public void setSwbz(String swbz) {
+        this.swbz = swbz;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
@@ -2331,6 +2344,9 @@ public class OutBean implements Serializable
             .append(TAB)
             .append("poDate = ")
             .append(this.podate)
+            .append(TAB)
+            .append("swbz = ")
+            .append(this.swbz)
             .append(TAB)
             .append("baseList = ")
             .append(this.baseList)
