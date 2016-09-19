@@ -3489,6 +3489,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             }
                         }
 
+                        //#315
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && newNextStatus == OutConstant.STATUS_FLOW_PASS){
+                            _logger.info("***update swbz***");
+                            outDAO.updateSwbz(outBean.getFullId(), reason);
+                        }
+
+
                         // #162 发货方式为“空发”的订单，在通过库管审批时，状态更新为“已发货”
                         // 原处理逻辑不变，修改状态放到最后进行
                         if (isKf){

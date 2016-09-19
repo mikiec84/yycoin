@@ -688,6 +688,13 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         return true;
     }
 
+    @Override
+    public boolean updateSwbz(String fullId, String swbz) {
+        jdbcOperation.updateField("swbz", swbz, fullId, this.claz);
+
+        return true;
+    }
+
     public boolean updateChangeTime(String fullId, String changeTime)
     {
         jdbcOperation.updateField("changeTime", changeTime, fullId, this.claz);

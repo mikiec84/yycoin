@@ -238,8 +238,8 @@
 
         <tr id = "button_tr">
             <td width="100%">
-                <div align="right"><input type="button" class="button_class"
-                                          value="&nbsp;&nbsp;保 存&nbsp;&nbsp;" onClick="save()" />&nbsp;&nbsp;<input
+                <div align="right">
+                    <input
                         type="button" class="button_class" id="sub_b"
                         value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onClick="sub()" /></div>
             </td>

@@ -78,6 +78,8 @@ public interface OutDAO extends DAO<OutBean, OutVO>
 
     boolean updateDescription(String fullId, String description);
 
+    boolean updateSwbz(String fullId, String swbz);
+
     boolean updateInvoiceStatus(String fullId, double invoiceMoney, int invoiceStatus);
 
     boolean updateInvoice(String fullId, String invoiceId);
