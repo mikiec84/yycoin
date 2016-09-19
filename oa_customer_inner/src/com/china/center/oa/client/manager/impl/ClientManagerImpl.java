@@ -2331,19 +2331,27 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 				 customerBean.setCreateTime(TimeTools.now());
 				 customerBean.setLogTime(TimeTools.now());
                  customerBean.setStatus(CustomerConstant.REAL_STATUS_USED);
-                 this.customerMainDAO.saveEntityBean(customerBean);
+				 _logger.info("***save customer***"+customerBean);
+				 try {
+					 this.customerMainDAO.saveEntityBean(customerBean);
+				 }catch(Exception e){
+					 e.printStackTrace();
+					 _logger.error(e);
+				 }
 
                  CustomerCorporationBean corpBean = new CustomerCorporationBean();
-//                 corpBean.setId(id);
-//                 corpBean.setName(customerVO.getName());
-//                 corpBean.setProvinceId(customerVO.getProvinceId());
-//                 corpBean.setCityId(customerVO.getCityId());
-//                 corpBean.setAddress(customerVO.getAddress());
                  BeanUtil.copyProperties(corpBean,customerBean);
                  corpBean.setLicenseNo("");
                  corpBean.setSimpleName(corpBean.getName());
                  corpBean.setEstablishDate("");
-                 customerCorporationDAO.saveEntityBean(corpBean);
+
+				 _logger.info("***save corpBean***"+corpBean);
+				 try {
+					 customerCorporationDAO.saveEntityBean(corpBean);
+				 }catch(Exception e){
+					 e.printStackTrace();
+					 _logger.error(e);
+				 }
 
 
                  StafferBean stafferBean = this.stafferDAO.findyStafferByName(customerVO.getStafferName());
