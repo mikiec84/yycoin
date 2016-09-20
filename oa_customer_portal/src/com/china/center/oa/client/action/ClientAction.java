@@ -3090,6 +3090,8 @@ public class ClientAction extends DispatchAction
 				}
             }
         );*/
+		final List<StafferVSCustomerVO> vsList = stafferVSCustomerDAO.listEntityVOs();
+		_logger.info("*vsList size***"+vsList.size());
         jsonstr = ActionTools.querySelfBeanByJSONAndToString(QUERYLOCATIONCLIENT, request,
                 condtion, new CommonQuery()
                 {
@@ -3106,9 +3108,12 @@ public class ClientAction extends DispatchAction
                     public List queryResult(String key, HttpServletRequest request,
                                             ConditionParse queryCondition)
                     {
-                        return customerMainDAO.queryCustomerLocationByCondition(PageSeparateTools
-                            .getCondition(request, key), PageSeparateTools
-                            .getPageSeparate(request, key));
+						List<CustomerVO> customerVOs = customerMainDAO.queryCustomerLocationByCondition(PageSeparateTools
+								.getCondition(request, key), PageSeparateTools
+								.getPageSeparate(request, key));
+						_logger.info("***customerVOs size***"+customerVOs.size());
+						setStafferName(customerVOs, vsList);
+                        return customerVOs;
                     }
 
                     public String getSortname(HttpServletRequest request)
@@ -3120,6 +3125,16 @@ public class ClientAction extends DispatchAction
 
         return JSONTools.writeResponse(response, jsonstr);
     }
+
+    private void setStafferName(List<CustomerVO> customerVOs, List<StafferVSCustomerVO> stafferVSCustomerVOs){
+		for (CustomerVO customerVO: customerVOs){
+			for (StafferVSCustomerVO stafferVSCustomerVO : stafferVSCustomerVOs){
+				if (stafferVSCustomerVO.getCustomerId().equals(customerVO.getId())){
+					customerVO.setStafferName(stafferVSCustomerVO.getStafferName());
+				}
+			}
+		}
+	}
 
     /**
      * 第一次打开时，不做查询，须输入条件才允许查询
