@@ -2487,29 +2487,31 @@ public class ShipAction extends DispatchAction
             item.setProductAmount(Math.abs(item.getAmount()*product.getProductAmount()));
             item.setPackageAmount(Math.abs(item.getAmount()*product.getPackageAmount()));
             item.setCertificateAmount(Math.abs(item.getAmount()*product.getCertificateAmount()));
-            item.setProductWeight(Math.abs(product.getProductWeight()));
+//            item.setProductWeight(Math.abs(product.getProductWeight()));
 
-            //材质类型
-            int checkDays = product.getCheckDays();
-            String materialType = "";
-            ConditionParse conditionParse = new ConditionParse();
-            conditionParse.addWhereStr();
-            conditionParse.addCondition("type", "=", "201");
-            conditionParse.addCondition("keyss", "=", checkDays);
+            if (StringTools.isNullOrNone(item.getMateriaType())){
+                //材质类型
+                int checkDays = product.getCheckDays();
+                String materialType = "";
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("type", "=", "201");
+                conditionParse.addCondition("keyss", "=", checkDays);
 
-            List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
-            if (!ListTools.isEmptyOrNull(enumBeans)){
-                EnumBean enumBean = enumBeans.get(0);
-                String value = enumBean.getValue();
-                if ("贵金属纪念章_金".equals(value) || "贵金属纪念章金".equals(value)){
-                    materialType = "Au.999";
-                } else if ("贵金属纪念章_银".equals(value) || "贵金属纪念章银".equals(value)){
-                    materialType = "Ag.999";
-                } else if ("贵金属纪念章_金银".equals(value) || "贵金属纪念章金银".equals(value)){
-                    materialType = "Au.999+Ag.999";
+                List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(enumBeans)){
+                    EnumBean enumBean = enumBeans.get(0);
+                    String value = enumBean.getValue();
+                    if ("贵金属纪念章_金".equals(value) || "贵金属纪念章金".equals(value)){
+                        materialType = "Au.999";
+                    } else if ("贵金属纪念章_银".equals(value) || "贵金属纪念章银".equals(value)){
+                        materialType = "Ag.999";
+                    } else if ("贵金属纪念章_金银".equals(value) || "贵金属纪念章金银".equals(value)){
+                        materialType = "Au.999+Ag.999";
+                    }
                 }
+                item.setMateriaType(materialType);
             }
-            item.setMateriaType(materialType);
         }
     }
 
@@ -3825,16 +3827,15 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-//            this.convertProductNameForNb(item);
             String productName = this.convertProductNameForBank(item);
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
 
-//            ProductBean product = productDAO.find(item.getProductId());
-//            if (product!= null) {
-//                this.setProductInfoForNb(item, product);
-//            }
+            ProductBean product = productDAO.find(item.getProductId());
+            if (product!= null) {
+                this.setProductInfoForNb(item, product);
+            }
             itemList1.add(item);
         }
 
