@@ -695,7 +695,9 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         	
         	double mayInvoiceMoneys = out.getTotal() - retTotal - hadInvoice ;
 
-        	if (itemBean.getInvoiceMoney() > mayInvoiceMoneys){
+            //#322
+        	if (itemBean.getInvoiceMoney() -mayInvoiceMoneys>=0.01){
+                _logger.info("***itemBean.getInvoiceMoney()***"+itemBean.getInvoiceMoney()+"***"+mayInvoiceMoneys);
         		throw new MYException("销售单[%s]销售金额[%.2f],已退货[%.2f],开票金额(含审批中)[%.2f],可开票金额为[%.2f]，本次申请预开票金额为[%.2f], 本次申请大于可开票金额",
         				out.getFullId(), out.getTotal(), retTotal, hadInvoice, mayInvoiceMoneys, itemBean.getInvoiceMoney());
         	}

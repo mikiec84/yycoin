@@ -1783,7 +1783,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 
         if (cus == null)
         {
-            throw new MYException("申请分配的客户不存在");
+            throw new MYException("申请分配的客户不存在:"+apply.getCustomerId());
         }
 
         if (pass && cus.getStatus() == CustomerConstant.REAL_STATUS_USED)
