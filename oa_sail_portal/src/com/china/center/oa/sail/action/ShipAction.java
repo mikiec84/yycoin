@@ -1234,7 +1234,7 @@ public class ShipAction extends DispatchAction
                 wrap.setDescription(eachItem.getDescription());
                 //#315
                 OutBean out = this.outDAO.find(eachItem.getOutId());
-                if (out!= null && !StringTools.isNullOrNone(out.getSwbz())){
+                if (out!= null){
                     wrap.setDescription(out.getSwbz());
                 }
 

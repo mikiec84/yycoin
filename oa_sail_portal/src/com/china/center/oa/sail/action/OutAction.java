@@ -3790,9 +3790,10 @@ public class OutAction extends ParentOutAction
         }
         else
         {
-            condtion.addCondition("OutBean.outTime", ">=", TimeTools.now_short( -180));
+            String begin = TimeTools.now_short( -360);
+            condtion.addCondition("OutBean.outTime", ">=", begin);
 
-            request.setAttribute("outTime", TimeTools.now_short( -180));
+            request.setAttribute("outTime", begin);
         }
 
         if ( !StringTools.isNullOrNone(outTime1))
@@ -4163,7 +4164,7 @@ public class OutAction extends ParentOutAction
 //            condtion.addIntCondition("OutBean.pay", "=", OutConstant.PAY_YES);
             
             setInnerCondition2(request, condtion);
-
+            _logger.info("***sql***"+condtion.toString());
             int total = outDAO.countByCondition(condtion.toString());
 
             PageSeparate page = new PageSeparate(total, PublicConstant.PAGE_COMMON_SIZE);
@@ -4216,8 +4217,10 @@ public class OutAction extends ParentOutAction
         	
         	each.setMayInvoiceMoneys(each.getTotal() - retTotal - hadInvoice);
         	
-        	if (each.getMayInvoiceMoneys() <= 0)
-        		iterator.remove();
+        	if (each.getMayInvoiceMoneys() <= 0){
+                _logger.warn(each.getFullId()+" getMayInvoiceMoneys<=0 "+each.getTotal()+"***retTotal***"+retTotal+"***hadInvoice***"+hadInvoice);
+                iterator.remove();
+            }
         }
         
         request.setAttribute("list", list);

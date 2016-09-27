@@ -158,7 +158,7 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         if (srcStaffer == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("T_CENTER_INBILL表"+inBillBean.getId()+"对应的staffer不存在:"+inBillBean.getOwnerId());
         }
 
         FinanceBean financeBean = new FinanceBean();
@@ -217,7 +217,7 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         if (srcStaffer == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("T_CENTER_INBILL表"+inBillBean.getId()+"对应的staffer不存在:"+inBillBean.getOwnerId());
         }
 
         FinanceBean financeBean = new FinanceBean();
@@ -588,14 +588,14 @@ public class BillListenerTaxGlueImpl implements BillListener
         TaxBean outTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
 
         if (outTax == null) {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("T_CENTER_TAX表不存在："+TaxItemConstanst.PREREVEIVE_PRODUCT);
         }
 
         // 申请人
         StafferBean staffer = stafferDAO.find(inBillBean.getOwnerId());
 
         if (staffer == null) {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("T_CENTER_INBILL表"+inBillBean.getId()+"对应的staffer不存在:"+inBillBean.getOwnerId());
         }
 
         // 科目拷贝
