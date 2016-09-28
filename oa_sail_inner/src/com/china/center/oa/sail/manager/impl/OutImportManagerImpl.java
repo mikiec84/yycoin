@@ -3691,6 +3691,11 @@ public class OutImportManagerImpl implements OutImportManager
                             baseBean.setCostPriceKey(StorageRelationHelper
                                     .getPriceKey(baseBean.getCostPrice()));
 
+
+							//#321
+							baseBean.setIbMoney(refBaseBean.getIbMoney());
+							baseBean.setMotivationMoney(refBaseBean.getMotivationMoney());
+
                             baseBean.setOwner("0");
                             baseBean.setOwnerName("公共");
 
