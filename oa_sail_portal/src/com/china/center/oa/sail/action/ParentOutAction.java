@@ -9178,7 +9178,7 @@ public class ParentOutAction extends DispatchAction
 		{
 			condtion.addCondition("and OutBean.status in (3, 4)");
 
-			condtion.addCondition("and OutBean.outType not in (1, 5, 6, 3)");
+			condtion.addCondition("and OutBean.outType not in (1, 5, 6, 7, 3)");
 			
 			/*condtion.addIntCondition("OutBean.outType", "<>",
 					OutConstant.OUTTYPE_OUT_SWATCH);
@@ -9195,7 +9195,7 @@ public class ParentOutAction extends DispatchAction
 		// 查询没有结束的个人领样 含巡展
 		else if ("9".equals(queryType))
 		{
-			condtion.addCondition("and OutBean.outType in (1, 5, 6)");
+			condtion.addCondition("and OutBean.outType in (1, 5, 6, 7)");
 			
 			condtion.addCondition("and OutBean.status in (3, 4)");
 

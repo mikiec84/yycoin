@@ -76,18 +76,78 @@ function receiptPagePrint(flag)
 
 function sub()
 {
-	if (getRadioValue('pickupId') == '')
-	{
-		alert('请选择出库单');
-		return;
-	}
+    var clis = getCheckBox('packageIds');
+    var pickupId = getRadioValue("pickupId");
 
-	$O('method').value = 'mUpdateStatus';
-
-	$O('pickupId').value = getRadioValue("pickupId");
-
-	formEntry.submit();
+    if (clis.length > 0)
+    {
+        var packageIds = "";
+        for (var i = 0; i < clis.length; i++)
+        {
+            packageIds += clis[i].value + '~';
+        }
+        if (window.confirm('确认发货选中的出库单?')){
+            $l('../sail/ship.do?method=mUpdateStatus&packageIds='+packageIds);
+        }
+    } else {
+        if (window.confirm('确认发货选中批次下的所有出库单?')){
+            $l('../sail/ship.do?method=mUpdateStatus&pickupId='+pickupId);
+        }
+    }
 }
+
+function cancelPickup()
+{
+    var clis = getCheckBox('packageIds');
+    var pickupId = getRadioValue("pickupId");
+
+    if (clis.length > 0)
+    {
+        var packageIds = "";
+        for (var i = 0; i < clis.length; i++)
+        {
+            packageIds += clis[i].value + '~';
+        }
+        if (window.confirm('确定撤销拣配选中的出库单?')){
+            $l('../sail/ship.do?method=cancelPickup&packageIds='+packageIds);
+        }
+    } else {
+        if (window.confirm('确定撤销拣配选中批次下的所有出库单?')){
+            $l('../sail/ship.do?method=cancelPickup&pickupId='+pickupId);
+        }
+    }
+}
+
+function printHandover()
+{
+    var clis = getCheckBox('packageIds');
+    var pickupId = getRadioValue("pickupId");
+
+    if (getRadioValue('pickupId') == '')
+    {
+        alert('请选择出库单');
+        return;
+    }
+
+    $l('../sail/ship.do?method=printHandover&pickupId=' + getRadioValue("pickupId"));
+
+//    if (clis.length > 0)
+//    {
+//        var packageIds = "";
+//        for (var i = 0; i < clis.length; i++)
+//        {
+//            packageIds += clis[i].value + '~';
+//        }
+//        if (window.confirm('确认发货选中的出库单?')){
+//            $l('../sail/ship.do?method=mUpdateStatus&packageIds='+packageIds);
+//        }
+//    } else {
+//        if (window.confirm('确认发货选中批次下的所有出库单?')){
+//            $l('../sail/ship.do?method=mUpdateStatus&pickupId='+pickupId);
+//        }
+//    }
+}
+
 
 function query()
 {
@@ -251,6 +311,18 @@ function clears()
 				</select>
                 </td>
 			</tr>
+
+            <tr class="content2">
+                <td width="15%" align="center">客户名称</td>
+                <td align="left">
+                    <input type="text" name="customerName" value="${ppmap.customerName}" style="width:50%">
+                </td>
+
+                <td width="15%" align="center">产品名称</td>
+                <td align="left">
+                    <input type="text" name="productName" value="${ppmap.productName}" style="width:50%">
+                </td>
+            </tr>
 			
 			<tr class="content1">
 				<td colspan="4" align="right"><input type="button"
@@ -274,6 +346,7 @@ function clears()
 				<td align="center" class="td_class">选择</td>
 				<td align="center" class="td_class" ><strong>批次号</strong></td>
 				<td align="center" class="td_class" ><strong>系列号</strong></td>
+                <td align="center" class="td_class" ><strong>选择2</strong></td>
 				<td align="center" class="td_class" ><strong>出库单</strong></td>
 				<td align="center" class="td_class" ><strong>状态</strong></td>
 				<td align="center" class="td_class" ><strong>事业部</strong></td>
@@ -307,6 +380,7 @@ function clears()
                     <td align="center"></td>
                     <td align="center">--</td>
                     <td align="center" onclick="hrefAndSelect(this)">${item2.index_pos}</td>
+                    <td align="center"><input type="checkbox" name="packageIds" value="${item2.id}"></td>
                     <td align="center" onclick="hrefAndSelect(this)">
                     <a
                         href="../sail/ship.do?method=findPackage&packageId=${item2.id}"
@@ -347,12 +421,19 @@ function clears()
 			<input type="button" 
 			class="button_class" onclick="receiptPagePrint(1)"
 			value="&nbsp;&nbsp;打印回执单(含配件)&nbsp;&nbsp;">&nbsp;&nbsp;
-			<input type="button" 
-			class="button_class" onclick="batchPagePrint()"
-			value="&nbsp;&nbsp;批量打印&nbsp;&nbsp;">&nbsp;&nbsp;
+            <input type="button"
+                   class="button_class" onclick="printHandover()"
+                   value="&nbsp;&nbsp;打印交接清单&nbsp;&nbsp;">&nbsp;&nbsp;
+            <input type="button"
+                   class="button_class" onclick="batchPagePrint()"
+                   value="&nbsp;&nbsp;批量打印&nbsp;&nbsp;">&nbsp;&nbsp;
 			<input type="button" 
 			class="button_class" onclick="sub()"
 			value="&nbsp;&nbsp;确认发货&nbsp;&nbsp;">&nbsp;&nbsp;
+            <input type="button"
+                   class="button_class" onclick="cancelPickup()"
+                   value="&nbsp;&nbsp;撤销拣配&nbsp;&nbsp;">&nbsp;&nbsp;
+
 		</div>
 	</p:button>
 
