@@ -154,6 +154,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     private PackageDAO packageDAO = null;
 
+    private PackageItemDAO packageItemDAO = null;
+
     private StafferDAO stafferDAO = null;
 
     /*
@@ -1903,6 +1905,16 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 					insVSInvoiceNumDAO.updateEntityBean(insNum);
 					_logger.info(id+"***update invoice num***"+insNum);
+
+                    //2016/10/11 #328 以真实发票号码替换package_item中对应的产品名中的临时发票号码
+                    if (!StringTools.isNullOrNone(insNum.getInvoiceNum())){
+                        String newProductName = "发票号："+insNum;
+                        String oldProductName = "发票号："+insNum.getInvoiceNum();
+                        String outId = insNum.getInsId();
+                        this.packageItemDAO.replaceProductName(outId, oldProductName, newProductName);
+                    }
+
+
 					//2016/2/17 #169 生成CK单
 					InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
 					_logger.info("***find invoiceins bean***"+bean);
@@ -3307,6 +3319,10 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			//2016/3/4 导入时虚拟发票号不能再写入发票表了
 //			num.setInvoiceNum(first.getInvoiceNum());
 
+            //#328 生成临时发票号写入发票表，供CK单打印用
+            String tempInvoiceNum = commonDAO.getSquenceString20("XN");;
+            num.setInvoiceNum(tempInvoiceNum);
+
 			numList.add(num);
 
 			invoiceinsDAO.saveEntityBean(bean);
@@ -4215,4 +4231,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	public void setTempConsignDAO(TempConsignDAO tempConsignDAO) {
 		this.tempConsignDAO = tempConsignDAO;
 	}
+
+    public PackageItemDAO getPackageItemDAO() {
+        return packageItemDAO;
+    }
+
+    public void setPackageItemDAO(PackageItemDAO packageItemDAO) {
+        this.packageItemDAO = packageItemDAO;
+    }
 }
