@@ -110,6 +110,9 @@ public class OutVO extends OutBean
     
     @Ignore
     private String pdescription = "";
+
+    @Ignore
+    private String outbackStatus = "";
     
     public OutVO()
     {
@@ -123,9 +126,6 @@ public class OutVO extends OutBean
         return locationName;
     }
 
-    /**
-     * @param 对locationName进行赋值
-     */
     public void setLocationName(String locationName)
     {
         this.locationName = locationName;
@@ -433,7 +433,15 @@ public class OutVO extends OutBean
 		this.pdescription = pdescription;
 	}
 
-	/**
+    public String getOutbackStatus() {
+        return outbackStatus;
+    }
+
+    public void setOutbackStatus(String outbackStatus) {
+        this.outbackStatus = outbackStatus;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

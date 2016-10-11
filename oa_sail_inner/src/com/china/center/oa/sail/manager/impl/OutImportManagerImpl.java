@@ -3740,7 +3740,13 @@ public class OutImportManagerImpl implements OutImportManager
                             //生成退货单号时，也同时写入t_center_outback表的description字段中，增加在现有字段后，根据outbackid 到outback表找对应的id
                             OutBackBean outBackBean = this.outBackDAO.find(item.getOutBackId());
                             if (outBackBean!= null){
-                                this.outBackDAO.updateDescription(item.getOutBackId(), outBackBean.getDescription() + "_"+fullId);
+								String description = outBackBean.getDescription() + "_"+fullId;
+								if (description!= null && description.length()>255){
+									this.outBackDAO.updateDescription(item.getOutBackId(), description.substring(0, 254));
+								}else{
+									this.outBackDAO.updateDescription(item.getOutBackId(), description);
+								}
+
                                 //更新out表的transportNo
                                 outBean.setTransportNo(outBackBean.getTransportNo());
                             }

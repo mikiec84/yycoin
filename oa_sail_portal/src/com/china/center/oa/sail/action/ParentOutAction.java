@@ -30,6 +30,7 @@ import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.PriceConfigManager;
+import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.*;
@@ -133,17 +134,6 @@ import com.china.center.oa.publics.vo.DutyVO;
 import com.china.center.oa.publics.vs.DutyVSInvoiceBean;
 import com.china.center.oa.publics.vs.RoleAuthBean;
 import com.china.center.oa.publics.vs.StafferVSPriBean;
-import com.china.center.oa.sail.bean.BaseBalanceBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.BatchReturnLog;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.ExpressBean;
-import com.china.center.oa.sail.bean.OutBalanceBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.PromotionBean;
-import com.china.center.oa.sail.bean.PromotionItemBean;
-import com.china.center.oa.sail.bean.TransportBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.PromotionConstant;
 import com.china.center.oa.sail.helper.OutHelper;
@@ -315,6 +305,10 @@ public class ParentOutAction extends DispatchAction
     protected ProductFacade productFacade = null;
 
 	protected PackageDAO packageDAO = null;
+
+	private OutBackItemDAO outBackItemDAO = null;
+
+	private OutBackDAO outBackDAO = null;
 
 	protected static String QUERYSELFOUT = "querySelfOut";
 
@@ -8078,6 +8072,23 @@ public class ParentOutAction extends DispatchAction
                 }
 			}
 		}
+		//#326 领样销售退库
+		if ("5".equals(queryType)){
+			try {
+				List<OutBackItemBean> outBackItemBeanList = this.outBackItemDAO.listEntityBeans();
+				List<OutBackBean> outBackBeanList = this.outBackDAO.listEntityBeans();
+				for (OutVO out : list) {
+					String outBackId = this.findOutBackId(outBackItemBeanList, out.getFullId());
+					if (outBackId != null) {
+						String status = this.findOutBackStatus(outBackBeanList, outBackId);
+						out.setOutbackStatus(status);
+					}
+				}
+			}catch (Exception e){
+				e.printStackTrace();
+				_logger.error(e);
+			}
+		}
         _logger.info("**********queryBuy listOut1 size*********:"+list.size());
 		request.setAttribute("listOut1", list);
 		getDivs(request, list);
@@ -8105,6 +8116,37 @@ public class ParentOutAction extends DispatchAction
 		request.setAttribute("now", TimeTools.now("yyyy-MM-dd"));
 
 		return mapping.findForward("queryBuy");
+	}
+
+	private String findOutBackId(List<OutBackItemBean> outBackItemBeanList, String outId){
+		for (OutBackItemBean item : outBackItemBeanList){
+			if (outId.equals(item.getReoano())){
+				return item.getOutBackId();
+			}
+		}
+		return null;
+	}
+
+	private String findOutBackStatus(List<OutBackBean> outBackBeanList, String outBackId){
+		String result = "";
+		for (OutBackBean outBackBean: outBackBeanList){
+			if (outBackBean.getId().equals(outBackId)){
+				int status = outBackBean.getStatus();
+				if (OutConstant.OUTBACK_STATUS_SAVE == status){
+					return "待到货";
+				} else if (OutConstant.OUTBACK_STATUS_CLAIM == status){
+					return "待认领";
+				} else if (OutConstant.OUTBACK_STATUS_CHECK == status){
+					return "待验货";
+				} else if (OutConstant.OUTBACK_STATUS_IN == status){
+					return "待入库";
+				}  else if (OutConstant.OUTBACK_STATUS_FINISH == status){
+					return "已入库";
+				}
+
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -10984,5 +11026,21 @@ public class ParentOutAction extends DispatchAction
 
 	public void setPackageDAO(PackageDAO packageDAO) {
 		this.packageDAO = packageDAO;
+	}
+
+	public OutBackItemDAO getOutBackItemDAO() {
+		return outBackItemDAO;
+	}
+
+	public void setOutBackItemDAO(OutBackItemDAO outBackItemDAO) {
+		this.outBackItemDAO = outBackItemDAO;
+	}
+
+	public OutBackDAO getOutBackDAO() {
+		return outBackDAO;
+	}
+
+	public void setOutBackDAO(OutBackDAO outBackDAO) {
+		this.outBackDAO = outBackDAO;
 	}
 }

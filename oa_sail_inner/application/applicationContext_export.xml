@@ -106,6 +106,7 @@
 	<osgi:service ref="packageVSCustomerDAO" interface="com.china.center.oa.sail.dao.PackageVSCustomerDAO" />
 	
 	<osgi:service ref="outBackDAO" interface="com.china.center.oa.sail.dao.OutBackDAO" />
+	<osgi:service ref="outBackItemDAO" interface="com.china.center.oa.sail.dao.OutBackItemDAO" />
 	<osgi:service ref="outBackManager" interface="com.china.center.oa.sail.manager.OutBackManager" />
 	
 	<osgi:service ref="zjrcOutDAO" interface="com.china.center.oa.extsail.dao.ZJRCOutDAO" />

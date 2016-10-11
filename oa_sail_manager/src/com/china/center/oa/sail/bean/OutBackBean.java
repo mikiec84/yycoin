@@ -785,4 +785,48 @@ public class OutBackBean implements Serializable
 	public void setConfirmCheckTime(String confirmCheckTime) {
 		this.confirmCheckTime = confirmCheckTime;
 	}
+
+	@Override
+	public String toString() {
+		return "OutBackBean{" +
+				"id='" + id + '\'' +
+				", expressCompany='" + expressCompany + '\'' +
+				", transportNo='" + transportNo + '\'' +
+				", fromProvince='" + fromProvince + '\'' +
+				", fromCity='" + fromCity + '\'' +
+				", fromAddress='" + fromAddress + '\'' +
+				", fromer='" + fromer + '\'' +
+				", fromMobile='" + fromMobile + '\'' +
+				", toProvince='" + toProvince + '\'' +
+				", toCity='" + toCity + '\'' +
+				", toAddress='" + toAddress + '\'' +
+				", to='" + to + '\'' +
+				", toMobile='" + toMobile + '\'' +
+				", goods=" + goods +
+				", receiverId='" + receiverId + '\'' +
+				", receiver='" + receiver + '\'' +
+				", receiverDate='" + receiverDate + '\'' +
+				", claimer='" + claimer + '\'' +
+				", claimTime='" + claimTime + '\'' +
+				", checker='" + checker + '\'' +
+				", checkTime='" + checkTime + '\'' +
+				", checkReason='" + checkReason + '\'' +
+				", stocker='" + stocker + '\'' +
+				", stockTime='" + stockTime + '\'' +
+				", stafferId='" + stafferId + '\'' +
+				", stafferName='" + stafferName + '\'' +
+				", logTime='" + logTime + '\'' +
+				", customerId='" + customerId + '\'' +
+				", status=" + status +
+				", refOutId='" + refOutId + '\'' +
+				", description='" + description + '\'' +
+				", note='" + note + '\'' +
+				", handoverChecker='" + handoverChecker + '\'' +
+				", handoverCheckTime='" + handoverCheckTime + '\'' +
+				", handoverReason='" + handoverReason + '\'' +
+				", confirmChecker='" + confirmChecker + '\'' +
+				", confirmCheckTime='" + confirmCheckTime + '\'' +
+				", attachmentList=" + attachmentList +
+				'}';
+	}
 }

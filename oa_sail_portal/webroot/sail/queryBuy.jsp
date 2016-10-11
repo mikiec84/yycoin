@@ -685,6 +685,7 @@ function hrefAndSelect(obj)
 					<tr align="center" class="content0">
 						<td align="center" width="5%" align="center">选择</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">单据编号</td>
+						<td align="center" onclick="tableSort(this)" class="td_class">快递单状态</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">供应商</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">状态</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">${fg}类型</td>
@@ -716,6 +717,7 @@ function hrefAndSelect(obj)
 							<td align="center"
 							onMouseOver="showDiv('${item.fullId}')" onmousemove="tooltip.move()" onmouseout="tooltip.hide()"><a onclick="hrefAndSelect(this)" href="../sail/out.do?method=findOut&queryType=${queryType}&radioIndex=${vs.index}&fow=99&outId=${item.fullId}${pcheck}">
 							${item.fullId}</a></td>
+							<td align="center" onclick="hrefAndSelect(this)">${item.outbackStatus}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.customerName}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${my:get('buyStatus', item.status)}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${my:get('outType_in', item.outType)}</td>
