@@ -1060,6 +1060,16 @@ public class ShipAction extends DispatchAction
             });
             batchVO.setItemList(lastList);
 
+            //2016/10/12 #328 检查临时发票号码
+            for (PackageItemBean item : lastList){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, item.getPackageId()+"商品名中存在虚拟发票号:"+productName);
+
+                    return mapping.findForward("error");
+                }
+            }
+
             // key:以批次号做为key ?
             request.setAttribute("bean", batchVO);
 
@@ -1208,6 +1218,16 @@ public class ShipAction extends DispatchAction
         // 根据产品分组: 1.判断是否为合成,如是,则要找出子产品;2.数量合并
         for (PackageItemBean eachItem : itemList)
         {
+            //2016/10/12 #328 检查临时发票号码
+            for (PackageItemBean item : itemList){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, item.getPackageId()+"商品名中存在虚拟发票号:"+productName);
+
+                    return mapping.findForward("error");
+                }
+            }
+
             if (map.containsKey(eachItem.getProductId()))
             {
                 PackageItemBean itemBean = map.get(eachItem.getProductId());
@@ -1449,6 +1469,16 @@ public class ShipAction extends DispatchAction
                 queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
         String template = "CK:%s customerID:%s customer:%s item size:%d";
         _logger.info(String.format(template, vo.getId(), vo.getCustomerId(), vo.getCustomerName(), itemList.size()));
+
+        //2016/10/12 #328 检查临时发票号码
+        for (PackageItemBean item : itemList){
+            String productName = item.getProductName();
+            if (productName!= null && productName.startsWith("发票号：XN")){
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, item.getPackageId()+"商品名中存在虚拟发票号:"+productName);
+
+                return mapping.findForward("error");
+            }
+        }
         request.setAttribute("bean", vo);
 
         request.setAttribute("pickupId", pickupId);
