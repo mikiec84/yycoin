@@ -1916,43 +1916,44 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 
 					//2016/2/17 #169 生成CK单
+                    //#328 生成CK单步骤移到导入开票申请
 					InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
 					_logger.info("***find invoiceins bean***"+bean);
 					if (bean!= null && bean.getStatus()!= FinanceConstant.INVOICEINS_STATUS_END) {
-						//如果票随货发，就不写入preconsign表，写入临时表
-						if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut()) ){
-							//如果是票随货发，发票对应所有订单已经库管审批通过，那发票也直接写入preconsign
-							String refIds = bean.getRefIds();
-							if (!StringTools.isNullOrNone(refIds)){
-								//SO1603171408390763989;SO1603171408390764099;SO1604070959404897436;SO1603281059398657592;SO1604291455420111218;SO1604061025404245564;SO1604070959404897439;SO1604201109413750564;SO1604201608413899399;SO1604231033415808201;
-								String[] fullIds = refIds.split(";");
-								boolean flag = false;
-								for (String fullId : fullIds){
-									OutBean outBean = outDAO.find(fullId);
-									//如果存在销售单“待商务审批”或"待库管审批"，就写入临时表
-									if(outBean == null){
-										continue;
-									}else if (outBean.getStatus() == OutConstant.STATUS_SUBMIT||
-											outBean.getStatus() == OutConstant.STATUS_FLOW_PASS){
-										flag = true;
-										break;
-									}
-								}
-								_logger.info("***flag***"+flag);
-								if (flag){
-									//写入临时表
-									TempConsignBean tempConsignBean = new TempConsignBean();
-									tempConsignBean.setOutId(refIds);
-									tempConsignBean.setInsId(bean.getId());
-									_logger.info("***save temp consign table***" + tempConsignBean);
-									this.tempConsignDAO.saveEntityBean(tempConsignBean);
-								} else{
-									this.createPackage(bean);
-								}
-							}
-						} else{
-							this.createPackage(bean);
-						}
+//						//如果票随货发，就不写入preconsign表，写入临时表
+//						if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut()) ){
+//							//如果是票随货发，发票对应所有订单已经库管审批通过，那发票也直接写入preconsign
+//							String refIds = bean.getRefIds();
+//							if (!StringTools.isNullOrNone(refIds)){
+//								//SO1603171408390763989;SO1603171408390764099;SO1604070959404897436;SO1603281059398657592;SO1604291455420111218;SO1604061025404245564;SO1604070959404897439;SO1604201109413750564;SO1604201608413899399;SO1604231033415808201;
+//								String[] fullIds = refIds.split(";");
+//								boolean flag = false;
+//								for (String fullId : fullIds){
+//									OutBean outBean = outDAO.find(fullId);
+//									//如果存在销售单“待商务审批”或"待库管审批"，就写入临时表
+//									if(outBean == null){
+//										continue;
+//									}else if (outBean.getStatus() == OutConstant.STATUS_SUBMIT||
+//											outBean.getStatus() == OutConstant.STATUS_FLOW_PASS){
+//										flag = true;
+//										break;
+//									}
+//								}
+//								_logger.info("***flag***"+flag);
+//								if (flag){
+//									//写入临时表
+//									TempConsignBean tempConsignBean = new TempConsignBean();
+//									tempConsignBean.setOutId(refIds);
+//									tempConsignBean.setInsId(bean.getId());
+//									_logger.info("***save temp consign table***" + tempConsignBean);
+//									this.tempConsignDAO.saveEntityBean(tempConsignBean);
+//								} else{
+//									this.createPackage(bean);
+//								}
+//							}
+//						} else{
+//							this.createPackage(bean);
+//						}
 
 						//状态变成结束
 						bean.setStatus(FinanceConstant.INVOICEINS_STATUS_END);
@@ -3334,6 +3335,44 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			insVSInvoiceNumDAO.saveAllEntityBeans(numList);
 
 			invoiceinsList.add(bean);
+
+//            InvoiceinsBean bean = this.invoiceinsDAO.find(insId);
+            //2016/10/12 #328
+            _logger.info("***generate CK***"+bean.getId());
+            //如果票随货发，就不写入preconsign表，写入临时表
+            if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut()) ){
+                //如果是票随货发，发票对应所有订单已经库管审批通过，那发票也直接写入preconsign
+                String refIds = bean.getRefIds();
+                if (!StringTools.isNullOrNone(refIds)){
+                    //SO1603171408390763989;SO1603171408390764099;SO1604070959404897436;SO1603281059398657592;SO1604291455420111218;SO1604061025404245564;SO1604070959404897439;SO1604201109413750564;SO1604201608413899399;SO1604231033415808201;
+                    String[] fullIds = refIds.split(";");
+                    boolean flag = false;
+                    for (String fullId : fullIds){
+                        OutBean outBean = outDAO.find(fullId);
+                        //如果存在销售单“待商务审批”或"待库管审批"，就写入临时表
+                        if(outBean == null){
+                            continue;
+                        }else if (outBean.getStatus() == OutConstant.STATUS_SUBMIT||
+                                outBean.getStatus() == OutConstant.STATUS_FLOW_PASS){
+                            flag = true;
+                            break;
+                        }
+                    }
+                    _logger.info("***flag***"+flag);
+                    if (flag){
+                        //写入临时表
+                        TempConsignBean tempConsignBean = new TempConsignBean();
+                        tempConsignBean.setOutId(refIds);
+                        tempConsignBean.setInsId(bean.getId());
+                        _logger.info("***save temp consign table***" + tempConsignBean);
+                        this.tempConsignDAO.saveEntityBean(tempConsignBean);
+                    } else{
+                        this.createPackage(bean);
+                    }
+                }
+            } else{
+                this.createPackage(bean);
+            }
 		}
 	}
 
