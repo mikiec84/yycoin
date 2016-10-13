@@ -1901,19 +1901,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					String id = numList.get(i).getId();
 					InsVSInvoiceNumBean insNum = insVSInvoiceNumDAO.find(id);
 
-					insNum.setInvoiceNum(newnum.getInvoiceNum());
-
-					insVSInvoiceNumDAO.updateEntityBean(insNum);
-					_logger.info(id+"***update invoice num***"+insNum);
-
                     //2016/10/11 #328 以真实发票号码替换package_item中对应的产品名中的临时发票号码
                     if (!StringTools.isNullOrNone(insNum.getInvoiceNum())){
-                        String newProductName = "发票号："+insNum;
-                        String oldProductName = "发票号："+insNum.getInvoiceNum();
                         String outId = insNum.getInsId();
-                        this.packageItemDAO.replaceProductName(outId, oldProductName, newProductName);
+                        this.packageItemDAO.replaceInvoiceNum(outId, insNum.getInvoiceNum(), newnum.getInvoiceNum());
                     }
 
+					insNum.setInvoiceNum(newnum.getInvoiceNum());
+					insVSInvoiceNumDAO.updateEntityBean(insNum);
+					_logger.info("***update invoice num***"+insNum);
 
 					//2016/2/17 #169 生成CK单
                     //#328 生成CK单步骤移到导入开票申请

@@ -8,9 +8,9 @@ import com.china.center.tools.TimeTools;
 public class PackageItemDAOImpl extends BaseDAO<PackageItemBean, PackageItemBean> implements PackageItemDAO
 {
     @Override
-    public int replaceProductName(String outId, String oldProductName, String newProductName) {
-        String sql = "update t_center_package_item set productName = ? where outId= ? and productName= ?";
+    public int replaceInvoiceNum(String outId, String oldInvoiceNum, String newInvoiceNum) {
+        String sql = "update t_center_package_item set productId = ?, productName = ? where outId= ? and productId= ?";
 
-        return jdbcOperation.update(sql, newProductName, outId, oldProductName);
+        return jdbcOperation.update(sql, newInvoiceNum, "发票号："+newInvoiceNum, outId, oldInvoiceNum);
     }
 }

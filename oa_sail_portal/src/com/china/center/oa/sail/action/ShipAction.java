@@ -1119,6 +1119,7 @@ public class ShipAction extends DispatchAction
         }
     }
 
+
     /**
      * findNextPackage
      *
@@ -4611,6 +4612,16 @@ public class ShipAction extends DispatchAction
                 return i1.getProductName().compareTo(i2.getProductName());
             }
         });
+
+        //2016/10/12 #328 检查临时发票号码
+        for (PackageItemBean item : lastList){
+            String productName = item.getProductName();
+            if (productName!= null && productName.startsWith("发票号：XN")){
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, item.getPackageId()+"商品名中存在虚拟发票号:"+productName);
+
+                return mapping.findForward("error");
+            }
+        }
         batchVO.setItemList(lastList);
 
         // key:以批次号做为key ?

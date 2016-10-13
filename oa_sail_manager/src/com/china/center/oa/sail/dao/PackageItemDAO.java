@@ -5,6 +5,6 @@ import com.china.center.oa.sail.bean.PackageItemBean;
 
 public interface PackageItemDAO extends DAO<PackageItemBean, PackageItemBean>
 {
-    public int replaceProductName(String outId, String oldProductName, String newProductName);
+    public int replaceInvoiceNum(String outId, String oldInvoiceNum, String newInvoiceNum);
 
 }
