@@ -3462,8 +3462,10 @@ public class OutImportManagerImpl implements OutImportManager
 
                         out.setTotal(total);
                         out.setStatus(OutConstant.STATUS_SUBMIT);
-                        out.setLocation(DepotConstant.CENTER_DEPOT_ID);
                         out.setLocationId("999");
+						out.setLocation(baseBean.getLocationId());
+						out.setDepotpartId(baseBean.getDepotpartId());
+
 
                         out.setInvoiceId(key);
                         out.setDutyId("90201008080000000001");
