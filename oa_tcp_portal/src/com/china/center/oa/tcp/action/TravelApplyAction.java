@@ -686,189 +686,175 @@ public class TravelApplyAction extends DispatchAction
                                          HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
-        User user = Helper.getUser(request);
 
-        String id = request.getParameter("id");
+            User user = Helper.getUser(request);
 
-        String update = request.getParameter("update");
-        
-        String ttflag = request.getParameter("ttflag");
-        
-        TravelApplyVO bean = travelApplyManager.findVO(id);
-        
-        if (bean == null)
-        {
-            return ActionTools.toError("数据异常,请重新操作", mapping, request);
-        } else{
-            //2015/4/12 中收激励导入功能
-            if ((bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                    || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION )
-                    && bean.isImportFlag()){
-                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-                 _logger.info("************TcpIbBean list size:"+ibList.size());
-                bean.setIbList(ibList);
+            String id = request.getParameter("id");
+
+            String update = request.getParameter("update");
+
+            String ttflag = request.getParameter("ttflag");
+
+            TravelApplyVO bean = travelApplyManager.findVO(id);
+        try {
+            if (bean == null) {
+                return ActionTools.toError("数据异常,请重新操作", mapping, request);
+            } else {
+                //2015/4/12 中收激励导入功能
+                if ((bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                        || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION)
+                        && bean.isImportFlag()) {
+                    List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+                    _logger.info("************TcpIbBean list size:" + ibList.size());
+                    bean.setIbList(ibList);
+                }
             }
-        }
-        
-        int purposeType = bean.getPurposeType();
-        
-        prepareInner(request);
 
-        request.setAttribute("bean", bean);
+            int purposeType = bean.getPurposeType();
 
-        request.setAttribute("update", update);
+            prepareInner(request);
 
-        // 查询关联的付款单和凭证
-        List<OutBillBean> billList = outBillDAO.queryEntityBeansByFK(id);
+            request.setAttribute("bean", bean);
 
-        request.setAttribute("billList", billList);
+            request.setAttribute("update", update);
 
-        List<FinanceBean> financeList = financeDAO.queryEntityBeansByFK(id);
+            // 查询关联的付款单和凭证
+            List<OutBillBean> billList = outBillDAO.queryEntityBeansByFK(id);
 
-        request.setAttribute("financeList", financeList);
+            request.setAttribute("billList", billList);
 
-        if(purposeType == 12 || purposeType == 22 ||
-        		purposeType == 32 || purposeType == 21 ||purposeType == 31)
-        {
-        	StafferVO staffervo = stafferDAO.findVO(bean.getStafferId());
-        	
-        	request.setAttribute("staffervo", staffervo);
-        	
-        	// 获取审批日志
+            List<FinanceBean> financeList = financeDAO.queryEntityBeansByFK(id);
+
+            request.setAttribute("financeList", financeList);
+
+            if (purposeType == 12 || purposeType == 22 ||
+                    purposeType == 32 || purposeType == 21 || purposeType == 31) {
+                StafferVO staffervo = stafferDAO.findVO(bean.getStafferId());
+
+                request.setAttribute("staffervo", staffervo);
+
+                // 获取审批日志
+                List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(id);
+
+                List<FlowLogVO> logsVO = new ArrayList<FlowLogVO>();
+
+                for (FlowLogBean flowLogBean : logs) {
+                    logsVO.add(TCPHelper.getTCPFlowLogVO(flowLogBean));
+                }
+
+                request.setAttribute("logList", logsVO);
+
+                if ((null != ttflag && ttflag.equals("11")) || (null != update && update.equals("1"))) {
+                    // 获得当前的处理环节
+                    TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
+
+                    request.setAttribute("token", token);
+
+                    if (token.getNextPlugin().startsWith("group")) {
+                        // 群组
+                        request.setAttribute("pluginType", "group");
+
+                        request.setAttribute("pluginValue", token.getNextPlugin().substring(6));
+                    } else {
+                        request.setAttribute("pluginType", "");
+                        request.setAttribute("pluginValue", "");
+                    }
+
+                    return mapping.findForward("processVocationAndWork");
+                } else {
+                    return mapping.findForward("detailVocationAndWork");
+                }
+            }
+
+            // 2是稽核修改
+            if ("1".equals(update) || "3".equals(update)) {
+                if (!TCPHelper.canTravelApplyUpdate(bean)) {
+                    return ActionTools.toError("申请当前状态下不能被修改", mapping, request);
+                }
+
+                List<AttachmentBean> attachmentList = bean.getAttachmentList();
+
+                String attacmentIds = "";
+
+                for (AttachmentBean attachmentBean : attachmentList) {
+                    attacmentIds = attacmentIds + attachmentBean.getId() + ";";
+                }
+
+                request.setAttribute("attacmentIds", attacmentIds);
+
+                List<TravelApplyItemVO> itemVOList = bean.getItemVOList();
+
+                // 出差特殊处理屏蔽差旅费
+                if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_TRAVEL) {
+                    for (Iterator iterator = itemVOList.iterator(); iterator.hasNext(); ) {
+                        TravelApplyItemVO travelApplyItemVO = (TravelApplyItemVO) iterator.next();
+
+                        if (travelApplyItemVO.getFeeItemId().equals(BudgetConstant.FEE_ITEM_TRAVELLING)) {
+                            iterator.remove();
+
+                            break;
+                        }
+                    }
+                }
+
+                return mapping.findForward("updateTravelApply" + bean.getType());
+            }
+
+            // 获取审批日志
             List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(id);
 
             List<FlowLogVO> logsVO = new ArrayList<FlowLogVO>();
 
-            for (FlowLogBean flowLogBean : logs)
-            {
+            for (FlowLogBean flowLogBean : logs) {
                 logsVO.add(TCPHelper.getTCPFlowLogVO(flowLogBean));
             }
 
             request.setAttribute("logList", logsVO);
-        	
-            if((null != ttflag && ttflag.equals("11")) || (null !=update && update.equals("1")))
-            {
-            	// 获得当前的处理环节
-                TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
 
-                request.setAttribute("token", token);
+            // 处理
+            if ("2".equals(update)) {
+                // 先鉴权
+                List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(id);
 
-                if (token.getNextPlugin().startsWith("group"))
-                {
-                    // 群组
-                    request.setAttribute("pluginType", "group");
+                boolean hasAuth = false;
 
-                    request.setAttribute("pluginValue", token.getNextPlugin().substring(6));
-                }
-                else
-                {
-                    request.setAttribute("pluginType", "");
-                    request.setAttribute("pluginValue", "");
-                }
-            	
-            	return mapping.findForward("processVocationAndWork");
-            }
-            else
-            {
-            	return mapping.findForward("detailVocationAndWork");
-            }
-        }
-        
-        // 2是稽核修改
-        if ("1".equals(update) || "3".equals(update))
-        {
-            if ( !TCPHelper.canTravelApplyUpdate(bean))
-            {
-                return ActionTools.toError("申请当前状态下不能被修改", mapping, request);
-            }
-
-            List<AttachmentBean> attachmentList = bean.getAttachmentList();
-
-            String attacmentIds = "";
-
-            for (AttachmentBean attachmentBean : attachmentList)
-            {
-                attacmentIds = attacmentIds + attachmentBean.getId() + ";";
-            }
-
-            request.setAttribute("attacmentIds", attacmentIds);
-
-            List<TravelApplyItemVO> itemVOList = bean.getItemVOList();
-
-            // 出差特殊处理屏蔽差旅费
-            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_TRAVEL)
-            {
-                for (Iterator iterator = itemVOList.iterator(); iterator.hasNext();)
-                {
-                    TravelApplyItemVO travelApplyItemVO = (TravelApplyItemVO)iterator.next();
-
-                    if (travelApplyItemVO.getFeeItemId().equals(BudgetConstant.FEE_ITEM_TRAVELLING))
-                    {
-                        iterator.remove();
+                for (TcpApproveBean tcpApproveBean : approveList) {
+                    if (tcpApproveBean.getApproverId().equals(user.getStafferId())) {
+                        hasAuth = true;
 
                         break;
                     }
                 }
-            }
 
-            return mapping.findForward("updateTravelApply" + bean.getType());
-        }
-
-        // 获取审批日志
-        List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(id);
-
-        List<FlowLogVO> logsVO = new ArrayList<FlowLogVO>();
-
-        for (FlowLogBean flowLogBean : logs)
-        {
-            logsVO.add(TCPHelper.getTCPFlowLogVO(flowLogBean));
-        }
-
-        request.setAttribute("logList", logsVO);
-
-        // 处理
-        if ("2".equals(update))
-        {
-            // 先鉴权
-            List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(id);
-
-            boolean hasAuth = false;
-
-            for (TcpApproveBean tcpApproveBean : approveList)
-            {
-                if (tcpApproveBean.getApproverId().equals(user.getStafferId()))
-                {
-                    hasAuth = true;
-
-                    break;
+                if (!hasAuth) {
+                    return ActionTools.toError("没有处理的权限", mapping, request);
                 }
+
+                // 获得当前的处理环节
+                TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
+
+                if (token == null){
+                    return ActionTools.toError("T_CENTER_TCPFLOW表不存在flowKey:"+bean.getFlowKey()+" status:"+bean.getStatus(), mapping, request);
+                }
+                request.setAttribute("token", token);
+
+                String nextPlugin = token.getNextPlugin();
+                if (nextPlugin.startsWith("group")) {
+                    // 群组
+                    request.setAttribute("pluginType", "group");
+
+                    request.setAttribute("pluginValue", token.getNextPlugin().substring(6));
+                } else {
+                    request.setAttribute("pluginType", "");
+                    request.setAttribute("pluginValue", "");
+                }
+                return mapping.findForward("processTravelApply" + bean.getType());
             }
 
-            if ( !hasAuth)
-            {
-                return ActionTools.toError("没有处理的权限", mapping, request);
-            }
-
-            // 获得当前的处理环节
-            TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
-
-            request.setAttribute("token", token);
-
-            String nextPlugin = token.getNextPlugin();
-            if (nextPlugin.startsWith("group"))
-            {
-                // 群组
-                request.setAttribute("pluginType", "group");
-
-                request.setAttribute("pluginValue", token.getNextPlugin().substring(6));
-            } else
-            {
-                request.setAttribute("pluginType", "");
-                request.setAttribute("pluginValue", "");
-            }
-            return mapping.findForward("processTravelApply" + bean.getType());
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error(e);
         }
-
         return mapping.findForward("detailTravelApply" + bean.getType());
     }
 
