@@ -515,7 +515,7 @@ public class ImapMailClient {
         //TODO 凡是 中信银行重庆XXXX的就取邮件里的地址信息,其他的取客户的默认办公地址
         if (custName.contains("中信银行重庆")){
             //TODO 发货方式 运输方式 支付方式
-            bean.setShipping(0);
+            bean.setShipping(OutConstant.OUT_SHIPPING_3PL);
             bean.setProvinceId(orderBean.getProvinceId());
             bean.setCityId(orderBean.getCityId());
             bean.setAddress(orderBean.getAddress());
