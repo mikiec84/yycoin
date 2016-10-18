@@ -2066,12 +2066,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	            				sb.append("导入的开票金额须等于可开票金额");
 	            				sb.append("<br>");
 	    					}
-        				} else {
-        					sb.append("结算单");
-            				sb.append(each.getOutId());
-            				sb.append("违反票、款一致，可能是非普通或勾款审批未结束");
-            				sb.append("<br>");
         				}
+//        				else {
+//        					sb.append("结算单");
+//            				sb.append(each.getOutId());
+//            				sb.append("违反票、款一致，可能是非普通或勾款审批未结束");
+//            				sb.append("<br>");
+//        				}
         			}
 
     				fullId = balance.getOutId();
@@ -2108,12 +2109,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 							beans.add(each);
 							outToInvoicesMap.put(key, beans);
 						}
-    				} else {
-    					sb.append("销售单");
-        				sb.append(each.getOutId());
-        				sb.append("违反票、款一致，可能是非普通或勾款审批未结束");
-        				sb.append("<br>");
     				}
+//    				else {
+//    					sb.append("销售单");
+//        				sb.append(each.getOutId());
+//        				sb.append("违反票、款一致，可能是非普通或勾款审批未结束");
+//        				sb.append("<br>");
+//    				}
     			}
     			
     			fullId = out.getFullId();
