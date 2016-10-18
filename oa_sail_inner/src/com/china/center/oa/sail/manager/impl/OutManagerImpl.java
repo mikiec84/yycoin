@@ -291,6 +291,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private AutoApproveOutDAO autoApproveOutDAO = null;
 
     private ProductExchangeConfigDAO productExchangeConfigDAO = null;
+
+    private OutBackItemDAO outBackItemDAO = null;
+
+    private OutBackDAO outBackDAO = null;
     
     /**
      * 短信最大停留时间
@@ -305,7 +309,23 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     public OutManagerImpl()
     {
     }
-    
+
+    public OutBackItemDAO getOutBackItemDAO() {
+        return outBackItemDAO;
+    }
+
+    public void setOutBackItemDAO(OutBackItemDAO outBackItemDAO) {
+        this.outBackItemDAO = outBackItemDAO;
+    }
+
+    public OutBackDAO getOutBackDAO() {
+        return outBackDAO;
+    }
+
+    public void setOutBackDAO(OutBackDAO outBackDAO) {
+        this.outBackDAO = outBackDAO;
+    }
+
     public List<BaseBean> queryBaseByConditions(final Map dataMap)
     throws MYException
     {
@@ -12214,6 +12234,69 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     public boolean importOutAutoApprove(List<AutoApproveBean> autoApproveBeans) throws MYException {
         this.autoApproveOutDAO.saveAllEntityBeans(autoApproveBeans);
         return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void updateOutbackStatusJob() {
+        _logger.info("***updateOutbackStatusJob is running***");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addIntCondition("OutBean.type","=", OutConstant.OUT_TYPE_INBILL);
+        conditionParse.addIntCondition("OutBean.outType","=", OutConstant.OUTTYPE_IN_SWATCH);
+        conditionParse.addCondition("OutBean.outTime",">=","2016-01-01");
+        conditionParse.addCondition(" and OutBean.outbackStatus != '已入库'");
+        _logger.info("***updateOutbackStatusJob is running***"+conditionParse);
+        List<OutBean> lyBackBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(lyBackBeans)){
+            _logger.info("***update lyBackBeans size***"+lyBackBeans.size());
+            this.setOutbackStatus(lyBackBeans);
+        }
+    }
+
+    private void setOutbackStatus(List<OutBean> list){
+        List<OutBackItemBean> outBackItemBeanList = this.outBackItemDAO.listEntityBeans();
+        List<OutBackBean> outBackBeanList = this.outBackDAO.listEntityBeans();
+        for (OutBean out : list) {
+            String fullId = out.getFullId();
+            String outBackId = this.findOutBackId(outBackItemBeanList, fullId);
+            if (outBackId != null) {
+                String status = this.findOutBackStatus(outBackBeanList, outBackId);
+                if (!StringTools.isNullOrNone(status)){
+                    this.outDAO.updateOutbackStatus(fullId, status);
+                }
+            }
+        }
+    }
+
+    private String findOutBackId(List<OutBackItemBean> outBackItemBeanList, String outId){
+        for (OutBackItemBean item : outBackItemBeanList){
+            if (outId.equals(item.getReoano())){
+                return item.getOutBackId();
+            }
+        }
+        return null;
+    }
+
+    private String findOutBackStatus(List<OutBackBean> outBackBeanList, String outBackId){
+        String result = "";
+        for (OutBackBean outBackBean: outBackBeanList){
+            if (outBackBean.getId().equals(outBackId)){
+                int status = outBackBean.getStatus();
+                if (OutConstant.OUTBACK_STATUS_SAVE == status){
+                    return "待到货";
+                } else if (OutConstant.OUTBACK_STATUS_CLAIM == status){
+                    return "待认领";
+                } else if (OutConstant.OUTBACK_STATUS_CHECK == status){
+                    return "待验货";
+                } else if (OutConstant.OUTBACK_STATUS_IN == status){
+                    return "待入库";
+                }  else if (OutConstant.OUTBACK_STATUS_FINISH == status){
+                    return "已入库";
+                }
+
+            }
+        }
+        return result;
     }
 
     @Override

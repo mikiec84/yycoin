@@ -751,4 +751,9 @@ public interface OutManager extends ListenerManager<OutListener>
      * @throws MYException
      */
     boolean batchUpdateReason(List<OutBean> list) throws MYException;
+
+    /**
+     * #326 领样销售退库快递单状态更新
+     */
+    void updateOutbackStatusJob();
 }

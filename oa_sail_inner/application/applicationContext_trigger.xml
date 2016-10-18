@@ -201,6 +201,21 @@
         <property name="cronExpression" value="0 0/15 * * * ?" />
     </bean>
 
+
+    <bean id="updateOutbackStatusJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outManager" />
+        <property name="targetMethod" value="updateOutbackStatusJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="updateOutbackStatusJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="updateOutbackStatusJob" />
+        <property name="cronExpression" value="0 0/15 * * * ?" />
+    </bean>
+
+
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -219,6 +234,7 @@
                 <ref bean="sendShippingMailToSailsTrigger"/>
                 <ref bean="offlineOrderJobTrigger"/>
                 <ref bean="offlineStorageInJobTrigger"/>
+                <ref bean="updateOutbackStatusJobTrigger"/>
             </list>
         </property>
     </bean>

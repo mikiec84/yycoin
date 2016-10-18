@@ -477,6 +477,11 @@ public class OutBean implements Serializable
      * #315 出库单备注
      */
     private String swbz = "";
+
+    /**
+     * #326 快递单状态
+     */
+    private String outbackStatus = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -560,6 +565,14 @@ public class OutBean implements Serializable
      */
     public OutBean()
     {
+    }
+
+    public String getOutbackStatus() {
+        return outbackStatus;
+    }
+
+    public void setOutbackStatus(String outbackStatus) {
+        this.outbackStatus = outbackStatus;
     }
 
     public int getRemoteAllocate() {

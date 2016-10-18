@@ -408,4 +408,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateLocation(String fullId, String location);
 
     boolean updateTransportNo(String fullId, String transportNo);
+
+    boolean updateOutbackStatus(String fullId, String outbackStatus);
 }

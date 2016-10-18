@@ -568,3 +568,6 @@ alter table T_CENTER_PACKAGE add column zsFollowOut integer DEFAULT 1
 
 #315
 alter table t_center_out add column swbz varchar(255) default ''
+
+#326 
+alter table t_center_out add column outbackStatus varchar(255) default '' 

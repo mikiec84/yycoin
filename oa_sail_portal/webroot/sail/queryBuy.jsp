@@ -618,6 +618,24 @@ function hrefAndSelect(obj)
                         <td align="center"><input type="text" name="transportNo">
                         </td>
                     </tr>
+
+					<tr class="content1">
+						<td width="15%" align="center">快递单状态</td>
+						<td align="center">
+							<select name="outbackStatus" class="select_class">
+								<option value="">--</option>
+								<option value="待到货">待到货</option>
+								<option value="待认领">待认领</option>
+								<option value="待验货">待验货</option>
+								<option value="待入库">待入库</option>
+								<option value="已入库">已入库</option>
+							</select>
+						</td>
+
+						<td width="15%" align="center"></td>
+						<td align="center">
+						</td>
+					</tr>
 					
 					<tr class="content2">
 						<td colspan="4" align="right"><input type="button" id="query_b"

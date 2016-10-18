@@ -1189,4 +1189,10 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
             this.jdbcOperation.updateField("transportNo", transportNo, fullId, this.claz);
             return true;
     }
+
+    @Override
+    public boolean updateOutbackStatus(String fullId, String outbackStatus) {
+        this.jdbcOperation.updateField("outbackStatus", outbackStatus, fullId, this.claz);
+        return true;
+    }
 }

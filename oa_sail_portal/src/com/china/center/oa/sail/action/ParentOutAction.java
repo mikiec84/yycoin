@@ -2381,6 +2381,27 @@ public class ParentOutAction extends DispatchAction
 		{
 			return null;
 		}
+//		else{
+//			try {
+//				this.setOutbackStatus(outList);
+//
+//				String outbackStatus = (String) request.getSession().getAttribute(
+//						"outbackStatus");
+//				if (!StringTools.isNullOrNone(outbackStatus)) {
+//					for (Iterator<OutVO> it = outList.iterator(); it.hasNext(); ) {
+//						OutVO outVO = it.next();
+//						if (!outbackStatus.equals(outVO.getOutbackStatus())) {
+//							it.remove();
+//						}
+//					}
+//
+//					request.getSession().removeAttribute("outbackStatus");
+//				}
+//			}catch (Exception e){
+//				e.printStackTrace();
+//				_logger.error(e);
+//			}
+//		}
 
 		OutVO outVO = outList.get(0);
 
@@ -2516,6 +2537,7 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("批量操作批次号");
 			line.writeColumn("批量操作时间");
 			line.writeColumn("退货快递单号");
+			line.writeColumn("快递单状态");
 
 			line.writeLine();
 			// 写outbean
@@ -2907,6 +2929,7 @@ public class ParentOutAction extends DispatchAction
 					}
 
 					line.writeColumn(element.getTransportNo());
+					line.writeColumn(element.getOutbackStatus());
 					line.writeLine();
 				}
 
@@ -8073,22 +8096,26 @@ public class ParentOutAction extends DispatchAction
 			}
 		}
 		//#326 领样销售退库
-		if ("5".equals(queryType)){
-			try {
-				List<OutBackItemBean> outBackItemBeanList = this.outBackItemDAO.listEntityBeans();
-				List<OutBackBean> outBackBeanList = this.outBackDAO.listEntityBeans();
-				for (OutVO out : list) {
-					String outBackId = this.findOutBackId(outBackItemBeanList, out.getFullId());
-					if (outBackId != null) {
-						String status = this.findOutBackStatus(outBackBeanList, outBackId);
-						out.setOutbackStatus(status);
-					}
-				}
-			}catch (Exception e){
-				e.printStackTrace();
-				_logger.error(e);
-			}
-		}
+//		if ("5".equals(queryType)){
+//			try {
+//				this.setOutbackStatus(list);
+//			}catch (Exception e){
+//				e.printStackTrace();
+//				_logger.error(e);
+//			}
+//
+//			//#334 增加过滤条件
+//			String outbackStatus = request.getParameter("outbackStatus");
+//			if (!StringTools.isNullOrNone(outbackStatus)){
+//				for(Iterator<OutVO> it=list.iterator();it.hasNext();){
+//					OutVO outVO = it.next();
+//					if(!outbackStatus.equals(outVO.getOutbackStatus())){
+//						it.remove();
+//					}
+//				}
+//				request.getSession().setAttribute("outbackStatus", outbackStatus);
+//			}
+//		}
         _logger.info("**********queryBuy listOut1 size*********:"+list.size());
 		request.setAttribute("listOut1", list);
 		getDivs(request, list);
@@ -8116,6 +8143,18 @@ public class ParentOutAction extends DispatchAction
 		request.setAttribute("now", TimeTools.now("yyyy-MM-dd"));
 
 		return mapping.findForward("queryBuy");
+	}
+
+	private void setOutbackStatus(List<OutVO> list){
+		List<OutBackItemBean> outBackItemBeanList = this.outBackItemDAO.listEntityBeans();
+		List<OutBackBean> outBackBeanList = this.outBackDAO.listEntityBeans();
+		for (OutVO out : list) {
+			String outBackId = this.findOutBackId(outBackItemBeanList, out.getFullId());
+			if (outBackId != null) {
+				String status = this.findOutBackStatus(outBackBeanList, outBackId);
+				out.setOutbackStatus(status);
+			}
+		}
 	}
 
 	private String findOutBackId(List<OutBackItemBean> outBackItemBeanList, String outId){
@@ -9533,6 +9572,11 @@ public class ParentOutAction extends DispatchAction
 		String transportNo = request.getParameter("transportNo");
 		if (!StringTools.isNullOrNone(transportNo)){
 			condtion.addCondition("OutBean.transportNo", "=", transportNo);
+		}
+
+		String outbackStatus = request.getParameter("outbackStatus");
+		if (!StringTools.isNullOrNone(outbackStatus)){
+			condtion.addCondition("OutBean.outbackStatus", "=", outbackStatus);
 		}
 
 		String inway = request.getParameter("inway");

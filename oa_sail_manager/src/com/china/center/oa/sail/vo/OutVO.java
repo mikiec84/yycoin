@@ -111,8 +111,6 @@ public class OutVO extends OutBean
     @Ignore
     private String pdescription = "";
 
-    @Ignore
-    private String outbackStatus = "";
     
     public OutVO()
     {
@@ -432,14 +430,6 @@ public class OutVO extends OutBean
 	{
 		this.pdescription = pdescription;
 	}
-
-    public String getOutbackStatus() {
-        return outbackStatus;
-    }
-
-    public void setOutbackStatus(String outbackStatus) {
-        this.outbackStatus = outbackStatus;
-    }
 
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
