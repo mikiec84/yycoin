@@ -10,6 +10,7 @@ package com.china.center.oa.sail.dao.impl;
 
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -175,5 +176,10 @@ public class BaseDAOImpl extends com.china.center.jdbc.inter.impl.BaseDAO<BaseBe
         int i = jdbcOperation.update(sql, destProductId, price, outId, productId);
 
         return i != 0;
+    }
+
+    @Override
+    public List<Map> queryBaseBeans(String sql) {
+        return this.jdbcOperation.queryForList(sql);
     }
 }

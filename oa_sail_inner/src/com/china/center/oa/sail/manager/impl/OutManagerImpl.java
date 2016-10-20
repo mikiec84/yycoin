@@ -12,6 +12,7 @@ package com.china.center.oa.sail.manager.impl;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12531,6 +12532,43 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     }
 
+    @Override
+    public void statsExceptionalInBackJob() {
+        triggerLog.info("***statsExceptionalInBackJob running***");
+        try {
+            String sql1 = "select sum(base.amount) as amount,base.outId from t_center_base base left outer join t_center_out OutBean on base.outid=OutBean.fullid where OutBean.type=0 and OutBean.outTime>='2014-01-01' group by base.outId";
+            Map<String, Integer> map1 = new HashMap<String, Integer>();
+            List<Map> list1 = this.baseDAO.queryBaseBeans(sql1);
+            for (Map map : list1) {
+            _logger.info(map);
+                map1.put((String) map.get("outId"), ((BigDecimal) map.get("amount")).intValue());
+            }
+            _logger.info("****map1****"+map1);
+
+            String sql2 = "select sum(base.amount) as amount,base.outId, OutBean.refOutFullId from t_center_base base left outer join t_center_out OutBean on base.outid=OutBean.fullid where OutBean.type=1 and OutBean.outTime>='2014-01-01' and OutBean.refOutFullId!='' group by base.outId";
+            Map<String, Integer> map2 = new HashMap<String, Integer>();
+            List<Map> list2 = this.baseDAO.queryBaseBeans(sql2);
+            for (Map map : list2) {
+            _logger.info(map);
+                String refOutFullId = (String) map.get("refOutFullId");
+                if (map2.containsKey(refOutFullId)) {
+                    map2.put(refOutFullId, map2.get(refOutFullId) + ((BigDecimal) map.get("amount")).intValue());
+                } else {
+                    map2.put(refOutFullId, ((BigDecimal) map.get("amount")).intValue());
+                }
+            }
+            _logger.info("***map2****"+map2);
+            _logger.info("***************************");
+            for (String outId : map2.keySet()) {
+                if (map1.containsKey(outId) && map2.get(outId) > map1.get(outId)) {
+                    triggerLog.info(outId+"***in***"+map2.get(outId)+"***out***"+map1.get(outId));
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error(e,e);
+        }
+    }
 
     /**
      * @return the mailAttchmentPath
