@@ -10,6 +10,7 @@ package com.china.center.oa.sail.dao;
 
 
 import java.util.List;
+import java.util.Map;
 
 import com.china.center.common.MYException;
 import com.china.center.jdbc.inter.DAO;
@@ -62,4 +63,6 @@ public interface BaseDAO extends DAO<BaseBean, BaseVO>
     		String outId, String productId);
 
     boolean updateProductIdAndPrice(String destProductId, double price, String outId, String productId);
+
+    List<Map> queryBaseBeans(String sql);
 }

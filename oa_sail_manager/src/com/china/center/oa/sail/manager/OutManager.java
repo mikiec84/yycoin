@@ -756,4 +756,9 @@ public interface OutManager extends ListenerManager<OutListener>
      * #326 领样销售退库快递单状态更新
      */
     void updateOutbackStatusJob();
+
+    /**
+     * #338 统计退库异常
+     */
+    void statsExceptionalInBackJob();
 }

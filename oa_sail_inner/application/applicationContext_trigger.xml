@@ -215,6 +215,20 @@
         <property name="cronExpression" value="0 0/15 * * * ?" />
     </bean>
 
+    <bean id="statsExceptionalInBackJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outManager" />
+        <property name="targetMethod" value="statsExceptionalInBackJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="statsExceptionalInBackJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="statsExceptionalInBackJob" />
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+        <property name="cronExpression" value="0 30 12 * * ?" />
+    </bean>
+
 
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -235,6 +249,7 @@
                 <ref bean="offlineOrderJobTrigger"/>
                 <ref bean="offlineStorageInJobTrigger"/>
                 <ref bean="updateOutbackStatusJobTrigger"/>
+                <ref bean="statsExceptionalInBackJobTrigger"/>
             </list>
         </property>
     </bean>
