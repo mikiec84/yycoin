@@ -3057,7 +3057,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 double moTotal = 0.0d;
 
                 for (OutVO out: outVOs){
+                    _logger.info("***out***"+out);
                     List<BaseBean> baseList = this.baseDAO.queryEntityBeansByFK(out.getFullId());
+                    _logger.info("***baseList***"+baseList);
                     if (!ListTools.isEmptyOrNull(baseList)){
                         for (BaseBean base : baseList){
                             TcpIbReportItemBean item = new TcpIbReportItemBean();
@@ -3095,13 +3097,14 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
                                 if (out.getMotivationFlag() ==0){
                                     item.setType(TcpConstanst.MOTIVATION_TYPE);
+//                                    _logger.info("***base.getAmount***"+base.getAmount()+"***mov***"+base.getMotivationMoney());
                                     item.setMotivationMoney(this.roundDouble(base.getAmount()*base.getMotivationMoney()));
                                     moTotal += base.getAmount()*base.getMotivationMoney();
                                 }
                             }
 
                             if (Math.abs(item.getIbMoney()) > zero || Math.abs(item.getMotivationMoney())> zero){
-//                                _logger.info("****create TcpIbReportItemBean**********"+item);
+                                _logger.info("****create TcpIbReportItemBean***"+item);
                                 itemList.add(item);
                             }
                         }

@@ -985,6 +985,12 @@ public class BaseBean implements Serializable
             .append("productType = ")
             .append(this.productType)
             .append(TAB)
+            .append("ibMoney = ")
+            .append(this.ibMoney)
+            .append(TAB)
+            .append("motivationMoney = ")
+            .append(this.motivationMoney)
+            .append(TAB)
             .append(" )");
 
         return retValue.toString();
