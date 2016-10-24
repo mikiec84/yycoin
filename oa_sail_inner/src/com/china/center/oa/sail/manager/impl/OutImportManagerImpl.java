@@ -3532,13 +3532,18 @@ public class OutImportManagerImpl implements OutImportManager
         //To change body of implemented methods use File | Settings | File Templates.
         ConditionParse conditionParse = new ConditionParse();
 //        conditionParse.addCondition("status","=","0");
-		conditionParse.addCondition("reoano","=","");
+		conditionParse.addWhereStr();
+		conditionParse.addCondition(" and (reoano is null or reoano ='')");
 
         List<OutBackItemBean> outBackItemBeans = this.outBackItemDAO.queryEntityBeansByCondition(conditionParse);
+		_logger.info("***offlineStorageInJob with condition "+conditionParse.toString());
         _logger.info("***offlineStorageInJob with item size "+outBackItemBeans.size());
         if (!ListTools.isEmptyOrNull(outBackItemBeans)){
             //一行对应一单,生成out/base表
             for (OutBackItemBean item : outBackItemBeans){
+				if (!StringTools.isNullOrNone(item.getReoano())){
+					continue;
+				}
                 StringBuilder generatedOutId = new StringBuilder();
                 //检查对应销售单的出库数量，减去已退库数量，与outback_item当前行的数量比较，如大于，则生成退库单
                 String outId = item.getOutId();
