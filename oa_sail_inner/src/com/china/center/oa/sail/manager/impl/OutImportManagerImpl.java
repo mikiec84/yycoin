@@ -3531,7 +3531,9 @@ public class OutImportManagerImpl implements OutImportManager
     public void offlineStorageInJob() {
         //To change body of implemented methods use File | Settings | File Templates.
         ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addCondition("status","=","0");
+//        conditionParse.addCondition("status","=","0");
+		conditionParse.addCondition("reoano","=","");
+
         List<OutBackItemBean> outBackItemBeans = this.outBackItemDAO.queryEntityBeansByCondition(conditionParse);
         _logger.info("***offlineStorageInJob with item size "+outBackItemBeans.size());
         if (!ListTools.isEmptyOrNull(outBackItemBeans)){
