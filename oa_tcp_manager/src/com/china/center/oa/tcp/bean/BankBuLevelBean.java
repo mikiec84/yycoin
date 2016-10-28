@@ -39,9 +39,19 @@ public class BankBuLevelBean implements Serializable {
     private String provinceManager;
 
     /**
+     * 省级团队
+     */
+    private String provinceName;
+
+    /**
      * 区域经理编码
      */
     private String regionalManagerId;
+
+    /**
+     * 二级区域
+     */
+    private String regionalName;
 
     /**
      * 区域经理姓名
@@ -57,6 +67,11 @@ public class BankBuLevelBean implements Serializable {
      * 大区总姓名
      */
     private String regionalDirector;
+
+    /**
+     * 大区
+     */
+    private String dqName;
 
     public String getId() {
         return id;
@@ -122,6 +137,30 @@ public class BankBuLevelBean implements Serializable {
         this.regionalDirector = regionalDirector;
     }
 
+    public String getProvinceName() {
+        return provinceName;
+    }
+
+    public void setProvinceName(String provinceName) {
+        this.provinceName = provinceName;
+    }
+
+    public String getRegionalName() {
+        return regionalName;
+    }
+
+    public void setRegionalName(String regionalName) {
+        this.regionalName = regionalName;
+    }
+
+    public String getDqName() {
+        return dqName;
+    }
+
+    public void setDqName(String dqName) {
+        this.dqName = dqName;
+    }
+
     @Override
     public String toString() {
         return "BankBuLevelBean{" +
@@ -129,10 +168,13 @@ public class BankBuLevelBean implements Serializable {
                 ", name='" + name + '\'' +
                 ", provinceManagerId='" + provinceManagerId + '\'' +
                 ", provinceManager='" + provinceManager + '\'' +
+                ", provinceName='" + provinceName + '\'' +
                 ", regionalManagerId='" + regionalManagerId + '\'' +
+                ", regionalName='" + regionalName + '\'' +
                 ", regionalManager='" + regionalManager + '\'' +
                 ", regionalDirectorId='" + regionalDirectorId + '\'' +
                 ", regionalDirector='" + regionalDirector + '\'' +
+                ", dqName='" + dqName + '\'' +
                 '}';
     }
 }

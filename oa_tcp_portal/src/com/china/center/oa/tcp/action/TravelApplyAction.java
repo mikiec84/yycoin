@@ -2863,45 +2863,67 @@ public class TravelApplyAction extends DispatchAction
                         importError = true;
                     }
 
-                    //省级经理编码
+                    //省级团队
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
-                        String provinceManagerId = obj[2];
+                        String provinceName = obj[2];
+                        item.setProvinceName(provinceName);
+                    }
+
+                    //省级经理编码
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String provinceManagerId = obj[3];
                         item.setProvinceManagerId(provinceManagerId);
                     }
 
                     //省级经理姓名
-                    if ( !StringTools.isNullOrNone(obj[3]))
+                    if ( !StringTools.isNullOrNone(obj[4]))
                     {
-                        String provinceManager = obj[3];
+                        String provinceManager = obj[4];
                         item.setProvinceManager(provinceManager);
                     }
 
-                    //区域经理编码
-                    if ( !StringTools.isNullOrNone(obj[4]))
+                    //二级区域
+                    if ( !StringTools.isNullOrNone(obj[5]))
                     {
-                        String regionalManagerId = obj[4];
+                        String regionalName = obj[5];
+                        item.setRegionalName(regionalName);
+                    }
+
+                    //区域经理编码
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String regionalManagerId = obj[6];
                         item.setRegionalManagerId(regionalManagerId);
                     }
 
                     //区域经理姓名
-                    if ( !StringTools.isNullOrNone(obj[5]))
+                    if ( !StringTools.isNullOrNone(obj[7]))
                     {
-                        String regionalManager = obj[5];
+                        String regionalManager = obj[7];
                         item.setRegionalManager(regionalManager);
                     }
 
-                    //大区总编码
-                    if ( !StringTools.isNullOrNone(obj[6]))
+                    //大区
+                    if ( !StringTools.isNullOrNone(obj[8]))
                     {
-                        String regionalDirectorId = obj[6];
+                        String dqName = obj[8];
+                        item.setDqName(dqName);
+                    }
+
+
+                    //大区总编码
+                    if ( !StringTools.isNullOrNone(obj[9]))
+                    {
+                        String regionalDirectorId = obj[9];
                         item.setRegionalDirectorId(regionalDirectorId);
                     }
 
                     //大区总姓名
-                    if ( !StringTools.isNullOrNone(obj[7]))
+                    if ( !StringTools.isNullOrNone(obj[10]))
                     {
-                        String regionalDirector = obj[7];
+                        String regionalDirector = obj[10];
                         item.setRegionalDirector(regionalDirector);
                     }
 
