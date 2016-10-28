@@ -1908,7 +1908,7 @@ public class ShipAction extends DispatchAction
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
                 PackageItemBean item = each.getValue();
-                String productName = this.convertProductNameForBank(item);
+                String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
                 if (!StringTools.isNullOrNone(productName)){
                     item.setProductName(productName);
                 }
@@ -2007,8 +2007,7 @@ public class ShipAction extends DispatchAction
 
                 totalAmount += each.getAmount();
 
-                this.convertProductNameForBank(each);
-                String productName = this.convertProductNameForBank(each);
+                String productName = this.convertProductNameForZj(each, this.getCustomerName(vo.getCustomerName()));
                 if (!StringTools.isNullOrNone(productName)){
                     each.setProductName(productName);
                 }
@@ -2241,7 +2240,7 @@ public class ShipAction extends DispatchAction
             for(Entry<String, PackageItemBean> each : map1.entrySet())
             {
                 PackageItemBean item = each.getValue();
-                String productName = this.convertProductNameForBank(item);
+                String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
                 if (!StringTools.isNullOrNone(productName)){
                     item.setProductName(productName);
                 }
@@ -2383,6 +2382,7 @@ public class ShipAction extends DispatchAction
      * 再到t_center_vs_citic_product 表中拿productcode对应相同的citicproductcode字段行，取citicproductname
      * @param item
      */
+    @Deprecated
     private String convertProductNameForBank(PackageItemBean item){
         String productName = "";
         String outId = item.getOutId();
@@ -2961,9 +2961,7 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-//            this.convertProductName(item);
-//            this.convertProductNameForBank(item);
-            String productName = this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
@@ -3159,7 +3157,7 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
@@ -3408,7 +3406,7 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
@@ -3858,7 +3856,7 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForBank(item);
+            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
