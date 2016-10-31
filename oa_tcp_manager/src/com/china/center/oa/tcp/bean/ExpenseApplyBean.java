@@ -57,6 +57,12 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
     private long refMoney = 0L;
 
     /**
+     * #346 默认非营销
+     */
+    @Html(title = "非营销/营销", must = true, type = Element.SELECT)
+    private int marketingFlag = 0;
+
+    /**
      * default constructor
      */
     public ExpenseApplyBean()
@@ -78,6 +84,14 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
     public void setId(String id)
     {
         this.id = id;
+    }
+
+    public int getMarketingFlag() {
+        return marketingFlag;
+    }
+
+    public void setMarketingFlag(int marketingFlag) {
+        this.marketingFlag = marketingFlag;
     }
 
     /**

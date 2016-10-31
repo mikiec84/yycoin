@@ -79,6 +79,14 @@ public abstract class TCPHelper
                 return ;
             }
         }
+        //#346 出差报销流程
+        else if (bean instanceof ExpenseApplyBean){
+            ExpenseApplyBean apply = (ExpenseApplyBean)bean;
+        if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
+            bean.setFlowKey(TcpFlowConstant.WORK_APPLY_MARKETING);
+            return ;
+        }
+    }
     	
         if (bean.getType() != TcpConstanst.TCP_APPLYTYPE_STOCK)
         {
