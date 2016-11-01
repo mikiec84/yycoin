@@ -144,7 +144,7 @@ function checks()
         if (compareNumber(stotal, ibTotal) != 0)
         {
             //2015/5/12 中收或激励金额之和必须等于预算项之和
-            alert('中收或激励金额之和必须等于预算项之和:' + stotal);
+            alert('中收或激励金额之和:'+ibTotal+'不等于预算项之和:' + stotal);
 
             return false;
         }

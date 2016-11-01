@@ -61,7 +61,9 @@ public interface TcpConstanst
     /**
      * 待总裁审批
      */
-    @Defined(key = "tcpStatus", value = "待总经理审批")
+//    @Defined(key = "tcpStatus", value = "待总经理审批")
+            //#346
+    @Defined(key = "tcpStatus", value = "待总裁审批")
     int TCP_STATUS_WAIT_CEO = 6;
 
     /**
@@ -140,7 +142,9 @@ public interface TcpConstanst
     /**
      * 待副总裁审批
      */
-    @Defined(key = "tcpStatus", value = "待总监(副总经理)审批")
+//    @Defined(key = "tcpStatus", value = "待总监(副总经理)审批")
+            //#346
+    @Defined(key = "tcpStatus", value = "待副总裁审批")
     int TCP_STATUS_WAIT_DEPUTYCEO = 28;
     
     /**
@@ -165,7 +169,9 @@ public interface TcpConstanst
     @Defined(key = "tcpStatus", value = "待省级经理审批")
     int TCP_STATUS_PROVINCE_MANAGER = 32;
 
-    @Defined(key = "tcpStatus", value = "待区域经理审批")
+//    @Defined(key = "tcpStatus", value = "待区域经理审批")
+    //#346
+    @Defined(key = "tcpStatus", value = "待营销总监审批")
     int TCP_STATUS_REGIONAL_MANAGER = 33;
 
     @Defined(key = "tcpStatus", value = "待大区总监审批")

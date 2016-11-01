@@ -143,6 +143,11 @@ public interface TcpFlowConstant
      * 出差及借款申请营销审批流
      */
     String WORK_APPLY_MARKETING = "work-apply-marketing";
+
+    /**
+     * #346 出差报销
+     */
+    String WORK_PAY_MARKETING = "work-pay-marketing";
     
     /**
      * 部门经理
