@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.china.center.oa.tcp.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -69,16 +70,6 @@ import com.china.center.oa.tcp.bean.TravelApplyBean;
 import com.china.center.oa.tcp.bean.TravelApplyItemBean;
 import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
-import com.china.center.oa.tcp.dao.ExpenseApplyDAO;
-import com.china.center.oa.tcp.dao.TcpApplyDAO;
-import com.china.center.oa.tcp.dao.TcpApproveDAO;
-import com.china.center.oa.tcp.dao.TcpFlowDAO;
-import com.china.center.oa.tcp.dao.TcpHandleHisDAO;
-import com.china.center.oa.tcp.dao.TcpPrepaymentDAO;
-import com.china.center.oa.tcp.dao.TcpShareDAO;
-import com.china.center.oa.tcp.dao.TravelApplyDAO;
-import com.china.center.oa.tcp.dao.TravelApplyItemDAO;
-import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.listener.TcpPayListener;
 import com.china.center.oa.tcp.manager.ExpenseManager;
@@ -156,6 +147,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
     private BudgetLogTmpDAO    budgetLogTmpDAO    = null;
     
     private StafferDAO         stafferDAO         = null;
+
+    private BankBuLevelDAO bankBuLevelDAO = null;
     
     private final Log _logger = LogFactory.getLog(getClass());
     
@@ -599,6 +592,26 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
                 // 记录操作日志
                 saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+            }            //#248
+            else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector"))
+            {
+                List<String> processList = new ArrayList();
+                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
+                if (!StringTools.isNullOrNone(nextProcessor)){
+                    processList.add(nextProcessor);
+                }
+                _logger.info("***processList***"+processList.size());
+
+                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+                        TcpConstanst.TCP_POOL_COMMON);
+
+                bean.setStatus(newStatus);
+
+                expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
         }
         // 结束模式
@@ -627,6 +640,23 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         }
 
         return true;
+    }
+
+    private String getNextProcessor(String stafferId, int nextStatus) throws  MYException{
+        try {
+            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId("2", stafferId);
+            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId("3", stafferId);
+            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId("4", stafferId);
+            } else {
+                return "";
+            }
+        }catch(Exception e){
+            _logger.error(e);
+            throw new MYException("T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+stafferId);
+        }
     }
 
     /**
@@ -2554,5 +2584,11 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         this.stafferDAO = stafferDAO;
     }
 
-    
+    public BankBuLevelDAO getBankBuLevelDAO() {
+        return bankBuLevelDAO;
+    }
+
+    public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
+        this.bankBuLevelDAO = bankBuLevelDAO;
+    }
 }
