@@ -4621,6 +4621,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             out.setStafferId(staffer.getId());
             out.setStafferName(staffer.getName());
 
+            //#347
+            out.setIndustryId(staffer.getIndustryId());
+            out.setIndustryId2(staffer.getIndustryId2());
+            out.setIndustryId3(staffer.getIndustryId3());
+
             // 更新责任人
             outDAO.updateEntityBean(out);
 
