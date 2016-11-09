@@ -2450,6 +2450,14 @@ public class ShipAction extends DispatchAction
                 ConditionParse conditionParse =  new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
                 conditionParse.addCondition("bank", "=", customerName.substring(0,4));
+
+                List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+
+                if (!ListTools.isEmptyOrNull(importBeans)) {
+                    OutImportBean bean = importBeans.get(0);
+                    conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+                }
+
                 List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 if (!ListTools.isEmptyOrNull(beans)){
                     ProductImportBean productImportBean = beans.get(0);
