@@ -49,8 +49,38 @@ public class OutBackItemBean implements Serializable
 
     private String depot = "";
 
+    private Integer outType;
+
+    private String outCustomerId = "";
+
+    private String outReceiver = "";
+
     @Ignore
     private boolean duplicate = false;
+
+    public Integer getOutType() {
+        return outType;
+    }
+
+    public void setOutType(Integer outType) {
+        this.outType = outType;
+    }
+
+    public String getOutCustomerId() {
+        return outCustomerId;
+    }
+
+    public void setOutCustomerId(String outCustomerId) {
+        this.outCustomerId = outCustomerId;
+    }
+
+    public String getOutReceiver() {
+        return outReceiver;
+    }
+
+    public void setOutReceiver(String outReceiver) {
+        this.outReceiver = outReceiver;
+    }
 
     public String getId() {
         return id;
@@ -189,6 +219,10 @@ public class OutBackItemBean implements Serializable
                 ", description='" + description + '\'' +
                 ", changeTime='" + changeTime + '\'' +
                 ", depot='" + depot + '\'' +
+                ", outType=" + outType +
+                ", outCustomerId='" + outCustomerId + '\'' +
+                ", outReceiver='" + outReceiver + '\'' +
+                ", duplicate=" + duplicate +
                 '}';
     }
 

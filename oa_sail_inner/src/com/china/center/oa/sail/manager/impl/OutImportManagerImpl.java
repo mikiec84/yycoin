@@ -3544,6 +3544,7 @@ public class OutImportManagerImpl implements OutImportManager
 				if (!StringTools.isNullOrNone(item.getReoano())){
 					continue;
 				}
+				List<OutBean> generatedOutBeans = new ArrayList<OutBean>();
                 StringBuilder generatedOutId = new StringBuilder();
                 //检查对应销售单的出库数量，减去已退库数量，与outback_item当前行的数量比较，如大于，则生成退库单
                 String outId = item.getOutId();
@@ -3772,6 +3773,11 @@ public class OutImportManagerImpl implements OutImportManager
                             outDAO.saveEntityBean(outBean);
                             baseDAO.saveEntityBean(baseBean);
                             _logger.info("create out in offlineStorageInJob "+outBean+"***with base bean***"+baseBean);
+
+							List<BaseBean> baseList = new ArrayList<BaseBean>();
+							baseList.add(baseBean);
+							outBean.setBaseList(baseList);
+							generatedOutBeans.add(outBean);
                             generatedOutId.append(fullId).append(",");
                         }
                     } else{
@@ -3785,6 +3791,64 @@ public class OutImportManagerImpl implements OutImportManager
                 if (!StringTools.isNullOrNone(fullId)){
                     this.outBackItemDAO.updateOano(item.getId(), StringUtils.removeEnd(fullId, ","));
                 }
+
+                //#349 如果outtype字段有值，退货自动入到指定的空退空开库
+				// 再开出新的出库单空发，类型为outtype字段值，客户ID为outcustomerid,数量为空退的数量，收货人记为outreceiver，运输方式为空发
+				if (item.getOutType()!= null && !ListTools.isEmptyOrNull(generatedOutBeans)){
+					_logger.info("空退空开:"+item.getId());
+					//TODO 自动入库审批生成凭证
+					for (OutBean outBean: generatedOutBeans){
+						OutBean newOutBean = new OutBean();
+						BeanUtil.copyProperties(outBean, newOutBean);
+
+						newOutBean.setType(OutConstant.OUT_TYPE_OUTBILL);
+						newOutBean.setOutType(item.getOutType());
+
+						String id = getAll(commonDAO.getSquence());
+						String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+						String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+
+						String newOutFullId = flag + time + id;
+						outBean.setId(getOutId(id));
+						outBean.setFullId(newOutFullId);
+
+						newOutBean.setDescription("线下空开空退"+"_"+outId);
+
+						String customerId = item.getOutCustomerId();
+						newOutBean.setCustomerId(customerId);
+						CustomerVO customerVO = this.customerMainDAO.findVO(customerId);
+						if (customerVO == null){
+							_logger.error("customer not exists:"+customerId);
+						} else{
+							newOutBean.setCustomerName(customerVO.getName());
+						}
+
+						//TODO
+						DistributionBean distributionBean = new DistributionBean();
+						distributionBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX));
+						distributionBean.setOutId(newOutFullId);
+						distributionBean.setShipping(OutConstant.OUT_SHIPPING_NOTSHIPPING);
+
+//						distributionBean.setProvinceId(olOutBean.getProvinceId());
+//						distributionBean.setCityId(olOutBean.getCityId());
+//						distributionBean.setAddress(olOutBean.getAddress());
+						distributionBean.setReceiver(item.getOutReceiver());
+//						distributionBean.setMobile(olOutBean.getTelephone());
+						distributionDAO.saveEntityBean(distributionBean);
+
+						outDAO.saveEntityBean(newOutBean);
+
+						//TODO 自动出库
+
+						BaseBean baseBean = outBean.getBaseList().get(0);
+						BaseBean newBaseBean = new BaseBean();
+						BeanUtil.copyProperties(baseBean, newBaseBean);
+						newBaseBean.setId(commonDAO.getSquenceString());
+						newBaseBean.setOutId(newOutFullId);
+						baseDAO.saveEntityBean(newBaseBean);
+						_logger.info("create new out in offlineStorageInJob "+newOutBean+"***with base bean***"+newBaseBean);
+					}
+				}
             }
         }
     }
