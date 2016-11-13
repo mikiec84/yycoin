@@ -3799,18 +3799,19 @@ public class OutImportManagerImpl implements OutImportManager
 					//TODO 自动入库审批生成凭证
 					for (OutBean outBean: generatedOutBeans){
 						OutBean newOutBean = new OutBean();
-						BeanUtil.copyProperties(outBean, newOutBean);
+						BeanUtil.copyProperties(newOutBean, outBean);
 
 						newOutBean.setType(OutConstant.OUT_TYPE_OUTBILL);
 						newOutBean.setOutType(item.getOutType());
+                        newOutBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);
 
 						String id = getAll(commonDAO.getSquence());
 						String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
 						String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
 
 						String newOutFullId = flag + time + id;
-						outBean.setId(getOutId(id));
-						outBean.setFullId(newOutFullId);
+						newOutBean.setId(getOutId(id));
+						newOutBean.setFullId(newOutFullId);
 
 						newOutBean.setDescription("线下空开空退"+"_"+outId);
 
@@ -3823,26 +3824,21 @@ public class OutImportManagerImpl implements OutImportManager
 							newOutBean.setCustomerName(customerVO.getName());
 						}
 
-						//TODO
 						DistributionBean distributionBean = new DistributionBean();
 						distributionBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX));
 						distributionBean.setOutId(newOutFullId);
 						distributionBean.setShipping(OutConstant.OUT_SHIPPING_NOTSHIPPING);
-
-//						distributionBean.setProvinceId(olOutBean.getProvinceId());
-//						distributionBean.setCityId(olOutBean.getCityId());
-//						distributionBean.setAddress(olOutBean.getAddress());
 						distributionBean.setReceiver(item.getOutReceiver());
-//						distributionBean.setMobile(olOutBean.getTelephone());
 						distributionDAO.saveEntityBean(distributionBean);
 
+						newOutBean.setDistributeBean(distributionBean);
 						outDAO.saveEntityBean(newOutBean);
 
 						//TODO 自动出库
 
 						BaseBean baseBean = outBean.getBaseList().get(0);
 						BaseBean newBaseBean = new BaseBean();
-						BeanUtil.copyProperties(baseBean, newBaseBean);
+						BeanUtil.copyProperties(newBaseBean, baseBean);
 						newBaseBean.setId(commonDAO.getSquenceString());
 						newBaseBean.setOutId(newOutFullId);
 						baseDAO.saveEntityBean(newBaseBean);
