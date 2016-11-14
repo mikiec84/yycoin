@@ -761,4 +761,14 @@ public interface OutManager extends ListenerManager<OutListener>
      * #338 统计退库异常
      */
     void statsExceptionalInBackJob();
+
+    /**
+     * #349
+     * @param out
+     * @return
+     * @throws MYException
+     */
+    String createNewBuyBean(OutBean out) throws MYException;
+
+    OutBean createNewOutBean(OutBean out, OutBackItemBean item) throws MYException;
 }

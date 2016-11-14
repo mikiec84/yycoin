@@ -1837,6 +1837,10 @@ public class ShipManagerImpl implements ShipManager
 
                     for (PackageItemBean each : itemList)
                     {
+                        //#351 filter LY orders
+                        if (each.getOutId().startsWith("LY")){
+                            continue;
+                        }
                         i++;
                         ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
                         setWS(ws, i, 300, false);

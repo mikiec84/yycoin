@@ -28,6 +28,7 @@ import java.util.Set;
 
 import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.client.dao.CustomerIndividualDAO;
+import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
 import com.china.center.oa.sail.bean.*;
@@ -9147,8 +9148,197 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
     	return newOutBean;
 	}
-	
-	/**
+
+    @Override
+    public String createNewBuyBean(OutBean outBean) throws MYException {
+        // 触发产生退货凭证 TAX_ADD
+        Collection<OutListener> listenerMapValues = listenerMapValues();
+
+        //hardcode to avoid null user
+        User user = this.userDAO.findUserByName("周苏东");
+        for (OutListener listener : listenerMapValues)
+        {
+            listener.onConfirmOutOrBuy(user, outBean);
+        }
+
+        outDAO.modifyOutStatus(outBean.getFullId(), OutConstant.BUY_STATUS_PASS);
+
+        // 记录退货审批日志 操作人系统，自动审批
+        FlowLogBean log = new FlowLogBean();
+
+        log.setActor("系统");
+
+        log.setDescription("线下空开空退系统自动审批");
+        log.setFullId(outBean.getFullId());
+        log.setOprMode(PublicConstant.OPRMODE_PASS);
+        log.setLogTime(TimeTools.now());
+
+        log.setPreStatus(OutConstant.BUY_STATUS_SAVE);
+
+        log.setAfterStatus(OutConstant.BUY_STATUS_PASS);
+
+        flowLogDAO.saveEntityBean(log);
+        return outBean.getFullId();
+    }
+
+    @Override
+    public OutBean createNewOutBean(OutBean out, OutBackItemBean item) throws MYException {
+        String newOutId;
+
+        OutBean newOutBean = new OutBean();
+
+        BeanUtil.copyProperties(newOutBean, out);
+        newOutBean.setType(OutConstant.OUT_TYPE_OUTBILL);
+        newOutBean.setOutType(item.getOutType());
+
+        String id = getAll(commonDAO.getSquence());
+        String flag = OutHelper.getSailHead(newOutBean.getType(), newOutBean.getOutType());
+
+        String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+
+        newOutId = flag + time + id;
+
+        newOutBean.setId(getOutId(id));
+
+        newOutBean.setFullId(newOutId);
+
+        newOutBean.setOutTime(TimeTools.now_short());
+//
+//        newOutBean.setReday(bean.getReday());
+//
+//        newOutBean.setRedate(bean.getRedate());
+
+        newOutBean.setChangeTime(TimeTools.now());
+
+//        newOutBean.setDutyId(bean.getDutyId());
+//
+//        newOutBean.setInvoiceId(bean.getInvoiceId());
+
+//        double total = 0.0d;
+//
+//        List<BaseRepaireBean> repaireList = bean.getList();
+//
+//        for (BaseRepaireBean each : repaireList)
+//        {
+//            total += each.getPrice() * each.getAmount();
+//        }
+//
+//        newOutBean.setTotal(total);
+//
+//        if (total > out.getTotal())
+//        {
+//            newOutBean.setPay(0);
+//
+//            newOutBean.setPayTime("");
+//        }
+//
+//        if (newOutBean.getPay() == OutConstant.PAY_YES)
+//        {
+//            newOutBean.setPayTime(TimeTools.now());
+//
+//            newOutBean.setRedate(TimeTools.now_short());
+//        }
+//
+//        if (out.getPay() == OutConstant.PAY_YES && total < out.getTotal())
+//        {
+//            newOutBean.setHadPay(total);
+//        }
+
+        // 新单不自动勾款，新单为未付款，已支付0，付款时间为空
+//        if (bean.getReason().equals(OutConstant.OUT_REPAIREREASON_DONOTAUTOPAY))
+//        {
+//            newOutBean.setHadPay(0);
+//
+//            newOutBean.setPay(0);
+//
+//            newOutBean.setPayTime("");
+//        }
+
+        long add = 3 * 24 * 3600 * 1000L;
+
+        String arrveDate = TimeTools.getStringByFormat(new Date(new Date().getTime() + add), "yyyy-MM-dd");
+
+        newOutBean.setArriveDate(arrveDate);
+
+        newOutBean.setManagerTime(TimeTools.now());
+
+        newOutBean.setChangeTime(TimeTools.now());
+
+//        newOutBean.setOperator(bean.getOperator());
+
+//        newOutBean.setOperatorName(bean.getOperatorName());
+
+        newOutBean.setFeedBackVisit(0);
+        newOutBean.setFeedBackCheck(0);
+
+        newOutBean.setDescription( "线下空开空退,原单：" + out.getFullId());
+
+        String customerId = item.getOutCustomerId();
+        newOutBean.setCustomerId(customerId);
+        CustomerVO customerVO = this.customerMainDAO.findVO(customerId);
+        if (customerVO == null){
+            _logger.error("customer not exists:"+customerId);
+        } else{
+            newOutBean.setCustomerName(customerVO.getName());
+        }
+
+        DistributionBean distributionBean = new DistributionBean();
+        distributionBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX));
+        distributionBean.setOutId(newOutId);
+        distributionBean.setShipping(OutConstant.OUT_SHIPPING_NOTSHIPPING);
+        distributionBean.setReceiver(item.getOutReceiver());
+        distributionDAO.saveEntityBean(distributionBean);
+
+        newOutBean.setDistributeBean(distributionBean);
+        outDAO.saveEntityBean(newOutBean);
+
+
+        //  如果是领样转销售的单子,refOutFullId 有值
+//        newOutBean.setRefOutFullId("");
+
+        List<BaseBean> baseList = new ArrayList<BaseBean>();
+
+        newOutBean.setBaseList(baseList);
+
+        BaseBean baseBean = out.getBaseList().get(0);
+        BaseBean newBaseBean = new BaseBean();
+        BeanUtil.copyProperties(newBaseBean, baseBean);
+        newBaseBean.setId(commonDAO.getSquenceString());
+        newBaseBean.setOutId(newOutId);
+        baseList.add(baseBean);
+        baseDAO.saveEntityBean(newBaseBean);
+
+        _logger.info("create new out in offlineStorageInJob "+newOutBean+"***with base bean***"+newBaseBean);
+        // 触发产生退货凭证 TAX_ADD
+        Collection<OutListener> listenerMapValues = listenerMapValues();
+
+        //hardcode user
+        User user = this.userDAO.findUserByName("周苏东");
+        for (OutListener listener : listenerMapValues)
+        {
+            listener.onConfirmOutOrBuy(user, newOutBean);
+        }
+
+        // 记录退货审批日志 操作人系统，自动审批
+        FlowLogBean log = new FlowLogBean();
+
+        log.setActor("系统");
+
+        log.setDescription("线下空开空退系统自动审批");
+        log.setFullId(newOutBean.getFullId());
+        log.setOprMode(PublicConstant.OPRMODE_PASS);
+        log.setLogTime(TimeTools.now());
+
+        log.setPreStatus(OutConstant.STATUS_SAVE);
+
+        log.setAfterStatus(newOutBean.getStatus());
+
+        flowLogDAO.saveEntityBean(log);
+
+        return newOutBean;
+    }
+
+    /**
 	 * 增加(修改) -- 销售单第二步（配送信息）
 	 * 
 	 * {@inheritDoc}
