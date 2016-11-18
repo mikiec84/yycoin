@@ -636,6 +636,9 @@ public class ImapMailClient {
             throw new MailOrderException(msg, bean);
         }
 
+        if (!StringTools.isNullOrNone(orderBean.getCustomerName())){
+            bean.setCustomerName(orderBean.getCustomerName());
+        }
         _logger.info("***convertCitic bean success***"+bean);
         return bean;
     }
@@ -830,6 +833,9 @@ public class ImapMailClient {
             throw new MailOrderException(msg, bean);
         }
 
+        if (!StringTools.isNullOrNone(orderBean.getAccount())){
+            bean.setCustomerName(orderBean.getAccount());
+        }
         _logger.info("***convert zhaoshang bean success***"+bean);
         return bean;
     }
@@ -1269,6 +1275,9 @@ public class ImapMailClient {
             throw new MailOrderException(msg, bean);
         }
 
+        if(!StringTools.isNullOrNone(orderBean.getCustomerName())){
+            bean.setCustomerName(orderBean.getCustomerName());
+        }
         _logger.info("***convert zhongyuan order bean success***"+bean);
         return bean;
     }
