@@ -726,6 +726,13 @@ public class OutImportManagerImpl implements OutImportManager
             //TODO
             base.setIbMoney(each.getIbMoney());
             base.setMotivationMoney(each.getMotivationMoney());
+
+			//#359
+			if ((newOutBean.getType() == OutConstant.OUT_TYPE_OUTBILL && newOutBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+					||(newOutBean.getType() == OutConstant.OUT_TYPE_INBILL && newOutBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
+				double grossProfit = this.outManager.getGrossProfit(base.getProductId(), newOutBean.getCustomerName());
+				base.setGrossProfit(grossProfit);
+			}
 			
 			// 业务员结算价，总部结算价
 			ProductBean product = productDAO.find(base.getProductId());
@@ -3380,6 +3387,12 @@ public class OutImportManagerImpl implements OutImportManager
 							baseBean.setProductId(product.getId());
 						}
 						baseBean.setProductName(olBaseBean.getProductName());
+						//#359
+						if ((out.getType() == OutConstant.OUT_TYPE_OUTBILL && out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+								||(out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
+							double grossProfit = this.outManager.getGrossProfit(baseBean.getProductId(), out.getCustomerName());
+							baseBean.setGrossProfit(grossProfit);
+						}
 
 						baseBean.setUnit("套");
 						baseBean.setAmount(olBaseBean.getAmount());
@@ -3692,6 +3705,12 @@ public class OutImportManagerImpl implements OutImportManager
                             }
                             baseBean.setProductId(item.getProductId());
                             baseBean.setProductName(item.getProductName());
+							//#359
+							if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+									||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
+								double grossProfit = outManager.getGrossProfit(baseBean.getProductId(), outBean.getCustomerName());
+								baseBean.setGrossProfit(grossProfit);
+							}
 
                             baseBean.setUnit("套");
                             baseBean.setAmount(refBaseBean.getAmount());

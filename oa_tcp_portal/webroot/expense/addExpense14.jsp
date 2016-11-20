@@ -116,6 +116,10 @@ function checks()
 		<p:table cells="2">
             <p:pro field="stafferId" value="${g_stafferBean.name}"/>
             <p:pro field="departmentId" value="${g_stafferBean.principalshipName}"/>
+
+            <p:pro field="marketingFlag" cell="0" >
+                <p:option type="marketingFlag"></p:option>
+            </p:pro>
             
             <p:pro field="specialType" cell="0">
                 <p:option type="expenseSpecialType"/>

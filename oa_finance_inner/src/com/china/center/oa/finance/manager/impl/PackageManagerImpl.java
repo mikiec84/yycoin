@@ -235,6 +235,8 @@ public class PackageManagerImpl implements PackageManager {
 	private void processOut() throws MYException
 	{
         ConditionParse conditionParse = new ConditionParse();
+		conditionParse.addWhereStr();
+		conditionParse.addCondition(" order by logTime asc");
 
         int batchSize = 50;
         String batchSizeStr = ConfigLoader.getProperty("batchSize");

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Id;
 import com.china.center.jdbc.annotation.Table;
+import com.china.center.tools.TimeTools;
 
 /**
  * 用完删除
@@ -20,6 +21,8 @@ public class PreConsignBean implements Serializable
 	private String id = "";
 	
 	private String outId = "";
+
+	private String logTime = TimeTools.now();
 
 	public PreConsignBean()
 	{
@@ -43,5 +46,13 @@ public class PreConsignBean implements Serializable
 	public void setOutId(String outId)
 	{
 		this.outId = outId;
+	}
+
+	public String getLogTime() {
+		return logTime;
+	}
+
+	public void setLogTime(String logTime) {
+		this.logTime = logTime;
 	}
 }

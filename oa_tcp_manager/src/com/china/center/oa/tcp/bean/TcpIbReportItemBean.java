@@ -50,6 +50,8 @@ public class TcpIbReportItemBean implements Serializable
 
     private String productName = "";
 
+    private String productId = "";
+
     private double price = 0.0d;
 
     private int amount = 0;
@@ -90,7 +92,13 @@ public class TcpIbReportItemBean implements Serializable
         this.id = id;
     }
 
+    public String getProductId() {
+        return productId;
+    }
 
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
 
     /**
      * @return the type
@@ -175,12 +183,15 @@ public class TcpIbReportItemBean implements Serializable
 
     @Override
     public String toString() {
-        return "TcpIbBean{" +
+        return "TcpIbReportItemBean{" +
                 "id='" + id + '\'' +
+                ", refId='" + refId + '\'' +
                 ", type=" + type +
                 ", customerName='" + customerName + '\'' +
                 ", fullId='" + fullId + '\'' +
                 ", productName='" + productName + '\'' +
+                ", productId='" + productId + '\'' +
+                ", price=" + price +
                 ", amount=" + amount +
                 ", ibMoney=" + ibMoney +
                 ", motivationMoney=" + motivationMoney +

@@ -148,6 +148,11 @@ public interface TcpFlowConstant
      * #346 出差报销
      */
     String WORK_PAY_MARKETING = "work-pay-marketing";
+
+    /**
+     * #355 通用报销
+     */
+    String GENERAL_PAY_MARKETING = "general-pay-marketing";
     
     /**
      * 部门经理

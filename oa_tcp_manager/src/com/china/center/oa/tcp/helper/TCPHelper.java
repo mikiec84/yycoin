@@ -83,9 +83,13 @@ public abstract class TCPHelper
         else if (bean instanceof ExpenseApplyBean){
             ExpenseApplyBean apply = (ExpenseApplyBean)bean;
         if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
-            bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
-            return ;
-        }
+            if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_TRAVEL) {
+                bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
+                return;
+            }else if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_COMMON) {
+                bean.setFlowKey(TcpFlowConstant.GENERAL_PAY_MARKETING);
+                return;
+            }
     }
     	
         if (bean.getType() != TcpConstanst.TCP_APPLYTYPE_STOCK)

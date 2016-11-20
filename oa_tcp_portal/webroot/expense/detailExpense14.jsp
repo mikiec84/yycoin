@@ -50,6 +50,10 @@ function load()
             
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
+
+            <p:cell title="营销/非营销" end="true">
+                ${my:get('marketingFlag', bean.marketingFlag)}
+            </p:cell>
             
             <p:pro field="stype" cell="0">
                 <p:option type="tcpStype" empty="true"/>

@@ -3057,14 +3057,14 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 double moTotal = 0.0d;
 
                 for (OutVO out: outVOs){
-                    _logger.info("***out***"+out);
                     List<BaseBean> baseList = this.baseDAO.queryEntityBeansByFK(out.getFullId());
-                    _logger.info("***baseList***"+baseList);
+                    _logger.info("create TcpIbReportItemBean for out"+out+" with baseList***"+baseList);
                     if (!ListTools.isEmptyOrNull(baseList)){
                         for (BaseBean base : baseList){
                             TcpIbReportItemBean item = new TcpIbReportItemBean();
                             item.setCustomerName(out.getCustomerName());
                             item.setFullId(out.getFullId());
+                            item.setProductId(base.getProductId());
                             item.setProductName(base.getProductName());
                             item.setAmount(base.getAmount());
                             //销售退库

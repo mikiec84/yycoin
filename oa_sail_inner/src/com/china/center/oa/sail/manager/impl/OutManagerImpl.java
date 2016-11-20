@@ -31,6 +31,8 @@ import com.china.center.oa.client.dao.CustomerIndividualDAO;
 import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
+import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.dao.*;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
@@ -72,18 +74,9 @@ import com.china.center.oa.note.bean.ShortMessageTaskBean;
 import com.china.center.oa.note.constant.ShortMessageConstant;
 import com.china.center.oa.note.dao.ShortMessageTaskDAO;
 import com.china.center.oa.note.manager.HandleMessage;
-import com.china.center.oa.product.bean.DepotBean;
-import com.china.center.oa.product.bean.DepotpartBean;
-import com.china.center.oa.product.bean.PriceConfigBean;
-import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.DepotDAO;
-import com.china.center.oa.product.dao.DepotpartDAO;
-import com.china.center.oa.product.dao.ProductCombinationDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
@@ -177,6 +170,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private CommonDAO commonDAO = null;
 
     private ProductDAO productDAO = null;
+
+    private ProductImportDAO productImportDAO = null;
     
     private UserDAO userDAO = null;
 
@@ -637,6 +632,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if (product == null)
                         {
                             throw new RuntimeException("产品为空,数据不完备");
+                        }
+
+                        //#359
+                        if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+                                ||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
+                            double grossProfit = getGrossProfit(base.getProductId(), outBean.getCustomerName());
+                            base.setGrossProfit(grossProfit);
                         }
 
 /*                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
@@ -12768,6 +12770,36 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 
+    @Override
+    public ProductImportBean getProductImportBean(String productId, String customerName) {
+        ProductBean productBean = this.productDAO.find(productId);
+        if (productBean!= null) {
+            String productCode = productBean.getCode();
+            //#291
+            if (!StringTools.isNullOrNone(productCode)) {
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addCondition("code", "=", productCode);
+                conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+
+                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(beans)) {
+                    return beans.get(0);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public double getGrossProfit(String productId, String customerName) {
+        ProductImportBean productImportBean = this.getProductImportBean(productId, customerName);
+        if (productImportBean == null){
+            return 0;
+        } else{
+            return productImportBean.getGrossProfit();
+        }
+    }
+
     /**
      * @return the mailAttchmentPath
      */
@@ -13266,5 +13298,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setTempConsignDAO(TempConsignDAO tempConsignDAO) {
         this.tempConsignDAO = tempConsignDAO;
+    }
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
     }
 }

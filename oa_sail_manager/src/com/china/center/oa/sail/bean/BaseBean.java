@@ -199,6 +199,8 @@ public class BaseBean implements Serializable
      */
     private String refId = "";
 
+    private double grossProfit = 0.0d;
+
 
     /**
      * 2016/3/29 # 导入同一SO单的同一商品行时临时校验用
@@ -875,6 +877,14 @@ public class BaseBean implements Serializable
 
     public void setTempInvoiceMoney(double tempInvoiceMoney) {
         this.tempInvoiceMoney = tempInvoiceMoney;
+    }
+
+    public double getGrossProfit() {
+        return grossProfit;
+    }
+
+    public void setGrossProfit(double grossProfit) {
+        this.grossProfit = grossProfit;
     }
 
     /**

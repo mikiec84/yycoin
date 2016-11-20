@@ -30,7 +30,9 @@ import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.bean.BaseBean;
 import com.china.center.oa.publics.constant.AuthConstant;
@@ -126,6 +128,8 @@ public class TravelApplyAction extends DispatchAction
     private TcpPrepaymentDAO tcpPrepaymentDAO = null;
     
     protected ProductDAO productDAO = null;
+
+    private ProductImportDAO productImportDAO = null;
 
     private TcpShareDAO tcpShareDAO = null;
 
@@ -4296,6 +4300,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("订单号");
             line.writeColumn("商品名");
+            line.writeColumn("银行品名");
             line.writeColumn("商品单价");
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
@@ -4309,9 +4314,31 @@ public class TravelApplyAction extends DispatchAction
             for (Iterator<TcpIbReportItemBean> iter = ibReportList.iterator(); iter.hasNext();)
             {
                 TcpIbReportItemBean ib = iter.next();
-                line.writeColumn(ib.getCustomerName());
+                String customerName = ib.getCustomerName();
+                line.writeColumn(customerName);
                 line.writeColumn(ib.getFullId());
                 line.writeColumn(ib.getProductName());
+
+                //#356 导出银行品名
+                String bankProductCode = "";
+                String productId = ib.getProductId();
+                ProductBean productBean = this.productDAO.find(productId);
+                if (productBean!= null) {
+                    String productCode = productBean.getCode();
+                    //#291
+                    if (!StringTools.isNullOrNone(productCode)) {
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addCondition("code", "=", productCode);
+                        conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+
+                        List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                        if (!ListTools.isEmptyOrNull(beans)) {
+                            ProductImportBean productImportBean = beans.get(0);
+                            bankProductCode = productImportBean.getBankProductCode();
+                        }
+                    }
+                }
+                line.writeColumn(bankProductCode);
                 line.writeColumn(ib.getPrice());
                 line.writeColumn(ib.getAmount());
                 line.writeColumn(ib.getIbMoney());
@@ -4861,5 +4888,13 @@ public class TravelApplyAction extends DispatchAction
 
     public void setOrgManager(OrgManager orgManager) {
         this.orgManager = orgManager;
+    }
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
     }
 }

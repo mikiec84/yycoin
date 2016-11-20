@@ -17,6 +17,7 @@ import com.center.china.osgi.publics.ListenerManager;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.china.center.common.MYException;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.wrap.ResultBean;
 import com.china.center.oa.sail.bean.*;
@@ -771,4 +772,8 @@ public interface OutManager extends ListenerManager<OutListener>
     String createNewBuyBean(OutBean out) throws MYException;
 
     OutBean createNewOutBean(OutBean out, OutBackItemBean item) throws MYException;
+
+    ProductImportBean getProductImportBean(String productId, String customerName);
+
+    double getGrossProfit(String productId, String customerName);
 }
