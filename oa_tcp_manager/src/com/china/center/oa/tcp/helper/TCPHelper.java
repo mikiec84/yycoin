@@ -82,14 +82,15 @@ public abstract class TCPHelper
         //#346 出差报销流程
         else if (bean instanceof ExpenseApplyBean){
             ExpenseApplyBean apply = (ExpenseApplyBean)bean;
-        if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
+        if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES) {
             if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_TRAVEL) {
                 bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
                 return;
-            }else if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_COMMON) {
+            } else if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_COMMON) {
                 bean.setFlowKey(TcpFlowConstant.GENERAL_PAY_MARKETING);
                 return;
             }
+        }
     }
     	
         if (bean.getType() != TcpConstanst.TCP_APPLYTYPE_STOCK)
