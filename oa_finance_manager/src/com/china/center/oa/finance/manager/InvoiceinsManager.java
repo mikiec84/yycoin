@@ -125,4 +125,6 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
     boolean batchTransferInvoiceins(List<OutTransferBean> list) throws MYException;
 
     public boolean batchConfirm(User user, List<InvoiceinsVO> beanList) throws MYException;
+
+    boolean batchConfirmAndCreatePackage(User user, List<InvoiceinsVO> beanList) throws MYException;
 }

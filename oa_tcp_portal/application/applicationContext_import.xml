@@ -14,6 +14,8 @@
 	
 	<osgi:reference id="productDAO" interface="com.china.center.oa.product.dao.ProductDAO" />
 
+	<osgi:reference id="productImportDAO" interface="com.china.center.oa.product.dao.ProductImportDAO" />
+
 	<osgi:reference id="actionConfigManager" interface="com.china.center.struts.wrap.ActionConfigManager" />
 	
 	<osgi:reference id="publicFacade" interface="com.china.center.oa.publics.facade.PublicFacade" />

@@ -4166,6 +4166,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("订单号");
             line.writeColumn("商品名");
+            line.writeColumn("银行产品代码");
             line.writeColumn("商品单价");
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
@@ -4196,6 +4197,7 @@ public class TravelApplyAction extends DispatchAction
                     line.writeColumn(ib.getCustomerName());
                     line.writeColumn(fullId);
                     line.writeColumn(ib.getProductName());
+                    line.writeColumn(this.getBankProductCode(ib.getProductId(), ib.getCustomerName()));
                     line.writeColumn(ib.getPrice());
                     line.writeColumn(ib.getAmount());
                     line.writeColumn(ib.getIbMoney());
@@ -4250,6 +4252,29 @@ public class TravelApplyAction extends DispatchAction
         return null;
     }
 
+    private String getBankProductCode(String productId, String customerName){
+        String bankProductCode = "";
+        if(!StringTools.isNullOrNone(productId)){
+            ProductBean productBean = this.productDAO.find(productId);
+            if (productBean!= null) {
+                String productCode = productBean.getCode();
+                //#291
+                if (!StringTools.isNullOrNone(productCode) && customerName!= null && customerName.length()>=4) {
+                    ConditionParse conditionParse = new ConditionParse();
+                    conditionParse.addCondition("code", "=", productCode);
+                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+
+                    List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                    if (!ListTools.isEmptyOrNull(beans)) {
+                        ProductImportBean productImportBean = beans.get(0);
+                        bankProductCode = productImportBean.getBankProductCode();
+                    }
+                }
+            }
+        }
+        return bankProductCode;
+    }
+
 
     /**
      * export中收激励明细导出CSV
@@ -4300,7 +4325,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("订单号");
             line.writeColumn("商品名");
-            line.writeColumn("银行品名");
+            line.writeColumn("银行产品代码");
             line.writeColumn("商品单价");
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
@@ -4319,26 +4344,8 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getFullId());
                 line.writeColumn(ib.getProductName());
 
-                //#356 导出银行品名
-                String bankProductCode = "";
-                String productId = ib.getProductId();
-                ProductBean productBean = this.productDAO.find(productId);
-                if (productBean!= null) {
-                    String productCode = productBean.getCode();
-                    //#291
-                    if (!StringTools.isNullOrNone(productCode)) {
-                        ConditionParse conditionParse = new ConditionParse();
-                        conditionParse.addCondition("code", "=", productCode);
-                        conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-
-                        List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                        if (!ListTools.isEmptyOrNull(beans)) {
-                            ProductImportBean productImportBean = beans.get(0);
-                            bankProductCode = productImportBean.getBankProductCode();
-                        }
-                    }
-                }
-                line.writeColumn(bankProductCode);
+                //#356 导出银行产品代码
+                line.writeColumn(this.getBankProductCode(ib.getProductId(), customerName));
                 line.writeColumn(ib.getPrice());
                 line.writeColumn(ib.getAmount());
                 line.writeColumn(ib.getIbMoney());
