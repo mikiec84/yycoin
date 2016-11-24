@@ -127,6 +127,8 @@
 
 	<osgi:reference id="outDAO" interface="com.china.center.oa.sail.dao.OutDAO" />
 
+	<osgi:reference id="outImportDAO" interface="com.china.center.oa.sail.dao.OutImportDAO" />
+
     <osgi:reference id="customerMainDAO" interface="com.china.center.oa.client.dao.CustomerMainDAO" />
 	
 	<osgi:reference id="backPrePayApplyDAO" interface="com.china.center.oa.finance.dao.BackPrePayApplyDAO" />
