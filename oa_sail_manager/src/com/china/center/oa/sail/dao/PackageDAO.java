@@ -15,6 +15,6 @@ public interface PackageDAO extends DAO<PackageBean, PackageVO>
 	int countByCon(ConditionParse con);
 	
 	List<PackageVO> queryVOsByCon(ConditionParse con, PageSeparate page);
-	
-	
+
+	boolean updateStatus(String packageId, int status);
 }

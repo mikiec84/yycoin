@@ -37,5 +37,13 @@ public class PackageDAOImpl extends BaseDAO<PackageBean, PackageVO> implements P
 		
 		return this.jdbcOperation.queryObjectsBySqlAndPageSeparate(sql, page, this.clazVO);
 	}
-	
+
+	@Override
+	public boolean updateStatus(String packageId, int status) {
+		String sql = "update t_center_package set status = ? where id = ?";
+
+		jdbcOperation.update(sql, status, packageId);
+
+		return true;
+	}
 }

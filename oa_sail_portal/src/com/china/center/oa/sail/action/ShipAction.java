@@ -324,17 +324,24 @@ public class ShipAction extends DispatchAction
 
             changeMap.put("blogTime", TimeTools.now_short());
 
-            if (initStatus) {
-                changeMap.put("status",	String.valueOf(ShipConstant.SHIP_STATUS_INIT));
-
-                condtion.addIntCondition("PackageBean.status", "=", ShipConstant.SHIP_STATUS_INIT);
-            }
+//            if (initStatus) {
+//                changeMap.put("status",	String.valueOf(ShipConstant.SHIP_STATUS_INIT));
+//
+//                condtion.addIntCondition("PackageBean.status", "=", ShipConstant.SHIP_STATUS_INIT);
+//            }
 
             condtion.addCondition("PackageBean.logTime", ">=",
                     TimeTools.now_short(-7) + " 00:00:00");
 
             condtion.addCondition("PackageBean.logTime", "<=",
                     TimeTools.now_short() + " 23:59:59");
+
+            if (initStatus) {
+                changeMap.put("status",	String.valueOf(ShipConstant.SHIP_STATUS_INIT));
+
+//                condtion.addIntCondition("PackageBean.status", "=", ShipConstant.SHIP_STATUS_INIT);
+                condtion.addCondition(" and PackageBean.status in (0,5) ");
+            }
         }
 
         return changeMap;
@@ -566,14 +573,14 @@ public class ShipAction extends DispatchAction
         if (!StringTools.isNullOrNone(status))
         {
             if (status.equals("4"))
-                condtion.addCondition(" and PackageBean.status in (1,3)");
+                condtion.addCondition(" and PackageBean.status in (1,3,5)");
             else
                 condtion.addIntCondition("PackageBean.status", "=", MathTools.parseInt(status));
 
             queryOutCondtionMap.put("currentStatus",status);
         }else
         {
-            condtion.addCondition(" and PackageBean.status in (1,3)");
+            condtion.addCondition(" and PackageBean.status in (1,3,5)");
 
             queryOutCondtionMap.put("currentStatus","4");
         }
@@ -4487,6 +4494,60 @@ public class ShipAction extends DispatchAction
         }
 
         return result;
+    }
+
+    public ActionForward printBatch(ActionMapping mapping, ActionForm form,
+                                    HttpServletRequest request,
+                                    HttpServletResponse response)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        String pickupId = request.getParameter("pickupId");
+
+        // 先找出该批次下所有index大于index_pos的CK单
+        ConditionParse condtion = new ConditionParse();
+        condtion.addWhereStr();
+        condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+
+        List<PackageVO> packageList = this.packageDAO.queryVOsByCondition(condtion);
+        boolean flag = false;
+        for (PackageVO each : packageList)
+        {
+            //2016/10/12 #328 检查临时发票号码
+            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+            for (PackageItemBean item : itemList){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    flag = true;
+                    continue;
+                }
+            }
+            if (flag){
+                break;
+            }
+        }
+
+        if (!flag){
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "不存在虚拟发票号无法打印:"+pickupId);
+
+            return mapping.findForward("error");
+        }
+
+        PackageVO batchVO = new PackageVO();
+        batchVO.setPickupId(pickupId);
+        batchVO.setRepTime(TimeTools.now_short());
+
+        request.setAttribute("bean", batchVO);
+
+        request.setAttribute("year", TimeTools.now("yyyy"));
+        request.setAttribute("month", TimeTools.now("MM"));
+        request.setAttribute("day", TimeTools.now("dd"));
+
+        this.generateQRCode(pickupId);
+        request.setAttribute("qrcode", this.getQrcodeUrl(pickupId));
+
+        return mapping.findForward("printBatch");
     }
 
     /**

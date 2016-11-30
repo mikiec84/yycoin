@@ -13,6 +13,7 @@ import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.sail.constanst.ShipConstant;
+import com.china.center.tools.ListTools;
 
 @SuppressWarnings("serial")
 @Entity(name = "发货单（包）")
@@ -556,6 +557,21 @@ public class PackageBean implements Serializable
 
     public void setSendMailFlagSails(int sendMailFlagSails) {
         this.sendMailFlagSails = sendMailFlagSails;
+    }
+
+    /**
+     * #328
+     */
+    public void setPrintInvoiceinsStatus(List<PackageItemBean> items){
+        if (!ListTools.isEmptyOrNull(items)){
+            for (PackageItemBean item: items){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    this.status = ShipConstant.SHIP_STATUS_PRINT_INVOICEINS;
+                    break;
+                }
+            }
+        }
     }
 
     @Override

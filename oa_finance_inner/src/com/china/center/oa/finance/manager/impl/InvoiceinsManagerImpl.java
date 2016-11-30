@@ -18,6 +18,7 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.logging.Log;
@@ -1905,6 +1906,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     if (!StringTools.isNullOrNone(insNum.getInvoiceNum())){
                         String outId = insNum.getInsId();
                         this.packageItemDAO.replaceInvoiceNum(outId, insNum.getInvoiceNum(), newnum.getInvoiceNum());
+
+                        //#328 如果是XN发票号,更新CK单为已捡配
+                        if (insNum.getInvoiceNum().contains("XN")){
+                            ConditionParse conditionParse = new ConditionParse();
+                            List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(outId,
+                                    AnoConstant.FK_FIRST);
+                            if (!ListTools.isEmptyOrNull(packageItemBeanList)){
+                                String packageId = packageItemBeanList.get(0).getPackageId();
+                                _logger.info(packageId+"****update XN***"+ ShipConstant.SHIP_STATUS_PICKUP);
+
+                                this.packageDAO.updateStatus(packageId, ShipConstant.SHIP_STATUS_PICKUP);
+                            }
+                        }
                     }
 
 					insNum.setInvoiceNum(newnum.getInvoiceNum());
@@ -3817,6 +3831,71 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 		return true;
 	}
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean batchConfirmAndCreatePackage(User user, List<InvoiceinsVO> beanList) throws MYException {
+        try {
+            for (InvoiceinsVO vo : beanList) {
+                if (vo.getOtype() == FinanceConstant.INVOICEINS_TYPE_OUT) {
+                    InvoiceinsBean bean = this.invoiceinsDAO.find(vo.getId());
+                    bean.setStatus(FinanceConstant.INVOICEINS_STATUS_END);
+                    this.invoiceinsDAO.updateEntityBean(bean);
+
+                    FlowLogBean log = new FlowLogBean();
+                    log.setActor(user.getStafferName());
+                    log.setActorId(user.getStafferId());
+                    log.setFullId(vo.getId());
+                    log.setDescription("批量审批通过");
+                    log.setLogTime(TimeTools.now());
+                    log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT);
+                    log.setAfterStatus(FinanceConstant.INVOICEINS_STATUS_END);
+                    log.setOprMode(PublicConstant.OPRMODE_PASS);
+
+                    flowLogDAO.saveEntityBean(log);
+
+                    if (bean != null ) {
+                        //如果票随货发，就不写入preconsign表，写入临时表
+                        if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut())) {
+                            //如果是票随货发，发票对应所有订单已经库管审批通过，那发票也直接写入preconsign
+                            String refIds = bean.getRefIds();
+                            if (!StringTools.isNullOrNone(refIds)) {
+                                String[] fullIds = refIds.split(";");
+                                boolean flag = false;
+                                for (String fullId : fullIds) {
+                                    OutBean outBean = outDAO.find(fullId);
+                                    //如果存在销售单“待商务审批”或"待库管审批"，就写入临时表
+                                    if (outBean == null) {
+                                        continue;
+                                    } else if (outBean.getStatus() == OutConstant.STATUS_SUBMIT ||
+                                            outBean.getStatus() == OutConstant.STATUS_FLOW_PASS) {
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                                if (flag) {
+                                    //写入临时表
+                                    TempConsignBean tempConsignBean = new TempConsignBean();
+                                    tempConsignBean.setOutId(refIds);
+                                    tempConsignBean.setInsId(bean.getId());
+                                    _logger.info(bean.getId() + "此发票存在销售单为待商务审批或待库管审批,写入T_CENTER_TEMPCONSIGN表:" + tempConsignBean);
+                                    this.tempConsignDAO.saveEntityBean(tempConsignBean);
+                                } else {
+                                    this.createPackage(bean);
+                                }
+                            }
+                        } else {
+                            this.createPackage(bean);
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error(e);
+        }
+        return true;
+    }
 
 	/**
      * @return the commonDAO

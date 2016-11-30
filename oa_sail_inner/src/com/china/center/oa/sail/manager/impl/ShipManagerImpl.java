@@ -186,6 +186,7 @@ public class ShipManagerImpl implements ShipManager
         vsBean.setCustomerName(outBean.getCustomerName());
         vsBean.setIndexPos(1);
 
+        packBean.setPrintInvoiceinsStatus(itemList);
         packageDAO.saveEntityBean(packBean);
 
         packageItemDAO.saveAllEntityBeans(itemList);
@@ -537,6 +538,7 @@ public class ShipManagerImpl implements ShipManager
                 packageVSCustomerDAO.saveEntityBean(newvsBean);
                 _logger.info("***create PackageVSCustomerBean for package***"+id);
             }
+            packBean.setPrintInvoiceinsStatus(itemList);
             packageDAO.saveEntityBean(packBean);
             _logger.info("****new package created manually***"+packBean);
 
@@ -657,7 +659,8 @@ public class ShipManagerImpl implements ShipManager
                 if (null == bean)
                 {
                     throw new MYException("出库单[%s]不存在", id);
-                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT
+                        &&bean.getStatus() != ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)
                 {
                     throw new MYException("[%s]已被拣配", id);
                 }
@@ -666,7 +669,12 @@ public class ShipManagerImpl implements ShipManager
 
                 bean.setPickupId(pickupId);
 
-                bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
+                //#328 如果包含虚拟发票号，就不更新CK单状态
+                if (this.containsXnInvoiceins(id)){
+                    bean.setStatus(ShipConstant.SHIP_STATUS_PRINT_INVOICEINS);
+                } else {
+                    bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
+                }
 
                 packageDAO.updateEntityBean(bean);
             }
@@ -707,7 +715,8 @@ public class ShipManagerImpl implements ShipManager
                 if (null == bean)
                 {
                     throw new MYException("出库单[%s]不存在", id);
-                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT
+                        &&bean.getStatus() != ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)
                 {
                     throw new MYException("[%s]已被拣配", id);
                 }
@@ -774,6 +783,18 @@ public class ShipManagerImpl implements ShipManager
         return pickupIdList;
     }
 
+    private boolean containsXnInvoiceins(String packageId){
+        List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(packageId);
+        if (!ListTools.isEmptyOrNull(packageItemBeanList)){
+            for(PackageItemBean item: packageItemBeanList){
+                if (item.getProductName()!= null && item.getProductName().contains("发票号：XN")){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /** 一个批次里的商品总数量不能大于50，如一张CK单的数量超过50，单独为一个批次
      * 2015/3/12
      * @param bean
@@ -837,9 +858,14 @@ public class ShipManagerImpl implements ShipManager
                         bean.setPickupId("");
                         this.packageDAO.updateEntityBean(bean);
                         _logger.info("**********cancelPackage now*****"+id);
-                    } else if (status == ShipConstant.SHIP_STATUS_CONSIGN){
-                        throw new MYException("出库单[%s]已发货不能撤销捡配", id);
-                    }
+                    }  else if (status == ShipConstant.SHIP_STATUS_PRINT_INVOICEINS) {
+                        bean.setStatus(ShipConstant.SHIP_STATUS_PRINT_INVOICEINS);
+                        bean.setPickupId("");
+                        this.packageDAO.updateEntityBean(bean);
+                        _logger.info("**********cancelPackage now*****"+id);
+                     } else if (status == ShipConstant.SHIP_STATUS_CONSIGN){
+                            throw new MYException("出库单[%s]已发货不能撤销捡配", id);
+                        }
                 }
             }
         }

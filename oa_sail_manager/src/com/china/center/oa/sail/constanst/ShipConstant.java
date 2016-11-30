@@ -28,6 +28,11 @@ public interface ShipConstant
 	@Defined(key = "shipStatus", value = "已打印")
 	int SHIP_STATUS_PRINT = 3;
 
+	/**
+	 * #328
+	 */
+	@Defined(key = "shipStatus", value = "打印发票")
+	int SHIP_STATUS_PRINT_INVOICEINS = 5;
 
     /**
      * 2015/3/19 "商品拣配”增加查询条件 “发票单发”

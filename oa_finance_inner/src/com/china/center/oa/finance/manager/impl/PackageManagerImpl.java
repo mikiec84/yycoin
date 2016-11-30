@@ -399,6 +399,7 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setCustomerName(outBean.getCustomerName());
 		vsBean.setIndexPos(1);
 
+		packBean.setPrintInvoiceinsStatus(itemList);
 		packageDAO.saveEntityBean(packBean);
 		packageItemDAO.saveAllEntityBeans(itemList);
 		_logger.info(packBean.getId()+"***package created with size***"+itemList.size());
@@ -491,7 +492,8 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setCustomerId(ins.getCustomerId());
 		vsBean.setCustomerName(ins.getCustomerName());
 		vsBean.setIndexPos(1);
-		
+
+		packBean.setPrintInvoiceinsStatus(itemList);
 		packageDAO.saveEntityBean(packBean);
 		
 		packageItemDAO.saveAllEntityBeans(itemList);
@@ -1147,6 +1149,7 @@ public class PackageManagerImpl implements PackageManager {
         vsBean.setCustomerName(ins.getCustomerName());
         vsBean.setIndexPos(1);
 
+		packBean.setPrintInvoiceinsStatus(itemList);
         packageDAO.saveEntityBean(packBean);
         _logger.info("***create new package for preinvoice****"+ins.getId());
 

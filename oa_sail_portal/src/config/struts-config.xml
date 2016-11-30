@@ -186,7 +186,7 @@
             <forward name="mergePackages" path="/transport/mergePackages.jsp" />
             <forward name="updateShipping" path="/transport/updateShipping.jsp" />
             <forward name="printHandover" path="/transport/printHandover.jsp" />
-            
+            <forward name="printBatch" path="/transport/printBatch.jsp" />
         </action>
         
         <action path="/sail/outback" parameter="method"
