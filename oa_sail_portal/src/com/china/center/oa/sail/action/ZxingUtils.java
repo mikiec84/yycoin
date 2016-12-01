@@ -1,5 +1,6 @@
 package com.china.center.oa.sail.action;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -86,7 +87,8 @@ public class ZxingUtils {
 
     public static void generateBarCode(String myCodeText)throws WriterException {
         _logger.info("***generateQRCode***"+myCodeText);
-        String filePath = "D:\\oa_attachment\\images\\"+myCodeText+".png";
+        String rootPath = ConfigLoader.getProperty("root_path");
+        String filePath = rootPath+"/images/"+myCodeText+".png";
         String fileType = "png";
         File myFile = new File(filePath);
         try {

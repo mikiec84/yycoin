@@ -5018,7 +5018,7 @@ public class InvoiceinsAction extends DispatchAction
 
         boolean importError = false;
 
-        List<InvoiceinsImportBean> importItemList = new ArrayList<InvoiceinsImportBean>();
+        List<InvoiceinsVO> importItemList = new ArrayList<InvoiceinsVO>();
 
         StringBuilder builder = new StringBuilder();
 
@@ -5067,7 +5067,7 @@ public class InvoiceinsAction extends DispatchAction
 
                 if (obj.length >= 1 )
                 {
-                    InvoiceinsImportBean bean = new InvoiceinsImportBean();
+                    InvoiceinsVO bean = new InvoiceinsVO();
 
                     // 发票ID
                     if ( !StringTools.isNullOrNone(obj[0]))
@@ -5128,7 +5128,7 @@ public class InvoiceinsAction extends DispatchAction
 
         try
         {
-            invoiceinsManager.batchUpdateInsNum(user, importItemList);
+            invoiceinsManager.batchConfirmAndCreatePackage(user, importItemList);
 
             request.setAttribute(KeyConstant.MESSAGE, "批量处理成功");
         }
