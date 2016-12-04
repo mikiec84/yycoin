@@ -53,6 +53,7 @@
             <forward name="queryInvoiceinsImport" path="/invoiceins/queryInvoiceinsImport.jsp" />
             <forward name="importInvoiceinsForCheck" path="/invoiceins/importInvoiceinsForCheck.jsp" />
             <forward name="batchUpdateInsNum" path="/invoiceins/batchUpdateInsNum.jsp" />
+            <forward name="batchApproveInvoiceins" path="/invoiceins/batchApproveInvoiceins.jsp" />
             <forward name="batchTransferInvoiceins" path="/invoiceins/batchTransferInvoiceins.jsp" />
         </action>
         
