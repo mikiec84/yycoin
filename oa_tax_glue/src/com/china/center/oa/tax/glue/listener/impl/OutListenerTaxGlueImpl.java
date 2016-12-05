@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.china.center.oa.publics.vo.StafferVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -5136,7 +5137,19 @@ public class OutListenerTaxGlueImpl implements OutListener
             taxId = new String[2];
             
             taxId[0] = TaxItemConstanst.DROP0;
+
             taxId[1] = TaxItemConstanst.DROP2;
+            //#364 科目替换
+            StafferVO sb = this.stafferDAO.findVO(outBean.getStafferId());
+            if (sb!= null){
+                String industryName = sb.getIndustryName();
+                if (!StringTools.isNullOrNone(industryName) &&
+                        (industryName.contains("综合业务部") || industryName.contains("银行业务部"))){
+                    taxId[1] = TaxItemConstanst.DROP0;
+                } else{
+                    taxId[1] = TaxItemConstanst.DROP1;
+                }
+            }
         }else
         {
             taxId = new String[1];
@@ -6116,6 +6129,19 @@ public class OutListenerTaxGlueImpl implements OutListener
         if (outBean.getForceBuyType() == OutConstant.DROP_STAFFER                
                 || outBean.getForceBuyType() == OutConstant.DROP_PART)
         {
+            //#364 TODO
+            StafferVO sb = stafferDAO.findVO(outBean.getStafferId());
+            if (sb == null){
+                _logger.error("No staffer exist:"+outBean.getStafferId());
+            } else{
+                String industryName = sb.getIndustryName();
+                if (!StringTools.isNullOrNone(industryName) &&
+                        (industryName.contains("综合业务部") || industryName.contains("银行业务部"))){
+                    return TaxItemConstanst.DROP0;
+                } else{
+                    return TaxItemConstanst.DROP1;
+                }
+            }
             return TaxItemConstanst.DROP2;
         }
         

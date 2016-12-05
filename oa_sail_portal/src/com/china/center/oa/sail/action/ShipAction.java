@@ -136,6 +136,8 @@ public class ShipAction extends DispatchAction
             throws ServletException
     {
         String customerName = request.getParameter("customerName");
+        //#370 "不包含客戶"
+        String notName = request.getParameter("notName");
         String productName = request.getParameter("productName");
         String notProductName = request.getParameter("notProductName");
         String outId = request.getParameter("outId");
@@ -156,6 +158,7 @@ public class ShipAction extends DispatchAction
         ActionTools.processJSONDataQueryCondition(QUERYPACKAGE, request, condtion, initMap);
 
         String rawSql = condtion.toString();
+        _logger.info("***rawSQL**"+rawSql);
         if ((!StringTools.isNullOrNone(productName) ||!StringTools.isNullOrNone(notProductName) || !StringTools.isNullOrNone(outId))
                 && rawSql.indexOf("PackageItemBean") !=-1){
 //            int index2 = rawSql.lastIndexOf("AND");

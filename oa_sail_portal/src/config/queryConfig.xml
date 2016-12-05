@@ -289,9 +289,14 @@
             <opr>=</opr>
             <type>text</type>
         </condtion>
-        <condtion name="name" caption="客户名" pfix="CustomerBean">
+        <condtion name="name" caption="包含客户名" pfix="CustomerBean">
             <opr>like</opr>
             <type>text</type>
+        </condtion>
+        <condtion name="notName" caption="不包含客戶" pfix="CustomerBean">
+            <opr>like</opr>
+            <type>text</type>
+            <inner></inner>
         </condtion>
         <condtion name="productName" caption="产品" pfix="PackageItemBean">
             <opr>like</opr>
