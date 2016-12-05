@@ -398,6 +398,8 @@ public class ProductBean implements Serializable
      * midName 
      */
     private String midName = "";
+
+    private String wlName = "";
     
     /**
      * 配件对应的成品 （增加索引）
@@ -1557,6 +1559,14 @@ public class ProductBean implements Serializable
 
     public void setProductWeight(double productWeight) {
         this.productWeight = productWeight;
+    }
+
+    public String getWlName() {
+        return wlName;
+    }
+
+    public void setWlName(String wlName) {
+        this.wlName = wlName;
     }
 
     /**
