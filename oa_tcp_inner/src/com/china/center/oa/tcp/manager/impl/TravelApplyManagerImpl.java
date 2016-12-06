@@ -2983,7 +2983,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //销售退库订单的对应中收、激励金额为负数也列入统计及明细
         _logger.info("*****ibReportJob running******");
         //根据customerId分组
-        Map<String, List<OutVO>>  customerToOutMap = new HashMap<String,List<OutVO>>();
+        Map<String, List<OutBean>>  customerToOutMap = new HashMap<String,List<OutBean>>();
 
         final String beginDate = "2015-04-01";
         //所有中收激励统计均为“已出库”、“已发货”状态的销售出库订单
@@ -2999,17 +2999,19 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 //        con.addCondition("and OutBean.status in (3,4)");
 
         con.addCondition("outTime", ">", beginDate);
-        List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
+        _logger.info("*****ibReportJob running with con***"+con.toString());
+        List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(con);
+        _logger.info("*****ibReportJob running with con***"+con.toString());
         if (!ListTools.isEmptyOrNull(outList)){
             _logger.info("ibReport outList1 size:"+outList.size());
-             for (OutVO out: outList){
+             for (OutBean out: outList){
                  String customerId = out.getCustomerId();
                  if (customerToOutMap.containsKey(customerId)){
-                     List<OutVO> outVOs = customerToOutMap.get(customerId);
+                     List<OutBean> outVOs = customerToOutMap.get(customerId);
                      outVOs.add(out);
 //                     _logger.info(out.getFullId()+" add to customerToOutMap:"+customerId);
                  }else{
-                     List<OutVO> outVOList = new ArrayList<OutVO>();
+                     List<OutBean> outVOList = new ArrayList<OutBean>();
                      outVOList.add(out);
                      customerToOutMap.put(customerId, outVOList);
 //                     _logger.info(out.getFullId()+" first put to customerToOutMap:"+customerId);
@@ -3027,16 +3029,16 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //“待核对”状态
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
         con1.addCondition("outTime",">",beginDate);
-        List<OutVO> outList2 = this.outDAO.queryEntityVOsByCondition(con1);
+        List<OutBean> outList2 = this.outDAO.queryEntityBeansByCondition(con1);
         if (!ListTools.isEmptyOrNull(outList2)){
             _logger.info("ibReport outList2 size:"+outList2.size());
-            for (OutVO out: outList2){
+            for (OutBean out: outList2){
                 String customerId = out.getCustomerId();
                 if (customerToOutMap.containsKey(customerId)){
-                    List<OutVO> outVOs = customerToOutMap.get(customerId);
+                    List<OutBean> outVOs = customerToOutMap.get(customerId);
                     outVOs.add(out);
                 }else{
-                    List<OutVO> outVOList = new ArrayList<OutVO>();
+                    List<OutBean> outVOList = new ArrayList<OutBean>();
                     outVOList.add(out);
                     customerToOutMap.put(customerId, outVOList);
                 }
@@ -3050,13 +3052,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             TcpIbReportBean ibReport = new TcpIbReportBean();
             ibReport.setId(commonDAO.getSquenceString20());
             ibReport.setCustomerId(customerId);
-            List<OutVO> outVOs = customerToOutMap.get(customerId);
+            List<OutBean> outVOs = customerToOutMap.get(customerId);
             if (!ListTools.isEmptyOrNull(outVOs)){
                 ibReport.setCustomerName(outVOs.get(0).getCustomerName());
                 double ibTotal = 0.0d;
                 double moTotal = 0.0d;
 
-                for (OutVO out: outVOs){
+                for (OutBean out: outVOs){
                     List<BaseBean> baseList = this.baseDAO.queryEntityBeansByFK(out.getFullId());
                     _logger.info("create TcpIbReportItemBean for out"+out+" with baseList***"+baseList);
                     if (!ListTools.isEmptyOrNull(baseList)){

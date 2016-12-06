@@ -6102,7 +6102,8 @@ public class OutListenerTaxGlueImpl implements OutListener
         if (outBean.getForceBuyType() == OutConstant.DROP_STAFFER                
                 || outBean.getForceBuyType() == OutConstant.DROP_PART)
         {
-            return "存货破损扣款:";
+            //#364
+            return "产品报废损失:";
         }
         
         if (outBean.getForceBuyType() == OutConstant.DROP_COMMON)         
@@ -6129,10 +6130,11 @@ public class OutListenerTaxGlueImpl implements OutListener
         if (outBean.getForceBuyType() == OutConstant.DROP_STAFFER                
                 || outBean.getForceBuyType() == OutConstant.DROP_PART)
         {
-            //#364 TODO
-            StafferVO sb = stafferDAO.findVO(outBean.getStafferId());
+            //#364
+            StafferVO sb = stafferDAO.findVO(outBean.getReserve9());
+            _logger.info("***staffer***"+sb);
             if (sb == null){
-                _logger.error("No staffer exist:"+outBean.getStafferId());
+                _logger.error("No staffer exist:"+outBean.getReserve9());
             } else{
                 String industryName = sb.getIndustryName();
                 if (!StringTools.isNullOrNone(industryName) &&

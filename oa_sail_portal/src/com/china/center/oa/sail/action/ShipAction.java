@@ -195,6 +195,15 @@ public class ShipAction extends DispatchAction
             condtion.setCondition(newSql);
         }
 
+        String rawSql2 = condtion.toString();
+        if ((!StringTools.isNullOrNone(notName))
+                && rawSql2.indexOf("CustomerBean") !=-1){
+            String template = "AND CustomerBean.notName like '%"+notName+"%'";
+            String newSql = rawSql2.replace(template,"AND CustomerBean.name not like '%"+notName+"%'");
+            _logger.info("***new sql2***"+newSql);
+            condtion.setCondition(newSql);
+        }
+
 //        if (!StringTools.isNullOrNone(insFollowOut)){
 //            String placeholder = "AND PackageBean.insFollowOut =";
 //            int index3 = temp.indexOf(placeholder);

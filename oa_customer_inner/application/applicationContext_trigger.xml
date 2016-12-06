@@ -23,7 +23,7 @@
     <bean id="updateCustomerReserve2JobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="updateCustomerReserve2Job" />
-        <property name="cronExpression" value="0 0 1 * * ?" />
+        <property name="cronExpression" value="0 0/60 * * * ?" />
     </bean>
 
     <bean

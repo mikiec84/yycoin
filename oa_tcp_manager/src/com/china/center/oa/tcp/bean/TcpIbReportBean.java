@@ -12,6 +12,8 @@ import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.FK;
 import com.china.center.jdbc.annotation.Id;
 import com.china.center.jdbc.annotation.Table;
+import com.china.center.tools.TimeTools;
+
 import java.io.Serializable;
 
 
@@ -43,6 +45,8 @@ public class TcpIbReportBean implements Serializable
      * 该客户的激励金额总数
      */
     private double motivationMoneyTotal = 0.0d;
+
+    private String logTime = TimeTools.now();
 
 
 
@@ -100,6 +104,14 @@ public class TcpIbReportBean implements Serializable
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getLogTime() {
+        return logTime;
+    }
+
+    public void setLogTime(String logTime) {
+        this.logTime = logTime;
     }
 
     @Override
