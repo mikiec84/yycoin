@@ -10,9 +10,10 @@ package com.china.center.oa.product.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import com.china.center.jdbc.inter.impl.BaseDAO;
@@ -31,6 +32,7 @@ import com.china.center.oa.product.vo.StorageLogVO;
  */
 public class StorageLogDAOImpl extends BaseDAO<StorageLogBean, StorageLogVO> implements
         StorageLogDAO {
+    private final Log _logger = LogFactory.getLog(getClass());
     /**
      * queryStorageLogByCondition
      * 
@@ -58,5 +60,77 @@ public class StorageLogDAOImpl extends BaseDAO<StorageLogBean, StorageLogVO> imp
         });
 
         return result;
+    }
+
+    @Override
+    public void statExceptionalStorageLog() {
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("logTime",">","2016-11-30 10:00:00");
+        conditionParse.addCondition(" order by logTime");
+        List<StorageLogBean> storageLogBeanList = this.queryEntityBeansByCondition(conditionParse);
+
+        class StorageKey{
+            private String productId;
+            private String depotId;
+
+            public StorageKey(String productId, String depotId) {
+                this.productId = productId;
+                this.depotId = depotId;
+            }
+
+            @Override
+            public String toString() {
+                return "StorageKey{" +
+                        "productId='" + productId + '\'' +
+                        ", depotId='" + depotId + '\'' +
+                        '}';
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                StorageKey that = (StorageKey) o;
+
+                if (!productId.equals(that.productId)) return false;
+                return depotId.equals(that.depotId);
+
+            }
+
+            @Override
+            public int hashCode() {
+                int result = productId.hashCode();
+                result = 31 * result + depotId.hashCode();
+                return result;
+            }
+        }
+        //step1 group by productId and depotId
+        Map<StorageKey,List<StorageLogBean>> product2Log = new HashMap<StorageKey,List<StorageLogBean>>();
+        for (StorageLogBean log: storageLogBeanList){
+            StorageKey key = new StorageKey(log.getProductId(),log.getLocationId());
+            List<StorageLogBean> logs = product2Log.get(key);
+            if (logs == null){
+                logs = new ArrayList<StorageLogBean>();
+                product2Log.put(key, logs);
+            }
+            logs.add(log);
+        }
+
+        Map<StorageKey,String> product2ExceptionalLog = new HashMap<StorageKey,String>();
+        //step2 check continue
+        for (StorageKey key: product2Log.keySet()){
+            List<StorageLogBean> logs = product2Log.get(key);
+            for (int i=0;i<logs.size()-1;i++){
+                StorageLogBean log1 = logs.get(i);
+                StorageLogBean log2 = logs.get(i+1);
+                if (log2.getPreAmount2() != log1.getAfterAmount2()){
+                    product2ExceptionalLog.put(key, log2.getSerializeId());
+                    break;
+                }
+            }
+        }
+
+        _logger.info("***statExceptionalStorageLog***"+product2ExceptionalLog);
     }
 }

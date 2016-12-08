@@ -30,4 +30,6 @@ public interface StorageLogDAO extends DAO<StorageLogBean, StorageLogVO>
     List<StorageLogBean> queryStorageLogByCondition(ConditionParse condition);
 
     List<String> queryDistinctProductByDepotIdAndLogTime(String depotId, String logTime);
+
+    void statExceptionalStorageLog();
 }

@@ -498,7 +498,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             throw new MYException("储位关系不存在:仓区[%s]产品[%s]priceKey[%s]stafferId[%s]",
                     bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId());
         }
-        else if (relation.getAmount() + bean.getChange() < 0)
+        //#374 只有出库减少库存才需要检查
+        else if (bean.getChange()<0 && relation.getAmount() + bean.getChange() < 0)
         {
             _logger.error("****relation.getAmount() + bean.getChange() < 0***");
             throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
@@ -547,7 +548,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         }
 
         // 如果脏读有小于0的数据异常抛出
-        if (updateNew.getAmount() < 0)
+        //#374 只有出库减少库存才需要检查
+        if (bean.getChange()<0 && updateNew.getAmount() < 0)
         {
             _logger.error(relation.getId()+"****updateNew.getAmount() < 0***");
             throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean

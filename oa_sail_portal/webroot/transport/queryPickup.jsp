@@ -203,7 +203,7 @@
     </script>
 
 </head>
-<body class="body_class" onload="load()">
+<body class="body_class" >
 <form name="formEntry" action="../sail/ship.do"><input
         type="hidden" name="method" value="queryPickup">
     <input type="hidden" value="1" name="firstLoad">
@@ -287,7 +287,7 @@
                             <option value="1">已拣配</option>
                             <option value="3">已打印</option>
                             <option value="2">已发货</option>
-                            <option value="4">已拣配/打印</option>
+                            <option value="4">已拣配/打印/打印发票</option>
                             <option value="5">打印发票</option>
                         </select>
                     </td>

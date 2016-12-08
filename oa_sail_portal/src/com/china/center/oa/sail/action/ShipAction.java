@@ -240,7 +240,8 @@ public class ShipAction extends DispatchAction
 //        }
 
                //2015/3/22 按照单据时间排序，时间最老的最先显示
-        condtion.addCondition("order by PackageBean.billsTime asc");
+        condtion.addCondition(" and PackageBean.pickupId = ''");
+        condtion.addCondition(" order by PackageBean.billsTime asc");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
                 new HandleResult<PackageVO>()
                 {
@@ -447,9 +448,10 @@ public class ShipAction extends DispatchAction
 
         Set<String> set = new HashSet<String>();
 
+        _logger.info(list.size()+"***Query list***"+list);
         for (PackageVO each : list)
         {
-            if (!set.contains(each.getPickupId()))
+            if (!StringTools.isNullOrNone(each.getPickupId()) && !set.contains(each.getPickupId()))
             {
                 set.add(each.getPickupId());
             }
@@ -478,6 +480,7 @@ public class ShipAction extends DispatchAction
             wrapList.add(wrap);
         }
 
+        _logger.info("***itemList***"+wrapList);
         request.setAttribute("itemList", wrapList);
 
         List<ExpressBean> expressList = expressDAO.listEntityBeansByOrder("order by id");
@@ -651,6 +654,7 @@ public class ShipAction extends DispatchAction
 
         setDepotCondotionInOut(user, condtion);
 
+        condtion.addCondition(" and PackageBean.pickupId !=''");
         condtion.addCondition("order by PackageBean.logTime desc");
 
         request.getSession().setAttribute("ppmap", queryOutCondtionMap);

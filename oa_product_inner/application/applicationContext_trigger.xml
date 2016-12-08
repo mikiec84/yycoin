@@ -66,6 +66,19 @@
         <property name="jobDetail" ref="autoCreatePriceConfigJob" />
         <property name="cronExpression" value="0 0/60 * * * ?" />
     </bean>
+
+    <bean id="statExceptionalStorageLog"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="storageLogDAO" />
+        <property name="targetMethod" value="statExceptionalStorageLog" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="statExceptionalStorageLogTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="statExceptionalStorageLog" />
+        <property name="cronExpression" value="0 0/10 * * * ?" />
+    </bean>
     
     <bean
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -75,6 +88,7 @@
 				<ref bean="checkStorageLogTrigger" />
                 <ref bean="composeProductTrigger" />
                 <ref bean="autoCreatePriceConfigJobTrigger" />
+                <ref bean="statExceptionalStorageLogTrigger" />
 			</list>
 		</property>
 	</bean>
