@@ -3205,10 +3205,15 @@ public class OutImportManagerImpl implements OutImportManager
             for (OlOutBean olOutBean : olOutBeans){
                 ConditionParse con2 = new ConditionParse();
                 con2.addCondition("outId","=",olOutBean.getOlFullId());
-                List<OlBaseBean> olBaseBeans2 = this.olBaseDAO.queryEntityBeansByCondition(con2);
+				List<OlBaseBean> olBaseBeans2 = null;
+				try {
+					olBaseBeans2 = this.olBaseDAO.queryEntityBeansByCondition(con2);
+				}catch(Exception e){
+					_logger.error(e);
+				}
                 if (ListTools.isEmptyOrNull(olBaseBeans2)){
                     _logger.error("No OlBaseBean found "+olOutBean.getOlFullId());
-					this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表没有对应记录");
+					this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表没有对应记录或数据异常");
                     continue;
                 } else{
 					//check duplicate olbase bean
@@ -3252,7 +3257,7 @@ public class OutImportManagerImpl implements OutImportManager
 
 					for (OlBaseBean olBaseBean : olBaseBeans){
 						OutBean out = new OutBean();
-
+                        try {
                         out.setType(OutConstant.OUT_TYPE_OUTBILL);
 						try {
 							out.setOutType(Integer.valueOf(olOutBean.getType()));
@@ -3486,7 +3491,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setFlowId("CITIC");
 						out.setDepotpartId(baseBean.getDepotpartId());
 
-						try {
+
 							outDAO.saveEntityBean(out);
 							baseDAO.saveAllEntityBeans(baseBeans);
 							_logger.info("create out in offlineOrderJob " + out);
@@ -3494,7 +3499,7 @@ public class OutImportManagerImpl implements OutImportManager
 							this.clearOlOutErrorDescription(olOutBean);
 							addOutLog(fullId, null, out, "提交", SailConstant.OPR_OUT_PASS, 1);
 						}catch(Exception e){
-							_logger.error("数据库异常" + olOutBean.getOlFullId());
+							_logger.error(olOutBean.getOlFullId()+"数据库异常",e);
 							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "数据库异常，请检查是否数据重复");
 							continue;
 						}

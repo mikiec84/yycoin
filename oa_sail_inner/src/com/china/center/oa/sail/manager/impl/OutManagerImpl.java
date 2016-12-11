@@ -12779,7 +12779,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (!StringTools.isNullOrNone(productCode)) {
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
-                conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+
+                if (customerName.length()>=4) {
+                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                }else{
+                    conditionParse.addCondition("bank", "=", customerName);
+                }
 
                 List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 if (!ListTools.isEmptyOrNull(beans)) {

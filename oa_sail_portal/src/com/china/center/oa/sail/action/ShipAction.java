@@ -2472,7 +2472,11 @@ public class ShipAction extends DispatchAction
             if (!StringTools.isNullOrNone(productCode)){
                 ConditionParse conditionParse =  new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
-                conditionParse.addCondition("bank", "=", customerName.substring(0,4));
+                if (customerName.length()>=4) {
+                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                }else{
+                    conditionParse.addCondition("bank", "=", customerName);
+                }
 
                 List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
