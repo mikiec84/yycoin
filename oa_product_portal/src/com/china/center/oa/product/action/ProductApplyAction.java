@@ -22,7 +22,8 @@ import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.ProductConstant;
-import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.publics.bean.EnumBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.EnumDAO;
@@ -43,9 +44,6 @@ import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.constant.ProductApplyConstant;
-import com.china.center.oa.product.dao.ProductApplyDAO;
-import com.china.center.oa.product.dao.ProductSubApplyDAO;
-import com.china.center.oa.product.dao.ProductVSStafferDAO;
 import com.china.center.oa.product.facade.ProductApplyFacade;
 import com.china.center.oa.product.manager.ProductApplyManager;
 import com.china.center.oa.product.vo.ProductApplyVO;
@@ -89,6 +87,10 @@ public class ProductApplyAction extends DispatchAction {
     private ProductDAO productDAO = null;
 
     private EnumDAO enumDAO = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
+
+    private PriceConfigManager priceConfigManager = null;
 
     private static String       QUERYPRODUCTAPPLY   = "queryProductApply";
 
@@ -704,6 +706,25 @@ public class ProductApplyAction extends DispatchAction {
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("OA品名与产品CODE不对应")
                                     .append("<br>");
+                        } else{
+                            // 业务员结算价，总部结算价
+                            double sailPrice = product.getSailPrice();
+
+                            // 根据配置获取结算价
+                            List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+                            if (!ListTools.isEmptyOrNull(pcblist))
+                            {
+                                PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+                                sailPrice = cb.getSailPrice();
+                            }
+                            if (sailPrice< 0.001){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("产品结算价为空或为0")
+                                        .append("<br>");
+                            }
                         }
                     }else
                     {
@@ -1695,5 +1716,21 @@ public class ProductApplyAction extends DispatchAction {
 
     public void setEnumDAO(EnumDAO enumDAO) {
         this.enumDAO = enumDAO;
+    }
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public PriceConfigManager getPriceConfigManager() {
+        return priceConfigManager;
+    }
+
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
+        this.priceConfigManager = priceConfigManager;
     }
 }
