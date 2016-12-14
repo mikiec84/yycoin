@@ -1,4 +1,4 @@
-alter table t_center_out add column remoteAllocate int(11) DEFAULT 0
+﻿alter table t_center_out add column remoteAllocate int(11) DEFAULT 0
 --2015/6/6 ��Ʒ�������Ӽ����ֶ�
 alter table T_CENTER_ZJRCPRODUCT add column motivationMoney double DEFAULT '0'
 alter table T_CENTER_ZJRCBASE add column motivationMoney double DEFAULT '0'
@@ -571,3 +571,33 @@ alter table t_center_out add column swbz varchar(255) default ''
 
 #326 
 alter table t_center_out add column outbackStatus varchar(255) default '' 
+
+DROP PROCEDURE IF EXISTS uportal.check_order_missing_CK;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `check_order_missing_CK`(in po_date varchar(100))
+BEGIN
+   DECLARE outId varchar(100) DEFAULT "";
+   DECLARE shipping int(11) DEFAULT 0;
+   DECLARE no_more_rows BOOLEAN;
+
+   DEClARE out_cursor CURSOR FOR select fullId from t_center_out OutBean where OutBean.type=0 and OutBean.status=3 and OutBean.podate >po_date and not exists(select p.id from T_CENTER_PACKAGE_ITEM p where p.outId = OutBean.fullId);
+
+   DECLARE CONTINUE HANDLER FOR NOT FOUND
+    SET no_more_rows = TRUE;
+
+   OPEN out_cursor;
+   the_loop: LOOP
+   FETCH out_cursor INTO outId;
+    IF no_more_rows THEN
+        CLOSE out_cursor;
+        LEAVE the_loop;
+    END IF;
+   select distribution.shipping into shipping from T_CENTER_DISTRIBUTION distribution where distribution.outId=outId;
+   if shipping!=99 then
+#      select outId, shipping;
+     insert into t_center_preconsign(outid) values(outId);
+   end if;
+   END LOOP the_loop;
+   select * from t_center_preconsign;
+END;
+
+call check_order_missing_CK('2015-10-01');
