@@ -1530,7 +1530,7 @@ public class ShipManagerImpl implements ShipManager
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
-                createMailAttachment(packages,"" , fileName);
+                createMailAttachment(packages,"" , fileName, false);
 
                 // check file either exists
                 File file = new File(fileName);
@@ -1638,7 +1638,7 @@ public class ShipManagerImpl implements ShipManager
                 String fileName = getShippingAttachmentPath() + "/" + subBranch
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
-                createMailAttachment(packages,bean.getBranchName(), fileName);
+                createMailAttachment(packages,bean.getBranchName(), fileName, true);
                 // check file either exists
                 File file = new File(fileName);
                 if (!file.exists())
@@ -1734,7 +1734,7 @@ public class ShipManagerImpl implements ShipManager
         return ConfigLoader.getProperty("shippingAttachmentPath");
     }
 
-    private void createMailAttachment(List<PackageVO> beans, String branchName, String fileName)
+    private void createMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***create mail attachment with package "+beans.size()+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
@@ -1864,7 +1864,7 @@ public class ShipManagerImpl implements ShipManager
                     for (PackageItemBean each : itemList)
                     {
                         //#351 filter LY orders
-                        if (each.getOutId().startsWith("LY")){
+                        if (ignoreLyOrders && each.getOutId().startsWith("LY")){
                             continue;
                         }
                         i++;
