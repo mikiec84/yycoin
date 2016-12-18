@@ -215,6 +215,64 @@
         </condtion>
         
 	</item>
+
+	<item name="queryStorageRelation2" deaultpfix="StorageRelationBean">
+		<condtion name="name" caption="名称" pfix="ProductBean">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="code" caption="编码" pfix="ProductBean">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="dbname" filed="name" caption="仓库" pfix="DepotBean">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="dname" filed="name" caption="仓区" pfix="DepotpartBean">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="sname" filed="name" caption="储位" pfix="StorageBean">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="stafferName" filed="name" caption="职员" pfix="StafferBean">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="type" caption="类型" pfix="DepotpartBean">
+			<opr>=</opr>
+			<datatype>1</datatype>
+			<type>select</type>
+			<option>$depotpartType</option>
+		</condtion>
+		<condtion name="stafferId" caption="私有">
+			<opr>&lt;&gt;</opr>
+			<datatype>0</datatype>
+			<type>select</type>
+			<option>$pubStaffer</option>
+		</condtion>
+		<condtion name="ctype" caption="合成属性" pfix="ProductBean">
+			<opr>=</opr>
+			<datatype>1</datatype>
+			<type>select</type>
+			<option>$productCtype</option>
+		</condtion>
+		<condtion name="amount" caption="数量">
+			<opr>&gt;</opr>
+			<datatype>1</datatype>
+			<type>select</type>
+			<option>$storageAmountType</option>
+		</condtion>
+		<condtion name="amount1" filed="amount" caption="或数量">
+			<opr>&lt;=</opr>
+			<datatype>1</datatype>
+			<type>select</type>
+			<option>$storageAmountType1</option>
+		</condtion>
+
+	</item>
 		
 	<!-- <item name="queryPublicStorageRelation" alias="queryStorageRelation"/> -->
 		

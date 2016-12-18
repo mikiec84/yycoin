@@ -55,6 +55,7 @@
 			validate="false">
 			<forward name="moveDepotpart" path="/depot/moveDepotpart.jsp" />
 			<forward name="queryStorageRelation" path="/depot/queryStorageRelation.jsp" />
+			<forward name="queryStorageRelation2" path="/depot/queryStorageRelation2.jsp" />
 			<forward name="queryDepotStorageRelation" path="/depot/queryDepotStorageRelation.jsp" />
 			<forward name="transferStorageRelation" path="/depot/transferStorageRelation.jsp" />
 			<forward name="listStorageLog" path="/depot/listStorageLog.jsp" />

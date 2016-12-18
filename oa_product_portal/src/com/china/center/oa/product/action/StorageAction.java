@@ -252,7 +252,7 @@ public class StorageAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYSTORAGERELATION, request, condtion);
 
         notQueryFirstTime(condtion);
-        
+
         final IntegerWrap wrap = new IntegerWrap();
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYSTORAGERELATION, request,
@@ -282,6 +282,63 @@ public class StorageAction extends DispatchAction
                     return "产品当前页数量:" + wrap.getResult();
                 }
             });
+
+        return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    /**
+     * #379
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward queryStorageRelation2(ActionMapping mapping, ActionForm form,
+                                              HttpServletRequest request,
+                                              HttpServletResponse response)
+            throws ServletException
+    {
+        ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+
+        ActionTools.processJSONQueryCondition(QUERYSTORAGERELATION, request, condtion);
+
+        notQueryFirstTime(condtion);
+
+        condtion.addCondition(" and DepotBean.name !='物流中心-作业库'");
+        _logger.info("***condtion***"+condtion);
+        final IntegerWrap wrap = new IntegerWrap();
+
+        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYSTORAGERELATION, request,
+                condtion, this.storageRelationDAO, new HandleResult<StorageRelationVO>()
+                {
+                    public void handle(StorageRelationVO vo)
+                    {
+                        if (StringTools.isNullOrNone(vo.getStafferName()))
+                        {
+                            vo.setStafferName("公共");
+                        }
+
+                        int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
+
+                        vo.setPreassignAmount(preassign);
+
+                        int inway = storageRelationManager.sumInwayByStorageRelation(vo);
+
+                        vo.setInwayAmount(inway);
+
+                        wrap.add(vo.getAmount());
+                    }
+                }, new HandleHint<StorageRelationVO>()
+                {
+                    public String getHint(List<StorageRelationVO> list)
+                    {
+                        return "产品当前页数量:" + wrap.getResult();
+                    }
+                });
 
         return JSONTools.writeResponse(response, jsonstr);
     }
