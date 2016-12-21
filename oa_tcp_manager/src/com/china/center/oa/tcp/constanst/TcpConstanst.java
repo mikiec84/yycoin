@@ -509,7 +509,14 @@ public interface TcpConstanst
     int NIANJIA = 6;
     @Defined(key = "vocationTypeContent", value = "调休")
     int TIAOXIU = 7;
-    
+    int CHA = 7;
+    @Defined(key = "vocationTypeContent", value = "产检假")
+    int NJIAN = 8;
+    @Defined(key = "vocationTypeContent", value = "护理假")
+    int HULI = 9;
+    @Defined(key = "vocationTypeContent", value = "节育手术假")
+    int JIEYU = 10;
+
     /**
      * 申请对象
      */
