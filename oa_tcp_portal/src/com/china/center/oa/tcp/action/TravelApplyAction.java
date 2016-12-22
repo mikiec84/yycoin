@@ -3380,6 +3380,19 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         item.setProductName(productName);
+
+
+                        //#383
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addCondition("fullId","=", item.getFullId());
+                        conditionParse.addCondition("productName","=", productName);
+                        List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(ibReportList)){
+                            builder.append("订单号[").append(item.getFullId())
+                                    .append("]").append("和品名不符："+productName)
+                                    .append("<br>");
+                            importError = true;
+                        }
                     }
 
                     //数量
