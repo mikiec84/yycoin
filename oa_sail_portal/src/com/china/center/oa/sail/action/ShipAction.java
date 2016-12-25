@@ -1489,6 +1489,11 @@ public class ShipAction extends DispatchAction
             }
         }
 
+        //2016/12/23 回执单把黄河银行四个字从客户名称里面去掉
+        if (vo.getCustomerName().contains("黄河银行")){
+            vo.setCustomerName(vo.getCustomerName().replace("黄河银行",""));
+        }
+
         List<PackageItemBean> itemList = packageItemDAO.
                 queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
         String template = "CK:%s customerID:%s customer:%s item size:%d";

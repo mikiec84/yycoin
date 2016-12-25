@@ -229,6 +229,18 @@
         <property name="cronExpression" value="0 30 12 * * ?" />
     </bean>
 
+    <bean id="createCustomerJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outManager" />
+        <property name="targetMethod" value="createCustomerJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="createCustomerJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="createCustomerJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
 
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -250,6 +262,7 @@
                 <ref bean="offlineStorageInJobTrigger"/>
                 <ref bean="updateOutbackStatusJobTrigger"/>
                 <ref bean="statsExceptionalInBackJobTrigger"/>
+                <ref bean="createCustomerJobTrigger"/>
             </list>
         </property>
     </bean>

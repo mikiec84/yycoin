@@ -27,7 +27,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.china.center.actionhelper.common.KeyConstant;
-import com.china.center.oa.client.dao.CustomerIndividualDAO;
+import com.china.center.oa.client.bean.*;
+import com.china.center.oa.client.dao.*;
 import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
@@ -56,12 +57,6 @@ import com.china.center.common.MYException;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.client.bean.AddressBean;
-import com.china.center.oa.client.bean.CustomerBean;
-import com.china.center.oa.client.bean.CustomerIndividualBean;
-import com.china.center.oa.client.dao.AddressDAO;
-import com.china.center.oa.client.dao.CustomerMainDAO;
-import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.facade.ClientFacade;
 import com.china.center.oa.client.manager.ClientManager;
 import com.china.center.oa.client.vs.StafferVSCustomerBean;
@@ -194,6 +189,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private ConsignDAO consignDAO = null;
 
     private CustomerMainDAO customerMainDAO = null;
+
+    private CustomerContactDAO customerContactDAO = null;
+
+    private CustomerDistAddrDAO customerDistAddrDAO = null;
 
     private ClientManager clientManager = null;
 
@@ -12771,6 +12770,109 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void createCustomerJob() {
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("type","=", OutConstant.OUT_TYPE_OUTBILL);
+        conditionParse.addCondition(" and (customerName like '%钱币交易部%' or customerName like '%微店%' or customerName like '%天猫%' or customerName like '%永银藏品店%')");
+        //TODO check outtype? flag?
+        List<OutBean> outBeanList = this.outDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(outBeanList)){
+            for (OutBean out: outBeanList){
+                //配送方式不为自提与空发的，将收货人转为个人类型客户
+                List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
+                if (!ListTools.isEmptyOrNull(distList)){
+                    DistributionBean distributionBean =  distList.get(0);
+                    int shipping = distributionBean.getShipping();
+                    if (shipping!= OutConstant.OUT_SHIPPING_SELFSERVICE &&
+                            shipping!= OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                        String mobile = distributionBean.getMobile();
+                        //按手机为索引，不能重复，如有不同姓名对应同一手机的，增加到客户的地址息中
+                        ConditionParse conditionParse1 = new ConditionParse();
+                        conditionParse1.addCondition("handphone","=",mobile);
+                        List<CustomerContactBean> contactBeanList = this.customerContactDAO.queryEntityBeansByCondition(conditionParse1);
+                        if (ListTools.isEmptyOrNull(contactBeanList)){
+                            CustomerBean customerBean = new CustomerBean();
+                            String id = commonDAO.getSquenceString();
+                            String code = commonDAO.getSquenceString20();
+                            customerBean.setId(id);
+                            customerBean.setCode(code);
+                            customerBean.setType(CustomerConstant.NATURE_INDIVIDUAL);
+                            customerBean.setCreateTime(TimeTools.now());
+                            customerBean.setLogTime(TimeTools.now());
+                            customerBean.setStatus(CustomerConstant.REAL_STATUS_USED);
+
+                            //                        客户来源 字段取值规则
+//                        包括“钱币交易部”的客户，按-号后的字段对应来源
+//                        包括“XX银行XX微店”、“XX银行XX天猫”的客户，来源定义为“银行”
+//                        包括 “永银藏品店”的客户，来源定义为“藏品”
+                            String customerName = out.getCustomerName();
+                            customerBean.setName(customerName);
+                            customerBean.setSimpleName(customerName);
+                            //TODO
+                            if (customerName.contains("钱币交易部")){
+
+                            } else if (customerName.contains("银行") &&
+                                    (customerName.contains("微店") || customerName.contains("天猫"))){
+
+                            } else if (customerName.contains("永银藏品店")){
+
+                            } else{
+                                //其他
+                                customerBean.setFromType(99);
+                            }
+
+//                      客户分类1 设为 个人，客户类型设为终端，客户分类2设为  新客户，客户等级设为一般客户，开发进程设为 成交客户，行业设为 其他
+                            customerBean.setProtype(0);
+                            customerBean.setProtype2(0);
+                            customerBean.setSelltype(1);
+                            customerBean.setQqtype(2);
+                            customerBean.setRtype(5);
+                            customerBean.setIndustry(99);
+
+                            //3.	收货人姓名、地址、电话分别对应客户基本信息中的姓名、省、市、地址、手机，
+                            // 按手机为索引，不能重复，如有不同姓名对应同一手机的，增加到客户的地址息中
+                            customerBean.setProvinceId(distributionBean.getProvinceId());
+                            customerBean.setCityId(distributionBean.getCityId());
+                            customerBean.setAddress(distributionBean.getAddress());
+
+                            this.customerMainDAO.saveEntityBean(customerBean);
+                            _logger.info("***create customer***"+customerBean);
+
+                            //4.	同时将收货信息记为客户的地址信息，同时将收货人记入联系人信息
+                            CustomerContactBean contact = new CustomerContactBean();
+                            contact.setCustomerId(customerBean.getId());
+                            contact.setName(customerName);
+                            contact.setHandphone(distributionBean.getMobile());
+                            this.customerContactDAO.saveEntityBean(contact);
+
+                            CustomerDistAddrBean distAddrBean = new CustomerDistAddrBean();
+                            distAddrBean.setCustomerId(customerBean.getId());
+                            distAddrBean.setProvinceId(distributionBean.getProvinceId());
+                            distAddrBean.setCityId(distributionBean.getCityId());
+                            distAddrBean.setAddress(distributionBean.getAddress());
+                            distAddrBean.setContact(customerName);
+                            distAddrBean.setShipping(shipping);
+                            distAddrBean.setTransport1(distributionBean.getTransport1());
+                            distAddrBean.setTransport2(distributionBean.getTransport2());
+                            distAddrBean.setExpressPay(distributionBean.getExpressPay());
+                            distAddrBean.setTransportPay(distributionBean.getTransportPay());
+                            this.customerDistAddrDAO.saveEntityBean(distAddrBean);
+
+                            CustomerIndividualBean customerIndividualBean = new CustomerIndividualBean();
+                            BeanUtil.copyProperties(customerIndividualBean,customerBean);
+                            customerIndividualBean.setSimpleName(customerIndividualBean.getName());
+                            this.customerIndividualDAO.saveEntityBean(customerIndividualBean);
+                        }else{
+                            _logger.info("already exist**"+mobile);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public ProductImportBean getProductImportBean(String productId, String customerName) {
         ProductBean productBean = this.productDAO.find(productId);
         if (productBean!= null) {
@@ -13311,5 +13413,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setProductImportDAO(ProductImportDAO productImportDAO) {
         this.productImportDAO = productImportDAO;
+    }
+
+    public CustomerContactDAO getCustomerContactDAO() {
+        return customerContactDAO;
+    }
+
+    public void setCustomerContactDAO(CustomerContactDAO customerContactDAO) {
+        this.customerContactDAO = customerContactDAO;
+    }
+
+    public CustomerDistAddrDAO getCustomerDistAddrDAO() {
+        return customerDistAddrDAO;
+    }
+
+    public void setCustomerDistAddrDAO(CustomerDistAddrDAO customerDistAddrDAO) {
+        this.customerDistAddrDAO = customerDistAddrDAO;
     }
 }

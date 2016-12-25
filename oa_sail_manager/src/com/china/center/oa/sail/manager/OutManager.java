@@ -764,6 +764,11 @@ public interface OutManager extends ListenerManager<OutListener>
     void statsExceptionalInBackJob();
 
     /**
+     * #380
+     */
+    void createCustomerJob();
+
+    /**
      * #349
      * @param out
      * @return

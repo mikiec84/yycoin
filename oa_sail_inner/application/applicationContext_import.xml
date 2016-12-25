@@ -85,6 +85,8 @@
 
     <osgi:reference id="customerIndividualDAO" interface="com.china.center.oa.client.dao.CustomerIndividualDAO" />
 
+	<osgi:reference id="customerContactDAO" interface="com.china.center.oa.client.dao.CustomerContactDAO" />
+
     <osgi:reference id="customerDistAddrDAO" interface="com.china.center.oa.client.dao.CustomerDistAddrDAO" />
 	
 	<osgi:reference id="storageDAO" interface="com.china.center.oa.product.dao.StorageDAO" />
