@@ -11,6 +11,7 @@ import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
@@ -555,7 +556,8 @@ public class PackageManagerImpl implements PackageManager {
 
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
-            con.addIntCondition("PackageBean.status", "=", 0);
+//            con.addIntCondition("PackageBean.status", "=", 0);
+		   con.addCondition(" and PackageBean.status in(0,5)");
         } else if (shipping == 2){
             //第三方快递：地址、收货人、电话完全一致，才合并.能不能判断地址后6个字符一致，电话，收货人一致，就合并
            String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
@@ -573,7 +575,9 @@ public class PackageManagerImpl implements PackageManager {
 
            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
-           con.addIntCondition("PackageBean.status", "=", 0);
+//		   con.addIntCondition("PackageBean.status", "=", 0);
+		   //#328
+		   con.addCondition(" and PackageBean.status in(0,5)");
         } else{
            //Keep default behavior
            //con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
@@ -595,7 +599,8 @@ public class PackageManagerImpl implements PackageManager {
 
            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
-           con.addIntCondition("PackageBean.status", "=", 0);
+//           con.addIntCondition("PackageBean.status", "=", 0);
+		   con.addCondition(" and PackageBean.status in(0,5)");
        }
     }
 
@@ -882,7 +887,6 @@ public class PackageManagerImpl implements PackageManager {
 		con.addWhereStr();
 		
 		setInnerCondition(distVO, location, con);
-		
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
 		if (ListTools.isEmptyOrNull(packageList))
@@ -893,9 +897,11 @@ public class PackageManagerImpl implements PackageManager {
 			
 			PackageBean packBean = packageDAO.find(id);
 			
-			// 不存在或已不是初始状态(可能已被拣配)
-			if (null == packBean || packBean.getStatus() != 0)
+			// 不存在或已不是初始状态(可能已被拣配)或打印发票状态
+			if (null == packBean ||
+				(packBean.getStatus() != 0 && packBean.getStatus()!= ShipConstant.SHIP_STATUS_PRINT_INVOICEINS))
 			{
+				_logger.info("***packBean wrong status***"+packBean);
 				createNewInsPackage(ins, numList, distVO, fullAddress, location);
 			}else
 			{
