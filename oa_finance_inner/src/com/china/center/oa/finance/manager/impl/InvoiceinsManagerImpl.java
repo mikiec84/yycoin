@@ -3559,12 +3559,26 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				condition.addCondition(" and exists ( select InsVSOutBean.* from T_CENTER_VS_INSOUT InsVSOutBean " +
 						"where InsVSOutBean.insId=InsVSInvoiceNumBean.insId and InsVSOutBean.outId='" +
 						outId + "')");
+                _logger.info("*********condition***"+condition);
 				List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition(condition);
-				if (ListTools.isEmptyOrNull(insVSInvoiceNumBeans)
-						|| StringTools.isNullOrNone(insVSInvoiceNumBeans.get(0).getInvoiceNum())){
+				if (ListTools.isEmptyOrNull(insVSInvoiceNumBeans)){
 					_logger.warn("***No InsVSInvoiceNumBean found***"+outId);
 					return false;
-				}
+				} else{
+                    InsVSInvoiceNumBean insVSInvoiceNumBean = insVSInvoiceNumBeans.get(0);
+                    String invoiceNum = insVSInvoiceNumBean.getInvoiceNum();
+                    if (StringTools.isNullOrNone(invoiceNum)){
+                        _logger.warn("***Empty invoiceNum***"+outId);
+                        return false;
+                    } else if(invoiceNum.startsWith("XN")){
+                        //如果是XN号码，需要发票已审批通过才能审批对应销售单
+                        InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(insVSInvoiceNumBean.getInsId());
+                        if (invoiceinsBean.getStatus() != FinanceConstant.INVOICEINS_STATUS_END){
+                            _logger.warn("***XN invoiceNum***"+invoiceNum);
+                            return false;
+                        }
+                    }
+                }
 			}
 
 			final int statuss = 3;
