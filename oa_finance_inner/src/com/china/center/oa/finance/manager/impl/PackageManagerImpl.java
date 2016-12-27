@@ -694,8 +694,9 @@ public class PackageManagerImpl implements PackageManager {
 			PackageBean packBean = packageDAO.find(id);
 			
 			// 不存在或已不是初始状态(可能已被拣配)
-			if (null == packBean || packBean.getStatus() != 0)
-			{
+            if (null == packBean ||
+                    (packBean.getStatus() != 0 && packBean.getStatus()!= ShipConstant.SHIP_STATUS_PRINT_INVOICEINS))
+            {
                 _logger.info(fullId+"****added to new package***");
 				createNewPackage(out, baseList, distVO, fullAddressTrim, location);
 			}else
@@ -1032,7 +1033,8 @@ public class PackageManagerImpl implements PackageManager {
             PackageBean packBean = packageDAO.find(id);
 
             // 不存在或已不是初始状态(可能已被拣配)
-            if (null == packBean || packBean.getStatus() != 0)
+            if (null == packBean ||
+                    (packBean.getStatus() != 0 && packBean.getStatus()!= ShipConstant.SHIP_STATUS_PRINT_INVOICEINS))
             {
                 createNewPreInsPackage(bean);
             }else

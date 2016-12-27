@@ -244,6 +244,22 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         }else
         {
         	invoiceinsDAO.saveEntityBean(bean);
+
+            //#328 2016/12/27
+            InsVSInvoiceNumBean num = new InsVSInvoiceNumBean();
+
+            num.setInsId(bean.getId());
+            num.setMoneys(bean.getMoneys());
+            //2016/3/4 导入时虚拟发票号不能再写入发票表了
+//			num.setInvoiceNum(first.getInvoiceNum());
+
+            //#328 生成临时发票号写入发票表，供CK单打印用
+            String tempInvoiceNum = commonDAO.getSquenceString20("XN");;
+            num.setInvoiceNum(tempInvoiceNum);
+
+            _logger.info(bean.getId()+"生成临时发票号:"+tempInvoiceNum);
+
+            insVSInvoiceNumDAO.saveEntityBean(num);
         }
 
         invoiceinsItemDAO.deleteEntityBeansByFK(id);
