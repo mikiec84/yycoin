@@ -143,7 +143,8 @@ public class ShipAction extends DispatchAction
         String outId = request.getParameter("outId");
         String stafferName = request.getParameter("stafferName");
         String insFollowOut = request.getParameter("insFollowOut");
-        _logger.info("***queryPackage with parameter customer:"+customerName+"***stafferName***"+stafferName+"***productName***"+productName+"***insFollowOut**"+insFollowOut);
+        String status = request.getParameter("status");
+        _logger.info("***queryPackage with parameter customer:"+customerName+"***stafferName***"+stafferName+"***productName***"+productName+"***insFollowOut**"+insFollowOut+"***status***"+status);
         User user = Helper.getUser(request);
 
         ConditionParse condtion = new ConditionParse();
@@ -240,7 +241,11 @@ public class ShipAction extends DispatchAction
 //        }
 
                //2015/3/22 按照单据时间排序，时间最老的最先显示
-        condtion.addCondition(" and PackageBean.pickupId = ''");
+        //状态为空或者为已发货时，不能加这个判断
+        if (!StringTools.isNullOrNone(status) && !"2".equals(status)){
+            condtion.addCondition(" and PackageBean.pickupId = ''");
+        }
+
         condtion.addCondition(" order by PackageBean.billsTime asc");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
                 new HandleResult<PackageVO>()
@@ -1490,9 +1495,15 @@ public class ShipAction extends DispatchAction
         }
 
         //2016/12/23 回执单把黄河银行四个字从客户名称里面去掉
+//        if (vo.getCustomerName().contains("黄河银行")){
+//            vo.setCustomerName(vo.getCustomerName().replace("黄河银行",""));
+//        }
         if (vo.getCustomerName().contains("黄河银行")){
-            vo.setCustomerName(vo.getCustomerName().replace("黄河银行",""));
+            request.setAttribute("customerName", vo.getCustomerName().replace("黄河银行",""));
+        } else{
+            request.setAttribute("customerName", vo.getCustomerName());
         }
+
 
         List<PackageItemBean> itemList = packageItemDAO.
                 queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());

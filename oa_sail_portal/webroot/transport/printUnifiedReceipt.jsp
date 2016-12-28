@@ -108,7 +108,7 @@ function callBackPrintFun()
 				<table width="100%" cellspacing='0' cellpadding="0">
 					<tr class="content2">
 						<td colspan="2" width="50%"><table><tr><td>出库时间：${year}-${month}-${day}</td></tr></table></td>
-						<td colspan="2" width="50%"><table><tr><td>收货客户：${bean.customerName}</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>收货客户：${customerName}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td><table><tr><td>业务联系：${stafferName}</td></tr></table></td>

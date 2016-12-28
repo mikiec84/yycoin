@@ -663,6 +663,9 @@ public class ShipManagerImpl implements ShipManager
                         &&bean.getStatus() != ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)
                 {
                     throw new MYException("[%s]已被拣配", id);
+                }else if (!StringTools.isNullOrNone(bean.getPickupId()))
+                {
+                    throw new MYException("[%s]已被拣配", id);
                 }
 
                 bean.setIndex_pos(i++);

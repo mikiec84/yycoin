@@ -7234,45 +7234,36 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	public void createPackage(final OutBean outBean)
 {
     _logger.info(outBean.getFullId()+"****outBean.getRefOutFullId()****"+outBean.getRefOutFullId());
-    if (StringTools.isNullOrNone(outBean.getRefOutFullId()))
-    {
-        List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
-        if (!ListTools.isEmptyOrNull(distList))
-        {
-            DistributionBean dist = distList.get(0);
 
-            if (dist.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE)
-            {
-                _logger.info("**************OUT_SHIPPING_SELFSERVICE**********************");
+    List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
+    if (!ListTools.isEmptyOrNull(distList)) {
+        DistributionBean dist = distList.get(0);
+
+        if (dist.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE) {
+            _logger.info("**************OUT_SHIPPING_SELFSERVICE**********************");
+            PreConsignBean preConsign = new PreConsignBean();
+
+            preConsign.setOutId(outBean.getFullId());
+
+            try {
+                OutVO vo = outDAO.findVO(outBean.getFullId());
+
+                shipManager.createPackage(preConsign, vo);
+            } catch (MYException e) {
+                throw new RuntimeException(e.getErrorContent(), e);
+            }
+        } else {
+            DepotBean depot = this.depotDAO.find(outBean.getLocation());
+            if (depot != null && "99".equals(depot.getIndustryId2())) {
                 PreConsignBean preConsign = new PreConsignBean();
 
                 preConsign.setOutId(outBean.getFullId());
 
-                try{
-                    OutVO vo = outDAO.findVO(outBean.getFullId());
-
-                    shipManager.createPackage(preConsign, vo);
-                }
-                catch (MYException e)
-                {
-                    throw new RuntimeException(e.getErrorContent(), e);
-                }
-            }else
-            {
-                DepotBean depot =  this.depotDAO.find(outBean.getLocation());
-                if (depot != null && "99".equals(depot.getIndustryId2())){
-                    PreConsignBean preConsign = new PreConsignBean();
-
-                    preConsign.setOutId(outBean.getFullId());
-
-                    preConsignDAO.saveEntityBean(preConsign);
-                    _logger.info("create PreConsignBean****"+outBean.getFullId());
-                } else{
-                    _logger.warn(outBean.getLocation()+"not create PreConsignBean****"+outBean.getFullId());
-                }
+                preConsignDAO.saveEntityBean(preConsign);
+                _logger.info("create PreConsignBean****" + outBean.getFullId());
+            } else {
+                _logger.warn(outBean.getLocation() + "not create PreConsignBean****" + outBean.getFullId());
             }
-        } else {
-            _logger.info("****distList not found 2222222222222222222222222222****");
         }
     }
 }

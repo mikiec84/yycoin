@@ -557,6 +557,7 @@ public class PackageManagerImpl implements PackageManager {
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
 //            con.addIntCondition("PackageBean.status", "=", 0);
+		   con.addCondition("PackageBean.pickupId","=","");
 		   con.addCondition(" and PackageBean.status in(0,5)");
         } else if (shipping == 2){
             //第三方快递：地址、收货人、电话完全一致，才合并.能不能判断地址后6个字符一致，电话，收货人一致，就合并
@@ -577,6 +578,7 @@ public class PackageManagerImpl implements PackageManager {
 
 //		   con.addIntCondition("PackageBean.status", "=", 0);
 		   //#328
+		   con.addCondition("PackageBean.pickupId","=","");
 		   con.addCondition(" and PackageBean.status in(0,5)");
         } else{
            //Keep default behavior
@@ -600,6 +602,7 @@ public class PackageManagerImpl implements PackageManager {
            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
 //           con.addIntCondition("PackageBean.status", "=", 0);
+		   con.addCondition("PackageBean.pickupId","=","");
 		   con.addCondition(" and PackageBean.status in(0,5)");
        }
     }
