@@ -341,6 +341,12 @@
             <type>select</type>
             <option>$shipStatus</option>
         </condtion>
+        <condtion name="pickupStatus" caption="捡配状态">
+            <opr>=</opr>
+            <datatype>1</datatype>
+            <type>select</type>
+            <option>$pickupStatus</option>
+        </condtion>
         <condtion name="emergency" caption="紧急">
             <opr>=</opr>
             <datatype>1</datatype>

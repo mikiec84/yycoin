@@ -49,4 +49,10 @@ public interface ShipConstant
 
     @Defined(key = "zsShipStatus", value = "混合")
     int ZS_SHIP_FOLLOW_OUT = 1;
+
+	@Defined(key = "pickupStatus", value = "已捡配")
+	int PICKUP_YES = 0;
+
+	@Defined(key = "pickupStatus", value = "未捡配")
+	int PICKUP_NO = 1;
 }

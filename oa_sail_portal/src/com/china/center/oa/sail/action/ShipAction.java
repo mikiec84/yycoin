@@ -205,40 +205,21 @@ public class ShipAction extends DispatchAction
             condtion.setCondition(newSql);
         }
 
-//        if (!StringTools.isNullOrNone(insFollowOut)){
-//            String placeholder = "AND PackageBean.insFollowOut =";
-//            int index3 = temp.indexOf(placeholder);
-//            temp = temp.substring(0, index3)+temp.substring(index3+placeholder.length()+1);
-//        }
-//        _logger.info("***SQL converted*************"+temp);
-
-//        if (!StringTools.isNullOrNone(productName) && temp.indexOf("PackageItemBean") !=-1){
-//            int index2 = temp.lastIndexOf("AND");
-//            String prefix = temp.substring(0,index2);
-//            StringBuilder sb = new StringBuilder();
-//            sb.append(prefix)
-//               .append(" and exists ")
-//               .append("(select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%")
-//               .append(productName)
-//               .append("%'");
-//            //2015/3/19 “发票单发”则选择CK单中只有A或FP开头的单号
-//            if (!StringTools.isNullOrNone(insFollowOut) && "0".equals(insFollowOut)){
-//                sb.append(" and (PackageItemBean.outId like 'A%' or PackageItemBean.outId like 'FP%')");
-//            }
-//            sb.append(")");
-//            condtion.setCondition(sb.toString());
-//        } else {
-//            //2015/3/19 “发票单发”则选择CK单中只有A或FP开头的单号
-//            if (!StringTools.isNullOrNone(insFollowOut) && "0".equals(insFollowOut)){
-//                StringBuilder sb = new StringBuilder();
-//                sb.append(temp)
-//                  .append(" and exists ")
-//                  .append("(select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id")
-//                  .append(" and (PackageItemBean.outId like 'A%' or PackageItemBean.outId like 'FP%')")
-//                  .append(")");
-//                condtion.setCondition(sb.toString());
-//            }
-//        }
+        //#390
+        String rawSql3 = condtion.toString();
+        String pickupStatus = request.getParameter("pickupStatus");
+        if ((!StringTools.isNullOrNone(pickupStatus))){
+            String template = "AND PackageBean.pickupStatus like '%"+pickupStatus+"%'";
+            if("0".equals(pickupStatus)) {
+                String newSql = rawSql3.replace(template, "AND PackageBean.pickupId =''");
+                _logger.info("***new sql3***" + newSql);
+                condtion.setCondition(newSql);
+            }else if ("1".equals(pickupStatus)){
+                String newSql = rawSql3.replace(template, "AND PackageBean.pickupId !=''");
+                _logger.info("***new sql3***" + newSql);
+                condtion.setCondition(newSql);
+            }
+        }
 
 
         //默認頁面没有时间参数时,pickupId为空
