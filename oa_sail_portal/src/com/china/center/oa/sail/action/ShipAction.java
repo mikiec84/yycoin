@@ -667,7 +667,8 @@ public class ShipAction extends DispatchAction
         setDepotCondotionInOut(user, condtion);
 
         condtion.addCondition(" and PackageBean.pickupId !=''");
-        condtion.addCondition("order by PackageBean.logTime desc");
+        //按揀配时间排序，最新的排最上面
+        condtion.addCondition("order by PackageBean.pickupTime desc");
 
         request.getSession().setAttribute("ppmap", queryOutCondtionMap);
 
