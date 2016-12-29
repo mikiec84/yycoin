@@ -93,13 +93,37 @@
                         <table width="100%" cellspacing='0' cellpadding="0"  class="border">
                             <tr class="content2">
                                 <td colspan="2"><table class="border1"><tr><td>批次编号：${bean.pickupId}</td></tr></table></td>
-                                <td colspan="2"><table class="border1"><tr><td>制单时间：${year} / ${month} / ${day}</td></tr></table></td>
+                                <td colspan="2"><table class="border1"><tr><td>制单时间：${bean.pickupTime}</td></tr></table></td>
                             </tr>
 
                         </table>
                     </td>
                 </tr>
 
+                <tr>
+                    <td>
+                        <table width="100%" cellspacing='0' cellpadding="0"  class="border">
+                            <tr class="content2">
+                                <td width="20%"><table class="border1"><tr><td align="center">开票申请</td></tr></table></td>
+                                <td width="8%"><table class="border1"><tr><td align="center">虚拟发票号</td></tr></table></td>
+                            </tr>
+
+                            <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
+                                <tr class="content2">
+                                    <td><table class="border1"><tr><td>${item.outId}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
+                                </tr>
+                            </c:forEach>
+
+                            <c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
+                                <tr class="content2">
+                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                    <td><table class="border1"><tr><td></td></tr></table></td>
+                                </tr>
+                            </c:forEach>
+                        </table>
+                    </td>
+                </tr>
 
                 <tr>
                     <td height="15"></td>

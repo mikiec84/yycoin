@@ -240,12 +240,19 @@ public class ShipAction extends DispatchAction
 //            }
 //        }
 
-               //2015/3/22 按照单据时间排序，时间最老的最先显示
-        //状态为空或者为已发货时，不能加这个判断
-        if (!StringTools.isNullOrNone(status) && !"2".equals(status)){
+
+        //默認頁面没有时间参数时,pickupId为空
+        String alogTime = request.getParameter("alogTime");
+        if (StringTools.isNullOrNone(alogTime)){
             condtion.addCondition(" and PackageBean.pickupId = ''");
         }
 
+        //状态为空或者为已发货时，不能加这个判断
+//        if (!StringTools.isNullOrNone(status) && !"2".equals(status)){
+//            condtion.addCondition(" and PackageBean.pickupId = ''");
+//        }
+
+        //2015/3/22 按照单据时间排序，时间最老的最先显示
         condtion.addCondition(" order by PackageBean.billsTime asc");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
                 new HandleResult<PackageVO>()
@@ -4548,6 +4555,7 @@ public class ShipAction extends DispatchAction
 
         List<PackageVO> packageList = this.packageDAO.queryVOsByCondition(condtion);
         boolean flag = false;
+        List<PackageItemBean> items = new ArrayList<PackageItemBean>();
         for (PackageVO each : packageList)
         {
             //2016/10/12 #328 检查临时发票号码
@@ -4556,11 +4564,8 @@ public class ShipAction extends DispatchAction
                 String productName = item.getProductName();
                 if (productName!= null && productName.startsWith("发票号：XN")){
                     flag = true;
-                    continue;
+                    items.add(item);
                 }
-            }
-            if (flag){
-                break;
             }
         }
 
@@ -4572,13 +4577,11 @@ public class ShipAction extends DispatchAction
 
         PackageVO batchVO = new PackageVO();
         batchVO.setPickupId(pickupId);
-        batchVO.setRepTime(TimeTools.now_short());
+        batchVO.setItemList(items);
+        batchVO.setPickupTime(packageList.get(0).getPickupTime());
 
         request.setAttribute("bean", batchVO);
 
-        request.setAttribute("year", TimeTools.now("yyyy"));
-        request.setAttribute("month", TimeTools.now("MM"));
-        request.setAttribute("day", TimeTools.now("dd"));
 
         this.generateQRCode(pickupId);
         request.setAttribute("qrcode", this.getQrcodeUrl(pickupId));

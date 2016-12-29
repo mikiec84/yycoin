@@ -120,6 +120,8 @@ public class PackageBean implements Serializable
     @FK
     private String pickupId = "";
 
+    private String pickupTime = "";
+
     private int index_pos = 0;
 
     /**
@@ -557,6 +559,14 @@ public class PackageBean implements Serializable
 
     public void setSendMailFlagSails(int sendMailFlagSails) {
         this.sendMailFlagSails = sendMailFlagSails;
+    }
+
+    public String getPickupTime() {
+        return pickupTime;
+    }
+
+    public void setPickupTime(String pickupTime) {
+        this.pickupTime = pickupTime;
     }
 
     /**

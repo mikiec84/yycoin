@@ -679,6 +679,7 @@ public class ShipManagerImpl implements ShipManager
                     bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
                 }
 
+                bean.setPickupTime(TimeTools.now());
                 packageDAO.updateEntityBean(bean);
             }
 
@@ -2374,7 +2375,7 @@ public class ShipManagerImpl implements ShipManager
         _logger.info("**********sortPackagesJob running*************");
         ConditionParse con1 = new ConditionParse();
         con1.addWhereStr();
-        con1.addIntCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
+        con1.addCondition(" and status in (0,5)");
         List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(con1);
 
         if (!ListTools.isEmptyOrNull(packages)){
