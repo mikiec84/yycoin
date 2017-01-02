@@ -482,6 +482,8 @@ public class OutBean implements Serializable
      * #326 快递单状态
      */
     private String outbackStatus = "";
+
+    private boolean customerCreated = false;
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2110,6 +2112,14 @@ public class OutBean implements Serializable
 
     public void setSwbz(String swbz) {
         this.swbz = swbz;
+    }
+
+    public boolean isCustomerCreated() {
+        return customerCreated;
+    }
+
+    public void setCustomerCreated(boolean customerCreated) {
+        this.customerCreated = customerCreated;
     }
 
     /**

@@ -695,6 +695,13 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         return true;
     }
 
+    @Override
+    public boolean updateCustomerCreated(String fullId, boolean customerCreated) {
+        jdbcOperation.updateField("customerCreated", customerCreated, fullId, this.claz);
+
+        return true;
+    }
+
     public boolean updateChangeTime(String fullId, String changeTime)
     {
         jdbcOperation.updateField("changeTime", changeTime, fullId, this.claz);
