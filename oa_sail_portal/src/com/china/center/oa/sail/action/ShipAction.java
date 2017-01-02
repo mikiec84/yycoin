@@ -209,13 +209,13 @@ public class ShipAction extends DispatchAction
         String rawSql3 = condtion.toString();
         String pickupStatus = request.getParameter("pickupStatus");
         if ((!StringTools.isNullOrNone(pickupStatus))){
-            String template = "AND PackageBean.pickupStatus like '%"+pickupStatus+"%'";
+            String template = "AND PackageBean.pickupStatus ="+pickupStatus;
             if("0".equals(pickupStatus)) {
-                String newSql = rawSql3.replace(template, "AND PackageBean.pickupId =''");
+                String newSql = rawSql3.replace(template, "AND PackageBean.pickupId !=''");
                 _logger.info("***new sql3***" + newSql);
                 condtion.setCondition(newSql);
             }else if ("1".equals(pickupStatus)){
-                String newSql = rawSql3.replace(template, "AND PackageBean.pickupId !=''");
+                String newSql = rawSql3.replace(template, "AND PackageBean.pickupId =''");
                 _logger.info("***new sql3***" + newSql);
                 condtion.setCondition(newSql);
             }

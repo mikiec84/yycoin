@@ -2526,12 +2526,12 @@ public class FinanceAction extends DispatchAction {
 			return mapping.findForward("error");
 		}
 		
-		if (out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
-		{
-			request.setAttribute(KeyConstant.ERROR_MESSAGE, "此销售单开票审批中，不允许勾款");
-
-            return mapping.findForward("error");
-		}
+//		if (out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
+//		{
+//			request.setAttribute(KeyConstant.ERROR_MESSAGE, "此销售单开票审批中，不允许勾款");
+//
+//            return mapping.findForward("error");
+//		}
 
 		double lastMoney = outManager.outNeedPayMoney(user, outId);
 
