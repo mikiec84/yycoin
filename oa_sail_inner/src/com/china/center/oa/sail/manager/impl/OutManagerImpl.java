@@ -12826,12 +12826,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                                 //4.	同时将收货信息记为客户的地址信息，同时将收货人记入联系人信息
                                 CustomerContactBean contact = new CustomerContactBean();
+                                contact.setId(commonDAO.getSquenceString20());
                                 contact.setCustomerId(customerBean.getId());
                                 contact.setName(customerName);
                                 contact.setHandphone(distributionBean.getMobile());
                                 this.customerContactDAO.saveEntityBean(contact);
 
                                 CustomerDistAddrBean distAddrBean = new CustomerDistAddrBean();
+                                distAddrBean.setId(commonDAO.getSquenceString20());
                                 distAddrBean.setCustomerId(customerBean.getId());
                                 distAddrBean.setProvinceId(distributionBean.getProvinceId());
                                 distAddrBean.setCityId(distributionBean.getCityId());
