@@ -9,10 +9,11 @@
 package com.china.center.oa.sail.manager.impl;
 
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12911,6 +12912,44 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             return 0;
         } else{
             return productImportBean.getGrossProfit();
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void generateFinanceItemJob() {
+        _logger.info("***generateFinanceItemJob running***");
+        Collection<OutListener> listenerMapValues = listenerMapValues();
+        String file = "E:\\generateFinanceItem.txt";
+        boolean result = false;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                _logger.info("***out***"+line);
+                OutBean out = this.outDAO.find(line);
+                if (out!= null) {
+                    String stafferId = out.getStafferId();
+                    User user = this.userDAO.findFirstUserByStafferId(stafferId);
+                    _logger.info("***user***"+user);
+                    for (OutListener listener : listenerMapValues) {
+                        _logger.info("***onConfirmOutOrBuy***"+out);
+                        listener.onConfirmOutOrBuy(user, out);
+                    }
+                }
+                _logger.info("***finish out***"+line);
+            }
+            br.close();
+            result = true;
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error(e);
+        }
+        if (result){
+            try {
+                Path path = Paths.get(file);
+                Files.delete(path);
+            }catch (Exception e){}
         }
     }
 

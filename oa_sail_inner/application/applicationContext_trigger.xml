@@ -239,6 +239,19 @@
     <bean id="createCustomerJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="createCustomerJob" />
+        <property name="cronExpression" value="0 0/60 * * * ?" />
+    </bean>
+
+    <bean id="generateFinanceItemJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outManager" />
+        <property name="targetMethod" value="generateFinanceItemJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="generateFinanceItemJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="generateFinanceItemJob" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
@@ -262,7 +275,8 @@
                 <ref bean="offlineStorageInJobTrigger"/>
                 <ref bean="updateOutbackStatusJobTrigger"/>
                 <ref bean="statsExceptionalInBackJobTrigger"/>
-                <ref bean="createCustomerJobTrigger"/>
+                <!--<ref bean="createCustomerJobTrigger"/>-->
+                <ref bean="generateFinanceItemJobTrigger"/>
             </list>
         </property>
     </bean>

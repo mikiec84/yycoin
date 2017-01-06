@@ -781,4 +781,9 @@ public interface OutManager extends ListenerManager<OutListener>
     ProductImportBean getProductImportBean(String productId, String customerName);
 
     double getGrossProfit(String productId, String customerName);
+
+    /**
+     * #397
+     */
+    void generateFinanceItemJob();
 }
