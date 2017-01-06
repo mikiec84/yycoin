@@ -118,7 +118,7 @@
                                     <td><table class="border1"><tr><td align="center">01</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${my:get('outType_out', item.outType)}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${item.itemType}</td></tr></table></td>
                                 </tr>
                             </c:forEach>
 

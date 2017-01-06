@@ -3484,6 +3484,7 @@ public class ShipAction extends DispatchAction
 
         List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
 
+        //#189 <productId_itemType,PackageItemBean>
         Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
 
         //2015/1/25 取商务联系人及电话
@@ -3629,8 +3630,8 @@ public class ShipAction extends DispatchAction
 
             }
 
-            String key = each.getProductId();
-
+//            String key = each.getProductId();
+            String key = each.getProductId()+"_"+each.getItemType();
             if (!map1.containsKey(key))
             {
                 checkCompose(each, each, compose);
@@ -3639,7 +3640,8 @@ public class ShipAction extends DispatchAction
                 if (!StringTools.isNullOrNone(refId)){
                     each.setRefId(refId);
                 }
-                map1.put(each.getProductId(), each);
+//                map1.put(each.getProductId(), each);
+                map1.put(key, each);
             }else{
                 PackageItemBean itemBean = map1.get(key);
 
