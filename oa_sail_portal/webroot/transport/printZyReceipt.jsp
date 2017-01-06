@@ -108,7 +108,7 @@
                                 <td width="10%"><table class="border1"><tr><td align="center">规格代码</td></tr></table></td>
                                 <td width="30%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
                                 <td width="10%"><table class="border1"><tr><td align="center">数量(套)</td></tr></table></td>
-                                <td width="30%"><table class="border1"><tr><td align="center">备注(成品/破损/其它)</td></tr></table></td>
+                                <td width="30%"><table class="border1"><tr><td align="center">订单类型</td></tr></table></td>
                             </tr>
 
                             <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
@@ -118,7 +118,7 @@
                                     <td><table class="border1"><tr><td align="center">01</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td align="center">${my:get('outType_out', item.outType)}</td></tr></table></td>
                                 </tr>
                             </c:forEach>
 

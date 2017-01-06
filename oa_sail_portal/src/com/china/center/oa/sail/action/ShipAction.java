@@ -3591,6 +3591,11 @@ public class ShipAction extends DispatchAction
             //2015/10/13 销售时间取out表中的podate
             if (out!= null){
                 each.setPoDate(out.getPodate());
+                each.setOutType(out.getOutType());
+            }            //#169
+            else if(out == null && outId.startsWith("A")){
+                each.setPoDate(each.getOutTime());
+                each.setOutType(OutConstant.OUTTYPE_INVOICE);
             }
 
             each.getProductId();
