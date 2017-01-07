@@ -12829,7 +12829,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 CustomerContactBean contact = new CustomerContactBean();
                                 contact.setId(commonDAO.getSquenceString20());
                                 contact.setCustomerId(customerBean.getId());
-                                contact.setName(customerName);
+                                contact.setName(receiver);
                                 contact.setHandphone(distributionBean.getMobile());
                                 this.customerContactDAO.saveEntityBean(contact);
 
@@ -12839,7 +12839,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 distAddrBean.setProvinceId(distributionBean.getProvinceId());
                                 distAddrBean.setCityId(distributionBean.getCityId());
                                 distAddrBean.setAddress(distributionBean.getAddress());
-                                distAddrBean.setContact(customerName);
+                                distAddrBean.setContact(receiver);
                                 distAddrBean.setShipping(shipping);
                                 distAddrBean.setTransport1(distributionBean.getTransport1());
                                 distAddrBean.setTransport2(distributionBean.getTransport2());
