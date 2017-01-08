@@ -12853,6 +12853,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 customerIndividualBean.setId(commonDAO.getSquenceString20());
                                 this.customerIndividualDAO.saveEntityBean(customerIndividualBean);
 
+
+                                StafferVSCustomerBean vs = new StafferVSCustomerBean();
+                                vs.setStafferId(out.getStafferId());
+                                vs.setCustomerId(customerBean.getId());
+                                this.stafferVSCustomerDAO.saveEntityBean(vs);
+
                                 this.outDAO.updateCustomerCreated(out.getFullId(), true);
                             } else {
                                 _logger.info("already exist**" + mobile);
