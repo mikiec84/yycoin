@@ -239,7 +239,7 @@
     <bean id="createCustomerJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="createCustomerJob" />
-        <property name="cronExpression" value="0 0/60 * * * ?" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 
     <bean id="generateFinanceItemJob"
@@ -275,8 +275,8 @@
                 <ref bean="offlineStorageInJobTrigger"/>
                 <ref bean="updateOutbackStatusJobTrigger"/>
                 <ref bean="statsExceptionalInBackJobTrigger"/>
-                <!--<ref bean="createCustomerJobTrigger"/>-->
-                <ref bean="generateFinanceItemJobTrigger"/>
+                <ref bean="createCustomerJobTrigger"/>
+                <!--<ref bean="generateFinanceItemJobTrigger"/>-->
             </list>
         </property>
     </bean>

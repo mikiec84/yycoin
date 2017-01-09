@@ -12839,6 +12839,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 distAddrBean.setProvinceId(distributionBean.getProvinceId());
                                 distAddrBean.setCityId(distributionBean.getCityId());
                                 distAddrBean.setAddress(distributionBean.getAddress());
+                                distAddrBean.setFullAddress(distributionBean.getAddress());
+                                distAddrBean.setTelephone(mobile);
                                 distAddrBean.setContact(receiver);
                                 distAddrBean.setShipping(shipping);
                                 distAddrBean.setTransport1(distributionBean.getTransport1());
@@ -12848,11 +12850,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 this.customerDistAddrDAO.saveEntityBean(distAddrBean);
 
                                 CustomerIndividualBean customerIndividualBean = new CustomerIndividualBean();
+                                //ID必须与customer一致，否则有问题
                                 BeanUtil.copyProperties(customerIndividualBean, customerBean);
                                 customerIndividualBean.setSimpleName(customerIndividualBean.getName());
-                                customerIndividualBean.setId(commonDAO.getSquenceString20());
                                 this.customerIndividualDAO.saveEntityBean(customerIndividualBean);
-
 
                                 StafferVSCustomerBean vs = new StafferVSCustomerBean();
                                 vs.setStafferId(out.getStafferId());
