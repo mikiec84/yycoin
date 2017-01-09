@@ -2999,6 +2999,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 //        con.addCondition("and OutBean.status in (3,4)");
 
         con.addCondition("outTime", ">", beginDate);
+        con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
         _logger.info("*****ibReportJob running with con***"+con.toString());
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(con);
         _logger.info("*****ibReportJob running with con***"+con.toString());
@@ -3029,6 +3030,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //“待核对”状态
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
         con1.addCondition("outTime",">",beginDate);
+        con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
         List<OutBean> outList2 = this.outDAO.queryEntityBeansByCondition(con1);
         if (!ListTools.isEmptyOrNull(outList2)){
             _logger.info("ibReport outList2 size:"+outList2.size());
@@ -3106,7 +3108,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             }
 
                             if (Math.abs(item.getIbMoney()) > zero || Math.abs(item.getMotivationMoney())> zero){
-                                _logger.info("****create TcpIbReportItemBean***"+item);
                                 itemList.add(item);
                             }
                         }
@@ -3131,13 +3132,19 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             //中收或激励只要一个有值就生成
             if (Math.abs(ibReport.getIbMoneyTotal()) > zero || Math.abs(ibReport.getMotivationMoneyTotal())> zero){
                 this.tcpIbReportDAO.saveEntityBean(ibReport);
+                _logger.info("****save ibReport**********"+ibReport);
 
-                for (TcpIbReportItemBean item : itemList){
-                    item.setId(commonDAO.getSquenceString20());
-                    item.setRefId(ibReport.getId());
+                if (ListTools.isEmptyOrNull(itemList)){
+                    _logger.error("***No item created***"+ibReport);
+                } else {
+                    for (TcpIbReportItemBean item : itemList) {
+                        item.setId(commonDAO.getSquenceString20());
+                        item.setRefId(ibReport.getId());
+                        _logger.info("****create TcpIbReportItemBean***"+item);
+//                        this.tcpIbReportItemDAO.saveEntityBean(item);
+                    }
+                    this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
                 }
-                this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
-//                _logger.info("****save ibReport**********"+ibReport);
             }
 //            else{
 //                //如果中收、激励金额都为0就不需要生成
