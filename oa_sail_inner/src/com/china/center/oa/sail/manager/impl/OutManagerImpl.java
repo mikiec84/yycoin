@@ -9479,11 +9479,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 			
 			if (null != city)
 			{
-				if (provinceName.equals(city.getName()))
-				{
-					distBean.setProvinceId("");
-				}
-				
+//				if (provinceName.equals(city.getName()))
+//				{
+//					distBean.setProvinceId("");
+//				}
+
 				int p = address.indexOf(city.getName());
 				
 				if (p == 0)

@@ -3285,17 +3285,17 @@ public class TravelApplyAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
                         String outId = obj[2];
+                        item.setFullId(outId);
                         OutBean out = this.outDAO.find(outId);
                         if (out == null){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("订单号不存在")
+                                    .append("订单号[").append(item.getFullId())
+                                    .append("]不存在")
                                     .append("</font><br>");
 
                             importError = true;
                         }else{
-                            item.setFullId(outId);
-
                             //同一个订单不能重复提交中收报销申请
                             if (out.getIbFlag() == 1){
                                 if (type == TcpConstanst.IB_TYPE){
@@ -3374,24 +3374,37 @@ public class TravelApplyAction extends DispatchAction
                         if (ListTools.isEmptyOrNull(productList)){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("商品名不存在")
+                                    .append("商品名[").append(productName)
+                                    .append("]不存在")
                                     .append("</font><br>");
 
                             importError = true;
                         }
                         item.setProductName(productName);
 
-
-                        //#383
+                        //#401
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addCondition("fullId","=", item.getFullId());
-                        conditionParse.addCondition("productName","=", productName);
                         List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
                         if (ListTools.isEmptyOrNull(ibReportList)){
-                            builder.append("订单号[").append(item.getFullId())
-                                    .append("]").append("和品名不符："+productName)
+                            builder.append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("订单号[").append(item.getFullId())
+                                    .append("]").append("不在中收激励统计清单中")
                                     .append("<br>");
                             importError = true;
+                        } else {
+                            //#383
+                            ConditionParse conditionParse2 = new ConditionParse();
+                            conditionParse2.addCondition("fullId", "=", item.getFullId());
+                            conditionParse2.addCondition("productName", "=", productName);
+                            List<TcpIbReportItemBean> ibReportList2 = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
+                            if (ListTools.isEmptyOrNull(ibReportList2)) {
+                                builder.append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("订单号[").append(item.getFullId())
+                                        .append("]").append("和品名不符：" + productName)
+                                        .append("<br>");
+                                importError = true;
+                            }
                         }
                     }
 
