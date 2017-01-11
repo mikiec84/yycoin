@@ -3944,6 +3944,7 @@ public class ParentOutAction extends DispatchAction
 			out.setOutType(OutConstant.OUTTYPE_IN_PRESENT);
 			out.setDescription("赠品退库,销售单号:" + outId + ". " + adescription);
 		} else {
+			out.setPay(1);
 			out.setDescription("销售退库,销售单号:" + outId + ". " + adescription);
 		}
 
