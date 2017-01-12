@@ -12856,13 +12856,53 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 this.customerIndividualDAO.saveEntityBean(customerIndividualBean);
 
                                 StafferVSCustomerBean vs = new StafferVSCustomerBean();
-                                vs.setStafferId(out.getStafferId());
+                                //系统生成的客户，不挂在原来的业务员名下，挂在 陈永-支持 名下
+                                ConditionParse conditionParse2 =  new ConditionParse();
+                                conditionParse2.addCondition("name","=","陈永-支持");
+                                List<StafferBean> stafferBeanList = this.stafferDAO.queryEntityBeansByCondition(conditionParse2);
+                                if (ListTools.isEmptyOrNull(stafferBeanList)){
+                                    vs.setStafferId(out.getStafferId());
+                                } else{
+                                    vs.setStafferId(stafferBeanList.get(0).getId());
+                                }
+
                                 vs.setCustomerId(customerBean.getId());
                                 this.stafferVSCustomerDAO.saveEntityBean(vs);
 
                                 this.outDAO.updateCustomerCreated(out.getFullId(), true);
                             } else {
                                 _logger.info("already exist**" + mobile);
+                                //TODO update address
+                                //4.	同时将收货信息记为客户的地址信息，同时将收货人记入联系人信息
+                                ConditionParse conditionParse2 = new ConditionParse();
+                                conditionParse2.addCondition("provinceId","=", distributionBean.getProvinceId());
+                                conditionParse2.addCondition("cityId","=", distributionBean.getCityId());
+                                String temp = distributionBean.getAddress();
+                                if (temp.length()>=6){
+                                    conditionParse2.addCondition("address", "like", "%"+temp.substring(temp.length()-6));
+                                }else{
+                                    conditionParse2.addCondition("address", "like", "%"+temp);
+                                }
+                                List<CustomerDistAddrBean> contactBeans = this.customerDistAddrDAO.queryEntityBeansByCondition(conditionParse2);
+                                if (ListTools.isEmptyOrNull(contactBeans)){
+                                    CustomerContactBean contactBean = contactBeanList.get(0);
+                                    CustomerDistAddrBean distAddrBean = new CustomerDistAddrBean();
+                                    distAddrBean.setId(commonDAO.getSquenceString20());
+                                    distAddrBean.setCustomerId(contactBean.getCustomerId());
+                                    distAddrBean.setProvinceId(distributionBean.getProvinceId());
+                                    distAddrBean.setCityId(distributionBean.getCityId());
+                                    distAddrBean.setAddress(distributionBean.getAddress());
+                                    distAddrBean.setFullAddress(distributionBean.getAddress());
+                                    distAddrBean.setTelephone(mobile);
+                                    distAddrBean.setContact(receiver);
+                                    distAddrBean.setShipping(shipping);
+                                    distAddrBean.setTransport1(distributionBean.getTransport1());
+                                    distAddrBean.setTransport2(distributionBean.getTransport2());
+                                    distAddrBean.setExpressPay(distributionBean.getExpressPay());
+                                    distAddrBean.setTransportPay(distributionBean.getTransportPay());
+                                    this.customerDistAddrDAO.saveEntityBean(distAddrBean);
+                                    _logger.info("add distAddrBean***"+distAddrBean);
+                                }
                             }
                         }
                     }
