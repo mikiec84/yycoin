@@ -294,7 +294,11 @@ function checkMoney2()
             <p:pro field="stype">
                 <p:option type="tcpStype" empty="true"/>
             </p:pro>
-            
+
+            <p:pro field="marketingFlag" cell="0" >
+                <p:option type="marketingFlag"></p:option>
+            </p:pro>
+
             <p:pro field="specialType">
                 <p:option type="expenseSpecialType"/>
             </p:pro>

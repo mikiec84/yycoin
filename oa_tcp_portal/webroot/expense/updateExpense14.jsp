@@ -140,7 +140,11 @@ function checks()
 
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
-            
+
+            <p:pro field="marketingFlag" cell="0" >
+                <p:option type="marketingFlag"></p:option>
+            </p:pro>
+
             <p:pro field="specialType" cell="0">
                 <p:option type="expenseSpecialType"/>
             </p:pro>
