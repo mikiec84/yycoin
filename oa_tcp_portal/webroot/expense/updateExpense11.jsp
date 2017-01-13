@@ -116,7 +116,11 @@ function getTravelApply(oos)
 
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
-            
+
+            <p:pro field="marketingFlag" cell="0" >
+                <p:option type="marketingFlag"></p:option>
+            </p:pro>
+
             <p:pro field="name" cell="0" innerString="size=60"/>
             
             <p:pro field="beginDate"/>

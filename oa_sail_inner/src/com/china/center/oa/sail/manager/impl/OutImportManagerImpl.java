@@ -11,6 +11,7 @@ import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.BaseVO;
 import org.apache.commons.lang.StringUtils;
@@ -2553,6 +2554,8 @@ public class OutImportManagerImpl implements OutImportManager
                     packageBean.setTransportNo(each.getTransportNo());
                     packageBean.setSfReceiveDate(each.getSfReceiveDate());
 					packageBean.setShipping(each.getShipping());
+					//#403 更新为已发货
+					packageBean.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
                     if (each.getShipping() == OutConstant.OUT_SHIPPING_3PL
 							|| each.getShipping() == OutConstant.OUT_SHIPPING_PROXY){
 //                        packageBean.setExpressPay(each.getPay());
