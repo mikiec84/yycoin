@@ -1,6 +1,9 @@
 package com.china.center.oa.sail.action;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.Map.Entry;
@@ -8,6 +11,12 @@ import java.util.Map.Entry;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
@@ -19,10 +28,7 @@ import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.dao.CityDAO;
-import com.china.center.oa.publics.dao.EnumDAO;
-import com.china.center.oa.publics.dao.ProvinceDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.tools.*;
@@ -56,6 +62,8 @@ import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.oa.sail.wrap.PackageWrap;
 import com.china.center.oa.sail.wrap.PickupWrap;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 
 public class ShipAction extends DispatchAction
 {
@@ -94,6 +102,8 @@ public class ShipAction extends DispatchAction
     private StafferDAO stafferDAO = null;
 
     private InvoiceinsDAO invoiceinsDAO = null;
+
+    private InvoiceDAO invoiceDAO = null;
 
     private CustomerMainDAO customerMainDAO = null;
 
@@ -481,6 +491,319 @@ public class ShipAction extends DispatchAction
         request.setAttribute("expressList", expressList);
 
         return mapping.findForward("queryPickup");
+    }
+
+    //#404 航天信息打印发票
+    public ActionForward printInvoiceins(ActionMapping mapping, ActionForm form,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response)
+            throws ServletException
+    {
+        User user = (User) request.getSession().getAttribute("user");
+        String packageId = request.getParameter("packageId");
+        _logger.info("***packageId***"+packageId);
+        List<InvoiceinsBean> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+
+        _logger.info("***invoiceinsList***"+invoiceinsList);
+
+        request.setAttribute("invoiceList", invoiceinsList);
+
+        return mapping.findForward("printInvoiceins");
+    }
+
+    private List<InvoiceinsBean> findInvoiceinsWithXN(String packageId){
+        List<InvoiceinsBean> invoiceinsList = new ArrayList<InvoiceinsBean>();
+        List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageId);
+        for (PackageItemBean item: itemList){
+            String productName = item.getProductName();
+            if (productName!= null && productName.startsWith("发票号：XN")){
+                String insId = item.getOutId();
+                InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(insId);
+                if (invoiceinsBean!= null){
+                    invoiceinsList.add(invoiceinsBean);
+                }
+            }
+        }
+        return invoiceinsList;
+    }
+
+
+    /**
+     * 404 生产发票
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward generateInvoiceins(ActionMapping mapping, ActionForm form,
+                                         HttpServletRequest request,
+                                         HttpServletResponse response)
+            throws ServletException
+    {
+        User user = (User) request.getSession().getAttribute("user");
+        String packageId = request.getParameter("packageId");
+        _logger.info("***packageId***"+packageId);
+        List<InvoiceinsBean> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+
+        //TODO generate XML payload
+        InvoiceinsBean bean = invoiceinsList.get(0);
+        String payload = this.createXML(user, invoiceinsList.get(0));
+
+        //TODO call DLL API
+        String apiResponse = "";
+        Document document = this.convertStringToDocument(apiResponse);
+        NodeList nodeList = document.getElementsByTagName("*");
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                // do something with the current element
+                _logger.info(node.getNodeName());
+                _logger.info(node.getNodeValue());
+            }
+        }
+
+        //TODO 取返回的发票号码，写入对应的A单号中替换XN号码
+
+        //TODO CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
+        this.packageItemDAO.replaceInvoiceNum(bean.getId(), "", "");
+
+        //# CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
+        List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(packageId);
+        if (!ListTools.isEmptyOrNull(packageItemBeanList)){
+            boolean  flag = true;
+            for (PackageItemBean item :packageItemBeanList){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    flag = false;
+                    break;
+                }
+            }
+
+            if (flag){
+                _logger.info(packageId+"****update status***"+ ShipConstant.SHIP_STATUS_PICKUP);
+                this.packageDAO.updateStatus(packageId, ShipConstant.SHIP_STATUS_PICKUP);
+            }
+        }
+
+
+        return mapping.findForward("printInvoiceins");
+    }
+
+    private String createXML(User user, InvoiceinsBean bean){
+        try {
+            DocumentBuilderFactory dbFactory =
+                    DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder =
+                    dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.newDocument();
+            // root element
+            Element rootElement = doc.createElement("invinterface");
+            doc.appendChild(rootElement);
+
+            //  TODO invhead
+            Element invhead = doc.createElement("invhead");
+            rootElement.appendChild(invhead);
+
+            // carname element
+            Element fpzl = doc.createElement("fpzl");
+            fpzl.appendChild(
+                    doc.createTextNode("2"));
+            invhead.appendChild(fpzl);
+
+            //Invoiceins 表的ID字段值
+            Element djhm = doc.createElement("djhm");
+            djhm.appendChild(
+                    doc.createTextNode(bean.getId()));
+            invhead.appendChild(djhm);
+
+            //heakcontent字段值
+            Element gfmc = doc.createElement("gfmc");
+            gfmc.appendChild(
+                    doc.createTextNode(bean.getHeadContent()));
+            invhead.appendChild(gfmc);
+
+            Element gfsh = doc.createElement("gfsh");
+            gfsh.appendChild(
+                    doc.createTextNode(""));
+            invhead.appendChild(gfsh);
+
+            Element gfyh = doc.createElement("gfyh");
+            gfyh.appendChild(
+                    doc.createTextNode(""));
+            invhead.appendChild(gfyh);
+
+            Element gfdz = doc.createElement("gfdz");
+            gfdz.appendChild(
+                    doc.createTextNode(""));
+            invhead.appendChild(gfdz);
+
+            //TODO 取invoiceid到 invoice表中取对应的VAL值，如果值是2，则值设为3
+            Element fpsl = doc.createElement("fpsl");
+            InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getInvoiceId());
+            if (invoiceBean!= null){
+                if (this.equals(invoiceBean.getVal(), 2, 0.001)){
+                    fpsl.appendChild(
+                            doc.createTextNode("3"));
+                }else{
+                    fpsl.appendChild(
+                            doc.createTextNode(String.valueOf(invoiceBean.getVal())));
+                }
+            }
+            invhead.appendChild(fpsl);
+
+            Element fpbz = doc.createElement("fpbz");
+            fpbz.appendChild(
+                    doc.createTextNode(""));
+            invhead.appendChild(fpbz);
+
+            //OA操作人姓名
+            Element kprm = doc.createElement("kprm");
+            kprm.appendChild(
+                    doc.createTextNode(user.getName()));
+            invhead.appendChild(kprm);
+
+            Element fhrm = doc.createElement("fhrm");
+            fhrm.appendChild(
+                    doc.createTextNode(user.getName()));
+            invhead.appendChild(fhrm);
+
+            Element skrm = doc.createElement("skrm");
+            skrm.appendChild(
+                    doc.createTextNode(""));
+            invhead.appendChild(skrm);
+
+            Element hsbz = doc.createElement("hsbz");
+            hsbz.appendChild(
+                    doc.createTextNode("1"));
+            invhead.appendChild(hsbz);
+
+            Element xfdz = doc.createElement("xfdz");
+            xfdz.appendChild(
+                    doc.createTextNode("南京市秦淮区正学路1号，025-51885901"));
+            invhead.appendChild(xfdz);
+
+            Element xfyh = doc.createElement("xfyh");
+            xfyh.appendChild(
+                    doc.createTextNode("招商银行南京城北支行，帐号：125902780610701"));
+            invhead.appendChild(xfyh);
+
+            Element hysy = doc.createElement("hysy");
+            hysy.appendChild(
+                    doc.createTextNode("0"));
+            invhead.appendChild(hysy);
+
+
+            //  TODO invdetails
+            Element invdetails = doc.createElement("invdetails");
+            rootElement.appendChild(invdetails);
+
+            // carname element
+            Element details = doc.createElement("details");
+            invdetails.appendChild(details);
+
+            //Invoiceins 表的开票品名字段
+            Element spmc = doc.createElement("spmc");
+            spmc.appendChild(
+                    doc.createTextNode(bean.getSpmc()));
+            details.appendChild(spmc);
+
+            Element ggxh = doc.createElement("ggxh");
+            ggxh.appendChild(
+                    doc.createTextNode(""));
+            details.appendChild(ggxh);
+
+            Element jldw = doc.createElement("jldw");
+            jldw.appendChild(
+                    doc.createTextNode("套"));
+            details.appendChild(jldw);
+
+            //TODO invoiceins_item表中amount 字段合计
+            Element spsl = doc.createElement("spsl");
+            spsl.appendChild(
+                    doc.createTextNode("0"));
+            details.appendChild(spsl);
+
+            //invoiceins_item表中price 字段值
+            Element spdj = doc.createElement("spdj");
+            spdj.appendChild(
+                    doc.createTextNode("0"));
+            details.appendChild(spdj);
+
+            //TODO 数量*金额 或总金额，不相符时报错
+            Element spje = doc.createElement("spje");
+            spje.appendChild(
+                    doc.createTextNode(String.valueOf(bean.getMoneys())));
+            details.appendChild(spje);
+
+            //TODO 总金额*VAL/100
+            Element spse = doc.createElement("spse");
+            spse.appendChild(
+                    doc.createTextNode(""));
+            details.appendChild(spse);
+
+            Element zkje = doc.createElement("zkje");
+            zkje.appendChild(
+                    doc.createTextNode(""));
+            details.appendChild(zkje);
+
+            Element flbm = doc.createElement("flbm");
+            flbm.appendChild(
+                    doc.createTextNode("106050299"));
+            details.appendChild(flbm);
+
+            Element kcje = doc.createElement("kcje");
+            kcje.appendChild(
+                    doc.createTextNode(""));
+            details.appendChild(kcje);
+
+            // write the content into xml file
+            TransformerFactory transformerFactory =
+                    TransformerFactory.newInstance();
+            Transformer transformer =
+                    transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+//            StreamResult result =
+//                    new StreamResult(new File("C:\\cars.xml"));
+//            transformer.transform(source, result);
+            // Output to console for testing
+            StreamResult consoleResult =
+                    new StreamResult(System.out);
+            transformer.transform(source, consoleResult);
+
+            StringWriter writer = new StringWriter();
+            transformer.transform(source, new StreamResult(writer));
+            String output = writer.getBuffer().toString();
+            _logger.info("***output***"+output);
+            return output;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private Document convertStringToDocument(String xmlStr) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
+        try
+        {
+            builder = factory.newDocumentBuilder();
+//            Document doc = builder.parse( new InputSource( new StringReader( xmlStr ) ));
+            Document doc = builder.parse( new File("G:\\invoice.xml"));
+            return doc;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean equals(double x, double y) {
+        return (Double.isNaN(x) && Double.isNaN(y)) || x == y;
+    }
+
+    public boolean equals(double x, double y, double eps) {
+        return equals(x, y) || (Math.abs(y - x) <= eps);
     }
 
     /**
@@ -5136,5 +5459,13 @@ public class ShipAction extends DispatchAction
 
     public void setProductImportDAO(ProductImportDAO productImportDAO) {
         this.productImportDAO = productImportDAO;
+    }
+
+    public InvoiceDAO getInvoiceDAO() {
+        return invoiceDAO;
+    }
+
+    public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
+        this.invoiceDAO = invoiceDAO;
     }
 }

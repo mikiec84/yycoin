@@ -272,6 +272,11 @@ public class InvoiceinsBean implements Serializable
      * 增值税开票信息
      */
     private String zzsInfo = "";
+
+    /**
+     * #404 开票品名
+     */
+    private String spmc = "";
     
 	//-----------------------------------distribution------------------------------
 	
@@ -327,6 +332,14 @@ public class InvoiceinsBean implements Serializable
     public void setId(String id)
     {
         this.id = id;
+    }
+
+    public String getSpmc() {
+        return spmc;
+    }
+
+    public void setSpmc(String spmc) {
+        this.spmc = spmc;
     }
 
     /**
@@ -1075,32 +1088,63 @@ public class InvoiceinsBean implements Serializable
         this.zzsInfo = zzsInfo;
     }
 
-    /**
-     * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
-     * @return a <code>String</code> representation of this object.
-     */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuffer retValue = new StringBuffer();
-
-        retValue.append("InvoiceinsBean ( ").append(super.toString()).append(TAB).append("id = ").append(this.id).append(
-            TAB).append("invoiceId = ").append(this.invoiceId).append(TAB).append("status = ").append(this.status).append(
-            TAB).append("type = ").append(this.type).append(TAB).append("stype = ").append(this.stype).append(TAB).append(
-            "mtype = ").append(this.mtype).append(TAB).append("vtype = ").append(this.vtype).append(TAB).append(
-            "dutyId = ").append(this.dutyId).append(TAB).append("unit = ").append(this.unit).append(TAB).append(
-            "reveive = ").append(this.reveive).append(TAB).append("locationId = ").append(this.locationId).append(TAB).append(
-            "customerId = ").append(this.customerId).append(TAB).append("moneys = ").append(this.moneys).append(TAB).append(
-            "invoiceDate = ").append(this.invoiceDate).append(TAB).append("stafferId = ").append(this.stafferId).append(
-            TAB).append("processer = ").append(this.processer).append(TAB).append("logTime = ").append(this.logTime).append(
-            TAB).append("refIds = ").append(this.refIds).append(TAB).append("description = ").append(this.description).append(
-            TAB).append("checks = ").append(this.checks).append(TAB).append("checkrefId = ").append(this.checkrefId).append(
-            TAB).append("checkStatus = ").append(this.checkStatus).append(TAB).append("itemList = ").append(
-            this.itemList).append(TAB).append("vsList = ").append(this.vsList).append(TAB).append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "InvoiceinsBean{" +
+                "id='" + id + '\'' +
+                ", invoiceId='" + invoiceId + '\'' +
+                ", status=" + status +
+                ", type=" + type +
+                ", stype=" + stype +
+                ", mtype=" + mtype +
+                ", vtype=" + vtype +
+                ", dutyId='" + dutyId + '\'' +
+                ", unit='" + unit + '\'' +
+                ", reveive='" + reveive + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", moneys=" + moneys +
+                ", invoiceDate='" + invoiceDate + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", processer='" + processer + '\'' +
+                ", logTime='" + logTime + '\'' +
+                ", refIds='" + refIds + '\'' +
+                ", description='" + description + '\'' +
+                ", checks='" + checks + '\'' +
+                ", checkrefId='" + checkrefId + '\'' +
+                ", checkStatus=" + checkStatus +
+                ", headType=" + headType +
+                ", headContent='" + headContent + '\'' +
+                ", operator='" + operator + '\'' +
+                ", operatorName='" + operatorName + '\'' +
+                ", payConfirmStatus=" + payConfirmStatus +
+                ", invoiceConfirmStatus=" + invoiceConfirmStatus +
+                ", otype=" + otype +
+                ", refId='" + refId + '\'' +
+                ", insAmount=" + insAmount +
+                ", fillType=" + fillType +
+                ", shipping=" + shipping +
+                ", transport1=" + transport1 +
+                ", transport2=" + transport2 +
+                ", provinceId='" + provinceId + '\'' +
+                ", cityId='" + cityId + '\'' +
+                ", areaId='" + areaId + '\'' +
+                ", address='" + address + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", expressPay=" + expressPay +
+                ", transportPay=" + transportPay +
+                ", invoiceFollowOut='" + invoiceFollowOut + '\'' +
+                ", packaged=" + packaged +
+                ", zzsInfo='" + zzsInfo + '\'' +
+                ", spmc='" + spmc + '\'' +
+                ", itemList=" + itemList +
+                ", vsList=" + vsList +
+                ", exceptionList=" + exceptionList +
+                ", attachmentList=" + attachmentList +
+                ", detailList=" + detailList +
+                ", numList=" + numList +
+                '}';
     }
-
 }

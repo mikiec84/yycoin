@@ -4523,6 +4523,20 @@ public class InvoiceinsAction extends DispatchAction
                         }
                     }
 
+                    // #404 开票品名
+                    if ( !StringTools.isNullOrNone(obj[21])) {
+                        String spmc = obj[21].trim();
+                        bean.setSpmc(spmc);
+                    }else {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("开票品名不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+
                     bean.setDescription(obj[15].trim());
                     bean.setInvoiceDate(TimeTools.now_short());
                     bean.setStafferName(user.getStafferName());

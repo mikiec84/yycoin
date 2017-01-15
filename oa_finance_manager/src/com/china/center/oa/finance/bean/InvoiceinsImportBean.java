@@ -166,6 +166,11 @@ public class InvoiceinsImportBean implements Serializable
     private boolean splitFlag = false;
 
 	/**
+	 * #404 开票品名
+	 */
+	private String spmc = "";
+
+	/**
 	 * 
 	 */
 	public InvoiceinsImportBean()
@@ -584,6 +589,14 @@ public class InvoiceinsImportBean implements Serializable
 		this.zzsInfo = zzsInfo;
 	}
 
+	public String getSpmc() {
+		return spmc;
+	}
+
+	public void setSpmc(String spmc) {
+		this.spmc = spmc;
+	}
+
 	@Override
 	public String toString() {
 		return "InvoiceinsImportBean{" +
@@ -622,6 +635,7 @@ public class InvoiceinsImportBean implements Serializable
 				", amount=" + amount +
 				", zzsInfo='" + zzsInfo + '\'' +
 				", splitFlag=" + splitFlag +
+				", spmc='" + spmc + '\'' +
 				'}';
 	}
 }
