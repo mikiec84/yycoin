@@ -18,7 +18,13 @@
 <script language="javascript">
 function process()
 {
-	$l('../sail/ship.do?method=generateInvoiceins');
+	var packageId = $O('packageId').value;
+	$ajax('../sail/ship.do?method=generateInvoiceins&packageId='+packageId, callBackFunPrint);
+}
+
+function callBackFunPrint(data)
+{
+	console.log(data);
 }
 
 function load()
@@ -70,7 +76,6 @@ function load()
 	<p:subBody width="98%">
 		<table width="100%" align="center" cellspacing='1' class="table0">
 			<tr align=center class="content0">
-				<td align="center" class="td_class">选择</td>
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>开票申请</strong></td>
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>开票抬头</strong></td>
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>开票品名</strong></td>

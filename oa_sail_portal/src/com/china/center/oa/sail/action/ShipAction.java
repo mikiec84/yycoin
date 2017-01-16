@@ -507,6 +507,7 @@ public class ShipAction extends DispatchAction
         _logger.info("***invoiceinsList***"+invoiceinsList);
 
         request.setAttribute("invoiceList", invoiceinsList);
+        request.setAttribute("packageId", packageId);
 
         return mapping.findForward("printInvoiceins");
     }
@@ -545,31 +546,40 @@ public class ShipAction extends DispatchAction
         User user = (User) request.getSession().getAttribute("user");
         String packageId = request.getParameter("packageId");
         _logger.info("***packageId***"+packageId);
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        Map<String,String> invoiceToNum = new HashMap<String, String>();
         List<InvoiceinsBean> invoiceinsList = this.findInvoiceinsWithXN(packageId);
 
         //TODO generate XML payload
-        InvoiceinsBean bean = invoiceinsList.get(0);
-        String payload = this.createXML(user, invoiceinsList.get(0));
+        for (InvoiceinsBean  bean:invoiceinsList){
+            String payload = this.createXML(user, invoiceinsList.get(0));
 
-        //TODO call DLL API
-        String apiResponse = "";
-        Document document = this.convertStringToDocument(apiResponse);
-        NodeList nodeList = document.getElementsByTagName("*");
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                // do something with the current element
-                _logger.info(node.getNodeName());
-                _logger.info(node.getNodeValue());
+            //TODO call DLL API
+            String apiResponse = "";
+            Document document = this.convertStringToDocument(apiResponse);
+            NodeList nodeList = document.getElementsByTagName("*");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    // do something with the current element
+                    _logger.info(node.getNodeName());
+                    _logger.info(node.getNodeValue());
+//                    _logger.info(node.getFirstChild().getNodeValue());
+                    if ("fphm".equals(node.getNodeName()) && node.getFirstChild()!= null){
+                        invoiceToNum.put(bean.getId(), node.getFirstChild().getNodeValue());
+                    }
+                }
             }
+
+            //TODO 取返回的发票号码，写入对应的A单号中替换XN号码
+
+            //TODO update package item product name
+            this.packageItemDAO.replaceInvoiceNum(bean.getId(), "", "");
         }
 
-        //TODO 取返回的发票号码，写入对应的A单号中替换XN号码
-
-        //TODO CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
-        this.packageItemDAO.replaceInvoiceNum(bean.getId(), "", "");
-
-        //# CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
+        //# TODO CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
         List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(packageId);
         if (!ListTools.isEmptyOrNull(packageItemBeanList)){
             boolean  flag = true;
@@ -587,8 +597,10 @@ public class ShipAction extends DispatchAction
             }
         }
 
-
-        return mapping.findForward("printInvoiceins");
+        result.setSuccessAndObj("操作成功", invoiceToNum);
+        String jsonstr = mapper.toJson(result);
+        return JSONTools.writeResponse(response, jsonstr);
+//        return mapping.findForward("printInvoiceins");
     }
 
     private String createXML(User user, InvoiceinsBean bean){
@@ -794,6 +806,7 @@ public class ShipAction extends DispatchAction
             return doc;
         } catch (Exception e) {
             e.printStackTrace();
+            _logger.error(e);
         }
         return null;
     }
