@@ -168,6 +168,10 @@ function load()
             <p:cell title="增值税发票信息">
                 ${bean.zzsInfo}
             </p:cell>
+
+            <p:cell title="开票品名">
+                ${bean.spmc}
+            </p:cell>
 			
 			<p:cell title="客户/分公司">
                ${bean.customerName}
