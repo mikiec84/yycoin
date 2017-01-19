@@ -3064,6 +3064,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setLogTime(TimeTools.now());
 			bean.setLocationId("999");
 			bean.setZzsInfo(first.getZzsInfo());
+            bean.setSpmc(first.getSpmc());
 			//2015/2/1 票随货发
 			_logger.info("****saveInner***"+first.getInvoiceFollowOut());
 			bean.setInvoiceFollowOut(first.getInvoiceFollowOut());

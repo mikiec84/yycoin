@@ -1090,6 +1090,7 @@ public class InvoiceinsAction extends DispatchAction
             ws.addCell(new Label(j++ , i, "发票标识", format));
             ws.addCell(new Label(j++ , i, "纳税实体", format));
             ws.addCell(new Label(j++ , i, "发票抬头", format));
+            ws.addCell(new Label(j++ , i, "开票品名", format));
             ws.addCell(new Label(j++ , i, "客户", format));
             ws.addCell(new Label(j++ , i, "发票类型", format));
             ws.addCell(new Label(j++ , i, "增值税开票信息", format));
@@ -1145,6 +1146,7 @@ public class InvoiceinsAction extends DispatchAction
                         ws.addCell(new Label(j++ , i, element.getId()));
                         ws.addCell(new Label(j++ , i, element.getDutyName()));
                         ws.addCell(new Label(j++ , i, element.getHeadContent()));
+                        ws.addCell(new Label(j++ , i, element.getSpmc()));
                         ws.addCell(new Label(j++ , i, element.getCustomerName()));
                         ws.addCell(new Label(j++ , i, element.getInvoiceName()));
                         ws.addCell(new Label(j++ , i, element.getZzsInfo()));
@@ -1299,6 +1301,7 @@ public class InvoiceinsAction extends DispatchAction
             ws.addCell(new Label(j++ , i, "发票标识", format));
             ws.addCell(new Label(j++ , i, "纳税实体", format));
             ws.addCell(new Label(j++ , i, "发票抬头", format));
+            ws.addCell(new Label(j++ , i, "开票品名", format));
             ws.addCell(new Label(j++ , i, "客户", format));
             ws.addCell(new Label(j++ , i, "发票类型", format));
             ws.addCell(new Label(j++ , i, "增值税发票信息", format));
@@ -1326,6 +1329,7 @@ public class InvoiceinsAction extends DispatchAction
                     ws.addCell(new Label(j++ , i, element.getId()));
                     ws.addCell(new Label(j++ , i, element.getDutyName()));
                     ws.addCell(new Label(j++ , i, element.getHeadContent()));
+                    ws.addCell(new Label(j++ , i, element.getSpmc()));
                     ws.addCell(new Label(j++ , i, element.getCustomerName()));
                     ws.addCell(new Label(j++ , i, element.getInvoiceName()));
                     ws.addCell(new Label(j++ , i, element.getZzsInfo()));

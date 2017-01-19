@@ -637,7 +637,8 @@ public class PopQueryAction extends DispatchAction
 
         //2015/11/24 除了周苏东、潘海明、陈永、唐志外其他人不能用商务登录登录含有以上姓名的系统用户
         //这4个人不能出现在选择人员的弹出框中
-        condtion.addCondition(" and UserBean.name not like '%周苏东%' and UserBean.name not like '%潘海明%' and UserBean.name not like '%陈永%' and UserBean.name not like '%唐志%'");
+        //2017/1/19 唐志去掉
+        condtion.addCondition(" and UserBean.name not like '%周苏东%' and UserBean.name not like '%潘海明%' and UserBean.name not like '%陈永%'");
 
         // 只显示正常的用户
         condtion.addIntCondition("StafferBean.status", "=", StafferConstant.STATUS_COMMON);
