@@ -16,6 +16,22 @@
 <script src="../js/plugin/highlight/jquery.highlight.js"></script>
 <script src="../js/adapter.js"></script>
 <script language="javascript">
+var a=new ActiveXObject("JSTAXS.Tax");
+var is_open=0;
+var xmlDoc = "";
+/*开启金税盘*/
+function OpenCard(){
+	var result = a.JsaeroOpen();
+	alert(result);
+}
+
+
+function Invoice(){
+	var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
+	var xml =  a.JsaeroKP(inv);
+	alert(xml);
+}
+
 function process()
 {
 	var packageId = $O('packageId').value;
@@ -110,6 +126,8 @@ function load()
 		<div align="right">
 			<input type="button" class="button_class"
 				value="&nbsp;&nbsp;打印发票&nbsp;&nbsp;" onclick="process()">&nbsp;&nbsp;
+			<button onclick="OpenCard()">开启金税盘</button>
+			<button onclick="Invoice()">开票</button>
 			</div>	
 	</p:button>
 
