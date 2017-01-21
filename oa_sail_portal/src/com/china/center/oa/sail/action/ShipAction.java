@@ -528,9 +528,33 @@ public class ShipAction extends DispatchAction
         return invoiceinsList;
     }
 
+    public ActionForward generateInvoiceinsXml(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request,
+                                            HttpServletResponse response)
+            throws ServletException
+    {
+        User user = (User) request.getSession().getAttribute("user");
+        String packageId = request.getParameter("packageId");
+        _logger.info("***packageId***"+packageId);
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        Map<String,String> invoiceToXml = new HashMap<String, String>();
+        List<InvoiceinsBean> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+
+        //TODO generate XML payload
+        for (InvoiceinsBean  bean:invoiceinsList){
+            String payload = this.createXML(user, invoiceinsList.get(0));
+            invoiceToXml.put(bean.getId(),payload);
+        }
+
+        result.setSuccessAndObj("", invoiceToXml);
+        String jsonstr = mapper.toJson(result);
+        return JSONTools.writeResponse(response, jsonstr);
+    }
 
     /**
-     * 404 生产发票
+     * 404 生成发票
      * @param mapping
      * @param form
      * @param request

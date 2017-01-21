@@ -27,9 +27,13 @@ function OpenCard(){
 
 
 function Invoice(){
-	var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
-	var xml =  a.JsaeroKP(inv);
-	alert(xml);
+    //TODO
+    var packageId = $O('packageId').value;
+
+//	var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
+//	var xml =  a.JsaeroKP(inv);
+//	alert(xml);
+    $ajax('../sail/ship.do?method=generateInvoiceinsXml&packageId='+packageId, callBackFunPrint);
 }
 
 function process()
@@ -41,6 +45,15 @@ function process()
 function callBackFunPrint(data)
 {
 	console.log(data);
+	var result = JSON.parse(data);
+	if (result.retMsg.toLowerCase() === "ok") {
+		for (var key in result.obj) {
+			console.log(key + ': ' + result.obj[key]);
+		}
+	}
+    var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
+    var xml =  a.JsaeroKP(inv);
+    alert(xml);
 }
 
 function load()
@@ -99,6 +112,7 @@ function load()
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>单价</strong></td>
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>金额</strong></td>
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>税率</strong></td>
+                <td align="center" class="td_class" onclick="tableSort(this)"><strong>发票号码</strong></td>
 			</tr>
 			
 			<c:forEach items="${invoiceList}" var="item" varStatus="vs">
@@ -112,6 +126,7 @@ function load()
 					<td align="center"></td>
 					<td align="center"></td>
 					<td align="center"></td>
+                    <td align="center"><div id="${item.id}"></div></td>
                 </tr>
             </c:forEach>
 		</table>
@@ -125,9 +140,12 @@ function load()
 	<p:button>
 		<div align="right">
 			<input type="button" class="button_class"
-				value="&nbsp;&nbsp;打印发票&nbsp;&nbsp;" onclick="process()">&nbsp;&nbsp;
-			<button onclick="OpenCard()">开启金税盘</button>
-			<button onclick="Invoice()">开票</button>
+				value="&nbsp;&nbsp;开启金税盘&nbsp;&nbsp;" onclick="OpenCard()">&nbsp;&nbsp;
+            <input type="button" class="button_class"
+                   value="&nbsp;&nbsp;打印发票&nbsp;&nbsp;" onclick="Invoice()">&nbsp;&nbsp;
+
+			<%--<button onclick="OpenCard()">开启金税盘</button>--%>
+			<%--<button onclick="Invoice()">打印发票</button>--%>
 			</div>	
 	</p:button>
 
