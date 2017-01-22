@@ -239,9 +239,11 @@
     <bean id="createCustomerJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="createCustomerJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+        <property name="cronExpression" value="0 0 1 * * ?" />
     </bean>
 
+    <!--一次性JOB，已废弃 -->
     <bean id="generateFinanceItemJob"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="outManager" />

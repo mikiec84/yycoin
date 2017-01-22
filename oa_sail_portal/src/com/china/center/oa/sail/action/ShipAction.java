@@ -2053,7 +2053,11 @@ public class ShipAction extends DispatchAction
                 e.printStackTrace();
             }
 
-            return mapping.findForward("printUnifiedReceipt");
+            if (vo.getCustomerName().indexOf("吉林银行") != -1){
+                return mapping.findForward("printJlReceipt");
+            } else{
+                return mapping.findForward("printUnifiedReceipt");
+            }
         }
     }
     /**
@@ -3051,6 +3055,32 @@ public class ShipAction extends DispatchAction
         }
     }
 
+    //#409 吉林银行联行网点
+    private String[] getProductCodeAndLhwdFromOutImport(String outId){
+        String[] result = new String[2];
+        String productCode = "";
+        String lhwd = "";
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("OANo", "=", outId);
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByCondition(conditionParse);
+
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            for (OutImportBean outImportBean: importBeans){
+                if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
+                    productCode = outImportBean.getProductCode();
+                    lhwd = outImportBean.getLhwd();
+                    break;
+                }
+            }
+        }
+        result[0] = productCode;
+        result[1] = lhwd;
+        return result;
+    }
+
+
     /**
      * 2015/11/13 中原银行产品代码
      * @param outId
@@ -3128,7 +3158,9 @@ public class ShipAction extends DispatchAction
                 _logger.info("****ZS orders of ZY bank***********"+outId);
                 item.setProductCode("");
             }else{
-                item.setProductCode(this.getProductCodeFromOutImport(outId));
+                String[] temp = this.getProductCodeAndLhwdFromOutImport(outId);
+                item.setProductCode(temp[0]);
+                item.setLhwd(temp[1]);
             }
         }
     }

@@ -352,6 +352,7 @@ public class OutImportAction extends DispatchAction
 		if ( !StringTools.isNullOrNone(obj[2]))
 		{
 			bean.setComunicationBranch(obj[2]);
+			bean.setLhwd(obj[2]);
 		}
 		
 		// 订单类型
@@ -1382,6 +1383,7 @@ public class OutImportAction extends DispatchAction
 		if ( !StringTools.isNullOrNone(obj[2]))
 		{
 			bean.setComunicationBranch(obj[2]);
+			bean.setLhwd(obj[2]);
 		}
 		
 		// 订单类型

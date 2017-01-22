@@ -48,6 +48,11 @@ public class OutImportBean implements Serializable
 	private String secondBranch = "";
 	
 	private String comunicationBranch = "";
+
+	/**
+	 * #409 新增"联行网点"栏位，comunicationBranch这个栏位有点问题，不能覆盖掉
+	 */
+	private String lhwd = "";
 	
 	/** 网点为客户 */
 	private String comunicatonBranchName = "";
@@ -862,7 +867,15 @@ public class OutImportBean implements Serializable
         this.importFromMail = importFromMail;
     }
 
-    @Override
+	public String getLhwd() {
+		return lhwd;
+	}
+
+	public void setLhwd(String lhwd) {
+		this.lhwd = lhwd;
+	}
+
+	@Override
     public String toString() {
         return "OutImportBean{" +
                 "id=" + id +

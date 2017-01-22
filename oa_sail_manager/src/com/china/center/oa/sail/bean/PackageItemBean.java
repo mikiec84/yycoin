@@ -82,6 +82,12 @@ public class PackageItemBean implements Serializable
 	@Ignore
 	private String productCode = "";
 
+	/**
+	 * 2017/1/22 #409
+	 */
+	@Ignore
+	private String lhwd = "";
+
 
     /**
      * 2015/11/22 宁波银行回执单材质成色
@@ -410,5 +416,13 @@ public class PackageItemBean implements Serializable
 
 	public void setProductWeight(double productWeight) {
 		this.productWeight = productWeight;
+	}
+
+	public String getLhwd() {
+		return lhwd;
+	}
+
+	public void setLhwd(String lhwd) {
+		this.lhwd = lhwd;
 	}
 }

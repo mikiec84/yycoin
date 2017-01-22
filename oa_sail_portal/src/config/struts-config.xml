@@ -177,6 +177,7 @@
             <forward name="printPufaReceipt" path="/transport/printPufaReceipt.jsp" />
             <forward name="printShipment" path="/transport/printShipment.jsp" />
             <forward name="printUnifiedReceipt" path="/transport/printUnifiedReceipt.jsp" />
+            <forward name="printJlReceipt" path="/transport/printJlReceipt.jsp" />
             <forward name="printZyReceipt" path="/transport/printZyReceipt.jsp" />
             <forward name="printNbReceipt" path="/transport/printNbReceipt.jsp" />
             <forward name="printXyReceipt" path="/transport/printXyReceipt.jsp" />

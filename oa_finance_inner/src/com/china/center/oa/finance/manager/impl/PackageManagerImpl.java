@@ -1110,7 +1110,8 @@ public class PackageManagerImpl implements PackageManager {
         packBean.setTransportPay(ins.getTransportPay());
         packBean.setCityId(ins.getCityId());
 
-        packBean.setLocationId(packBean.getLocationId());
+		//#410
+        packBean.setLocationId("99");
         packBean.setAddress(ins.getAddress());
         packBean.setReceiver(ins.getReceiver());
         packBean.setMobile(ins.getMobile());
