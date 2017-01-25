@@ -490,27 +490,30 @@ public abstract class TCPHelper
 
         long totalRatio = 100;
 
-        for (TcpShareVO tcpShareVO : shareVOList)
-        {
-            long ratio = (tcpShareVO.getRealMonery() * 100) / total;
+        if (total!=0){
+            for (TcpShareVO tcpShareVO : shareVOList)
+            {
+                long ratio = (tcpShareVO.getRealMonery() * 100) / total;
 
-            if (totalRatio < ratio)
-            {
-            	totalRatio = 0;
-            }
+                if (totalRatio < ratio)
+                {
+                    totalRatio = 0;
+                }
 
-            if (totalRatio >= ratio)
-            {
-                tcpShareVO.setRatio((int)ratio);
-                
-                totalRatio -= ratio;
-            }
-            else
-            {
-                tcpShareVO.setRatio((int)totalRatio);
-                break;
+                if (totalRatio >= ratio)
+                {
+                    tcpShareVO.setRatio((int)ratio);
+
+                    totalRatio -= ratio;
+                }
+                else
+                {
+                    tcpShareVO.setRatio((int)totalRatio);
+                    break;
+                }
             }
         }
+
     }
 
     public static long ratioValue(long value, int ratio)
