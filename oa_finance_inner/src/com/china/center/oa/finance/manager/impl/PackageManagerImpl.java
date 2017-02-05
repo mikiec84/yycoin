@@ -240,20 +240,32 @@ public class PackageManagerImpl implements PackageManager {
 		conditionParse.addWhereStr();
 		conditionParse.addCondition(" order by logTime asc");
 
-        int batchSize = 50;
-        String batchSizeStr = ConfigLoader.getProperty("batchSize");
-        if (!StringTools.isNullOrNone(batchSizeStr)){
-           batchSize = Integer.valueOf(batchSizeStr);
-        }
+        int batchSize = 1;
+//        String batchSizeStr = ConfigLoader.getProperty("batchSize");
+//        if (!StringTools.isNullOrNone(batchSizeStr)){
+//           batchSize = Integer.valueOf(batchSizeStr);
+//        }
 
 		List<PreConsignBean> list = preConsignDAO.queryEntityBeansByLimit(conditionParse, batchSize);
 
-        String msg = "*******************createPackage with size"+list.size();
-        System.out.println(msg);
-        triggerLog.info(msg);
+		if (ListTools.isEmptyOrNull(list)){
+			String msg = "******createPackage without preconsign to do******";
+			System.out.println(msg);
+			_logger.info(msg);
+			return ;
+		} else{
+			String msg = "******createPackage with "+list.get(0).getOutId();
+			System.out.println(msg);
+			_logger.info(msg);
+		}
+
 
         int count = 0;
 		for (PreConsignBean each : list) {
+			boolean isPackaged = this.isPackaged(each);
+			if (isPackaged){
+				continue;
+			}
 //			ConditionParse conditionParse1 = new ConditionParse();
 //			conditionParse1.addWhereStr();
 //			conditionParse1.addCondition("fullId","=",each.getOutId().trim());
@@ -409,6 +421,20 @@ public class PackageManagerImpl implements PackageManager {
 		packageVSCustomerDAO.saveEntityBean(vsBean);
 	}
 
+	private boolean isPackaged(PreConsignBean pre){
+		String fullId = pre.getOutId();
+		ConditionParse conditionParse = new ConditionParse();
+		conditionParse.addCondition("outId","=",fullId);
+		List<PackageItemBean> itemBeanList = this.packageItemDAO.queryEntityBeansByCondition(conditionParse);
+		if (ListTools.isEmptyOrNull(itemBeanList)){
+			return false;
+		}else{
+			_logger.warn(fullId+" is already packaged in CK***"+itemBeanList.get(0).getPackageId());
+			preConsignDAO.deleteEntityBean(pre.getId());
+			return true;
+		}
+	}
+
 	/**
 	 * for invoiceins
 	 * @param ins
@@ -419,7 +445,7 @@ public class PackageManagerImpl implements PackageManager {
 	private void createNewInsPackage(InvoiceinsVO ins,
 			List<InsVSInvoiceNumBean> numList, DistributionVO distVO, String fullAddress, String location)
 	{
-		_logger.info("****createNewInsPackage now****");
+		_logger.info("****createNewInsPackage now****"+ins.getId());
 		String id = commonDAO.getSquenceString20("CK");
 		
 		int allAmount = 0;
@@ -674,7 +700,8 @@ public class PackageManagerImpl implements PackageManager {
 		// 地址不全,不发
 		if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
 		{
-            triggerLog.warn("======address not complete==" + fullId);
+            _logger.warn("======address not complete==" + fullId);
+			preConsignDAO.deleteEntityBean(pre.getId());
 			return;
 		}
 		
@@ -829,6 +856,7 @@ public class PackageManagerImpl implements PackageManager {
 	 */
 	public void createInsPackage(PreConsignBean pre, String insId) throws MYException
 	{
+
 		String location = "";
 		
 		// 通过仓库获取 仓库地点
