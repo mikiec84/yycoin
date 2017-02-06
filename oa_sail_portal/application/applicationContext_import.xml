@@ -47,6 +47,8 @@
 	<osgi:reference id="flowLogDAO" interface="com.china.center.oa.publics.dao.FlowLogDAO" />
 	
 	<osgi:reference id="invoiceDAO" interface="com.china.center.oa.publics.dao.InvoiceDAO" />
+
+	<osgi:reference id="insVSInvoiceNumDAO" interface="com.china.center.oa.finance.dao.InsVSInvoiceNumDAO" />
 	
 	<osgi:reference id="dutyDAO" interface="com.china.center.oa.publics.dao.DutyDAO" />
 	

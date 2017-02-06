@@ -23,6 +23,8 @@ import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
+import com.china.center.oa.finance.bean.InsVSInvoiceNumBean;
+import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.product.bean.*;
@@ -104,6 +106,8 @@ public class ShipAction extends DispatchAction
     private InvoiceinsDAO invoiceinsDAO = null;
 
     private InvoiceDAO invoiceDAO = null;
+
+    private InsVSInvoiceNumDAO insVSInvoiceNumDAO = null;
 
     private CustomerMainDAO customerMainDAO = null;
 
@@ -571,17 +575,43 @@ public class ShipAction extends DispatchAction
         User user = (User) request.getSession().getAttribute("user");
         String insId = request.getParameter("insId");
         String fphm = request.getParameter("fphm");
+        String fpdm = request.getParameter("fpdm");
         String packageId = request.getParameter("packageId");
-        _logger.info(packageId+"***insId***"+insId+"***fphm***"+fphm);
+        _logger.info(packageId+"***insId***"+insId+"***fphm***"+fphm+"***fpdm***"+fpdm);
 
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
 
-
         //TODO 取返回的发票号码，写入对应的A单号中替换XN号码
+        List<InsVSInvoiceNumBean> numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insId);
+        if (!ListTools.isEmptyOrNull(numList)){
+            for (InsVSInvoiceNumBean item: numList){
+                InsVSInvoiceNumBean insNum = insVSInvoiceNumDAO.find(item.getId());
 
-        //TODO update package item product name
-        this.packageItemDAO.replaceInvoiceNum(insId, "", "");
+                //2016/10/11 #328 以真实发票号码替换package_item中对应的产品名中的临时发票号码
+                if (!StringTools.isNullOrNone(insNum.getInvoiceNum())){
+                    String outId = insNum.getInsId();
+                    this.packageItemDAO.replaceInvoiceNum(outId, insNum.getInvoiceNum(), fphm);
+
+                    //#328 如果是XN发票号,更新CK单为已捡配
+                    //TODO?
+//                    if (insNum.getInvoiceNum().contains("XN")){
+//                        ConditionParse conditionParse = new ConditionParse();
+//                        List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(outId,
+//                                AnoConstant.FK_FIRST);
+//                        if (!ListTools.isEmptyOrNull(packageItemBeanList)){
+//                            _logger.info(packageId+"****update XN***"+ ShipConstant.SHIP_STATUS_PICKUP);
+//
+//                            this.packageDAO.updateStatus(packageId, ShipConstant.SHIP_STATUS_PICKUP);
+//                        }
+//                    }
+                }
+
+                insNum.setInvoiceNum(fphm);
+                insVSInvoiceNumDAO.updateEntityBean(insNum);
+                _logger.info("***update invoice num***"+insNum);
+            }
+        }
 
         //# TODO CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
         List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(packageId);
@@ -601,7 +631,10 @@ public class ShipAction extends DispatchAction
             }
         }
 
-        result.setSuccessAndObj("操作成功", invoiceToNum);
+        InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
+        ins.setInvoiceNum(fphm);
+        ins.setInsId(fpdm);
+        result.setSuccessAndObj("OK", ins);
         String jsonstr = mapper.toJson(result);
         return JSONTools.writeResponse(response, jsonstr);
     }
@@ -5515,5 +5548,13 @@ public class ShipAction extends DispatchAction
 
     public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
+    }
+
+    public InsVSInvoiceNumDAO getInsVSInvoiceNumDAO() {
+        return insVSInvoiceNumDAO;
+    }
+
+    public void setInsVSInvoiceNumDAO(InsVSInvoiceNumDAO insVSInvoiceNumDAO) {
+        this.insVSInvoiceNumDAO = insVSInvoiceNumDAO;
     }
 }

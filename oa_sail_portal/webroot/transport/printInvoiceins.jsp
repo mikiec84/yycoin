@@ -44,8 +44,8 @@ function Invoice(){
 
 function callBackFunPrint(data)
 {
-	console.log(data);
-	console.log(data.obj);
+//	console.log(data);
+//	console.log(data.obj);
 //	var result = JSON.parse(data.obj);
 //	console.log(result);
 	if (data.retMsg.toLowerCase() === "ok") {
@@ -61,11 +61,13 @@ function callBackFunPrint(data)
 			var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
 			if (result === '0'){
 				var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
-				console.log(fphm);
+				alert(fphm);
+				var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
+				alert(fpdm);
 				//TODO update fphm
-				$ajax('../sail/ship.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm, callbackUpdateInsNum);
+				var packageId = $O('packageId').value;
+				$ajax('../sail/ship.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
 			}
-
 		}
 	}
 //    var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
@@ -74,7 +76,11 @@ function callBackFunPrint(data)
 }
 
 function callbackUpdateInsNum(data){
-	console.log(data);
+	var obj = data.obj;
+	alert(obj);
+	//TODO print
+	var xml =  a.JsaeroDY("0",obj.fpdm,obj.fphm,"0");
+	alert(xml);
 }
 function load()
 {
