@@ -122,6 +122,11 @@ public class PackageBean implements Serializable
 
     private String pickupTime = "";
 
+    /**
+     * #414 回执单打印时间
+     */
+    private String printTime = "";
+
     private int index_pos = 0;
 
     /**
@@ -582,6 +587,14 @@ public class PackageBean implements Serializable
                 }
             }
         }
+    }
+
+    public String getPrintTime() {
+        return printTime;
+    }
+
+    public void setPrintTime(String printTime) {
+        this.printTime = printTime;
     }
 
     @Override

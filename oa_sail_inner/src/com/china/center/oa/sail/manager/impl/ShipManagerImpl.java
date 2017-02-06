@@ -956,7 +956,7 @@ public class ShipManagerImpl implements ShipManager
             if (packageBean.getStatus() != ShipConstant.SHIP_STATUS_CONSIGN)
             {
                 packageBean.setStatus(ShipConstant.SHIP_STATUS_PRINT);
-
+                packageBean.setPrintTime(TimeTools.now());
                 packageDAO.updateEntityBean(packageBean);
                 _logger.info(packageBean.getId() + " status updated to " + ShipConstant.SHIP_STATUS_PRINT);
             }
