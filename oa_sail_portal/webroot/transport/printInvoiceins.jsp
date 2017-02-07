@@ -66,7 +66,7 @@ function callBackFunPrint(data)
 				alert(fpdm);
 				//TODO update fphm
 				var packageId = $O('packageId').value;
-				$ajax('../sail/ship.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
+				$ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
 			}
 		}
 	}

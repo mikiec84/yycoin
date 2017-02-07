@@ -23,6 +23,9 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.china.center.oa.sail.action.AppResult;
+import com.china.center.oa.sail.action.JsonMapper;
 import com.china.center.oa.sail.bean.*;
 import jxl.Workbook;
 import jxl.write.Label;
@@ -5016,6 +5019,30 @@ public class InvoiceinsAction extends DispatchAction
         
         return mapping.findForward("batchUpdateInsNum");
 	}
+
+    public ActionForward generateInvoiceins(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request,
+                                            HttpServletResponse response)
+            throws ServletException
+    {
+        User user = (User) request.getSession().getAttribute("user");
+        String insId = request.getParameter("insId");
+        String fphm = request.getParameter("fphm");
+        String fpdm = request.getParameter("fpdm");
+        String packageId = request.getParameter("packageId");
+        _logger.info(packageId+"***insId***"+insId+"***fphm***"+fphm+"***fpdm***"+fpdm);
+
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        this.invoiceinsManager.generateInvoiceins(packageId, insId, packageId);
+        InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
+        ins.setInvoiceNum(fphm);
+        ins.setInsId(fpdm);
+        result.setSuccessAndObj("OK", ins);
+        String jsonstr = mapper.toJson(result);
+        return JSONTools.writeResponse(response, jsonstr);
+    }
 
     /**
      * #328 财务开票批量审批

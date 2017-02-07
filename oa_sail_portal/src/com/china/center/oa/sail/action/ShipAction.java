@@ -107,8 +107,6 @@ public class ShipAction extends DispatchAction
 
     private InvoiceDAO invoiceDAO = null;
 
-    private InsVSInvoiceNumDAO insVSInvoiceNumDAO = null;
-
     private CustomerMainDAO customerMainDAO = null;
 
     private ProvinceDAO provinceDAO = null;
@@ -581,55 +579,6 @@ public class ShipAction extends DispatchAction
 
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
-
-        //TODO 取返回的发票号码，写入对应的A单号中替换XN号码
-        List<InsVSInvoiceNumBean> numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insId);
-        if (!ListTools.isEmptyOrNull(numList)){
-            for (InsVSInvoiceNumBean item: numList){
-                InsVSInvoiceNumBean insNum = insVSInvoiceNumDAO.find(item.getId());
-
-                //2016/10/11 #328 以真实发票号码替换package_item中对应的产品名中的临时发票号码
-                if (!StringTools.isNullOrNone(insNum.getInvoiceNum())){
-                    String outId = insNum.getInsId();
-                    this.packageItemDAO.replaceInvoiceNum(outId, insNum.getInvoiceNum(), fphm);
-
-                    //#328 如果是XN发票号,更新CK单为已捡配
-                    //TODO?
-//                    if (insNum.getInvoiceNum().contains("XN")){
-//                        ConditionParse conditionParse = new ConditionParse();
-//                        List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(outId,
-//                                AnoConstant.FK_FIRST);
-//                        if (!ListTools.isEmptyOrNull(packageItemBeanList)){
-//                            _logger.info(packageId+"****update XN***"+ ShipConstant.SHIP_STATUS_PICKUP);
-//
-//                            this.packageDAO.updateStatus(packageId, ShipConstant.SHIP_STATUS_PICKUP);
-//                        }
-//                    }
-                }
-
-                insNum.setInvoiceNum(fphm);
-                insVSInvoiceNumDAO.updateEntityBean(insNum);
-                _logger.info("***update invoice num***"+insNum);
-            }
-        }
-
-        //# TODO CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
-        List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(packageId);
-        if (!ListTools.isEmptyOrNull(packageItemBeanList)){
-            boolean  flag = true;
-            for (PackageItemBean item :packageItemBeanList){
-                String productName = item.getProductName();
-                if (productName!= null && productName.startsWith("发票号：XN")){
-                    flag = false;
-                    break;
-                }
-            }
-
-            if (flag){
-                _logger.info(packageId+"****update status***"+ ShipConstant.SHIP_STATUS_PICKUP);
-                this.packageDAO.updateStatus(packageId, ShipConstant.SHIP_STATUS_PICKUP);
-            }
-        }
 
         InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
         ins.setInvoiceNum(fphm);
@@ -5548,13 +5497,5 @@ public class ShipAction extends DispatchAction
 
     public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
-    }
-
-    public InsVSInvoiceNumDAO getInsVSInvoiceNumDAO() {
-        return insVSInvoiceNumDAO;
-    }
-
-    public void setInsVSInvoiceNumDAO(InsVSInvoiceNumDAO insVSInvoiceNumDAO) {
-        this.insVSInvoiceNumDAO = insVSInvoiceNumDAO;
     }
 }
