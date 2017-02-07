@@ -79,8 +79,11 @@ function callbackUpdateInsNum(data){
 	var obj = data.obj;
 	alert(obj);
 	//TODO print
-	var xml =  a.JsaeroDY("0",obj.fpdm,obj.fphm,"0");
+	var xml =  a.JsaeroDY("0",obj.id,obj.fphm,"0");
 	alert(xml);
+    //TODO display invoice number
+    var insDiv = $O(obj.insId);
+    alert(insDiv);
 }
 function load()
 {
@@ -148,10 +151,10 @@ function load()
                     ${item.id}</a></td>
                     <td align="center">${item.headContent}</td>
                     <td align="center">${item.spmc}</td>
-                    <td align="center"></td>
-					<td align="center"></td>
-					<td align="center"></td>
-					<td align="center"></td>
+                    <td align="center">${item.itemAmount}</td>
+					<td align="center">${item.price}</td>
+					<td align="center">${item.moneys}</td>
+					<td align="center">${item.sl}</td>
                     <td align="center"><div id="${item.id}"></div></td>
                 </tr>
             </c:forEach>

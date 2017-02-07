@@ -76,6 +76,18 @@ public class InvoiceinsVO extends InvoiceinsBean
 	
 	@Ignore
 	private String shippingName = "";
+
+	@Ignore
+	//#404 开票商品数量
+	private int itemAmount = 0;
+
+	@Ignore
+	//开票单价
+	private double price = 0;
+
+	@Ignore
+	//开票税率
+	private int sl = 0;
     
     /**
      * default constructor
@@ -267,6 +279,30 @@ public class InvoiceinsVO extends InvoiceinsBean
 	 */
 	public void setShippingName(String shippingName) {
 		this.shippingName = shippingName;
+	}
+
+	public int getItemAmount() {
+		return itemAmount;
+	}
+
+	public void setItemAmount(int itemAmount) {
+		this.itemAmount = itemAmount;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+
+	public int getSl() {
+		return sl;
+	}
+
+	public void setSl(int sl) {
+		this.sl = sl;
 	}
 
 	/**

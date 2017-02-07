@@ -23,9 +23,6 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.china.center.oa.sail.action.AppResult;
-import com.china.center.oa.sail.action.JsonMapper;
 import com.china.center.oa.sail.bean.*;
 import jxl.Workbook;
 import jxl.write.Label;
@@ -5038,7 +5035,8 @@ public class InvoiceinsAction extends DispatchAction
         this.invoiceinsManager.generateInvoiceins(packageId, insId, packageId);
         InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
         ins.setInvoiceNum(fphm);
-        ins.setInsId(fpdm);
+        ins.setInsId(insId);
+        ins.setId(fpdm);
         result.setSuccessAndObj("OK", ins);
         String jsonstr = mapper.toJson(result);
         return JSONTools.writeResponse(response, jsonstr);

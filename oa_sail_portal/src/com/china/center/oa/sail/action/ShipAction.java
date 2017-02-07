@@ -24,9 +24,12 @@ import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.bean.InsVSInvoiceNumBean;
+import com.china.center.oa.finance.bean.InvoiceinsItemBean;
 import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
+import com.china.center.oa.finance.vo.InvoiceinsVO;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.publics.bean.*;
@@ -104,6 +107,8 @@ public class ShipAction extends DispatchAction
     private StafferDAO stafferDAO = null;
 
     private InvoiceinsDAO invoiceinsDAO = null;
+
+    private InvoiceinsItemDAO invoiceinsItemDAO = null;
 
     private InvoiceDAO invoiceDAO = null;
 
@@ -504,7 +509,7 @@ public class ShipAction extends DispatchAction
         User user = (User) request.getSession().getAttribute("user");
         String packageId = request.getParameter("packageId");
         _logger.info("***packageId***"+packageId);
-        List<InvoiceinsBean> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        List<InvoiceinsVO> invoiceinsList = this.findInvoiceinsWithXN(packageId);
 
         _logger.info("***invoiceinsList***"+invoiceinsList);
 
@@ -514,15 +519,21 @@ public class ShipAction extends DispatchAction
         return mapping.findForward("printInvoiceins");
     }
 
-    private List<InvoiceinsBean> findInvoiceinsWithXN(String packageId){
-        List<InvoiceinsBean> invoiceinsList = new ArrayList<InvoiceinsBean>();
+    private List<InvoiceinsVO> findInvoiceinsWithXN(String packageId){
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<InvoiceinsVO>();
         List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageId);
         for (PackageItemBean item: itemList){
             String productName = item.getProductName();
             if (productName!= null && productName.startsWith("发票号：XN")){
                 String insId = item.getOutId();
-                InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(insId);
+                InvoiceinsVO invoiceinsBean = this.invoiceinsDAO.findVO(insId);
                 if (invoiceinsBean!= null){
+                    int amount = this.getProductAmount(invoiceinsBean);
+                    double price = invoiceinsBean.getMoneys()/amount;
+                    int fpsl = this.getFpsl(invoiceinsBean);
+                    invoiceinsBean.setItemAmount(amount);
+                    invoiceinsBean.setPrice(price);
+                    invoiceinsBean.setSl(fpsl);
                     invoiceinsList.add(invoiceinsBean);
                 }
             }
@@ -542,9 +553,9 @@ public class ShipAction extends DispatchAction
         AppResult result = new AppResult();
 
         Map<String,String> invoiceToXml = new HashMap<String, String>();
-        List<InvoiceinsBean> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        List<InvoiceinsVO> invoiceinsList = this.findInvoiceinsWithXN(packageId);
 
-        //TODO generate XML payload
+        //generate XML payload
         for (InvoiceinsBean  bean:invoiceinsList){
             String payload = this.createXML(user, invoiceinsList.get(0));
             invoiceToXml.put(bean.getId(),payload);
@@ -557,7 +568,7 @@ public class ShipAction extends DispatchAction
     }
 
     /**
-     * 404 更新发票号码
+     * 404 更新发票号码 refer to InvoiceinsAction.generateInvoiceins
      * @param mapping
      * @param form
      * @param request
@@ -565,28 +576,28 @@ public class ShipAction extends DispatchAction
      * @return
      * @throws ServletException
      */
-    public ActionForward generateInvoiceins(ActionMapping mapping, ActionForm form,
-                                         HttpServletRequest request,
-                                         HttpServletResponse response)
-            throws ServletException
-    {
-        User user = (User) request.getSession().getAttribute("user");
-        String insId = request.getParameter("insId");
-        String fphm = request.getParameter("fphm");
-        String fpdm = request.getParameter("fpdm");
-        String packageId = request.getParameter("packageId");
-        _logger.info(packageId+"***insId***"+insId+"***fphm***"+fphm+"***fpdm***"+fpdm);
-
-        JsonMapper mapper = new JsonMapper();
-        AppResult result = new AppResult();
-
-        InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
-        ins.setInvoiceNum(fphm);
-        ins.setInsId(fpdm);
-        result.setSuccessAndObj("OK", ins);
-        String jsonstr = mapper.toJson(result);
-        return JSONTools.writeResponse(response, jsonstr);
-    }
+//    public ActionForward generateInvoiceins(ActionMapping mapping, ActionForm form,
+//                                         HttpServletRequest request,
+//                                         HttpServletResponse response)
+//            throws ServletException
+//    {
+//        User user = (User) request.getSession().getAttribute("user");
+//        String insId = request.getParameter("insId");
+//        String fphm = request.getParameter("fphm");
+//        String fpdm = request.getParameter("fpdm");
+//        String packageId = request.getParameter("packageId");
+//        _logger.info(packageId+"***insId***"+insId+"***fphm***"+fphm+"***fpdm***"+fpdm);
+//
+//        JsonMapper mapper = new JsonMapper();
+//        AppResult result = new AppResult();
+//
+//        InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
+//        ins.setInvoiceNum(fphm);
+//        ins.setInsId(fpdm);
+//        result.setSuccessAndObj("OK", ins);
+//        String jsonstr = mapper.toJson(result);
+//        return JSONTools.writeResponse(response, jsonstr);
+//    }
 
     private String createXML(User user, InvoiceinsBean bean){
         try {
@@ -599,7 +610,7 @@ public class ShipAction extends DispatchAction
             Element rootElement = doc.createElement("invinterface");
             doc.appendChild(rootElement);
 
-            //  TODO invhead
+            //  invhead
             Element invhead = doc.createElement("invhead");
             rootElement.appendChild(invhead);
 
@@ -638,16 +649,9 @@ public class ShipAction extends DispatchAction
 
             //TODO 取invoiceid到 invoice表中取对应的VAL值，如果值是2，则值设为3
             Element fpsl = doc.createElement("fpsl");
-            InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getInvoiceId());
-            if (invoiceBean!= null){
-                if (this.equals(invoiceBean.getVal(), 2, 0.001)){
-                    fpsl.appendChild(
-                            doc.createTextNode("3"));
-                }else{
-                    fpsl.appendChild(
-                            doc.createTextNode(String.valueOf(invoiceBean.getVal())));
-                }
-            }
+            int val = this.getFpsl(bean);
+            fpsl.appendChild(doc.createTextNode(String.valueOf(val)));
+
             invhead.appendChild(fpsl);
 
             Element fpbz = doc.createElement("fpbz");
@@ -692,7 +696,7 @@ public class ShipAction extends DispatchAction
             invhead.appendChild(hysy);
 
 
-            //  TODO invdetails
+            //  invdetails
             Element invdetails = doc.createElement("invdetails");
             rootElement.appendChild(invdetails);
 
@@ -716,19 +720,19 @@ public class ShipAction extends DispatchAction
                     doc.createTextNode("套"));
             details.appendChild(jldw);
 
-            //TODO invoiceins_item表中amount 字段合计
+            // invoiceins_item表中amount 字段合计
+            int amount = this.getProductAmount(bean);
             Element spsl = doc.createElement("spsl");
             spsl.appendChild(
-                    doc.createTextNode("0"));
+                    doc.createTextNode(String.valueOf(amount)));
             details.appendChild(spsl);
 
-            //invoiceins_item表中price 字段值
+            //TODO invoiceins_item表中price 字段值
             Element spdj = doc.createElement("spdj");
             spdj.appendChild(
-                    doc.createTextNode("0"));
+                    doc.createTextNode(String.valueOf(bean.getMoneys()/amount)));
             details.appendChild(spdj);
 
-            //TODO 数量*金额 或总金额，不相符时报错
             Element spje = doc.createElement("spje");
             spje.appendChild(
                     doc.createTextNode(String.valueOf(bean.getMoneys())));
@@ -736,8 +740,9 @@ public class ShipAction extends DispatchAction
 
             //TODO 总金额*VAL/100
             Element spse = doc.createElement("spse");
+            double se = bean.getMoneys()*val/100;
             spse.appendChild(
-                    doc.createTextNode(""));
+                    doc.createTextNode(String.valueOf(se)));
             details.appendChild(spse);
 
             Element zkje = doc.createElement("zkje");
@@ -778,6 +783,28 @@ public class ShipAction extends DispatchAction
             e.printStackTrace();
             return "";
         }
+    }
+
+    private int getProductAmount(InvoiceinsBean bean){
+        List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByFK(bean.getId());
+        int amount = 0;
+        for (InvoiceinsItemBean item: items){
+            amount += item.getAmount();
+        }
+        return amount;
+    }
+
+    private int getFpsl(InvoiceinsBean bean){
+        InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getInvoiceId());
+        int val = 0;
+        if (invoiceBean!= null){
+            if (this.equals(invoiceBean.getVal(), 2, 0.001)){
+                val = 3;
+            }else{
+                val = (int)invoiceBean.getVal();
+            }
+        }
+        return val;
     }
 
     private Document convertStringToDocument(String xmlStr) {
@@ -5497,5 +5524,13 @@ public class ShipAction extends DispatchAction
 
     public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
         this.invoiceDAO = invoiceDAO;
+    }
+
+    public InvoiceinsItemDAO getInvoiceinsItemDAO() {
+        return invoiceinsItemDAO;
+    }
+
+    public void setInvoiceinsItemDAO(InvoiceinsItemDAO invoiceinsItemDAO) {
+        this.invoiceinsItemDAO = invoiceinsItemDAO;
     }
 }
