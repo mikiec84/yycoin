@@ -1728,12 +1728,13 @@ public class FinanceAction extends DispatchAction {
             							// 增加票款一致的检查  ---- begin-------
                     					if (out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
                     					{
-                    						builder
-                                            .append("第[" + currentNumber + "]错误:")
-                                            .append("销售单开票审批中,不能勾款")
-                                            .append("<br>");
-                                        
-                                			importError = true;
+//                    						builder
+//                                            .append("第[" + currentNumber + "]错误:")
+//                                            .append("销售单开票审批中,不能勾款")
+//                                            .append("<br>");
+//
+//                                			importError = true;
+											_logger.warn("销售单开票审批中,不能勾款");
                     					}else{
                     						if (!StringTools.isNullOrNone(out.getPiDutyId()))
                         					{
