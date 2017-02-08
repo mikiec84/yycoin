@@ -5032,7 +5032,7 @@ public class InvoiceinsAction extends DispatchAction
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
 
-        this.invoiceinsManager.generateInvoiceins(packageId, insId, packageId);
+        this.invoiceinsManager.generateInvoiceins(packageId, insId, fphm);
         InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
         ins.setInvoiceNum(fphm);
         ins.setInsId(insId);

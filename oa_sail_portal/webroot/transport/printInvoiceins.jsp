@@ -77,13 +77,14 @@ function callBackFunPrint(data)
 
 function callbackUpdateInsNum(data){
 	var obj = data.obj;
+	console.log(obj);
 	alert(obj);
 	//TODO print
-	var xml =  a.JsaeroDY("0",obj.id,obj.fphm,"0");
-	alert(xml);
-    //TODO display invoice number
+//	var xml =  a.JsaeroDY("0",obj.id,obj.invoiceNum,"0");
+//	alert(xml);
+    // display invoice number
     var insDiv = $O(obj.insId);
-    alert(insDiv);
+	insDiv.value=obj.invoiceNum;
 }
 function load()
 {
@@ -155,7 +156,7 @@ function load()
 					<td align="center">${item.price}</td>
 					<td align="center">${item.moneys}</td>
 					<td align="center">${item.sl}</td>
-                    <td align="center"><div id="${item.id}"></div></td>
+                    <td align="center"><input type="text" readonly id="${item.id}"></td>
                 </tr>
             </c:forEach>
 		</table>
