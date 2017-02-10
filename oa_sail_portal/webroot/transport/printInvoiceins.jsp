@@ -33,16 +33,11 @@ function Invoice(){
 //	var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
 //	var xml =  a.JsaeroKP(inv);
 //	alert(xml);
-    $ajax('../sail/ship.do?method=generateInvoiceinsXml&packageId='+packageId, callBackFunPrint);
+    $ajax('../sail/ship.do?method=generateInvoiceinsXml&packageId='+packageId, callbackGenerateInvoice);
 }
-//
-//function process()
-//{
-//	var packageId = $O('packageId').value;
-//	$ajax('../sail/ship.do?method=generateInvoiceins&packageId='+packageId, callBackFunPrint);
-//}
 
-function callBackFunPrint(data)
+//开票
+function callbackGenerateInvoice(data)
 {
 //	console.log(data);
 //	console.log(data.obj);
@@ -50,12 +45,12 @@ function callBackFunPrint(data)
 //	console.log(result);
 	if (data.retMsg.toLowerCase() === "ok") {
 		for (var key in data.obj) {
-			console.log(key + ': ' + data.obj[key]);
+//			console.log(key + ': ' + data.obj[key]);
 //			var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
-//			var xml =  a.JsaeroKP(data.obj[key]);
-//			alert(xml);
+			var response =  a.JsaeroKP(data.obj[key]);
+			alert(response);
 			//TODO
-			var response = '<?xml version="1.0" encoding="UTF-8"?><invinterface><Result>0</Result><ErrMsg></ErrMsg><fpje>234</fpje><fpse>34</fpse><fpdm>3200131530</fpdm><fphm>00834295</fphm></invinterface>';
+//			var response = '<?xml version="1.0" encoding="UTF-8"?><invinterface><Result>0</Result><ErrMsg></ErrMsg><fpje>234</fpje><fpse>34</fpse><fpdm>3200131530</fpdm><fphm>00834295</fphm></invinterface>';
 			var oParser = new DOMParser();
 			var oDOM = oParser.parseFromString(response, "text/xml");
 			var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
@@ -75,13 +70,14 @@ function callBackFunPrint(data)
 //    alert(xml);
 }
 
+//打印发票
 function callbackUpdateInsNum(data){
 	var obj = data.obj;
-	console.log(obj);
+//	console.log(obj);
 	alert(obj);
 	//TODO print
-//	var xml =  a.JsaeroDY("0",obj.id,obj.invoiceNum,"0");
-//	alert(xml);
+	var xml =  a.JsaeroDY("0",obj.id,obj.invoiceNum,"0");
+	alert(xml);
     // display invoice number
     var insDiv = $O(obj.insId);
 	insDiv.value=obj.invoiceNum;
