@@ -84,6 +84,7 @@
                             <td align="center" onclick="tableSort(this)" class="td_class">客户名</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">中收金额</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">激励金额</td>
+                            <td align="center" onclick="tableSort(this)" class="td_class">统计时间</td>
                         </tr>
 
                         <c:forEach items="${ibReportList}" var="item" varStatus="vs">
@@ -91,6 +92,7 @@
                                 <td align="center">${item.customerName}</td>
                                 <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.ibMoneyTotal}</a></td>
                                 <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.motivationMoneyTotal}</a></td>
+                                <td align="center">${item.logTime}</td>
                             </tr>
                         </c:forEach>
                     </table>

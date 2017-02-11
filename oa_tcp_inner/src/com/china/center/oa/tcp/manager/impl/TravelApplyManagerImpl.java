@@ -2982,6 +2982,17 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //所有中收激励统计均为“已出库”、“已发货”状态的订单，退库订单的状态均为“待核对”状态
         //销售退库订单的对应中收、激励金额为负数也列入统计及明细
         _logger.info("*****ibReportJob running******");
+        //#417 删除部分冗余数据
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition(" where not exists (select report.id from t_center_tcpibreport report where report.id=T_CENTER_TCPIBREPORT_ITEM.refid)");
+        this.tcpIbReportItemDAO.deleteEntityBeansByCondition(conditionParse);
+//        List<TcpIbReportItemBean> items = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
+//        if (!ListTools.isEmptyOrNull(items)){
+//            for (TcpIbReportItemBean item: items){
+//                this.tcpIbReportItemDAO.deleteEntityBean(item.getId());
+//            }
+//        }
+
         //根据customerId分组
         Map<String, List<OutBean>>  customerToOutMap = new HashMap<String,List<OutBean>>();
 

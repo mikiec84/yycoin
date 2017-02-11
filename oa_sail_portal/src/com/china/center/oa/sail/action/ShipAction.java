@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.Map.Entry;
@@ -730,17 +731,17 @@ public class ShipAction extends DispatchAction
             //TODO invoiceins_item表中price 字段值
             Element spdj = doc.createElement("spdj");
             spdj.appendChild(
-                    doc.createTextNode(String.valueOf(bean.getMoneys()/amount)));
+                    doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()/amount))));
             details.appendChild(spdj);
 
             Element spje = doc.createElement("spje");
             spje.appendChild(
-                    doc.createTextNode(String.valueOf(bean.getMoneys())));
+                    doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()))));
             details.appendChild(spje);
 
-            //TODO 总金额*VAL/100
+            // 总金额*VAL/100
             Element spse = doc.createElement("spse");
-            double se = bean.getMoneys()*val/100;
+            double se = this.roundDouble(bean.getMoneys()*val/100);
             spse.appendChild(
                     doc.createTextNode(String.valueOf(se)));
             details.appendChild(spse);
@@ -783,6 +784,17 @@ public class ShipAction extends DispatchAction
             e.printStackTrace();
             return "";
         }
+    }
+
+    /**
+     * 保留两位数
+     * @param value
+     * @return
+     */
+    private double roundDouble(double value){
+        BigDecimal bd = new BigDecimal(value);
+        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return v1;
     }
 
     private int getProductAmount(InvoiceinsBean bean){
