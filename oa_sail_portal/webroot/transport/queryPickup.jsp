@@ -70,8 +70,24 @@
 
             if (flag == '1')
                 $l('../sail/ship.do?method=findOutForReceipt&compose=1&pickupId=' + getRadioValue("pickupId") + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
-            else
-                $l('../sail/ship.do?method=findOutForReceipt&compose=2&pickupId=' + getRadioValue("pickupId") + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
+            else{
+                var clis = getCheckBox('packageIds');
+                if (clis.length ==1){
+                    //打印第一个选中的CK单
+                    var packageId = clis[0].value;
+                    $l('../sail/ship.do?method=findOutForSingleReceipt&compose=2&packageId=' + packageId + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
+                }else{
+                    if (clis.length >1){
+                        alert('选择CK单时一次只能打印一个出库单!');
+                        return;
+                    } else{
+                        //打印批次
+                        $l('../sail/ship.do?method=findOutForReceipt&compose=2&pickupId=' + getRadioValue("pickupId") + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
+                    }
+                }
+
+            }
+
         }
 
         function sub()

@@ -2048,6 +2048,213 @@ public class ShipAction extends DispatchAction
             }
         }
     }
+
+    /**
+     * #413 单个CK单打印回执单
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward findOutForSingleReceipt(ActionMapping mapping, ActionForm form,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response)
+            throws ServletException {
+        CommonTools.saveParamers(request);
+
+        String compose = RequestTools.getValueFromRequest(request, "compose");
+
+        String compose1 = RequestTools.getValueFromRequest(request, "compose1");
+
+        if (!StringTools.isNullOrNone(compose1))
+            compose = compose1;
+
+
+        String sindex_pos = RequestTools.getValueFromRequest(request, "index_pos");
+
+        int index_pos = 0;
+
+        if (!StringTools.isNullOrNone(sindex_pos)) {
+            index_pos = MathTools.parseInt(sindex_pos);
+        }
+
+        String packageId = RequestTools.getValueFromRequest(request, "packageId");
+
+        String printMode = (String) request.getAttribute("printMode");
+        String printSmode = (String) request.getAttribute("printSmode");
+
+        String batchPrint = RequestTools.getValueFromRequest(request, "batchPrint");
+        String print2 = (String) request.getSession().getAttribute("printMode");
+
+        String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 +  "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" + printSmode;
+        _logger.info(msg1);
+        //2015/3/25 批量打印标志
+        request.setAttribute("batchPrint", batchPrint);
+
+        //可去掉？很奇怪在页面上读不到printMode参数
+        request.setAttribute("printMode", printMode);
+        request.setAttribute("printSmode", printSmode);
+
+        String subindex_pos = request.getParameter("subindex_pos");
+
+        int subindexpos = 0;
+
+        if (!StringTools.isNullOrNone(subindex_pos)) {
+            subindexpos = MathTools.parseInt(subindex_pos);
+        }
+
+        subindexpos += 1;
+
+        String customerId = "";
+        String customerName = "";
+
+        ConditionParse con = new ConditionParse();
+
+        con.addWhereStr();
+
+        con.addCondition("PackageVSCustomerBean.packageId", "=", packageId);
+        _logger.info("=======con========" + con.toString());
+        List<PackageVSCustomerBean> vsList = packageVSCustomerDAO.queryEntityBeansByCondition(con);
+
+        if (!ListTools.isEmptyOrNull(vsList)) {
+            customerId = vsList.get(0).getCustomerId();
+            customerName = vsList.get(0).getCustomerName();
+
+            request.setAttribute("subindex_pos", subindexpos);
+            String msg2 = "**********vsList size****" + vsList.size();
+            _logger.info(msg2);
+        }
+
+
+        // 取出包
+        PackageVO vo = packageDAO.findVO(packageId);
+
+        vo.setRepTime(TimeTools.now_short());
+
+        vo.setCustomerId(customerId);
+        vo.setCustomerName(customerName);
+
+        if (vo.getCustomerName().contains("黄河银行")){
+            request.setAttribute("customerName", vo.getCustomerName().replace("黄河银行",""));
+        } else{
+            request.setAttribute("customerName", vo.getCustomerName());
+        }
+
+
+        List<PackageItemBean> itemList = packageItemDAO.
+                queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
+        String template = "CK:%s customerID:%s customer:%s item size:%d";
+        _logger.info(String.format(template, vo.getId(), vo.getCustomerId(), vo.getCustomerName(), itemList.size()));
+
+        //2016/10/12 #328 检查临时发票号码
+        for (PackageItemBean item : itemList){
+            String productName = item.getProductName();
+            if (productName!= null && productName.startsWith("发票号：XN")){
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, item.getPackageId()+"商品名中存在虚拟发票号:"+productName);
+
+                return mapping.findForward("error");
+            }
+        }
+
+        request.setAttribute("bean", vo);
+
+        request.setAttribute("index_pos", index_pos);
+
+        request.setAttribute("compose", compose);
+
+        request.setAttribute("year", TimeTools.now("yyyy"));
+        request.setAttribute("month", TimeTools.now("MM"));
+        request.setAttribute("day", TimeTools.now("dd"));
+
+        int totalAmount = 0;
+        double total = 0.0d;
+
+        //中原银行客户
+        if (vo.getCustomerName().indexOf("中原银行") != -1) {
+            request.setAttribute("packageId", vo.getId());
+            request.setAttribute("title", "贵金属交接单");
+
+            try {
+                String msg5 = "**********before prepareForZyPrint****";
+                _logger.info(msg5);
+                this.prepareForZyPrint(request, vo, itemList, compose);
+                String msg6 = "**********after prepareForZyPrint****";
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+                _logger.error("****printZyReceipt exception***", e);
+            }
+
+            return mapping.findForward("printZyReceipt");
+        }
+        //宁波银行客户
+        else if (vo.getCustomerName().indexOf("宁波银行") != -1) {
+            request.setAttribute("packageId", vo.getId());
+            request.setAttribute("title", "发货确认单");
+
+            try {
+                String msg5 = "**********before prepareForNbPrint****";
+                _logger.info(msg5);
+                this.prepareForNbPrint(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                String msg6 = "**********after prepareForNbPrint****";
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+                _logger.error("****prepareForNbPrint exception***", e);
+            }
+
+            return mapping.findForward("printNbReceipt");
+        }
+        //紫金银行客户
+        else if (vo.getCustomerName().indexOf("紫金") != -1) {
+            request.setAttribute("packageId", vo.getId());
+            request.setAttribute("title", "永银文化公司贵金属实物交接清单");
+
+            try {
+                String msg5 = "**********before prepareForZjPrint****";
+                _logger.info(msg5);
+                this.prepareForZjPrint(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                String msg6 = "**********after prepareForZjPrint****";
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+                _logger.error("****prepareForZjPrint exception***", e);
+            }
+
+            return mapping.findForward("printZjReceipt");
+        } else{
+            //其他所有银行
+            request.setAttribute("packageId", vo.getId());
+            request.setAttribute("title", "永银文化——发货清单");
+
+            try {
+                String msg5 = "**********before prepareForUnified****";
+                _logger.info(msg5);
+                prepareForUnified(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                String msg6 = "**********after prepareForUnified****";
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (vo.getCustomerName().indexOf("吉林银行") != -1){
+                return mapping.findForward("printJlReceipt");
+            } else{
+                return mapping.findForward("printUnifiedReceipt");
+            }
+        }
+    }
+
     /**
      * 显示要打印的回执单
      * 邮政、浦发、中信
