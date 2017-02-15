@@ -2612,6 +2612,10 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         return condtion;
 	}
 
+    /**
+     * #9 资金管理-收款稽核 每10分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过
+     * @throws MYException
+     */
     @Override
     public void passPaymentApplyJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -2629,13 +2633,12 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                         condtion.addWhereStr();
                         condtion.addIntCondition("PaymentApplyBean.status", "=",
                                 FinanceConstant.PAYAPPLY_STATUS_INIT);
-                        condtion.addIntCondition("PaymentApplyBean.badMoney", "=", 0);
+//                        condtion.addIntCondition("PaymentApplyBean.badMoney", "=", 0);
 //                        triggerLog.info("handleCheckPay 暂停统计，款到发货1小时内未付款，不会自动驳回...");
                         List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
                         if (!ListTools.isEmptyOrNull(beans)) {
                             for (PaymentApplyBean bean : beans) {
-                                System.out.println("PaymentApplyBean with badMoney==0**********" + beans.size());
-                                _logger.info("PaymentApplyBean with badMoney==0**********" + beans.size());
+                                _logger.info("PaymentApplyBean is PAYAPPLY_STATUS_INIT**********" + beans.size());
                                 synchronized (PAYMENT_APPLY_LOCK) {
                                     try {
                                         passPaymentApplyForJob(null, bean.getId(), "", "");
