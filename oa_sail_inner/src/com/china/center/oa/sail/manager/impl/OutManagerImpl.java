@@ -12475,6 +12475,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     @Transactional(rollbackFor = {MYException.class})
+    @Deprecated
     public void autoApproveOutJob() {
         //To change body of implemented methods use File | Settings | File Templates.
         triggerLog.info("***autoApproveOutJob is running***");

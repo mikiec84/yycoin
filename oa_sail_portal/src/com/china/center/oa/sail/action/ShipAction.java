@@ -739,9 +739,10 @@ public class ShipAction extends DispatchAction
                     doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()))));
             details.appendChild(spje);
 
-            // 总金额*VAL/100
+            // 含税税额 总金额*税率/(1+税率)
+            double sl = this.roundDouble(val/100);
             Element spse = doc.createElement("spse");
-            double se = this.roundDouble(bean.getMoneys()*val/100);
+            double se = this.roundDouble(bean.getMoneys()*sl/(1+sl));
             spse.appendChild(
                     doc.createTextNode(String.valueOf(se)));
             details.appendChild(spse);

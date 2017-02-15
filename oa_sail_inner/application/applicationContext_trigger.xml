@@ -148,18 +148,18 @@
     </bean>
 
     <!--#150 2015/12/27 自动库管审批通过 -->
-    <bean id="autoApproveOutJob"
-          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="outManager" />
-        <property name="targetMethod" value="autoApproveOutJob" />
-        <property name="concurrent" value="false" />
-    </bean>
+    <!--<bean id="autoApproveOutJob"-->
+          <!--class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">-->
+        <!--<property name="targetObject" ref="outManager" />-->
+        <!--<property name="targetMethod" value="autoApproveOutJob" />-->
+        <!--<property name="concurrent" value="false" />-->
+    <!--</bean>-->
 
-    <bean id="autoApproveOutJobTrigger"
-          class="org.springframework.scheduling.quartz.CronTriggerBean">
-        <property name="jobDetail" ref="autoApproveOutJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
-    </bean>
+    <!--<bean id="autoApproveOutJobTrigger"-->
+          <!--class="org.springframework.scheduling.quartz.CronTriggerBean">-->
+        <!--<property name="jobDetail" ref="autoApproveOutJob" />-->
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+    <!--</bean>-->
 
     <!--#222 2016/4/14 下载邮件自动生成SO单 -->
     <bean id="downloadOrderFromMailAttachmentJob"
@@ -270,7 +270,7 @@
                 <ref bean="sendMailForShippingTrigger"/>
                 <ref bean="sendMailForNbShippingTrigger"/>
                 <ref bean="sortPackagesTrigger"/>
-                <ref bean="autoApproveOutJobTrigger"/>
+                <!--<ref bean="autoApproveOutJobTrigger"/>-->
                 <ref bean="downloadOrderFromMailAttachmentJobTrigger"/>
                 <ref bean="sendShippingMailToSailsTrigger"/>
                 <ref bean="offlineOrderJobTrigger"/>
