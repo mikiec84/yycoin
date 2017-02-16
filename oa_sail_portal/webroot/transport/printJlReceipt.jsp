@@ -129,7 +129,7 @@ function callBackPrintFun()
 				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
 					<tr class="content2">
 						<td width="20%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">机构代码</td></tr></table></td>
+                        <td width="8%"><table class="border1"><tr><td align="center">产品代码</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">订单性质</td></tr></table></td>
 						<td width="20%"><table class="border1"><tr><td align="center">客户单号</td></tr></table></td>
@@ -140,7 +140,7 @@ function callBackPrintFun()
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
 						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center">${item.lhwd}</td></tr></table></td>
+                        <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
 						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.itemType}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>

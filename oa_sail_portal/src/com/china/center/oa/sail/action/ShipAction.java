@@ -648,7 +648,7 @@ public class ShipAction extends DispatchAction
                     doc.createTextNode(""));
             invhead.appendChild(gfdz);
 
-            //TODO 取invoiceid到 invoice表中取对应的VAL值，如果值是2，则值设为3
+            // 取invoiceid到 invoice表中取对应的VAL值，如果值是2，则值设为3
             Element fpsl = doc.createElement("fpsl");
             int val = this.getFpsl(bean);
             fpsl.appendChild(doc.createTextNode(String.valueOf(val)));
@@ -660,22 +660,24 @@ public class ShipAction extends DispatchAction
                     doc.createTextNode(""));
             invhead.appendChild(fpbz);
 
-            //OA操作人姓名
+            //开票人
             Element kprm = doc.createElement("kprm");
             kprm.appendChild(
-                    doc.createTextNode(user.getName()));
+                    doc.createTextNode("陈倩"));
             invhead.appendChild(kprm);
 
+            //复核人
             Element fhrm = doc.createElement("fhrm");
             fhrm.appendChild(
-                    doc.createTextNode(user.getName()));
+                    doc.createTextNode("邢君君"));
             invhead.appendChild(fhrm);
 
+            //收款人
             Element skrm = doc.createElement("skrm");
-            skrm.appendChild(
-                    doc.createTextNode(""));
+            skrm.appendChild(doc.createTextNode("黄文娟"));
             invhead.appendChild(skrm);
 
+            //含税标识
             Element hsbz = doc.createElement("hsbz");
             hsbz.appendChild(
                     doc.createTextNode("1"));
@@ -683,12 +685,12 @@ public class ShipAction extends DispatchAction
 
             Element xfdz = doc.createElement("xfdz");
             xfdz.appendChild(
-                    doc.createTextNode("南京市秦淮区正学路1号，025-51885901"));
+                    doc.createTextNode("南京市秦淮区正学路1号025-51885901"));
             invhead.appendChild(xfdz);
 
             Element xfyh = doc.createElement("xfyh");
             xfyh.appendChild(
-                    doc.createTextNode("招商银行南京城北支行，帐号：125902780610701"));
+                    doc.createTextNode("招商银行南京城北支行125902780610701"));
             invhead.appendChild(xfyh);
 
             Element hysy = doc.createElement("hysy");
@@ -728,7 +730,7 @@ public class ShipAction extends DispatchAction
                     doc.createTextNode(String.valueOf(amount)));
             details.appendChild(spsl);
 
-            //TODO invoiceins_item表中price 字段值
+            // invoiceins_item表中price 字段值
             Element spdj = doc.createElement("spdj");
             spdj.appendChild(
                     doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()/amount))));
