@@ -51,17 +51,35 @@ function callbackGenerateInvoice(data)
 			alert(response);
 			//TODO
 //			var response = '<?xml version="1.0" encoding="UTF-8"?><invinterface><Result>0</Result><ErrMsg></ErrMsg><fpje>234</fpje><fpse>34</fpse><fpdm>3200131530</fpdm><fphm>00834295</fphm></invinterface>';
-			var oParser = new DOMParser();
-			var oDOM = oParser.parseFromString(response, "text/xml");
+			var oDOM = null;
+			if (typeof DOMParser != "undefined"){
+				var oParser = new DOMParser();
+				var oDOM = oParser.parseFromString(response, "text/xml");
+			}else if (typeof ActiveXObject != "undefined") {
+				//IE8
+				oDOM = new ActiveXObject("Microsoft.XMLDOM");
+				oDOM.async = false;
+				oDOM.loadXML(xml);
+//				oDOM = createDocument();
+//				oDOM.loadXML(xml);c
+				if (oDOM.parseError != 0) {
+					throw new Error("XML parsing error: " + oDOM.parseError.reason);
+				}
+			}else {
+				alert("No XML parser available.");
+			}
+
 			var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
 			if (result === '0'){
 				var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
 				alert(fphm);
 				var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
 				alert(fpdm);
-				//TODO update fphm
+				//update fphm
 				var packageId = $O('packageId').value;
 				$ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
+			}else{
+				alert("开票异常!");
 			}
 		}
 	}
