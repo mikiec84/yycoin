@@ -23,6 +23,28 @@ var xmlDoc = "";
 function OpenCard(){
 	var result = a.JsaeroOpen();
 	alert(result);
+	var oDOM = null;
+	if (typeof DOMParser != "undefined"){
+		var oParser = new DOMParser();
+		var oDOM = oParser.parseFromString(result, "text/xml");
+	}else if (typeof ActiveXObject != "undefined") {
+		//IE8
+		oDOM = new ActiveXObject("Microsoft.XMLDOM");
+		oDOM.async = false;
+		oDOM.loadXML(result);
+		if (oDOM.parseError != 0) {
+			throw new Error("XML parsing error: " + oDOM.parseError.reason);
+		}
+	}else {
+		alert("No XML parser available.");
+	}
+
+	var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+//	alert(result);
+	if (result === '1') {
+		var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+		alert(msg);
+	}
 }
 
 
@@ -45,12 +67,8 @@ function callbackGenerateInvoice(data)
 //	console.log(result);
 	if (data.retMsg.toLowerCase() === "ok") {
 		for (var key in data.obj) {
-//			console.log(key + ': ' + data.obj[key]);
-//			var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
 			var response =  a.JsaeroKP(data.obj[key]);
 			alert(response);
-			//TODO
-//			var response = '<?xml version="1.0" encoding="UTF-8"?><invinterface><Result>0</Result><ErrMsg></ErrMsg><fpje>234</fpje><fpse>34</fpse><fpdm>3200131530</fpdm><fphm>00834295</fphm></invinterface>';
 			var oDOM = null;
 			if (typeof DOMParser != "undefined"){
 				var oParser = new DOMParser();
@@ -59,9 +77,7 @@ function callbackGenerateInvoice(data)
 				//IE8
 				oDOM = new ActiveXObject("Microsoft.XMLDOM");
 				oDOM.async = false;
-				oDOM.loadXML(xml);
-//				oDOM = createDocument();
-//				oDOM.loadXML(xml);c
+				oDOM.loadXML(response);
 				if (oDOM.parseError != 0) {
 					throw new Error("XML parsing error: " + oDOM.parseError.reason);
 				}
@@ -70,6 +86,7 @@ function callbackGenerateInvoice(data)
 			}
 
 			var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+//			alert(result);
 			if (result === '0'){
 				var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
 				alert(fphm);
@@ -79,7 +96,8 @@ function callbackGenerateInvoice(data)
 				var packageId = $O('packageId').value;
 				$ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
 			}else{
-				alert("开票异常!");
+				var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+				alert(msg);
 			}
 		}
 	}
@@ -88,14 +106,42 @@ function callbackGenerateInvoice(data)
 //    alert(xml);
 }
 
+function parseXml(response){
+	var oDOM = null;
+	if (typeof DOMParser != "undefined"){
+		var oParser = new DOMParser();
+		var oDOM = oParser.parseFromString(response, "text/xml");
+	}else if (typeof ActiveXObject != "undefined") {
+		//IE8
+		oDOM = new ActiveXObject("Microsoft.XMLDOM");
+		oDOM.async = false;
+		oDOM.loadXML(response);
+		if (oDOM.parseError != 0) {
+			throw new Error("XML parsing error: " + oDOM.parseError.reason);
+		}
+	}else {
+		alert("No XML parser available.");
+	}
+	return oDOM;
+}
+
 //打印发票
 function callbackUpdateInsNum(data){
 	var obj = data.obj;
 //	console.log(obj);
-	alert(obj);
+	alert("obj.insId:"+obj.insId);
+	alert(obj.id);
+	alert(obj.invoiceNum);
 	//TODO print
-	var xml =  a.JsaeroDY("0",obj.id,obj.invoiceNum,"0");
+	var xml =  a.JsaeroDY(obj.insId,obj.id,obj.invoiceNum,"0");
 	alert(xml);
+	var oDOM = parseXml(xml);
+	var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+	if (result === '1') {
+		var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+		alert(msg);
+	}
+
     // display invoice number
     var insDiv = $O(obj.insId);
 	insDiv.value=obj.invoiceNum;

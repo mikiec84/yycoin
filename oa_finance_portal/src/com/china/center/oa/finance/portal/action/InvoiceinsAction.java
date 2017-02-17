@@ -5035,7 +5035,19 @@ public class InvoiceinsAction extends DispatchAction
         this.invoiceinsManager.generateInvoiceins(packageId, insId, fphm);
         InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
         ins.setInvoiceNum(fphm);
-        ins.setInsId(insId);
+        //发票种类 0专票 2普票
+        ins.setInsId("2");
+        InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(insId);
+        if (invoiceinsBean != null){
+            InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceinsBean.getInvoiceId());
+            if (invoiceBean != null){
+                if ("90000000000000000034".equals(ins.getId()) && invoiceBean.getName().contains("专用发票")){
+                    ins.setInsId("0");
+                }
+            }
+        }
+
+        //发票代码
         ins.setId(fpdm);
         result.setSuccessAndObj("OK", ins);
         String jsonstr = mapper.toJson(result);
