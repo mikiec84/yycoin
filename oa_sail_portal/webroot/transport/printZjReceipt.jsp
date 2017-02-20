@@ -166,7 +166,7 @@ function callBackPrintFun()
 				<td>
 				<table width="100%" cellspacing='0' cellpadding="0">
 					<tr class="content2">
-						<td colspan="3" width="50%"><table><tr><td>贵金属调出（所属）单位（盖章）：永银文化创意产业发展有限公司</td></tr></table></td>
+						<td colspan="3" width="50%"><table><tr><td>贵金属调出（所属）单位（盖章）：永银文化创意产业发展有限责任公司</td></tr></table></td>
 						<td width="50%"><table><tr><td>贵金属调入单位（盖章）：${bean.customerName}</td></tr></table></td>
 					</tr>
 					<tr class="content2">

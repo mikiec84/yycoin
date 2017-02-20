@@ -103,15 +103,28 @@
         <property name="cronExpression" value="0 30 4 * * ?" />
     </bean>
    
-    <bean id="statsBlackJob12"
+    <bean id="statsBlackJob9"
         class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
         <property name="targetObject" ref="blackManager" />
         <property name="targetMethod" value="statsBlack" />
         <property name="concurrent" value="false" />
     </bean >
    
-    <bean id="statsBlackTrigger12"
+    <bean id="statsBlackTrigger9"
         class="org.springframework.scheduling.quartz.CronTriggerBean" >
+        <property name="jobDetail" ref="statsBlackJob9" />
+        <property name="cronExpression" value="0 0 9 * * ?" />
+    </bean >
+
+    <bean id="statsBlackJob12"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+        <property name="targetObject" ref="blackManager" />
+        <property name="targetMethod" value="statsBlack" />
+        <property name="concurrent" value="false" />
+    </bean >
+
+    <bean id="statsBlackTrigger12"
+          class="org.springframework.scheduling.quartz.CronTriggerBean" >
         <property name="jobDetail" ref="statsBlackJob12" />
         <property name="cronExpression" value="0 0 12 * * ?" />
     </bean >
@@ -140,8 +153,21 @@
         class="org.springframework.scheduling.quartz.CronTriggerBean" >
         <property name="jobDetail" ref="statsBlackDetailJob" />
         <property name="cronExpression" value="0 30 3 * * ?" />
-    </bean >    
-    
+    </bean >
+
+    <bean id="statsBlackDetailJob12"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+        <property name="targetObject" ref="blackManager" />
+        <property name="targetMethod" value="statsBlackOutDetail" />
+        <property name="concurrent" value="false" />
+    </bean >
+
+    <bean id="statsBlackDetailTrigger12"
+          class="org.springframework.scheduling.quartz.CronTriggerBean" >
+        <property name="jobDetail" ref="statsBlackDetailJob12" />
+        <property name="cronExpression" value="0 10 16 * * ?" />
+    </bean >
+
     <!--<bean id="statsBlackOutPayChangedJob"-->
         <!--class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >-->
         <!--<property name="targetObject" ref="blackManager" />-->
@@ -167,9 +193,11 @@
 <!--                         <ref bean="statsFeeAndNetProfitTrigger" />-->
 <!--                         <ref bean="rollbackFeeAndNetProfitTrigger" />-->
                          <ref bean="backupBlackTrigger" />
-                       <ref bean="statsBlackTrigger12" />
+                         <ref bean="statsBlackTrigger9" />
+                         <ref bean="statsBlackTrigger12" />
                          <ref bean="statsBlackTrigger" />
                          <ref bean="statsBlackDetailTrigger" />
+                         <ref bean="statsBlackDetailTrigger12" />
                          <!--<ref bean="statsBlackOutPayChangedTrigger" />-->
                    </list>
              </property>

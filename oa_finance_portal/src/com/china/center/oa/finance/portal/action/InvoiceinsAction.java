@@ -5049,8 +5049,10 @@ public class InvoiceinsAction extends DispatchAction
 
         //发票代码
         ins.setId(fpdm);
+        result.setExtraObj(insId);
         result.setSuccessAndObj("OK", ins);
         String jsonstr = mapper.toJson(result);
+        _logger.info("generateInvoiceins JSON***"+jsonstr);
         return JSONTools.writeResponse(response, jsonstr);
     }
 

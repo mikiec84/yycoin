@@ -129,9 +129,9 @@ function parseXml(response){
 function callbackUpdateInsNum(data){
 	var obj = data.obj;
 //	console.log(obj);
-	alert("obj.insId:"+obj.insId);
-	alert(obj.id);
-	alert(obj.invoiceNum);
+//	alert("obj.insId:"+obj.insId);
+//	alert(obj.id);
+//	alert(obj.invoiceNum);
 	//TODO print
 	var xml =  a.JsaeroDY(obj.insId,obj.id,obj.invoiceNum,"0");
 	alert(xml);
@@ -143,7 +143,8 @@ function callbackUpdateInsNum(data){
 	}
 
     // display invoice number
-    var insDiv = $O(obj.insId);
+	alert(data.extraObj);
+    var insDiv = $O(data.extraObj);
 	insDiv.value=obj.invoiceNum;
 }
 function load()
