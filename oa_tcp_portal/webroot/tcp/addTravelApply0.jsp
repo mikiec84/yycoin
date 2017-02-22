@@ -29,6 +29,15 @@ function addBean(opr)
     submit('确定差旅费申请?', null, checks);
 }
 
+$('#marketingFlag').change(function() {
+    alert( this.value );
+    if (this.value === '1'){
+        $("#sub_main_tr").hide();
+    } else{
+        $("#sub_main_tr").show();
+    }
+}
+
 function load()
 {
 	addTr();
