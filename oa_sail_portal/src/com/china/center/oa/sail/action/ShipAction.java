@@ -127,6 +127,8 @@ public class ShipAction extends DispatchAction
 
     private ProductImportDAO productImportDAO = null;
 
+    private BankConfigForShipDAO bankConfigForShipDAO = null;
+
     private final static String QUERYPACKAGE = "queryPackage";
 
     private final static String QUERYPICKUP = "queryPickup";
@@ -5241,11 +5243,13 @@ public class ShipAction extends DispatchAction
         boolean printFlag = false;
         for (PackageVO each : packageList)
         {
-            //2015/3/23 判断业务员为“叶百韬”且 销售单上的客户名称为“中信银行XXXX”类型的才打印
+            //2015/3/23 #45 判断业务员为“叶百韬”且 销售单上的客户名称为“中信银行XXXX”类型的才打印
             String stafferName = each.getStafferName();
             String customerName = each.getCustomerName();
             _logger.info("****stafferName***"+stafferName+"***customerName***"+customerName);
-            if ("叶百韬".equals(stafferName) && customerName.indexOf("中信银行")!= -1){
+            //2017/2/23 #421 只有在配置项中的城市和银行 发货时才打印这张清单
+//            if (customerName.indexOf("江南环保")!= -1){
+            if (this.needPrintHandover(each)){
                 _logger.info(each.getId()+" print handover for CK with index:"+index_pos);
 
                 index_pos = each.getIndex_pos();
@@ -5333,6 +5337,18 @@ public class ShipAction extends DispatchAction
 
         return mapping.findForward("printHandover");
 
+    }
+
+    private boolean needPrintHandover(PackageVO vo){
+        boolean result = false;
+        List<BankConfigForShip> bankConfigForShips = this.bankConfigForShipDAO.listEntityBeans();
+        for (BankConfigForShip config: bankConfigForShips){
+            //TODO
+            if (vo.getCustomerName().contains(config.getBank())){
+                return true;
+            }
+        }
+        return result;
     }
 
     public ActionForward preForMergePackages(ActionMapping mapping, ActionForm form,
@@ -5754,5 +5770,13 @@ public class ShipAction extends DispatchAction
 
     public void setInvoiceinsItemDAO(InvoiceinsItemDAO invoiceinsItemDAO) {
         this.invoiceinsItemDAO = invoiceinsItemDAO;
+    }
+
+    public BankConfigForShipDAO getBankConfigForShipDAO() {
+        return bankConfigForShipDAO;
+    }
+
+    public void setBankConfigForShipDAO(BankConfigForShipDAO bankConfigForShipDAO) {
+        this.bankConfigForShipDAO = bankConfigForShipDAO;
     }
 }

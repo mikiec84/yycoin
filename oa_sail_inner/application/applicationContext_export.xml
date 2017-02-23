@@ -33,6 +33,8 @@
 
 	<osgi:service ref="sailConfigDAO" interface="com.china.center.oa.sail.dao.SailConfigDAO" />
 
+	<osgi:service ref="bankConfigForShipDAO" interface="com.china.center.oa.sail.dao.BankConfigForShipDAO" />
+
 	<osgi:service ref="sailConfigManager" interface="com.china.center.oa.sail.manager.SailConfigManager" />
 
 	<osgi:service ref="sailManager" interface="com.china.center.oa.sail.manager.SailManager" />

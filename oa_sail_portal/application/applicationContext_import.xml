@@ -122,6 +122,8 @@
     
     <osgi:reference id="sailConfigDAO" interface="com.china.center.oa.sail.dao.SailConfigDAO" />
 
+	<osgi:reference id="bankConfigForShipDAO" interface="com.china.center.oa.sail.dao.BankConfigForShipDAO" />
+
     <osgi:reference id="sailConfigManager" interface="com.china.center.oa.sail.manager.SailConfigManager" />
     
     <osgi:reference id="sailManager" interface="com.china.center.oa.sail.manager.SailManager" />
