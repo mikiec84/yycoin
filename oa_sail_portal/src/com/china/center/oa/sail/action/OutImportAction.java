@@ -1119,10 +1119,10 @@ public class OutImportAction extends DispatchAction
 			bean.setHandPhone(obj[25].trim());
 			
 			if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
-				if (bean.getHandPhone().length() < 11) {
+				if (bean.getHandPhone().length() != 11) {
 					builder
 		            .append("第[" + currentNumber + "]错误:")
-		            .append("快递、货运时收货人手机不能少于11位")
+		            .append("收货人手机号码不是11位")
 		            .append("<br>");
 					
 					importError = true;
@@ -2140,10 +2140,10 @@ public class OutImportAction extends DispatchAction
 			bean.setHandPhone(obj[25].trim());
 			
 			if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
-				if (bean.getHandPhone().length() < 11) {
+				if (bean.getHandPhone().length() != 11) {
 					builder
 		            .append("第[" + currentNumber + "]错误:")
-		            .append("快递、货运时收货人手机不能少于11位")
+		            .append("收货人手机号码不是11位")
 		            .append("<br>");
 					
 					importError = true;

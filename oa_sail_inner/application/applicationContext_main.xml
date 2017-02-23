@@ -39,6 +39,8 @@
 		
 	<bean id="sailConfigDAO" class="com.china.center.oa.sail.dao.impl.SailConfigDAOImpl" />
 
+	<bean id="bankConfigForShipDAOImpl" class="com.china.center.oa.sail.dao.impl.BankConfigForShipDAOImpl" />
+
 	<bean id="sailConfigManager" class="com.china.center.oa.sail.manager.impl.SailConfigManagerImpl" />
 
 	<bean id="sailManager" class="com.china.center.oa.sail.manager.impl.SailManagerImpl" />
