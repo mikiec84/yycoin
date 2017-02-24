@@ -1634,11 +1634,19 @@ public class ShipAction extends DispatchAction
                 PackageWrap wrap = new PackageWrap();
 
                 wrap.setOutId(eachItem.getOutId());
-                wrap.setDescription(eachItem.getDescription());
+
                 //#315
                 OutBean out = this.outDAO.find(eachItem.getOutId());
                 if (out!= null){
-                    wrap.setDescription(out.getSwbz());
+                    if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT){
+                        wrap.setDescription(out.getDescription());
+                    } else {
+                        wrap.setDescription(out.getSwbz());
+                    }
+                }
+
+                if (StringTools.isNullOrNone(wrap.getDescription())){
+                    wrap.setDescription(eachItem.getDescription());
                 }
 
                 map1.put(eachItem.getOutId(), wrap);
