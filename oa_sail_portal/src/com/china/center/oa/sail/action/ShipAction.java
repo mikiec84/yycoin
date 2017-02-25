@@ -5349,14 +5349,28 @@ public class ShipAction extends DispatchAction
 
     private boolean needPrintHandover(PackageVO vo){
         boolean result = false;
-        List<BankConfigForShip> bankConfigForShips = this.bankConfigForShipDAO.listEntityBeans();
-        for (BankConfigForShip config: bankConfigForShips){
-            //TODO
-            if (vo.getCustomerName().contains(config.getBank())){
+        CityBean city = this.cityDAO.find(vo.getCityId());
+        if (city!= null){
+            List<BankConfigForShip> bankConfigForShips = this.bankConfigForShipDAO.listEntityBeans();
+            for (BankConfigForShip config: bankConfigForShips){
+                if (vo.getCustomerName().contains(config.getBank())
+                        && this.containsCity(config.getCity(), city.getName())){
+                    return true;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private boolean containsCity(String city1, String city2){
+        String[] cities = city1.split(",");
+        for (String city : cities){
+            if (city2.equals(city)){
                 return true;
             }
         }
-        return result;
+        return false;
     }
 
     public ActionForward preForMergePackages(ActionMapping mapping, ActionForm form,
