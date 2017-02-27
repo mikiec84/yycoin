@@ -1160,6 +1160,11 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
 
         if (appList.size() == 0 || token.getSingeAll() == 0) {
+            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
+            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
+                processList.add(nextProcessor);
+            }
+            _logger.info("***processList***"+processList.size());
             for (String processId : processList) {
                 // 进入审批状态
                 TcpApproveBean approve = new TcpApproveBean();
@@ -1238,9 +1243,9 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             int pool) throws MYException {
         List<String> processList = new ArrayList();
 
-        if (StringTools.isNullOrNone(processId)) {
-            throw new MYException("审批的人不能为空");
-        }
+//        if (StringTools.isNullOrNone(processId)) {
+//            throw new MYException("审批的人不能为空");
+//        }
 
         processList.add(processId);
 
