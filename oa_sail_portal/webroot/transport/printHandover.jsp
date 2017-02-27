@@ -67,6 +67,12 @@
                     <td align="center">
                         <table width="100%" border="0" cellspacing="2">
                             <tr>
+                                <td style="height: 27px" align="left">
+                                    <font size=5>
+                                        <b>序号：${index_pos}
+                                        </b>
+                                    </font>
+                                </td>
                                 <td style="height: 27px" align="center">
                                     <font size=5>
                                         <b>
