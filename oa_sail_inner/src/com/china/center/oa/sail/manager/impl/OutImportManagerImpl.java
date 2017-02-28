@@ -847,6 +847,7 @@ public class OutImportManagerImpl implements OutImportManager
         //saveAddress(bean, newOutBean, distBean);
         
         distBean.setMobile(bean.getHandPhone());
+		distBean.setTelephone(bean.getTelephone());
         
         distBean.setReceiver(bean.getReceiver());
         
@@ -2627,12 +2628,18 @@ public class OutImportManagerImpl implements OutImportManager
 					throw new MYException("更新失败,请检查源文件");
 				}
 
-                Boolean ret2 = this.outDAO.updateDescription(reach.getOutId(), each.getDescription());
+				String outId = reach.getOutId();
+				OutBean out = this.outDAO.find(outId);
+				if (out!= null){
+					StringBuilder sb = new StringBuilder();
+					sb.append(out.getDescription()).append(".").append(each.getDescription());
+					Boolean ret2 = this.outDAO.updateDescription(reach.getOutId(), sb.toString());
 
-                if (!ret2)
-                {
-                    throw new MYException("更新销售单备注失败,请检查源文件");
-                }
+					if (!ret2)
+					{
+						throw new MYException("更新销售单备注失败,请检查源文件");
+					}
+				}
 			}
 		}
 		

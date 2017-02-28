@@ -72,6 +72,11 @@ public class PackageBean implements Serializable
     private String mobile = "";
 
     /**
+     * 固话
+     */
+    private String telephone = "";
+
+    /**
      * 数量合计
      */
     private int amount = 0;
@@ -595,6 +600,14 @@ public class PackageBean implements Serializable
 
     public void setPrintTime(String printTime) {
         this.printTime = printTime;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
     @Override

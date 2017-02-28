@@ -113,6 +113,12 @@ public class OutImportBean implements Serializable
 	private String receiver = "";
 	
 	private String handPhone = "";
+
+
+	/**
+	 * 固话
+	 */
+	private String telephone = "";
 	
 	/**
 	 * 状态 0:初始状态 1：处理中 2：成功 3：异常
@@ -873,6 +879,14 @@ public class OutImportBean implements Serializable
 
 	public void setLhwd(String lhwd) {
 		this.lhwd = lhwd;
+	}
+
+	public String getTelephone() {
+		return telephone;
+	}
+
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
 	}
 
 	@Override

@@ -1138,7 +1138,7 @@ public class OutImportAction extends DispatchAction
 				importError = true;
 			}
 		}
-		
+
 		// 回款天数
 		if ( !StringTools.isNullOrNone(obj[39]))
 		{
@@ -1201,7 +1201,22 @@ public class OutImportAction extends DispatchAction
         {
             bean.setCustomerName(obj[43].trim());
         }
-		
+
+
+		// #426 2017/2/28 固定电话
+		if ( !StringTools.isNullOrNone(obj[44]))
+		{
+			bean.setTelephone(obj[44].trim());
+			if (bean.getTelephone().length() != 12) {
+				builder
+						.append("第[" + currentNumber + "]错误:")
+						.append("固定电话号码不是12位")
+						.append("<br>");
+
+				importError = true;
+			}
+		}
+
 		return importError;
 	}
     
@@ -2215,6 +2230,26 @@ public class OutImportAction extends DispatchAction
         {
             bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
         }
+
+		// 2015/09/29 客户姓名
+		if ( !StringTools.isNullOrNone(obj[43]))
+		{
+			bean.setCustomerName(obj[43].trim());
+		}
+
+		// #426 2017/2/28 固定电话
+		if ( !StringTools.isNullOrNone(obj[44]))
+		{
+			bean.setTelephone(obj[44].trim());
+			if (bean.getTelephone().length() != 12) {
+				builder
+						.append("第[" + currentNumber + "]错误:")
+						.append("固定电话号码不是12位")
+						.append("<br>");
+
+				importError = true;
+			}
+		}
 		
 		return importError;
 	}
@@ -2451,13 +2486,27 @@ public class OutImportAction extends DispatchAction
                     
             			importError = true;
             		}
+
+					// 收货人固定电话
+					if ( !StringTools.isNullOrNone(obj[6]))
+					{
+						bean.setTelephone(obj[6].trim());
+						if (bean.getTelephone().length()!=12){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("固定电话长度不是12位")
+									.append("<br>");
+
+							importError = true;
+						}
+					}
             		
             		// 发货方式
-            		if ( !StringTools.isNullOrNone(obj[6]))
+            		if ( !StringTools.isNullOrNone(obj[7]))
             		{
             			boolean has = false;
             			
-            			String shipping = obj[6].trim();
+            			String shipping = obj[7].trim();
             			
             			for (int i = 0 ; i < OutImportConstant.shipping.length; i++)
             			{
@@ -2491,7 +2540,7 @@ public class OutImportAction extends DispatchAction
             		}
 
                     // 快递公司
-                    String transportName = obj[7].trim();
+                    String transportName = obj[8].trim();
                     if ( !StringTools.isNullOrNone(transportName))
                     {
                         ExpressBean express = expressDAO.findByUnique(transportName);
@@ -2520,9 +2569,9 @@ public class OutImportAction extends DispatchAction
                     }
 
 					//#290 支付方式
-					if ( !StringTools.isNullOrNone(obj[8]))
+					if ( !StringTools.isNullOrNone(obj[9]))
 					{
-						String expressPay = obj[8].trim();
+						String expressPay = obj[9].trim();
 
 						boolean isexists = false;
 
@@ -2569,9 +2618,9 @@ public class OutImportAction extends DispatchAction
 
 
                     // 销售单备注
-                    if ( !StringTools.isNullOrNone(obj[9]))
+                    if ( !StringTools.isNullOrNone(obj[10]))
                     {
-                        bean.setDescription(obj[9].trim());
+                        bean.setDescription(obj[10].trim());
                     }
             		
                     importItemList.add(bean);

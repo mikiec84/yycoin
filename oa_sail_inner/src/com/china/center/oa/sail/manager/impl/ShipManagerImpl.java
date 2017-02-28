@@ -105,6 +105,7 @@ public class ShipManagerImpl implements ShipManager
         packBean.setAddress(fullAddress);
         packBean.setReceiver(distVO.getReceiver());
         packBean.setMobile(distVO.getMobile());
+        packBean.setTelephone(distVO.getTelephone());
         packBean.setLocationId(location);
         packBean.setCityId(distVO.getCityId());
 

@@ -91,8 +91,8 @@ function load()
 					<tr class="content2">
 						<td width="15%" align="right">收货人：</td>
 						<td width="35%">${bean.receiver}</td>
-						<td width="15%" align="right">收货电话：</td>
-						<td width="35%">${bean.mobile}</td>
+						<td width="15%" align="right">收货电话/固定电话：</td>
+						<td width="35%">${bean.mobile}/${bean.telephone}</td>
                     </tr>					
 
 					<tr class="content1">
