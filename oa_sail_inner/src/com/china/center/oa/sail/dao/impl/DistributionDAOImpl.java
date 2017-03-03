@@ -14,11 +14,11 @@ public class DistributionDAOImpl extends BaseDAO<DistributionBean, DistributionV
 	public boolean updateBean(String id, DistributionBean bean)
 	{
 		String sql = "update t_center_distribution set provinceid = ? , cityid = ? , areaid = ? , " +
-				"address = ?, receiver = ?, mobile = ?, shipping = ? , transport1 = ? ," +
+				"address = ?, receiver = ?, mobile = ?,telephone = ?, shipping = ? , transport1 = ? ," +
                 "transport2 = ?, expressPay = ?, transportPay = ? where id = ?";
 		
 		int i = jdbcOperation.update(sql, bean.getProvinceId(), bean.getCityId(), bean.getAreaId(), 
-				bean.getAddress(), bean.getReceiver(), bean.getMobile(), bean.getShipping(),
+				bean.getAddress(), bean.getReceiver(), bean.getMobile(), bean.getTelephone(), bean.getShipping(),
                 bean.getTransport1(), bean.getTransport2(), bean.getExpressPay(), bean.getTransportPay(), id);
 
         if (i == 0)

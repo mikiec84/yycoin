@@ -31,7 +31,7 @@ function load()
 
     hides(true);
     
-    $detail($O('viewTable'), ['pr', 'ba', 'backUnm', 'adescription', 'dirDeport']);
+    $detail($O('viewTable'), ['pr', 'ba', 'backUnm', 'transportNo', 'adescription', 'dirDeport']);
     
     highlights($("#mainTable").get(0), ['未付款'], 'red');
     
@@ -292,7 +292,16 @@ function outBack()
                         </select><font color="#FF0000">*</font>
                        </td>
                     </tr>
-                    
+
+					<tr class="content1">
+						<td align="right">退货快递单号：</td>
+						<td colspan="3">
+                       <textarea rows="3" cols="55" oncheck="notNone;"
+								 name="transportNo"></textarea>
+							<font color="#FF0000">*</font>
+						</td>
+					</tr>
+
                     <tr class="content2">
                         <td align="right">退货备注：</td>
                         <td colspan="3">

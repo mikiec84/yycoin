@@ -2610,16 +2610,7 @@ public class OutImportManagerImpl implements OutImportManager
 			
 			for (DistributionBean reach : distList)
 			{
-//				_logger.info("地址更新，销售单：" + reach.getOutId());
-//                _logger.info("新省：" + each.getProvinceId());
-//                _logger.info("新市：" + each.getCityId());
-//                _logger.info("新区：" + each.getAreaId());
-//                _logger.info("新地址：" + each.getAddress());
-//                _logger.info("新接收人：" + each.getReceiver());
-//                _logger.info("新手机：" + each.getMobile());
-//                _logger.info("新发货方式：" + each.getShipping());
-//                _logger.info("新快递公司：" + each.getTransport1());
-                _logger.info("***update distribution "+reach);
+                _logger.info("***update distribution "+each);
 
 				Boolean ret = distributionDAO.updateBean(reach.getId(), each);
 				
@@ -2633,6 +2624,7 @@ public class OutImportManagerImpl implements OutImportManager
 				if (out!= null){
 					StringBuilder sb = new StringBuilder();
 					sb.append(out.getDescription()).append(".").append(each.getDescription());
+					_logger.info("update description***"+sb.toString());
 					Boolean ret2 = this.outDAO.updateDescription(reach.getOutId(), sb.toString());
 
 					if (!ret2)

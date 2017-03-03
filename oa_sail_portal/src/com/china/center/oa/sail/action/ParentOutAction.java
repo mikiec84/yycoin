@@ -3480,6 +3480,8 @@ public class ParentOutAction extends DispatchAction
 
 		String adescription = request.getParameter("adescription");
 
+		String transportNo = request.getParameter("transportNo");
+
 		if (false)
 		{
 			// 查询是否被关联
@@ -3584,6 +3586,7 @@ public class ParentOutAction extends DispatchAction
 		out.setOutType(OutConstant.OUTTYPE_IN_SWATCH);
 
 		out.setRefOutFullId(outId);
+		out.setTransportNo(transportNo);
 
 		out.setDutyId(oldOut.getDutyId());
 
