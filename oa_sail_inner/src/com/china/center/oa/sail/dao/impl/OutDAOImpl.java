@@ -1202,4 +1202,10 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         this.jdbcOperation.updateField("outbackStatus", outbackStatus, fullId, this.claz);
         return true;
     }
+
+    @Override
+    public boolean updateFlowTime(String fullId, String flowTime) {
+        this.jdbcOperation.updateField("flowTime", flowTime, fullId, this.claz);
+        return true;
+    }
 }

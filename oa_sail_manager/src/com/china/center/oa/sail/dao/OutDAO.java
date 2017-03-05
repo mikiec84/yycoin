@@ -412,4 +412,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateTransportNo(String fullId, String transportNo);
 
     boolean updateOutbackStatus(String fullId, String outbackStatus);
+
+    boolean updateFlowTime(String fullId, String flowTime);
 }

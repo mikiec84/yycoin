@@ -69,6 +69,11 @@ public class OutBean implements Serializable
     private String payTime = "";
 
     /**
+     * 库管通过时间
+     */
+    private String flowTime = "";
+
+    /**
      * 库单类型
      */
     private int outType = OutConstant.OUTTYPE_OUT_COMMON;
@@ -2120,6 +2125,14 @@ public class OutBean implements Serializable
 
     public void setCustomerCreated(boolean customerCreated) {
         this.customerCreated = customerCreated;
+    }
+
+    public String getFlowTime() {
+        return flowTime;
+    }
+
+    public void setFlowTime(String flowTime) {
+        this.flowTime = flowTime;
     }
 
     /**

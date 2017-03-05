@@ -2295,6 +2295,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 if (outBean.getOutType() == OutConstant.OUTTYPE_IN_EXCHANGE){
                     this.createPackage(outBean);
                 }
+
+                //#430 2017/3/4 入库库管通过设置时间
+                if (nextStatus == OutConstant.BUY_STATUS_PASS){
+                    this.outDAO.updateFlowTime(fullId, TimeTools.now());
+                }
             }
             catch (Exception e)
             {
@@ -3510,6 +3515,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             outBean.setStatus(newNextStatus);
                             outDAO.modifyOutStatus(outBean.getFullId(), newNextStatus);
                             _logger.info(outBean.getFullId()+"***update status to STATUS_SEC_PASS");
+                        }
+
+
+                        //#430 2017/3/4 出库库管审批通过时设置时间
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                        && oldStatus == OutConstant.STATUS_FLOW_PASS
+                                && newNextStatus == OutConstant.STATUS_PASS){
+                            outDAO.updateFlowTime(outBean.getFullId(), TimeTools.now());
                         }
 
                         return Boolean.TRUE;
