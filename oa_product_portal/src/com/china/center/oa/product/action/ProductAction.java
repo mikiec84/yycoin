@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.constant.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,10 +57,6 @@ import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.product.constant.ComposeConstant;
-import com.china.center.oa.product.constant.DepotConstant;
-import com.china.center.oa.product.constant.ProductConstant;
-import com.china.center.oa.product.constant.StorageConstant;
 import com.china.center.oa.product.dao.CiticVSOAProductDAO;
 import com.china.center.oa.product.dao.ComposeFeeDefinedDAO;
 import com.china.center.oa.product.dao.ComposeItemDAO;
@@ -511,6 +508,39 @@ public class ProductAction extends DispatchAction
             condtion.addIntCondition("ComposeProductBean.status", "=",
                 ComposeConstant.STATUS_CRO_PASS);
         }
+
+        ActionTools.processJSONQueryCondition(QUERYCOMPOSE, request, condtion);
+
+        condtion.addCondition("order by ComposeProductBean.logTime desc");
+
+        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCOMPOSE, request, condtion,
+                this.composeProductDAO);
+
+        return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    /**
+     * #431
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward querySelfCompose(ActionMapping mapping, ActionForm form,
+                                      HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        String foward = request.getParameter("foward");
+
+        User user = Helper.getUser(request);
+
+        final ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+
+        condtion.addCondition("stafferId","=",user.getStafferId());
 
         ActionTools.processJSONQueryCondition(QUERYCOMPOSE, request, condtion);
 
@@ -1419,6 +1449,16 @@ public class ProductAction extends DispatchAction
         ComposeProductBean bean = new ComposeProductBean();
 
         BeanUtil.getBean(bean, request);
+
+        String save = request.getParameter("save");
+
+        if ("0".equals(save))
+        {
+            bean.setStatus(ComposeConstant.STATUS_SAVE);
+        } else
+        {
+            bean.setStatus(ComposeConstant.STATUS_SUBMIT);
+        }
 
         try
         {

@@ -60,6 +60,9 @@ public interface ComposeConstant
 
     @Defined(key = "composeStatus", value = "预合成")
     int STATUS_PRE_COMPOSE = 5;
+
+    @Defined(key = "composeStatus", value = "保存")
+    int STATUS_SAVE= 6;
     
     @Defined(key = "composeStatus", value = "结束")
     int STATUS_OK = 99;
