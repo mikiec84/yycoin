@@ -1100,7 +1100,13 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             bean.setStatus(ComposeConstant.STATUS_PRE_COMPOSE);
 //            bean.setStatus(-1);
         } else{
-            bean.setStatus(ComposeConstant.STATUS_SUBMIT);
+            //#431
+            if (bean.getStatus() == ComposeConstant.STATUS_SAVE){
+                bean.setStatus(ComposeConstant.STATUS_SAVE);
+            } else{
+                bean.setStatus(ComposeConstant.STATUS_SUBMIT);
+            }
+
         }
 
         composeProductDAO.saveEntityBean(bean);
