@@ -2924,6 +2924,7 @@ public class ProductAction extends DispatchAction
         CommonTools.saveParamers(request);
 
         String id = request.getParameter("id");
+        String update = request.getParameter("update");
 
         ComposeProductVO bean = productFacade.findComposeById(id);
 
@@ -2943,7 +2944,40 @@ public class ProductAction extends DispatchAction
 
         request.setAttribute("bean", bean);
 
-        return mapping.findForward("detailCompose");
+        if ("1".equals(update)){
+            request.setAttribute("depotList", list);
+
+            List<DepotBean> list = depotDAO.queryCommonDepotBean();
+
+            List<DepotpartBean> depotpartList = new ArrayList<DepotpartBean>();
+
+            for (DepotBean depotBean : list)
+            {
+                // 只查询OK仓区的
+                List<DepotpartBean> depotList = depotpartDAO.queryOkDepotpartInDepot(depotBean.getId());
+
+                for (DepotpartBean depotpartBean : depotList)
+                {
+                    depotpartBean.setName(depotBean.getName() + " --> " + depotpartBean.getName());
+                }
+
+                depotpartList.addAll(depotList);
+            }
+
+            request.setAttribute("depotpartList", depotpartList);
+
+            JSONArray object = new JSONArray(depotpartList, false);
+
+            request.setAttribute("depotpartListStr", object.toString());
+
+            List<ComposeFeeDefinedBean> feeList = composeFeeDefinedDAO.listEntityBeans();
+
+            request.setAttribute("feeList", feeList);
+
+            return mapping.findForward("updateCompose");
+        }else{
+            return mapping.findForward("detailCompose");
+        }
     }
 
     /**

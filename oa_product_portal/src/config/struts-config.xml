@@ -11,6 +11,7 @@
 			<forward name="composeProduct" />
             <forward name="preComposeProduct" />
 			<forward name="detailCompose" />
+			<forward name="updateCompose" />
 			<forward name="priceChange" />
 			<forward name="queryPriceChange" />
 			<forward name="queryComposeFeeDefined" />
