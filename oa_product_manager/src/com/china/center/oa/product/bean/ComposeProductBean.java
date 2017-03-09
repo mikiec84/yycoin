@@ -512,77 +512,33 @@ public class ComposeProductBean implements Serializable
 		this.tag = tag;
 	}
 
-	/**
-     * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
-     * @return a <code>String</code> representation of this object.
-     */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("ComposeProductBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("stafferId = ")
-            .append(this.stafferId)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("deportId = ")
-            .append(this.deportId)
-            .append(TAB)
-            .append("depotpartId = ")
-            .append(this.depotpartId)
-            .append(TAB)
-            .append("storageId = ")
-            .append(this.storageId)
-            .append(TAB)
-            .append("relationId = ")
-            .append(this.relationId)
-            .append(TAB)
-            .append("refId = ")
-            .append(this.refId)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("mtype = ")
-            .append(this.mtype)
-            .append(TAB)
-            .append("amount = ")
-            .append(this.amount)
-            .append(TAB)
-            .append("status = ")
-            .append(this.status)
-            .append(TAB)
-            .append("price = ")
-            .append(this.price)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append("checks = ")
-            .append(this.checks)
-            .append(TAB)
-            .append("checkStatus = ")
-            .append(this.checkStatus)
-            .append(TAB)
-            .append("itemList = ")
-            .append(this.itemList)
-            .append(TAB)
-            .append("feeList = ")
-            .append(this.feeList)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "ComposeProductBean{" +
+                "id='" + id + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", deportId='" + deportId + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", storageId='" + storageId + '\'' +
+                ", relationId='" + relationId + '\'' +
+                ", refId='" + refId + '\'' +
+                ", type=" + type +
+                ", mtype=" + mtype +
+                ", amount=" + amount +
+                ", status=" + status +
+                ", price=" + price +
+                ", logTime='" + logTime + '\'' +
+                ", goldPrice=" + goldPrice +
+                ", silverPrice=" + silverPrice +
+                ", checks='" + checks + '\'' +
+                ", checkStatus=" + checkStatus +
+                ", parentId='" + parentId + '\'' +
+                ", hybrid=" + hybrid +
+                ", tag='" + tag + '\'' +
+                ", description='" + description + '\'' +
+                ", itemList=" + itemList +
+                ", feeList=" + feeList +
+                '}';
     }
 }

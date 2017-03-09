@@ -301,7 +301,7 @@ function load()
 </head>
 <body class="body_class" onload="load()">
 <form name="formEntry" action="../product/product.do" method="post"><input
-	type="hidden" name="method" value="composeProduct"> 
+	type="hidden" name="method" value="updateCompose">
 	<input type=hidden name="mtype" value="">
 	<input type=hidden name="oldproduct" value="">
     <input type="hidden" name="save" value="">
@@ -316,7 +316,7 @@ function load()
 
 	<p:title>
 		<td class="caption"><strong>选择仓库</strong>
-		<select name="srcDepot" class="select_class" style="width: 25%;" onchange="depotChange()" oncheck="notNone">
+		<select name="srcDepot" class="select_class" style="width: 25%;" values="${bean.deportId}" onchange="depotChange()" oncheck="notNone">
 		         <c:forEach var="item" items="${depotList}">
 		             <option value="${item.id}">${item.name}</option>
 		         </c:forEach>
@@ -330,24 +330,26 @@ function load()
 		<p:table cells="1">
 			<p:tr align="left">
 			目的仓区：
-			<select name="dirDepotpart" class="select_class" style="width: 25%;" onchange="depotpartChange(this)" oncheck="notNone">
+			<select name="dirDepotpart" class="select_class" style="width: 25%;" values="${bean.depotpartId}" onchange="depotpartChange(this)" oncheck="notNone">
 		         <option value="">--</option>
 		         <c:forEach var="item" items="${depotpartList}">
 		             <option value="${item.id}">${item.name}</option>
 		         </c:forEach>
 	         </select>
-			合成产品：<input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="dirTargerName" 
+			合成产品：
+                <input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="${bean.productName}" oncheck="notNone" name="dirTargerName"
 			onclick="selectProduct(this)">
-         <input type="hidden" name="dirProductId" value=""><strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' onclick="bomClick()"/>
+         <input type="hidden" name="dirProductId" value=""><strong>从BOM中选择:</strong>
+                <input type="checkbox" name='cbom' id ='cbom' onclick="bomClick()"/>
          合成数量：<input type="text" style="width: 10%"
-                    name="dirAmount" value="" oncheck="notNone;isNumber;range(1)">
+                    name="dirAmount" value="${bean.amount}" oncheck="notNone;isNumber;range(1)">
 	金价：<input type="text" style="width: 5%"
-                    name="goldPrice" value="0.0" oncheck="isFloat">
+                    name="goldPrice" value="${bean.goldPrice}" oncheck="isFloat">
 	银价：<input type="text" style="width: 5%"
-                    name="silverPrice" value="0.0" oncheck="isFloat">
+                    name="silverPrice" value="${bean.silverPrice}" oncheck="isFloat">
 			</p:tr>
             <p:tr align="left">
-                备注：<textarea name="description" rows="3" cols="60"></textarea>
+                备注：<textarea name="description" rows="3" cols="60" ><c:out value="${bean.description}"/></textarea>
             </p:tr>
 		</p:table>
 	</p:subBody>
@@ -374,11 +376,11 @@ function load()
                         <input type="hidden" 
                     name="feeItemId" value="${item.id}">
                         <input type="text" style="width: 100%"
-                    name="feeItem" value="0.0" oncheck="notNone;isFloat">
+                    name="feeItem" value="${item.id}" oncheck="notNone;isFloat">
                         </td>
                         <td width="30%" align="center">
                         <input type="text" style="width: 100%"
-                    name="idescription" value="" maxlength="200">
+                    name="idescription" value="${item.id}" maxlength="200">
                         </td>
                     </tr>
                     </c:forEach>
@@ -458,6 +460,36 @@ function load()
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>
+
+    <c:forEach items="${itemVOList}" var="item" varStatus="vs">
+        <tr class="content2">
+            <td width="95%" align="center">
+                <select name="srcDepotpart" class="select_class" style="width: 100%;" values="${item.depotpartName}" onchange="depotpartChange(this)" oncheck="notNone">
+                    <option value="">--</option>
+                    <c:forEach var="item" items="${depotpartList}">
+                        <option value="${item.id}">${item.name}</option>
+                    </c:forEach>
+                </select>
+            </td>
+            <td width="30%" align="center">
+                <input type="text" style="width: 100%;cursor: pointer;" readonly="readonly" value="${item.productName}" oncheck="notNone" name="targerName" onclick="selectDepotpartProduct(this)">
+                <input type="hidden" name="srcProductId" value="">
+                <input type="hidden" name="srcInputRate" value="">
+                <input type="hidden" name="srcProductCode" value="">
+            </td>
+            <td width="15%" align="center"><input type="text" style="width: 100%"
+                                                  name="useAmount" value="${item.useAmount}" oncheck="notNone;isNumber"></td>
+            <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                                  name="srcAmount" value="${item.srcAmount}" oncheck="notNone;isNumber"></td>
+            <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                                  name="srcPrice" value="${item.srcPrice}" oncheck="notNone;isFloat">
+                <input type="hidden"
+                       name="srcRelation" value="">
+            </td>
+            <td width="5%" align="center"><input type=button
+                                                 value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
+        </tr>
+    </c:forEach>
 </table>
 </body>
 </html>

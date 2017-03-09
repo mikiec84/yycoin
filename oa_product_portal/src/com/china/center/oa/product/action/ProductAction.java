@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.*;
+import com.china.center.oa.product.dao.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,22 +58,6 @@ import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.product.dao.CiticVSOAProductDAO;
-import com.china.center.oa.product.dao.ComposeFeeDefinedDAO;
-import com.china.center.oa.product.dao.ComposeItemDAO;
-import com.china.center.oa.product.dao.ComposeProductDAO;
-import com.china.center.oa.product.dao.DecomposeProductDAO;
-import com.china.center.oa.product.dao.DepotDAO;
-import com.china.center.oa.product.dao.DepotpartDAO;
-import com.china.center.oa.product.dao.GoldSilverPriceDAO;
-import com.china.center.oa.product.dao.PriceChangeDAO;
-import com.china.center.oa.product.dao.PriceConfigDAO;
-import com.china.center.oa.product.dao.ProductBOMDAO;
-import com.china.center.oa.product.dao.ProductCombinationDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.ProductVSLocationDAO;
-import com.china.center.oa.product.dao.ProviderDAO;
-import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.ComposeProductManager;
 import com.china.center.oa.product.manager.PriceConfigManager;
@@ -1474,6 +1459,59 @@ public class ProductAction extends DispatchAction
 
             request.setAttribute(KeyConstant.MESSAGE, "成功合成产品,合成后均价:"
                                                       + MathTools.formatNum(bean.getPrice()));
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "合成产品失败:" + e.getMessage());
+        }
+
+        return preForCompose(mapping, form, request, response);
+    }
+
+    /**
+     * #431
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward updateCompose(ActionMapping mapping, ActionForm form,
+                                        HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        ComposeProductBean bean = new ComposeProductBean();
+
+        BeanUtil.getBean(bean, request);
+
+        String save = request.getParameter("save");
+
+        if ("0".equals(save))
+        {
+            bean.setStatus(ComposeConstant.STATUS_SAVE);
+        } else
+        {
+            bean.setStatus(ComposeConstant.STATUS_SUBMIT);
+        }
+
+        try
+        {
+            setCompose(request, bean);
+
+            User user = Helper.getUser(request);
+
+            bean.setStafferId(user.getStafferId());
+
+            bean.setType(ComposeConstant.COMPOSE_TYPE_COMPOSE);
+
+//            productFacade.updateComposeProduct(user.getId(), bean);
+            //TODO
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功合成产品,合成后均价:"
+                    + MathTools.formatNum(bean.getPrice()));
         }
         catch (MYException e)
         {
@@ -2945,9 +2983,8 @@ public class ProductAction extends DispatchAction
         request.setAttribute("bean", bean);
 
         if ("1".equals(update)){
-            request.setAttribute("depotList", list);
-
             List<DepotBean> list = depotDAO.queryCommonDepotBean();
+            request.setAttribute("depotList", list);
 
             List<DepotpartBean> depotpartList = new ArrayList<DepotpartBean>();
 
@@ -2970,13 +3007,26 @@ public class ProductAction extends DispatchAction
 
             request.setAttribute("depotpartListStr", object.toString());
 
+            //TODO
             List<ComposeFeeDefinedBean> feeList = composeFeeDefinedDAO.listEntityBeans();
-
+            List<ComposeFeeBean> feeItems = this.composeFeeDAO.queryEntityBeansByFK(bean.getId());
             request.setAttribute("feeList", feeList);
 
+            _logger.info("****bean****"+bean);
+            _logger.info("****feeList****"+feeList);
             return mapping.findForward("updateCompose");
         }else{
             return mapping.findForward("detailCompose");
+        }
+    }
+
+    private void setFeeList(List<ComposeFeeDefinedBean> feeList,List<ComposeFeeBean> feeItems){
+        for (ComposeFeeDefinedBean fee : feeList){
+            for(ComposeFeeBean item : feeItems){
+                if (fee.getId().equals(item.getFeeItemId())){
+                    fee.setDescription();
+                }
+            }
         }
     }
 
@@ -4598,4 +4648,5 @@ public class ProductAction extends DispatchAction
 	{
 		this.invoiceDAO = invoiceDAO;
 	}
+
 }
