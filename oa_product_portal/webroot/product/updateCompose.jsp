@@ -371,16 +371,13 @@ function load()
                     
                     <c:forEach items="${feeList}" var="item">
                     <tr align="center" class="content1">
-                        <td width="30%" align="center">${item.name}</td>
+                        <td width="30%" align="center">${item.feeItemName}</td>
                         <td width="30%" align="center">
-                        <input type="hidden" 
-                    name="feeItemId" value="${item.id}">
-                        <input type="text" style="width: 100%"
-                    name="feeItem" value="${item.id}" oncheck="notNone;isFloat">
+                            <input type="hidden"  name="feeItemId" value="${item.id}">
+                            <input type="text" style="width: 100%" name="feeItem" value="${item.price}" oncheck="notNone;isFloat">
                         </td>
                         <td width="30%" align="center">
-                        <input type="text" style="width: 100%"
-                    name="idescription" value="${item.id}" maxlength="200">
+                            <input type="text" style="width: 100%" name="idescription" value="${item.description}" maxlength="200">
                         </td>
                     </tr>
                     </c:forEach>
@@ -410,6 +407,35 @@ function load()
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>
+                    <c:forEach items="${bean.itemVOList}" var="item" varStatus="vs">
+                        <tr class="content1">
+                            <td width="95%" align="center">
+                                <select name="srcDepotpart" class="select_class" style="width: 100%;" values="${item.depotpartName}" onchange="depotpartChange(this)" oncheck="notNone">
+                                    <option value="">--</option>
+                                    <c:forEach var="item" items="${depotpartList}">
+                                        <option value="${item.id}">${item.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                            <td width="30%" align="center">
+                                <input type="text" style="width: 100%;cursor: pointer;" readonly="readonly" value="${item.productName}" oncheck="notNone" name="targerName" onclick="selectDepotpartProduct(this)">
+                                <input type="hidden" name="srcProductId" value="">
+                                <input type="hidden" name="srcInputRate" value="">
+                                <input type="hidden" name="srcProductCode" value="">
+                            </td>
+                            <td width="15%" align="center"><input type="text" style="width: 100%"
+                                                                  name="useAmount" value="${item.amount}" oncheck="notNone;isNumber"></td>
+                            <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                                                  name="srcAmount" value="" oncheck="notNone;isNumber"></td>
+                            <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                                                  name="srcPrice" value="${item.price}" oncheck="notNone;isFloat">
+                                <input type="hidden"
+                                       name="srcRelation" value="">
+                            </td>
+                            <td width="5%" align="center"><input type=button
+                                                                 value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
+                        </tr>
+                    </c:forEach>
                 </table>
                 </td>
             </tr>
@@ -461,35 +487,7 @@ function load()
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>
 
-    <c:forEach items="${bean.itemVOList}" var="item" varStatus="vs">
-        <tr class="content2">
-            <td width="95%" align="center">
-                <select name="srcDepotpart" class="select_class" style="width: 100%;" values="${item.depotpartName}" onchange="depotpartChange(this)" oncheck="notNone">
-                    <option value="">--</option>
-                    <c:forEach var="item" items="${depotpartList}">
-                        <option value="${item.id}">${item.name}</option>
-                    </c:forEach>
-                </select>
-            </td>
-            <td width="30%" align="center">
-                <input type="text" style="width: 100%;cursor: pointer;" readonly="readonly" value="${item.productName}" oncheck="notNone" name="targerName" onclick="selectDepotpartProduct(this)">
-                <input type="hidden" name="srcProductId" value="">
-                <input type="hidden" name="srcInputRate" value="">
-                <input type="hidden" name="srcProductCode" value="">
-            </td>
-            <td width="15%" align="center"><input type="text" style="width: 100%"
-                                                  name="useAmount" value="${item.useAmount}" oncheck="notNone;isNumber"></td>
-            <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
-                                                  name="srcAmount" value="${item.srcAmount}" oncheck="notNone;isNumber"></td>
-            <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
-                                                  name="srcPrice" value="${item.srcPrice}" oncheck="notNone;isFloat">
-                <input type="hidden"
-                       name="srcRelation" value="">
-            </td>
-            <td width="5%" align="center"><input type=button
-                                                 value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
-        </tr>
-    </c:forEach>
+
 </table>
 </body>
 </html>
