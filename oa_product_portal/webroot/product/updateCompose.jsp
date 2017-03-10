@@ -461,7 +461,7 @@ function load()
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>
 
-    <c:forEach items="${itemVOList}" var="item" varStatus="vs">
+    <c:forEach items="${bean.itemVOList}" var="item" varStatus="vs">
         <tr class="content2">
             <td width="95%" align="center">
                 <select name="srcDepotpart" class="select_class" style="width: 100%;" values="${item.depotpartName}" onchange="depotpartChange(this)" oncheck="notNone">

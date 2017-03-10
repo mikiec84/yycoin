@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.*;
 import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.vo.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,18 +63,6 @@ import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.ComposeProductManager;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.ProductManager;
-import com.china.center.oa.product.vo.ComposeFeeDefinedVO;
-import com.china.center.oa.product.vo.ComposeItemVO;
-import com.china.center.oa.product.vo.ComposeProductVO;
-import com.china.center.oa.product.vo.DecomposeProductVO;
-import com.china.center.oa.product.vo.PriceChangeNewItemVO;
-import com.china.center.oa.product.vo.PriceChangeSrcItemVO;
-import com.china.center.oa.product.vo.PriceChangeVO;
-import com.china.center.oa.product.vo.ProductBOMVO;
-import com.china.center.oa.product.vo.ProductCombinationVO;
-import com.china.center.oa.product.vo.ProductVO;
-import com.china.center.oa.product.vo.ProductVSLocationVO;
-import com.china.center.oa.product.vo.StorageRelationVO;
 import com.china.center.oa.product.vs.ProductCombinationBean;
 import com.china.center.oa.product.vs.ProductVSLocationBean;
 import com.china.center.oa.product.vs.StorageRelationBean;
@@ -3007,28 +2996,36 @@ public class ProductAction extends DispatchAction
 
             request.setAttribute("depotpartListStr", object.toString());
 
-            //TODO
             List<ComposeFeeDefinedBean> feeList = composeFeeDefinedDAO.listEntityBeans();
-            List<ComposeFeeBean> feeItems = this.composeFeeDAO.queryEntityBeansByFK(bean.getId());
-            request.setAttribute("feeList", feeList);
+            List<ComposeFeeVO> feeVOList = this.getComposeFeeList(feeList, bean);
+            request.setAttribute("feeList", feeVOList);
 
             _logger.info("****bean****"+bean);
-            _logger.info("****feeList****"+feeList);
+            _logger.info("****feeList****"+feeVOList);
             return mapping.findForward("updateCompose");
         }else{
             return mapping.findForward("detailCompose");
         }
     }
 
-    private void setFeeList(List<ComposeFeeDefinedBean> feeList,List<ComposeFeeBean> feeItems){
-        for (ComposeFeeDefinedBean fee : feeList){
-            for(ComposeFeeBean item : feeItems){
-                if (fee.getId().equals(item.getFeeItemId())){
-                    fee.setDescription();
+    private  List<ComposeFeeVO> getComposeFeeList(List<ComposeFeeDefinedBean> feeList, ComposeProductVO bean){
+        List<ComposeFeeVO> result = new ArrayList<ComposeFeeVO>();
+        List<ComposeFeeVO> feeVOList = bean.getFeeVOList();
+        for (ComposeFeeDefinedBean fee: feeList){
+            ComposeFeeVO cfb = new ComposeFeeVO();
+            cfb.setFeeItemName(fee.getName());
+            for (ComposeFeeVO vo: feeVOList){
+                if (vo.getFeeItemId().equals(fee.getId())){
+                    cfb.setPrice(vo.getPrice());
+                    cfb.setDescription(vo.getDescription());
+                    break;
                 }
             }
+            result.add(cfb);
         }
+        return result;
     }
+
 
     /**
      * findPriceChange
