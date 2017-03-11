@@ -199,6 +199,12 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         }
     }
 
+    @Override
+    public boolean updateComposeProduct(User user, ComposeProductBean composeProductBean) throws MYException {
+        _logger.info("***updateComposeProduct***"+composeProductBean);
+        return false;
+    }
+
     /**
      * 2015/7/27 预合成JOB检查
      * @param bean

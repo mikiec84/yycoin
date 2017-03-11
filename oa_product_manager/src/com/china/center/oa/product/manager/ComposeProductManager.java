@@ -41,6 +41,9 @@ public interface ComposeProductManager extends ListenerManager<ComposeProductLis
     boolean addComposeProduct(User user, ComposeProductBean bean)
         throws MYException;
 
+    boolean updateComposeProduct(User user, ComposeProductBean bean)
+            throws MYException;
+
     /**
      * 2015/7/24 预合成产品
      *

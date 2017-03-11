@@ -656,6 +656,24 @@ public class ProductFacadeImpl extends AbstarctFacade implements ProductFacade
     }
 
     @Override
+    public boolean updateComposeProduct(String userId, ComposeProductBean bean) throws MYException {
+        JudgeTools.judgeParameterIsNull(userId, bean);
+
+        User user = userManager.findUser(userId);
+
+        checkUser(user);
+
+        if (containAuth(user, AuthConstant.PRODUCT_CD))
+        {
+            return composeProductManager.updateComposeProduct(user, bean);
+        }
+        else
+        {
+            throw noAuth();
+        }
+    }
+
+    @Override
     public boolean preComposeProduct(String userId, ComposeProductBean composeProductBean) throws MYException {
         JudgeTools.judgeParameterIsNull(userId, composeProductBean);
 

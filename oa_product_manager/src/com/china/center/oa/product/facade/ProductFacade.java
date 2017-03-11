@@ -126,6 +126,9 @@ public interface ProductFacade
     boolean addComposeProduct(String userId, ComposeProductBean bean)
         throws MYException;
 
+    boolean updateComposeProduct(String userId, ComposeProductBean bean)
+            throws MYException;
+
     /**
      * 2015/7/24 预合成产品
      * @param userId
