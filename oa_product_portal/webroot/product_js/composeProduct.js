@@ -49,8 +49,9 @@ function removeTr(obj)
     	return false;
     }
     
-    obj.parentNode.parentNode.removeNode(true);
-    
+    // obj.parentNode.parentNode.removeNode(true);
+    //#431 2017/3/11 removeNode() does not work for Chrome
+    obj.parentNode.parentNode.parentNode.removeChild(obj.parentNode.parentNode);
     
     for (var i = 2; i < table.rows.length; i++)
     {

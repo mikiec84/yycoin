@@ -1472,8 +1472,11 @@ public class ProductAction extends DispatchAction
                                         HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
+        _logger.info("***updateCompose***");
         ComposeProductBean bean = new ComposeProductBean();
 
+        try
+        {
         BeanUtil.getBean(bean, request);
 
         String save = request.getParameter("save");
@@ -1486,8 +1489,6 @@ public class ProductAction extends DispatchAction
             bean.setStatus(ComposeConstant.STATUS_SUBMIT);
         }
 
-        try
-        {
             setCompose(request, bean);
 
             User user = Helper.getUser(request);
@@ -1496,14 +1497,14 @@ public class ProductAction extends DispatchAction
 
             bean.setType(ComposeConstant.COMPOSE_TYPE_COMPOSE);
 
-//            productFacade.updateComposeProduct(user.getId(), bean);
-            //TODO
+            productFacade.updateComposeProduct(user.getId(), bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功合成产品,合成后均价:"
                     + MathTools.formatNum(bean.getPrice()));
         }
-        catch (MYException e)
+        catch (Exception e)
         {
+            e.printStackTrace();
             _logger.warn(e, e);
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "合成产品失败:" + e.getMessage());
@@ -3002,6 +3003,7 @@ public class ProductAction extends DispatchAction
 
             _logger.info("****bean****"+bean);
             _logger.info("****feeList****"+feeVOList);
+            _logger.info("****getItemVOList****"+bean.getItemVOList());
             return mapping.findForward("updateCompose");
         }else{
             return mapping.findForward("detailCompose");
@@ -3014,6 +3016,7 @@ public class ProductAction extends DispatchAction
         for (ComposeFeeDefinedBean fee: feeList){
             ComposeFeeVO cfb = new ComposeFeeVO();
             cfb.setFeeItemName(fee.getName());
+            cfb.setFeeItemId(fee.getId());
             for (ComposeFeeVO vo: feeVOList){
                 if (vo.getFeeItemId().equals(fee.getId())){
                     cfb.setPrice(vo.getPrice());

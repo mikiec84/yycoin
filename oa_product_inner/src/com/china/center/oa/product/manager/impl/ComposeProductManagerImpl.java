@@ -200,9 +200,26 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     }
 
     @Override
+    @Transactional(rollbackFor = MYException.class)
     public boolean updateComposeProduct(User user, ComposeProductBean composeProductBean) throws MYException {
         _logger.info("***updateComposeProduct***"+composeProductBean);
-        return false;
+        String id = composeProductBean.getId();
+        //Remove old data
+        composeItemDAO.deleteEntityBeansByFK(id);
+        composeFeeDAO.deleteEntityBeansByFK(id);
+
+        this.composeProductDAO.updateEntityBean(composeProductBean);
+        List<ComposeItemBean> itemList = composeProductBean.getItemList();
+        for(ComposeItemBean item :itemList){
+            item.setParentId(id);
+        }
+        this.composeItemDAO.saveAllEntityBeans(itemList);
+        List<ComposeFeeBean> feeList = composeProductBean.getFeeList();
+        for (ComposeFeeBean item: feeList){
+            item.setParentId(id);
+        }
+        this.composeFeeDAO.saveAllEntityBeans(feeList);
+        return true;
     }
 
     /**
@@ -924,8 +941,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         Expression exp = new Expression(bean, this);
 
         exp.check("#name &unique2 @composeFeeDefinedDAO", "名称已经存在");
-
         return composeFeeDefinedDAO.updateEntityBean(bean);
+
     }
 
     public ComposeFeeDefinedVO findComposeFeeDefinedVO(String id)

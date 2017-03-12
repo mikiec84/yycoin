@@ -65,7 +65,8 @@
 
         function delBean(opr, grid)
         {
-            if (getRadio('checkb') && (getRadio('checkb').lstatus == 0 || getRadio('checkb').lstatus == 1))
+            if (getRadio('checkb') &&
+                    (getRadio('checkb').lstatus == 0 || getRadio('checkb').lstatus == 1 || getRadio('checkb').lstatus == 6))
             {
                 if(window.confirm('确定删除?'))
                     $ajax(gurl + 'delete' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
