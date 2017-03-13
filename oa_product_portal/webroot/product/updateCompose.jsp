@@ -102,7 +102,7 @@ function getEle(eles, name)
 function getProductRelation(oos)
 {
 	var oo = oos[0];
-    console.log(oo);
+//    console.log(oo);
 
 	current.value = oo.pname;
 	
@@ -271,8 +271,8 @@ function depotChange()
 	}
     <%--setSelect(newsrcDepot,'${bean.deportId}');--%>
     var dirDepotpart = document.getElementsByName('dirDepotpart');
-    console.log(dirDepotpart);
-    console.log(dirDepotpart.options);
+//    console.log(dirDepotpart);
+//    console.log(dirDepotpart.options);
     <%--setSelect(dirDepotpart,'${bean.depotpartId}');--%>
 }
 
@@ -300,7 +300,7 @@ function bomClick(){
 function load()
 {
 	//addTr();
-	console.log('${bean.itemVOList}');
+	<%--console.log('${bean.itemVOList}');--%>
 	depotChange();
 }
 </script>
