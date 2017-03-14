@@ -383,8 +383,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     _logger.info(outId+" OutBean set IB flag**********");
                                     if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                         out.setIbFlag(1);
+                                        out.setIbApplyId(bean.getId());
                                     } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
                                         out.setMotivationFlag(1);
+                                        out.setMotivationApplyId(bean.getId());
                                     }
 
                                     this.outDAO.updateEntityBean(out);
@@ -774,8 +776,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                         _logger.info(outId+" OutBean set IB flag**********");
                                         if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                             out.setIbFlag(1);
+                                            out.setIbApplyId(bean.getId());
                                         } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
                                             out.setMotivationFlag(1);
+                                            out.setMotivationApplyId(bean.getId());
                                         }
 
                                         this.outDAO.updateEntityBean(out);
@@ -1832,8 +1836,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     _logger.info(outId+" OutBean reset IB flag**********");
                                     if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                         out.setIbFlag(0);
+                                        out.setIbApplyId("");
                                     } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
                                         out.setMotivationFlag(0);
+                                        out.setMotivationApplyId("");
                                     }
 
                                     this.outDAO.updateEntityBean(out);
@@ -2837,8 +2843,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 _logger.info(outId+" OutBean reset IB flag before delete bean**********"+bean.getId());
                                 if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                     out.setIbFlag(0);
+                                    out.setIbApplyId("");
                                 } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
                                     out.setMotivationFlag(0);
+                                    out.setMotivationApplyId("");
                                 }
 
                                 this.outDAO.updateEntityBean(out);

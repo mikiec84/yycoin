@@ -3953,7 +3953,9 @@ public class ParentOutAction extends DispatchAction
 
         //2015/5/12 拷贝原销售单中收激励情况
         out.setIbFlag(oldOut.getIbFlag());
+		out.setIbApplyId(oldOut.getIbApplyId());
         out.setMotivationFlag(oldOut.getMotivationFlag());
+		out.setMotivationApplyId(oldOut.getMotivationApplyId());
 
 		// 商务
 		User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");

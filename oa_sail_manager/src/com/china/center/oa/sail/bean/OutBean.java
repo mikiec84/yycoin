@@ -462,8 +462,12 @@ public class OutBean implements Serializable
     //0: 未申请 1：已申请
     private int ibFlag = 0;
 
+    private String ibApplyId = "";
+
     //0: 未申请 1：已申请
     private int motivationFlag = 0;
+
+    private String motivationApplyId = "";
 
     //2015/8/5 异地调拨标志: 1-需异地调拨 0-否
     private int remoteAllocate = 0;
@@ -2133,6 +2137,22 @@ public class OutBean implements Serializable
 
     public void setFlowTime(String flowTime) {
         this.flowTime = flowTime;
+    }
+
+    public String getIbApplyId() {
+        return ibApplyId;
+    }
+
+    public void setIbApplyId(String ibApplyId) {
+        this.ibApplyId = ibApplyId;
+    }
+
+    public String getMotivationApplyId() {
+        return motivationApplyId;
+    }
+
+    public void setMotivationApplyId(String motivationApplyId) {
+        this.motivationApplyId = motivationApplyId;
     }
 
     /**

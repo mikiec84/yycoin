@@ -894,4 +894,10 @@ public interface OutConstant
      */
     @Defined(key = "presentFlag", value = "物料类赠送")
     int OUT_PRESENT_MATERIAL = 4;
+
+    @Defined(key = "ibMotivationFlag", value = "未申请")
+    int IB_FLAG_NO = 0;
+
+    @Defined(key = "ibMotivationFlag", value = "已申请")
+    int IB_FLAG_YES = 1;
 }
