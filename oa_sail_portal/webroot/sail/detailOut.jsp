@@ -232,7 +232,7 @@ function checkBean()
                         </td>
 					</tr>
 
-					<tr class="content1">
+					<tr class="content2">
 						<td align="right" id="outd">客户：</td>
 						<td><input type="text" name="customerName" maxlength="14" value="${bean.customerName}" onclick="selectCustomer()"
 							 style="cursor: pointer;"
@@ -348,7 +348,7 @@ function checkBean()
                        </td>
                     </tr>
 
-                     <tr class="content2">
+                     <tr class="content1">
                        <td align="right">管理类型：</td>
                         <td colspan="1">
                        ${my:get('pubManagerType', bean.mtype)}
@@ -431,7 +431,7 @@ function checkBean()
 						</td>
 					</tr>
 
-					<tr class="content1">
+					<tr class="content2">
 						<td align="right">激励标志：</td>
 						<td colspan="1">${my:get('ibMotivationFlag', bean.motivationFlag)}</td>
 						<td align="right">激励申请：</td>
