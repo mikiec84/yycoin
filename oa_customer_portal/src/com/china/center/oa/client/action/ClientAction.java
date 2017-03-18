@@ -775,39 +775,70 @@ public class ClientAction extends DispatchAction
                     }
 
                     // 市
-                    if ( !StringTools.isNullOrNone(obj[2]))
-                    {
-                        String city = obj[2].trim();
-                        bean.setCityName(city);
+					if ( !StringTools.isNullOrNone(obj[2]))
+					{
+						String city = obj[2].trim();
+						bean.setCityName(city);
 
-                        CityBean cityBean = this.cityDAO.findByUnique(city);
-                        if (cityBean == null){
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("城市不存在")
-                                    .append("<br>");
+						CityBean cityBean = this.cityDAO.findByUnique(city);
+						if (cityBean == null){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("城市不存在")
+									.append("<br>");
 
-                            importError = true;
-                        } else{
-                            bean.setCityId(cityBean.getId());
-                        }
+							importError = true;
+						} else{
+							bean.setCityId(cityBean.getId());
+						}
 
-                    }
-                    else
-                    {
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("市不能为空")
-                                .append("<br>");
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("市不能为空")
+								.append("<br>");
 
-                        importError = true;
-                    }
+						importError = true;
+					}
 
+					// 区县
+					if ( !StringTools.isNullOrNone(obj[3]))
+					{
+						String area = obj[3].trim();
+						bean.setAreaName(area);
+
+						ConditionParse conditionParse = new ConditionParse();
+						conditionParse.addWhereStr();
+						conditionParse.addCondition("name","=",area);
+						List<AreaBean> areaBeans = this.areaDAO.queryEntityBeansByCondition(conditionParse);
+						if (ListTools.isEmptyOrNull(areaBeans)){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("区县不存在")
+									.append("<br>");
+
+							importError = true;
+						} else{
+							bean.setAreaId(areaBeans.get(0).getId());
+						}
+
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("区县不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
 
                     // 地址
-                    if ( !StringTools.isNullOrNone(obj[3]))
+                    if ( !StringTools.isNullOrNone(obj[4]))
                     {
-                        String address = obj[3].trim();
+                        String address = obj[4].trim();
                         bean.setAddress(address);
                     }
                     else
@@ -821,9 +852,9 @@ public class ClientAction extends DispatchAction
                     }
 
                     // 业务员
-                    if ( !StringTools.isNullOrNone(obj[4]))
+                    if ( !StringTools.isNullOrNone(obj[5]))
                     {
-                        String stafferName = obj[4].trim();
+                        String stafferName = obj[5].trim();
                         bean.setStafferName(stafferName);
 
                         StafferBean stafferBean = this.stafferDAO.findyStafferByName(stafferName);
@@ -1454,7 +1485,7 @@ public class ClientAction extends DispatchAction
 
     private String[] fillObj(String[] obj)
     {
-        String[] result = new String[5];
+        String[] result = new String[6];
 
         for (int i = 0; i < result.length; i++ )
         {
@@ -1875,13 +1906,13 @@ public class ClientAction extends DispatchAction
 
         if (StringTools.isNullOrNone(update))
         	update = "0";
-        
+        _logger.info("***id***"+id+"***update***"+update);
         CommonTools.saveParamers(request);
 
         User user = Helper.getUser(request);
 
         CustomerVO cvo = customerMainDAO.findVO(id);
-
+		_logger.info("***cvo***"+cvo);
         if (cvo == null)
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "客户不存在");
