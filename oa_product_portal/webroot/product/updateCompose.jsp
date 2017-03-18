@@ -27,7 +27,7 @@ function addBean()
 function checks()
 {
 	var srs = document.getElementsByName('srcRelation');
-	
+
 	var ret = $duplicate(srs);
 	
 	if (ret)
@@ -132,7 +132,7 @@ function getProductRelation(oos)
     
     var srcDe = getEle(tr.getElementsByTagName('select'), "srcDepotpart");
     
-    setSelect(srcDe, oo.pdepotpart);
+//    setSelect(srcDe, oo.pdepotpart);
 
     if (oos.length > 1 ) {
 
@@ -249,31 +249,30 @@ function depotChange()
 	{
 		elements.push(sels[i]);
 	}
-	
+
 	elements.push($O('dirDepotpart'));
 	
 	var newsrcDepot = $$('srcDepot');
-	
+
 	for (var i = 0; i < elements.length; i++)
 	{
-		removeAllItem(elements[i]);
+        var element = elements[i];
+		removeAllItem(element);
 		
 		//add new option
 		for (var j = 0; j < dList.length; j++)
 		{
 			if (dList[j].locationId == newsrcDepot)
 			{
-				setOption(elements[i], dList[j].id, dList[j].name);
+				setOption(element, dList[j].id, dList[j].name);
 			}
 		}
-		
+//		console.log(element.value);
+        var values = element.getAttribute("values");
+//        console.log(values);
+        setSelect(element,values);
 		//depotpartChange(elements[i]);
 	}
-    <%--setSelect(newsrcDepot,'${bean.deportId}');--%>
-    var dirDepotpart = document.getElementsByName('dirDepotpart');
-//    console.log(dirDepotpart);
-//    console.log(dirDepotpart.options);
-    <%--setSelect(dirDepotpart,'${bean.depotpartId}');--%>
 }
 
 function bomClick(){
@@ -300,7 +299,6 @@ function bomClick(){
 function load()
 {
 	//addTr();
-	<%--console.log('${bean.itemVOList}');--%>
 	depotChange();
 }
 </script>
@@ -416,34 +414,33 @@ function load()
                             <input type="button" accesskey="A" value="增加" class="button_class" onclick="addTr()">
                         </td>
                     </tr>
-                    <c:forEach items="${bean.itemVOList}" var="item" varStatus="vs">
+                    <c:forEach items="${bean.itemVOList}" var="item2" varStatus="vs">
                         <tr class="content1">
                             <td width="30%" align="center">
-                                <select name="srcDepotpart" class="select_class" style="width: 100%;" values="${item.depotpartId }" onchange="depotpartChange(this)" oncheck="notNone">
+                                <select name="srcDepotpart" class="select_class" style="width: 100%;" values="${item2.depotpartId }" onchange="depotpartChange(this)" oncheck="notNone">
                                     <option value="">--</option>
-                                    <c:forEach var="item" items="${depotpartList}">
-                                        <option value="${item.id}">${item.name}</option>
+                                    <c:forEach var="depotpartItem" items="${depotpartList}">
+                                        <option value="${depotpartItem.id}">${depotpartItem.name}</option>
                                     </c:forEach>
                                 </select>
                             </td>
                             <td width="30%" align="center">
-                                <input type="text" style="width: 100%;cursor: pointer;" readonly="readonly" value="${item.productName}" oncheck="notNone" name="targerName" onclick="selectDepotpartProduct(this)">
-                                <input type="hidden" name="srcProductId" value="">
+                                <input type="text" style="width: 100%;cursor: pointer;" readonly="readonly" value="${item2.productName}" oncheck="notNone" name="targerName" onclick="selectDepotpartProduct(this)">
+                                <input type="hidden" name="srcProductId" value="${item2.productId}">
                                 <input type="hidden" name="srcInputRate" value="">
                                 <input type="hidden" name="srcProductCode" value="">
                             </td>
                             <td width="15%" align="center">
                                 <input type="text" style="width: 100%"
-                                                                  name="useAmount" value="${item.amount}" oncheck="notNone;isNumber">
+                                                                  name="useAmount" value="${item2.amount}" oncheck="notNone;isNumber">
+                            </td>
+                            <td width="15%" align="center">
+                                <input type="text" style="width: 100%" readonly="readonly" name="srcAmount" value="">
                             </td>
                             <td width="15%" align="center">
                                 <input type="text" style="width: 100%" readonly="readonly"
-                                                                  name="srcAmount" value="" oncheck="notNone;isNumber">
-                            </td>
-                            <td width="15%" align="center">
-                                <input type="text" style="width: 100%" readonly="readonly"
-                                                                  name="srcPrice" value="${item.price}" oncheck="notNone;isFloat">
-                                <input type="hidden" name="srcRelation" value="">
+                                                                  name="srcPrice" value="${item2.price}" oncheck="notNone;isFloat">
+                                <input type="hidden" name="srcRelation" value="${item2.relationId}">
                             </td>
                             <td width="5%" align="center">
                                 <input type="button" value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
