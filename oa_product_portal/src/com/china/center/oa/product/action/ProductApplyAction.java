@@ -720,6 +720,7 @@ public class ProductApplyAction extends DispatchAction {
                                 sailPrice = cb.getSailPrice();
                             }
                             if (sailPrice< 0.001){
+                                importError = true;
                                 builder
                                         .append("第[" + currentNumber + "]错误:")
                                         .append("产品结算价为空或为0")
