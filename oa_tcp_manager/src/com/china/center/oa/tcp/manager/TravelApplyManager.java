@@ -167,4 +167,10 @@ public interface TravelApplyManager extends ListenerManager<TcpPayListener>
     public void batchUpdateIbMoney(User user, List<TcpIbBean> list) throws MYException;
 
     public void importBankBulevel(User user, List<BankBuLevelBean> list) throws MYException;
+
+    /**
+     * #441
+     * @throws MYException
+     */
+    public void exceptionalIbReportJob() throws  MYException;
 }

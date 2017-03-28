@@ -3051,6 +3051,9 @@ public class ShipAction extends DispatchAction
             //2016/8/16 合并商品行的outId也合并过了
             String[] outIds = item.getOutId().split("<br>");
             outId = outIds[0];
+        } else if (outId.startsWith("A")){
+            //发票号不用转换
+            return item.getProductName();
         }
 
         String productId = item.getProductId();

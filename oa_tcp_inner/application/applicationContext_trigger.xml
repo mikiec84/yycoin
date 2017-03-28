@@ -64,6 +64,19 @@
         <property name="cronExpression" value="0 0 23 * * ?" />
     </bean>
 
+    <bean id="exceptionalIbReportJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="travelApplyManager" />
+        <property name="targetMethod" value="exceptionalIbReportJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="exceptionalIbReportJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="exceptionalIbReportJob" />
+        <property name="cronExpression" value="0 36 16 * * ?" />
+    </bean>
+
     <bean
             class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -72,6 +85,7 @@
                 <!--<ref bean="ibReportJobTrigger9" />-->
                 <!--<ref bean="ibReportJobTrigger2" />-->
                 <ref bean="ibReportJobMonthlyJobTrigger" />
+                <ref bean="exceptionalIbReportJobTrigger" />
             </list>
         </property>
     </bean>

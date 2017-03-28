@@ -3341,6 +3341,31 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
     }
 
+    @Override
+    public void exceptionalIbReportJob() throws MYException {
+        _logger.info("***exceptionalIbReportJob running***");
+        List<TcpIbBean> tcpIbBeenList = this.tcpIbDAO.listEntityBeans();
+        for (TcpIbBean bean: tcpIbBeenList){
+            String outIds = bean.getFullId();
+            if (!StringTools.isNullOrNone(outIds)) {
+                StringTokenizer st = new StringTokenizer(outIds, ";");
+                while (st.hasMoreTokens()) {
+                    String outId = st.nextToken();
+                    OutBean out = this.outDAO.find(outId);
+                    if (out != null) {
+                        if (bean.getType() == TcpConstanst.IB_TYPE && out.getIbFlag() != 1) {
+                            _logger.warn(outId+"***IB***" + bean.getRefId());
+                        }
+                        if (bean.getType() == TcpConstanst.MOTIVATION_TYPE && out.getMotivationFlag() != 1) {
+                            _logger.warn(outId+"***Motivation***" + bean.getRefId());
+                        }
+                    }
+                }
+            }
+        }
+        _logger.info("****finish exceptionalIbReportJob***");
+    }
+
     /**
      * @return the tcpApplyDAO
      */
