@@ -3313,7 +3313,7 @@ public class TravelApplyAction extends DispatchAction
                                 if(type == TcpConstanst.MOTIVATION_TYPE){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交激励报销申请")
+                                            .append("订单号不能重复提交激励报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
@@ -3328,6 +3328,27 @@ public class TravelApplyAction extends DispatchAction
                                         .append("</font><br>");
 
                                 importError = true;
+                            }
+
+
+                            //#441 2017/3/29 再次检查是否已提交申请过
+                            ConditionParse conditionParse1 = new ConditionParse();
+                            conditionParse1.addWhereStr();
+                            conditionParse1.addCondition("type","=",type);
+                            conditionParse1.addCondition("fullId","like","%"+outId+"%");
+                            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByCondition(conditionParse1);
+                            if(!ListTools.isEmptyOrNull(ibList)){
+                                for (TcpIbBean ib:ibList){
+                                    TravelApplyBean apply = this.travelApplyDAO.find(ib.getRefId());
+                                    if (apply!= null && apply.getStatus()!=0 && apply.getStatus()!=1){
+                                        builder
+                                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                .append(outId+"订单号已提交激励报销申请:"+apply.getId())
+                                                .append("</font><br>");
+
+                                        importError = true;
+                                    }
+                                }
                             }
 
                             //2015/8/12 激励申请时，检查订单为已出库或已发货
