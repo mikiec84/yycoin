@@ -1208,4 +1208,16 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         this.jdbcOperation.updateField("flowTime", flowTime, fullId, this.claz);
         return true;
     }
+
+    @Override
+    public boolean updateIbFlag(String fullId, int ibFlag) {
+        this.jdbcOperation.updateField("ibFlag", ibFlag, fullId, this.claz);
+        return true;
+    }
+
+    @Override
+    public boolean updateMotivationFlag(String fullId, int motivationFlag) {
+        this.jdbcOperation.updateField("motivationFlag", motivationFlag, fullId, this.claz);
+        return true;
+    }
 }

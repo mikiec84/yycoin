@@ -618,8 +618,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
                         ProductApplyConstant.STATUS_FINISHED);
             }
         } else{
-            _logger.info("*****importProductApply empty****");
-            return false;
+            _logger.error("*****importProductApply empty****");
+            throw new MYException("导入模板无法解析");
         }
         return true;  //To change body of implemented methods use File | Settings | File Templates.
     }

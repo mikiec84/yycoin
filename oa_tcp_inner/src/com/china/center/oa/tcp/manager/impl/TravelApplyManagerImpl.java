@@ -3342,11 +3342,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     }
 
     @Override
+    @Transactional(rollbackFor = MYException.class)
     public void exceptionalIbReportJob() throws MYException {
         _logger.info("***exceptionalIbReportJob running***");
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         conditionParse.addCondition(" and type in(7,8)");
+        conditionParse.addCondition(" and flowKey in('travel-ib-apply','travel-motivation')");
         //去掉初始和駁回狀態
         conditionParse.addCondition(" and status not in(0,1)");
         List<TravelApplyBean> beans = this.travelApplyDAO.queryEntityBeansByCondition(conditionParse);
@@ -3363,7 +3365,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         String outId = st.nextToken();
                         OutBean out = this.outDAO.find(outId);
                         if (out != null) {
-                            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID && out.getIbFlag() != 1) {
+                            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                                    && TcpFlowConstant.TRAVELAPPLY_IB.equals(bean.getFlowKey()) && out.getIbFlag() != 1) {
                                 badLog.warn(bean.getId()+"***IB***" + outId);
                                 List<String> outList = customerToOutMap.get(customer);
                                 if (outList == null){
@@ -3372,9 +3375,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 }
                                 outList.add(outId);
                                 outToApplyMap.put(outId,bean.getId());
+                                this.outDAO.updateIbFlag(outId,1);
                             }
 
-                            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION && out.getMotivationFlag() != 1) {
+                            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
+                                    && TcpFlowConstant.TRAVELAPPLY_MOTIVATION.equals(bean.getFlowKey()) && out.getMotivationFlag() != 1) {
                                 badLog.warn(bean.getId()+"***Motivation***" + outId);
                                 List<String> outList = customerToOutMap.get(customer);
                                 if (outList == null){
@@ -3383,6 +3388,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 }
                                 outList.add(outId);
                                 outToApplyMap.put(outId,bean.getId());
+                                this.outDAO.updateMotivationFlag(outId,1);
                             }
                         }
                     }
@@ -3408,12 +3414,27 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 TcpIbBean one = ibList.get(0);
                 TcpIbBean two = ibList.get(1);
                 if(one.getType() == two.getType()){
-                    badLog.warn(fullId);
+                    //check travel apply
+                    TravelApplyBean apply1 = this.getBean(beans,one.getRefId());
+                    TravelApplyBean apply2 = this.getBean(beans,two.getRefId());
+                    if ((apply1!= null && apply1.getStatus()!=0 && apply1.getStatus()!=1)
+                        && (apply2!= null && apply2.getStatus()!=0 && apply2.getStatus()!=1)){
+                        badLog.warn(fullId);
+                    }
                 }
             }
         }
         badLog.info("********finish check***************");
         _logger.info("****finish exceptionalIbReportJob***");
+    }
+
+    private TravelApplyBean getBean(List<TravelApplyBean> beans, String id){
+        for (TravelApplyBean bean: beans){
+            if (bean.getId().equals(id)){
+                return bean;
+            }
+        }
+        return null;
     }
 
     /**
