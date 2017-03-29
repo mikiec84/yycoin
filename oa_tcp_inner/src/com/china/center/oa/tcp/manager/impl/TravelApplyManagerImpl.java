@@ -3344,25 +3344,75 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     @Override
     public void exceptionalIbReportJob() throws MYException {
         _logger.info("***exceptionalIbReportJob running***");
-        List<TcpIbBean> tcpIbBeenList = this.tcpIbDAO.listEntityBeans();
-        for (TcpIbBean bean: tcpIbBeenList){
-            String outIds = bean.getFullId();
-            if (!StringTools.isNullOrNone(outIds)) {
-                StringTokenizer st = new StringTokenizer(outIds, ";");
-                while (st.hasMoreTokens()) {
-                    String outId = st.nextToken();
-                    OutBean out = this.outDAO.find(outId);
-                    if (out != null) {
-                        if (bean.getType() == TcpConstanst.IB_TYPE && out.getIbFlag() != 1) {
-                            _logger.warn(outId+"***IB***" + bean.getRefId());
-                        }
-                        if (bean.getType() == TcpConstanst.MOTIVATION_TYPE && out.getMotivationFlag() != 1) {
-                            _logger.warn(outId+"***Motivation***" + bean.getRefId());
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition(" and type in(7,8)");
+        //去掉初始和駁回狀態
+        conditionParse.addCondition(" and status not in(0,1)");
+        List<TravelApplyBean> beans = this.travelApplyDAO.queryEntityBeansByCondition(conditionParse);
+        Map<String,List<String>> customerToOutMap = new HashMap<String,List<String>>();
+        Map<String,String> outToApplyMap = new HashMap<String,String>();
+        for(TravelApplyBean bean: beans){
+            List<TcpIbBean> tcpIbBeenList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+            for (TcpIbBean ib: tcpIbBeenList){
+                String outIds = ib.getFullId();
+                String customer = ib.getCustomerName();
+                if (!StringTools.isNullOrNone(outIds)) {
+                    StringTokenizer st = new StringTokenizer(outIds, ";");
+                    while (st.hasMoreTokens()) {
+                        String outId = st.nextToken();
+                        OutBean out = this.outDAO.find(outId);
+                        if (out != null) {
+                            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID && out.getIbFlag() != 1) {
+                                badLog.warn(bean.getId()+"***IB***" + outId);
+                                List<String> outList = customerToOutMap.get(customer);
+                                if (outList == null){
+                                    outList = new ArrayList<String>();
+                                    customerToOutMap.put(customer,outList);
+                                }
+                                outList.add(outId);
+                                outToApplyMap.put(outId,bean.getId());
+                            }
+
+                            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION && out.getMotivationFlag() != 1) {
+                                badLog.warn(bean.getId()+"***Motivation***" + outId);
+                                List<String> outList = customerToOutMap.get(customer);
+                                if (outList == null){
+                                    outList = new ArrayList<String>();
+                                    customerToOutMap.put(customer,outList);
+                                }
+                                outList.add(outId);
+                                outToApplyMap.put(outId,bean.getId());
+                            }
                         }
                     }
                 }
             }
         }
+
+        for (String customer: customerToOutMap.keySet()){
+            badLog.warn(customer);
+            List<String> outList = customerToOutMap.get(customer);
+            for(String outId:outList){
+                badLog.warn(outId+":"+outToApplyMap.get(outId));
+            }
+        }
+        badLog.info("********duplicate apply for OUT***************");
+        //check duplicate
+        for (String fullId: outToApplyMap.keySet()){
+            ConditionParse conditionParse1 = new ConditionParse();
+            conditionParse1.addWhereStr();
+            conditionParse1.addCondition("fullId","like","%"+fullId+"%");
+            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByCondition(conditionParse1);
+            if(!ListTools.isEmptyOrNull(ibList) && ibList.size()>=2){
+                TcpIbBean one = ibList.get(0);
+                TcpIbBean two = ibList.get(1);
+                if(one.getType() == two.getType()){
+                    badLog.warn(fullId);
+                }
+            }
+        }
+        badLog.info("********finish check***************");
         _logger.info("****finish exceptionalIbReportJob***");
     }
 
