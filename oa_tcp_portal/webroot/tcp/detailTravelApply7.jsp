@@ -254,7 +254,7 @@ function load()
                                 <tr align="center" class="content0">
                                     <td width="10%" align="center">申请类型</td>
                                     <td width="20%" align="center">客户名</td>
-                                    <td width="20%" align="center">订单号</td>
+                                    <%--<td width="20%" align="center">订单号</td>--%>
                                     <%--<td width="15%" align="center">商品名</td>--%>
                                     <%--<td width="10%" align="center">数量</td>--%>
                                     <td width="10%" align="center">中收金额</td>
@@ -269,7 +269,7 @@ function load()
                                             </c:if>
                                         </td>
                                         <td align="center">${item.customerName}</td>
-                                        <td align="center">${item.fullId}</td>
+                                        <%--<td align="center">${item.fullId}</td>--%>
                                         <%--<td align="center">${item.productName}</td>--%>
                                         <%--<td align="center">${item.amount}</td>--%>
                                         <td align="center">${item.ibMoney}</td>

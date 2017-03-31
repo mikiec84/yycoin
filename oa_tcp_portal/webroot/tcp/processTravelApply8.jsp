@@ -379,7 +379,7 @@ function checkMoney()
                                 <tr align="center" class="content0">
                                     <td width="10%" align="center">申请类型</td>
                                     <td width="20%" align="center">客户名</td>
-                                    <td width="20%" align="center">订单号</td>
+                                    <%--<td width="20%" align="center">订单号</td>--%>
                                     <td width="10%" align="center">中收金额</td>
                                     <td width="10%" align="center">激励金额</td>
                                 </tr>
@@ -392,7 +392,7 @@ function checkMoney()
                                             </c:if>
                                         </td>
                                         <td align="center">${item.customerName}</td>
-                                        <td align="center">${item.fullId}</td>
+                                        <%--<td align="center">${item.fullId}</td>--%>
                                         <td align="center">${item.ibMoney}</td>
                                         <td align="center">${item.motivationMoney}</td>
                                     </tr>

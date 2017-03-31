@@ -2888,6 +2888,13 @@ public class ProductAction extends DispatchAction
             return ActionTools.toError("数据异常,请重新操作", "queryProduct", mapping, request);
         }
 
+        //#442 税率
+        InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getSailInvoice());
+//        _logger.info("***invoiceBean***"+invoiceBean);
+        if (invoiceBean!= null){
+            bean.setDutyType((int)invoiceBean.getVal()+"%");
+        }
+//        _logger.info(bean.getDutyType());
         request.setAttribute("bean", bean);
 
         String rootUrl = RequestTools.getRootUrl(request);
