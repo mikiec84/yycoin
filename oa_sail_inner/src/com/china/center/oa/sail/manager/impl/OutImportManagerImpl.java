@@ -733,6 +733,8 @@ public class OutImportManagerImpl implements OutImportManager
 					||(newOutBean.getType() == OutConstant.OUT_TYPE_INBILL && newOutBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
 				double grossProfit = this.outManager.getGrossProfit(base.getProductId(), newOutBean.getCustomerName());
 				base.setGrossProfit(grossProfit);
+				double cash = this.outManager.getCash(base.getProductId(),newOutBean.getCustomerName());
+				base.setCash(cash);
 			}
 			
 			// 业务员结算价，总部结算价
@@ -3399,6 +3401,8 @@ public class OutImportManagerImpl implements OutImportManager
 								||(out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
 							double grossProfit = this.outManager.getGrossProfit(baseBean.getProductId(), out.getCustomerName());
 							baseBean.setGrossProfit(grossProfit);
+							double cash = this.outManager.getCash(baseBean.getProductId(),out.getCustomerName());
+							baseBean.setCash(cash);
 						}
 
 						baseBean.setUnit("套");
@@ -3717,6 +3721,8 @@ public class OutImportManagerImpl implements OutImportManager
 									||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
 								double grossProfit = outManager.getGrossProfit(baseBean.getProductId(), outBean.getCustomerName());
 								baseBean.setGrossProfit(grossProfit);
+								double cash = this.outManager.getCash(baseBean.getProductId(),outBean.getCustomerName());
+								baseBean.setCash(cash);
 							}
 
                             baseBean.setUnit("套");

@@ -625,7 +625,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next(), 21);
+                String[] obj = fillObj((String[])reader.next(), 22);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -881,23 +881,23 @@ public class ProductApplyAction extends DispatchAction {
                     if ( !StringTools.isNullOrNone(obj[14]))
                     {
                         try{
-                            bean.setca(Double.valueOf(obj[14]));
+                            bean.setCash(Double.valueOf(obj[14]));
                         }catch(Exception e){
                             importError = true;
 
                             builder
                                     .append("第[" + currentNumber + "]错误:")
-                                    .append("可支配毛利必须为数值")
+                                    .append("单品奖励必须为数值")
                                     .append("<br>");
                         }
                     }
 
                     // 是否回购
-                    if ( !StringTools.isNullOrNone(obj[14]))
+                    if ( !StringTools.isNullOrNone(obj[15]))
                     {
-                        if("否".equals(obj[14])){
+                        if("否".equals(obj[15])){
                             bean.setBuyBack(0);
-                        } else if ("是".equals(obj[14])){
+                        } else if ("是".equals(obj[15])){
                             bean.setBuyBack(1);
                         } else{
                             importError = true;
@@ -910,9 +910,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 调价或上市时间
-                    if ( !StringTools.isNullOrNone(obj[15]))
+                    if ( !StringTools.isNullOrNone(obj[16]))
                     {
-                        bean.setOnMarketDate(obj[15]);
+                        bean.setOnMarketDate(obj[16]);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         try{
                             sdf.parse(bean.getOnMarketDate());
@@ -935,9 +935,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 下线时间
-                    if ( !StringTools.isNullOrNone(obj[16]))
+                    if ( !StringTools.isNullOrNone(obj[17]))
                     {
-                        bean.setOfflineDate(obj[16]);
+                        bean.setOfflineDate(obj[17]);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         try{
                             sdf.parse(bean.getOfflineDate());
@@ -952,16 +952,16 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 分行范围
-                    if ( !StringTools.isNullOrNone(obj[17]))
+                    if ( !StringTools.isNullOrNone(obj[18]))
                     {
-                        bean.setBranchRange(obj[17]);
+                        bean.setBranchRange(obj[18]);
                     }
 
                     // 税率
-                    if ( !StringTools.isNullOrNone(obj[18]))
+                    if ( !StringTools.isNullOrNone(obj[19]))
                     {
                         try{
-                           bean.setTaxRate(Double.parseDouble(obj[18].trim()));
+                           bean.setTaxRate(Double.parseDouble(obj[19].trim()));
                         }catch(Exception e){
                             importError = true;
 
@@ -981,9 +981,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 发票类型
-                    if ( !StringTools.isNullOrNone(obj[19]))
+                    if ( !StringTools.isNullOrNone(obj[20]))
                     {
-                        String invoiceName = obj[19].trim();
+                        String invoiceName = obj[20].trim();
                         bean.setInvoiceType(invoiceName);
                         InvoiceBean invoiceBean = this.invoiceDAO.findByUnique(invoiceName);
                         if(invoiceBean == null){
@@ -1012,9 +1012,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 可开发票内容
-                    if ( !StringTools.isNullOrNone(obj[20]))
+                    if ( !StringTools.isNullOrNone(obj[21]))
                     {
-                        bean.setInvoiceContent(obj[20]);
+                        bean.setInvoiceContent(obj[21]);
                     }else
                     {
                         importError = true;

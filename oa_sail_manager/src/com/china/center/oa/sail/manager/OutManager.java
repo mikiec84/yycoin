@@ -782,6 +782,8 @@ public interface OutManager extends ListenerManager<OutListener>
 
     double getGrossProfit(String productId, String customerName);
 
+    double getCash(String productId, String customerName);
+
     /**
      * #397
      */
