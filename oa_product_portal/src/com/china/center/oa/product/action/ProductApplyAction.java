@@ -877,6 +877,21 @@ public class ProductApplyAction extends DispatchAction {
                         }
                     }
 
+                    //单品奖励
+                    if ( !StringTools.isNullOrNone(obj[14]))
+                    {
+                        try{
+                            bean.setca(Double.valueOf(obj[14]));
+                        }catch(Exception e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("可支配毛利必须为数值")
+                                    .append("<br>");
+                        }
+                    }
+
                     // 是否回购
                     if ( !StringTools.isNullOrNone(obj[14]))
                     {

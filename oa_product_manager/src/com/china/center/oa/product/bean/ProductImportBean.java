@@ -133,6 +133,8 @@ public class ProductImportBean implements Serializable
      */
     private String invoiceContent = "";
 
+    private double cash =0.0d;
+
     public String getId() {
         return id;
     }
@@ -307,6 +309,14 @@ public class ProductImportBean implements Serializable
 
     public void setProperties(String properties) {
         this.properties = properties;
+    }
+
+    public double getCash() {
+        return cash;
+    }
+
+    public void setCash(double cash) {
+        this.cash = cash;
     }
 
     @Override

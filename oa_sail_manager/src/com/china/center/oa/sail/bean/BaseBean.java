@@ -146,6 +146,8 @@ public class BaseBean implements Serializable
      * 激励金额
      */
     private double motivationMoney = 0.0d;
+
+    private double cash =0.0d;
     
     /**
      * 配送方式 deliverType
@@ -885,6 +887,14 @@ public class BaseBean implements Serializable
 
     public void setGrossProfit(double grossProfit) {
         this.grossProfit = grossProfit;
+    }
+
+    public double getCash() {
+        return cash;
+    }
+
+    public void setCash(double cash) {
+        this.cash = cash;
     }
 
     /**
