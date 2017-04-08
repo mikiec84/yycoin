@@ -178,8 +178,8 @@ public class LoginAction extends DispatchAction
 
             // 是否二次认证
             String anhao = parameterDAO.getString(SysConfigConstant.SIGN_YY_CENTER);
-
-            ActionForward checkCommonResult = checkCommon(mapping, request, rand, real);
+            //不管real是否设置为true，都需要做验证码验证
+            ActionForward checkCommonResult = checkCommon(mapping, request, rand, true);
 
             if (checkCommonResult != null)
             {
@@ -234,6 +234,12 @@ public class LoginAction extends DispatchAction
             enc = handleEncLock(key, randKey, randVal, hasEncLock, stafferBean);
 
             passwordEquals = user.getPassword().equals(Security.getSecurity(password));
+
+            //正常登录时， 如果用户名的密码错误，直接返回到错误页面
+            if(!passwordEquals){
+                request.getSession().setAttribute(KeyConstant.ERROR_MESSAGE, "用户名或密码错误!");
+                return mapping.findForward("error");
+            }
 
             request.getSession().setAttribute("g_loginType", "0");
         }
