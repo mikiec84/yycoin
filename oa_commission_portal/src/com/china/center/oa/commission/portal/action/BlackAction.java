@@ -1536,7 +1536,7 @@ public class BlackAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("单号,结算单号,类型,客户,省,市,地址,收货人,收货人电话,业务员,事业部名称,产品,数量,单价,成本");
+            write.writeLine("单号,结算单号,类型,客户,省,市,地址,收货人,收货人电话,业务员,事业部名称,产品,数量,单价,当时结算价");
 
             WriteFileBuffer line = new WriteFileBuffer(write);
             
@@ -1672,7 +1672,7 @@ public class BlackAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("单号,结算单号,类型,客户,业务员,事业部名称,产品,数量,单价,成本");
+            write.writeLine("单号,结算单号,类型,客户,业务员,事业部名称,产品,数量,单价,当时结算价");
 
             WriteFileBuffer line = new WriteFileBuffer(write);
             
