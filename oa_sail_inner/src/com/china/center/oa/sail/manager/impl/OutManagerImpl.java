@@ -12722,6 +12722,42 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
+    public void statsExceptionalPayJob() {
+        triggerLog.info("***statsExceptionalPayJob running***");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
+        conditionParse.addCondition("OutBean.pay","=",  OutConstant.PAY_YES);
+        conditionParse.addCondition("OutBean.outTime", ">", "2015-01-01");
+        List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(conditionParse);
+        double sum = 0L;
+        for (OutBean out: outList){
+            triggerLog.info(out.getFullId());
+            //金额-退货金额-领转金额-已支付，
+            String outId = out.getFullId();
+            ConditionParse con = new ConditionParse();
+
+            con.addWhereStr();
+
+            con.addCondition("OutBean.refOutFullId", "=", outId);
+
+            con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
+
+            // 排除其他入库(对冲单据)
+            con.addCondition("OutBean.reserve8", "<>", "1");
+
+            List<OutBean> refBuyList = outDAO.queryEntityBeansByCondition(con);
+            for (OutBean refBuyOut : refBuyList){
+                sum += refBuyOut.getTotal();
+            }
+            if (Math.abs(out.getTotal()-sum-out.getHadPay())>= 0.01){
+                triggerLog.warn(out.getFullId());
+            }
+        }
+        triggerLog.info("***finish statsExceptionalPayJob running***");
+    }
+
+    @Override
     public void statsExceptionalInBackJob() {
         triggerLog.info("***statsExceptionalInBackJob running***");
         try {

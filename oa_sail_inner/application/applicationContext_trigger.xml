@@ -229,6 +229,20 @@
         <property name="cronExpression" value="0 30 12 * * ?" />
     </bean>
 
+    <bean id="statsExceptionalPayJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outManager" />
+        <property name="targetMethod" value="statsExceptionalPayJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="statsExceptionalPayJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="statsExceptionalPayJob" />
+        <!--<property name="cronExpression" value="0 0/1 * * * ?" />-->
+        <property name="cronExpression" value="0 30 16 * * ?" />
+    </bean>
+
     <bean id="createCustomerJob"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="outManager" />
@@ -277,6 +291,7 @@
                 <ref bean="offlineStorageInJobTrigger"/>
                 <ref bean="updateOutbackStatusJobTrigger"/>
                 <ref bean="statsExceptionalInBackJobTrigger"/>
+                <ref bean="statsExceptionalPayJobTrigger"/>
                 <ref bean="createCustomerJobTrigger"/>
                 <!--<ref bean="generateFinanceItemJobTrigger"/>-->
             </list>

@@ -154,4 +154,10 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
      * @throws MYException
      */
     void passPaymentApply2Job() throws MYException;
+
+    /**
+     * #448
+     * @throws MYException
+     */
+    void fixMissedBillsJob() throws MYException;
 }

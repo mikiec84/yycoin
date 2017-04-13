@@ -769,6 +769,11 @@ public interface OutManager extends ListenerManager<OutListener>
     void createCustomerJob();
 
     /**
+     * #449
+     */
+    void statsExceptionalPayJob();
+
+    /**
      * #349
      * @param out
      * @return

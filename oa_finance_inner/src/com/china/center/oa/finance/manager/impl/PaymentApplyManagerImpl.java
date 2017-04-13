@@ -9,6 +9,11 @@
 package com.china.center.oa.finance.manager.impl;
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.china.center.oa.publics.constant.AuthConstant;
+import com.china.center.oa.sail.listener.OutListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -2611,6 +2617,34 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         
         return condtion;
 	}
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void fixMissedBillsJob() throws MYException {
+        _logger.info("****fixMissedBillsJob running****");
+        String file = "E:\\hk_list.txt";
+        boolean result = false;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                _logger.info("***HK***"+line);
+                PaymentBean paymentBean = this.paymentDAO.find(line.trim());
+
+            }
+            br.close();
+            result = true;
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error(e);
+        }
+        if (result){
+            try {
+                Path path = Paths.get(file);
+                Files.delete(path);
+            }catch (Exception e){}
+        }
+    }
 
     /**
      * #9 资金管理-收款稽核 每10分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过
