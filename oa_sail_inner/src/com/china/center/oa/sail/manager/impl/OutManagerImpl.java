@@ -141,6 +141,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     private final Log triggerLog = LogFactory.getLog("trigger");
 
+    private final Log badLog  = LogFactory.getLog("bad");
+
     private LocationDAO locationDAO = null;
 
     private CommonDAO commonDAO = null;
@@ -12728,11 +12730,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         conditionParse.addWhereStr();
         conditionParse.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
         conditionParse.addCondition("OutBean.pay","=",  OutConstant.PAY_YES);
-        conditionParse.addCondition("OutBean.outTime", ">", "2015-01-01");
+        conditionParse.addCondition("OutBean.outTime", ">=", "2015-01-01");
+        conditionParse.addCondition(" and OutBean.outType in(0,1,3,5,6,7)");
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(conditionParse);
-        double sum = 0L;
         for (OutBean out: outList){
-            triggerLog.info(out.getFullId());
             //金额-退货金额-领转金额-已支付，
             String outId = out.getFullId();
             ConditionParse con = new ConditionParse();
@@ -12747,11 +12748,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             con.addCondition("OutBean.reserve8", "<>", "1");
 
             List<OutBean> refBuyList = outDAO.queryEntityBeansByCondition(con);
+            double sum = 0L;
             for (OutBean refBuyOut : refBuyList){
                 sum += refBuyOut.getTotal();
             }
-            if (Math.abs(out.getTotal()-sum-out.getHadPay())>= 0.01){
-                triggerLog.warn(out.getFullId());
+            if (Math.abs(out.getTotal()-sum-out.getHadPay()-out.getBadDebts())>= 0.01){
+                badLog.error(out.getFullId());
             }
         }
         triggerLog.info("***finish statsExceptionalPayJob running***");
