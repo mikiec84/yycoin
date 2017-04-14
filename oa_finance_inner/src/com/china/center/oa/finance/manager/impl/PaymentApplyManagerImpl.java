@@ -21,8 +21,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.china.center.oa.finance.bean.*;
+import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AuthConstant;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.listener.OutListener;
+import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.bean.FinanceItemBean;
+import com.china.center.oa.tax.bean.TaxBean;
+import com.china.center.oa.tax.constanst.TaxConstanst;
+import com.china.center.oa.tax.constanst.TaxItemConstanst;
+import com.china.center.oa.tax.dao.TaxDAO;
+import com.china.center.oa.tax.helper.FinanceHelper;
+import com.china.center.oa.tax.manager.FinanceManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -38,10 +49,6 @@ import com.china.center.oa.client.bean.CustomerBankBean;
 import com.china.center.oa.client.dao.CustomerBankDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vs.StafferVSCustomerBean;
-import com.china.center.oa.finance.bean.InBillBean;
-import com.china.center.oa.finance.bean.OutBillBean;
-import com.china.center.oa.finance.bean.PaymentApplyBean;
-import com.china.center.oa.finance.bean.PaymentBean;
 import com.china.center.oa.finance.constant.BackPayApplyConstant;
 import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.dao.AutoPayMonitorDAO;
@@ -64,10 +71,6 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.ParameterDAO;
 import com.china.center.oa.publics.helper.LockHelper;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.wrap.ResultBean;
@@ -136,6 +139,12 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private DutyDAO dutyDAO = null;
     
     private OutBillDAO outBillDAO = null;
+
+//    private FinanceManager financeManager = null;
+
+//    private TaxDAO taxDAO             = null;
+
+    private StafferDAO stafferDAO     = null;
 
     private Object PAYMENT_APPLY_LOCK = new Object();
 
@@ -2618,33 +2627,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         return condtion;
 	}
 
-    @Override
-    @Transactional(rollbackFor = MYException.class)
-    public void fixMissedBillsJob() throws MYException {
-        _logger.info("****fixMissedBillsJob running****");
-        String file = "E:\\hk_list.txt";
-        boolean result = false;
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                _logger.info("***HK***"+line);
-                PaymentBean paymentBean = this.paymentDAO.find(line.trim());
 
-            }
-            br.close();
-            result = true;
-        }catch (Exception e){
-            e.printStackTrace();
-            _logger.error(e);
-        }
-        if (result){
-            try {
-                Path path = Paths.get(file);
-                Files.delete(path);
-            }catch (Exception e){}
-        }
-    }
 
     /**
      * #9 资金管理-收款稽核 每10分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过
@@ -3345,5 +3328,22 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
+    }
+
+//    public FinanceManager getFinanceManager() {
+//        return financeManager;
+//    }
+//
+//    public void setFinanceManager(FinanceManager financeManager) {
+//        this.financeManager = financeManager;
+//    }
+
+
+    public StafferDAO getStafferDAO() {
+        return stafferDAO;
+    }
+
+    public void setStafferDAO(StafferDAO stafferDAO) {
+        this.stafferDAO = stafferDAO;
     }
 }

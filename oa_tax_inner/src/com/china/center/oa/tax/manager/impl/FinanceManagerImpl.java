@@ -8,6 +8,11 @@
  */
 package com.china.center.oa.tax.manager.impl;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,6 +21,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.jdbc.annosql.constant.AnoConstant;
+import com.china.center.oa.finance.bean.BankBean;
+import com.china.center.oa.finance.bean.InBillBean;
+import com.china.center.oa.finance.bean.PaymentBean;
+import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.finance.dao.BankDAO;
+import com.china.center.oa.finance.dao.InBillDAO;
+import com.china.center.oa.finance.dao.PaymentDAO;
+import com.china.center.oa.finance.dao.PaymentVSOutDAO;
+import com.china.center.oa.finance.vs.PaymentVSOutBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -146,6 +161,14 @@ public class FinanceManagerImpl implements FinanceManager {
     private UnitDAO unitDAO = null;
     
     private FinanceShowDAO financeShowDAO = null;
+
+    private PaymentDAO paymentDAO = null;
+
+    private PaymentVSOutDAO paymentVSOutDAO = null;
+
+    private InBillDAO inBillDAO      = null;
+
+    private BankDAO bankDAO        = null;
     
     private PlatformTransactionManager transactionManager = null;
     
@@ -2294,7 +2317,198 @@ public class FinanceManagerImpl implements FinanceManager {
         item.getShowChineseOutmoney();
         item.getShowChineseLastmoney();
     }
-    
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void fixMissedBillsJob() throws MYException {
+        _logger.info("****fixMissedBillsJob running****");
+        String file = "E:\\hk_list.txt";
+        boolean result = false;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                _logger.info("***HK***"+line);
+                String paymentId = line.trim();
+                PaymentBean payment = this.paymentDAO.find(paymentId);
+
+                List<InBillBean> inList = inBillDAO.queryEntityBeansByFK(paymentId,
+                        AnoConstant.FK_FIRST);
+
+                BankBean bank = bankDAO.find(payment.getBankId());
+
+                if (bank == null) {
+                    throw new MYException("银行不存在,请确认操作");
+                }
+
+                ConditionParse con = new ConditionParse();
+
+                con.addWhereStr();
+                con.addCondition("PaymentVSOutBean.paymentId", "=", paymentId);
+
+                List<PaymentVSOutBean> vsList = paymentVSOutDAO.queryEntityBeansByCondition(con);
+
+                // 这里是迭代循环,每一个单独生成凭证
+                for (PaymentVSOutBean item : vsList) {
+                    // 回款转预收
+                    if (StringTools.isNullOrNone(item.getOutId())) {
+                        // 每个预收都生成一个凭证,当然一般只有一个预收
+                        for (InBillBean inBillBean : inList) {
+                            // 预收
+                            if (inBillBean.getStatus() == FinanceConstant.INBILL_STATUS_NOREF) {
+                                // 第一个全凭证
+                                mainFinance(null, item, payment, bank, inBillBean);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+
+            }
+            br.close();
+            result = true;
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error(e);
+        }
+        if (result){
+            try {
+                Path path = Paths.get(file);
+                Files.delete(path);
+            }catch (Exception e){}
+        }
+    }
+
+    private void mainFinance(User user, PaymentVSOutBean item,
+                             PaymentBean payment, BankBean bank, InBillBean inBillBean) throws MYException {
+        FinanceBean financeBean = new FinanceBean();
+
+        String paymentId = payment.getId();
+        String name = "自动审批Job通过回款认领(转预收):" + paymentId + '.';
+
+        financeBean.setName(name);
+
+        financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
+
+        financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_BILL_GETPAY);
+
+        // 这里也是关联的回款单号
+        financeBean.setRefId(paymentId);
+
+        financeBean.setRefBill(inBillBean.getId());
+
+        financeBean.setDutyId(bank.getDutyId());
+
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
+
+        financeBean.setDescription(financeBean.getName());
+
+        financeBean.setFinanceDate(TimeTools.now_short());
+
+        financeBean.setLogTime(TimeTools.now());
+
+        List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+
+        // 借:银行科目 贷:银行对应的暂记户科目
+        createAddItem1(user, payment, bank, inBillBean, item, financeBean, itemList);
+
+        financeBean.setItemList(itemList);
+
+        this.addFinanceBeanWithoutTransactional(user, financeBean, false);
+    }
+
+    private void createAddItem1(User user, PaymentBean bean, BankBean bank,
+                                InBillBean inBillBean, PaymentVSOutBean item, FinanceBean financeBean,
+                                List<FinanceItemBean> itemList) throws MYException {
+        String paymentId = bean.getId();
+        String name = "自动审批Job通过回款认领:" + paymentId + '.';
+
+
+        // 银行对应的暂记户科目（没有手续费）/(1)应收账款(2)预收账款
+        FinanceItemBean itemIn = new FinanceItemBean();
+
+        String pareId = commonDAO.getSquenceString();
+
+        itemIn.setPareId(pareId);
+
+        itemIn.setName("银行暂记户:" + name);
+
+        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+        TaxBean inTax = taxDAO.findTempByBankId(bank.getId());
+
+        if (inTax == null) {
+            throw new MYException("银行[%s]缺少对应的暂记户科目,请确认操作", bank.getName());
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(inTax, itemIn);
+
+        // 当前发生额
+        // double inMoney = item.getMoneys();
+        double inMoney = bean.getMoney();
+
+        itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+
+        itemIn.setOutmoney(0);
+
+        itemIn.setDescription(itemIn.getName());
+
+        // 辅助核算 NA
+        itemList.add(itemIn);
+
+        // 贷方
+        FinanceItemBean itemOut = new FinanceItemBean();
+
+        itemOut.setPareId(pareId);
+
+        itemOut.setName("预收账款:" + name);
+
+        itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemOut);
+
+        // 预收账款(客户/职员/部门)
+        TaxBean outTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+
+        if (outTax == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 申请人
+        String staferId = bean.getStafferId();
+        StafferBean staffer = stafferDAO.find(staferId);
+
+        if (staffer == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut);
+
+        // double outMoney = item.getMoneys();
+        double outMoney = bean.getMoney(); // 回款全部先转成预收
+
+        itemOut.setInmoney(0);
+
+        itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+
+        itemOut.setDescription(itemOut.getName());
+
+        // 辅助核算 客户/职员/部门
+        itemOut.setDepartmentId(staffer.getPrincipalshipId());
+        itemOut.setStafferId(staferId);
+        itemOut.setUnitId(bean.getCustomerId());
+        itemOut.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+
+        itemList.add(itemOut);
+    }
+
     /**
      * @return the financeDAO
      */
@@ -2614,4 +2828,36 @@ public class FinanceManagerImpl implements FinanceManager {
 	{
 		this.transactionManager = transactionManager;
 	}
+
+    public PaymentDAO getPaymentDAO() {
+        return paymentDAO;
+    }
+
+    public void setPaymentDAO(PaymentDAO paymentDAO) {
+        this.paymentDAO = paymentDAO;
+    }
+
+    public InBillDAO getInBillDAO() {
+        return inBillDAO;
+    }
+
+    public void setInBillDAO(InBillDAO inBillDAO) {
+        this.inBillDAO = inBillDAO;
+    }
+
+    public BankDAO getBankDAO() {
+        return bankDAO;
+    }
+
+    public void setBankDAO(BankDAO bankDAO) {
+        this.bankDAO = bankDAO;
+    }
+
+    public PaymentVSOutDAO getPaymentVSOutDAO() {
+        return paymentVSOutDAO;
+    }
+
+    public void setPaymentVSOutDAO(PaymentVSOutDAO paymentVSOutDAO) {
+        this.paymentVSOutDAO = paymentVSOutDAO;
+    }
 }

@@ -48,8 +48,7 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
 
     /**
      * 通过(需要同步，其实是结束的方法)
-     * 
-     * @param stafferId
+     *
      * @param id
      * @return
      * @throws MYException
@@ -60,7 +59,6 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
     /** 2014/12/30
      * 通过(后台Job
      *
-     * @param stafferId
      * @param id
      * @return
      * @throws MYException
@@ -82,8 +80,7 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
 
     /**
      * 驳回(需要同步)
-     * 
-     * @param stafferId
+     *
      * @param id
      * @return
      * @throws MYException
@@ -93,8 +90,7 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
 
     /**
      * 总部核对
-     * 
-     * @param stafferId
+     *
      * @param id
      * @return
      * @throws MYException
@@ -155,9 +151,4 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
      */
     void passPaymentApply2Job() throws MYException;
 
-    /**
-     * #448
-     * @throws MYException
-     */
-    void fixMissedBillsJob() throws MYException;
 }

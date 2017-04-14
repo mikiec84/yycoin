@@ -178,6 +178,19 @@
         <property name="cronExpression" value="0 0 1 * * ?" />
     </bean>
 
+    <bean id="statsExceptionalPayJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="billManager" />
+        <property name="targetMethod" value="statsExceptionalPayJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="statsExceptionalPayJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="statsExceptionalPayJob" />
+        <property name="cronExpression" value="0 58 13 * * ?" />
+    </bean>
+
     <bean
             class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -194,6 +207,7 @@
                 <ref bean="autoApproveJobTrigger"/>
                 <ref bean="checkOrderWithoutCKJobTrigger"/>
                 <ref bean="statBankBalanceJobTrigger"/>
+                <ref bean="statsExceptionalPayJobTrigger"/>
             </list>
         </property>
     </bean>

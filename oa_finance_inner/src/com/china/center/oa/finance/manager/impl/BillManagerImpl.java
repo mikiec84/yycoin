@@ -12,6 +12,7 @@ package com.china.center.oa.finance.manager.impl;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.oa.finance.vo.InBillVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -70,6 +71,8 @@ import com.china.center.tools.TimeTools;
 public class BillManagerImpl extends AbstractListenerManager<BillListener> implements BillManager
 {
     private final Log _logger = LogFactory.getLog(getClass());
+
+    private final Log badLog  = LogFactory.getLog("bad");
 
     private InBillDAO inBillDAO = null;
 
@@ -1134,7 +1137,70 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
 
         return bill.getId();
 	}
-    
+
+    @Override
+    public void statsExceptionalPayJob() {
+        badLog.info("***statsExceptionalPayJob running***");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
+        conditionParse.addCondition("OutBean.pay","=",  OutConstant.PAY_YES);
+        conditionParse.addCondition("OutBean.outTime", ">=", "2015-01-01");
+//        conditionParse.addCondition("OutBean.fullId", "=", "LY1506181352170482922");
+        conditionParse.addCondition(" and OutBean.outType in(0,1,3,5,6,7)");
+        List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(conditionParse);
+        badLog.info("***outList size***"+outList.size());
+        for (OutBean out: outList){
+            //金额-退货金额-领转金额-已支付，
+            String outId = out.getFullId();
+//            badLog.info("***outId***"+outId);
+            ConditionParse con = new ConditionParse();
+
+            con.addWhereStr();
+
+            con.addCondition("OutBean.refOutFullId", "=", outId);
+
+            con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
+
+            // 排除其他入库(对冲单据)
+//            con.addCondition("OutBean.reserve8", "<>", "1");
+
+            //退库的
+            List<OutBean> refBuyList = outDAO.queryEntityBeansByCondition(con);
+            double sum = 0L;
+            for (OutBean refBuyOut : refBuyList){
+                sum += refBuyOut.getTotal();
+            }
+
+            //领样转销售的
+            ConditionParse con2 = new ConditionParse();
+
+            con2.addWhereStr();
+
+            con2.addCondition("OutBean.refOutFullId", "=", outId);
+            con2.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+            con2.addIntCondition("OutBean.type","=",7);
+            List<OutBean> lyList = outDAO.queryEntityBeansByCondition(con2);
+            double lySum = 0L;
+            for (OutBean lyOut : lyList){
+                lySum += lyOut.getTotal();
+            }
+
+            //收款单
+            List<InBillVO> billList = inBillDAO.queryEntityVOsByFK(outId);
+            double billSum = 0L;
+            for (InBillVO bill: billList){
+                billSum += bill.getMoneys();
+            }
+//            badLog.info(out.getTotal()+"***"+sum+"***"+billSum+"***"+out.getHadPay()+"***"+out.getBadDebts());
+//            badLog.info(out.getTotal()-sum-billSum-out.getHadPay()-out.getBadDebts());
+            if (out.getTotal()-sum-lySum-billSum-out.getHadPay()-out.getBadDebts()>= 0.01){
+                badLog.error(out.getFullId());
+            }
+        }
+        badLog.info("***finish statsExceptionalPayJob running***");
+    }
+
     /**
      * @return the lOCK_FINANCE
      */

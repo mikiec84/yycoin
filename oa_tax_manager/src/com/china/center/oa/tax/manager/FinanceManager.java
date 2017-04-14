@@ -186,4 +186,6 @@ public interface FinanceManager
      * @throws MYException
      */
     boolean asynQueryFinanceTax(String begin, String end) throws MYException;
+
+    void fixMissedBillsJob() throws MYException;
 }

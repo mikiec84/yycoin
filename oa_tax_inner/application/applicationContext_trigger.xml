@@ -76,6 +76,20 @@
         <property name="jobDetail" ref="financeOutPayTagJob" />
         <property name="cronExpression" value="0 0 23 * * ?" />
     </bean>
+
+    <bean id="fixMissedBillsJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="financeManager" />
+        <property name="targetMethod" value="fixMissedBillsJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="fixMissedBillsJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="fixMissedBillsJob" />
+        <property name="cronExpression" value="0 0 0/1 * * ?" />
+        <!--<property name="cronExpression" value="0 50 15 * * ?" />-->
+    </bean>
     
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -86,6 +100,7 @@
                 <ref bean="fixMonthIndexTrigger" />
                 <ref bean="financeTagTrigger"/>
                 <ref bean="financeOutPayTagTrigger"/>
+                <ref bean="fixMissedBillsJobTrigger"/>
             </list>
         </property>
     </bean>
