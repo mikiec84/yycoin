@@ -240,8 +240,10 @@ public class FinanceManagerImpl implements FinanceManager {
 
         checkTime(bean);
 
-        // 入库时间
-        bean.setLogTime(TimeTools.now());
+        // 入库时间 #448 2017/4/15 允许定制日志时间
+        if (StringTools.isNullOrNone(bean.getLogTime())){
+            bean.setLogTime(TimeTools.now());
+        }
 
         if (OATools.getManagerFlag() && StringTools.isNullOrNone(bean.getDutyId())) {
             String msg = "凭证必须有纳税实体的属性";
@@ -2638,6 +2640,33 @@ public class FinanceManagerImpl implements FinanceManager {
         financeBean.setRefId(paymentId);
 
         financeBean.setRefBill(inBillBean.getId());
+        financeBean.setLogTime(TimeTools.now());
+        financeBean.setFinanceDate(TimeTools.now_short());
+
+        //TODO 预收移交关联新单
+        String description = inBillBean.getDescription();
+        if (description!= null && description.contains("预收移交") && description.contains("新单")){
+            String[] temp = description.split("新单");
+            if (temp.length>=2){
+                String newBillId = temp[1];
+                financeBean.setRefBill(newBillId);
+                //TODO 时间也与预收转应收保持一致
+                //select * from t_center_finance where refBill='SF201703172062862568'
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("refBill","=",newBillId);
+                List<FinanceBean> financeBeanList = this.financeDAO.queryEntityBeansByCondition(conditionParse);
+                _logger.info(conditionParse+"***"+financeBeanList.size());
+                for (FinanceBean fb: financeBeanList){
+                    _logger.info(fb.getDescription());
+                    if (fb.getDescription()!= null && fb.getDescription().contains("自动审批Job通过预收转应收(销售单关联)")){
+                        financeBean.setLogTime(fb.getLogTime());
+                        financeBean.setFinanceDate(fb.getFinanceDate());
+                        break;
+                    }
+                }
+            }
+        }
 
         financeBean.setDutyId(bank.getDutyId());
 
@@ -2646,10 +2675,6 @@ public class FinanceManagerImpl implements FinanceManager {
         }
 
         financeBean.setDescription(financeBean.getName());
-
-        financeBean.setFinanceDate(TimeTools.now_short());
-
-        financeBean.setLogTime(TimeTools.now());
 
         List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
 
