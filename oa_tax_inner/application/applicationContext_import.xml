@@ -89,6 +89,8 @@
 	<osgi:reference id="paymentDAO" interface="com.china.center.oa.finance.dao.PaymentDAO" />
 
 	<osgi:reference id="paymentVSOutDAO" interface="com.china.center.oa.finance.dao.PaymentVSOutDAO" />
+
+	<osgi:reference id="bankDAO" interface="com.china.center.oa.finance.dao.BankDAO" />
 	
 	<osgi:reference id="depotDAO" interface="com.china.center.oa.product.dao.DepotDAO" />
 	

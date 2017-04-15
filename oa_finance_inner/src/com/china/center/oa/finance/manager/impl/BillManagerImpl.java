@@ -1146,7 +1146,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
         conditionParse.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
         conditionParse.addCondition("OutBean.pay","=",  OutConstant.PAY_YES);
         conditionParse.addCondition("OutBean.outTime", ">=", "2015-01-01");
-//        conditionParse.addCondition("OutBean.fullId", "=", "LY1506181352170482922");
+//        conditionParse.addCondition("OutBean.fullId", "=", "LY1605231451438419642");
         conditionParse.addCondition(" and OutBean.outType in(0,1,3,5,6,7)");
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(conditionParse);
         badLog.info("***outList size***"+outList.size());
@@ -1174,12 +1174,10 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
 
             //领样转销售的
             ConditionParse con2 = new ConditionParse();
-
             con2.addWhereStr();
-
             con2.addCondition("OutBean.refOutFullId", "=", outId);
             con2.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
-            con2.addIntCondition("OutBean.type","=",7);
+            con2.addIntCondition("OutBean.outType","=",7);
             List<OutBean> lyList = outDAO.queryEntityBeansByCondition(con2);
             double lySum = 0L;
             for (OutBean lyOut : lyList){

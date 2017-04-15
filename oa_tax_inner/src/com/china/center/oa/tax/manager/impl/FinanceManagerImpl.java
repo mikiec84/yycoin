@@ -24,6 +24,7 @@ import java.util.Set;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.oa.finance.bean.BankBean;
 import com.china.center.oa.finance.bean.InBillBean;
+import com.china.center.oa.finance.bean.PaymentApplyBean;
 import com.china.center.oa.finance.bean.PaymentBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.dao.BankDAO;
@@ -31,6 +32,9 @@ import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.dao.PaymentDAO;
 import com.china.center.oa.finance.dao.PaymentVSOutDAO;
 import com.china.center.oa.finance.vs.PaymentVSOutBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.tax.glue.listener.impl.TaxGlueHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -169,6 +173,8 @@ public class FinanceManagerImpl implements FinanceManager {
     private InBillDAO inBillDAO      = null;
 
     private BankDAO bankDAO        = null;
+
+    private OutDAO outDAO = null;
     
     private PlatformTransactionManager transactionManager = null;
     
@@ -2320,10 +2326,246 @@ public class FinanceManagerImpl implements FinanceManager {
 
     @Override
     @Transactional(rollbackFor = MYException.class)
-    public void fixMissedBillsJob() throws MYException {
-        _logger.info("****fixMissedBillsJob running****");
+    public void preToPayJob() throws MYException {
+        _logger.info("****preToPayJob running****");
+        String file = "E:\\full_list.txt";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                _logger.info("***out***"+line);
+                String fullId = line.trim();
+                //first find payment
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("outId","=",fullId);
+                List<PaymentVSOutBean> vsList = this.paymentVSOutDAO.queryEntityBeansByCondition(conditionParse);
+
+                // 这里是迭代循环,每一个单独生成凭证 预收账款/应收账款
+                for (PaymentVSOutBean item : vsList) {
+                    preToPay(null, item);
+                }
+            }
+            br.close();
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error(e);
+        } finally {
+            try {
+                Path path = Paths.get(file);
+                Files.delete(path);
+            }catch (Exception e){}
+        }
+    }
+
+    private void preToPay(User user,  PaymentVSOutBean item)
+            throws MYException {
+        boolean flag = false;
+
+        String bankId = "";
+
+        String inBillId = item.getBillId();
+
+        InBillBean inBill = inBillDAO.find(inBillId);
+
+        if (null != inBill){
+
+            if (inBill.getType() ==  FinanceConstant.INBILL_TYPE_BADOUT){
+
+                flag = true;
+            }
+
+        }
+
+        PaymentBean payment = null;
+
+        if (!flag){
+            payment = paymentDAO.find(item.getPaymentId());
+
+            if (payment == null) {
+                throw new MYException("数据错误,请确认操作");
+            }
+
+            bankId = payment.getBankId();
+        }else
+        {
+            bankId = FinanceConstant.BANK_BADDEBT;
+        }
+        BankBean bank = bankDAO.find(bankId);
+
+        if (bank == null) {
+            throw new MYException("银行不存在,请确认操作");
+        }
+
+        mainFinanceInPreToPay(user, item, payment, bank);
+    }
+
+    private void mainFinanceInPreToPay(User user,  PaymentVSOutBean item,
+                                       PaymentBean payment, BankBean bank) throws MYException {
+        FinanceBean financeBean = new FinanceBean();
+
+        String name = "自动审批Job" + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
+        financeBean.setName(name);
+
+        financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
+
+        financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_BILL_MAYTOREAL);
+
+        // 这里也是关联的回款单号
+        financeBean.setRefId(item.getPaymentId());
+
+        financeBean.setRefBill(item.getBillId());
+
+        financeBean.setRefOut(item.getOutId());
+
+        financeBean.setDutyId(bank.getDutyId());
+
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
+
+        financeBean.setDescription(financeBean.getName());
+
+        financeBean.setFinanceDate(TimeTools.now_short());
+
+        financeBean.setLogTime(TimeTools.now());
+
+        List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+
+        // 预收账款/应收账款
+        createAddItem4(user, payment, bank,  item, financeBean, itemList);
+
+        financeBean.setItemList(itemList);
+        this.addFinanceBeanWithoutTransactional(user, financeBean, false);
+
+    }
+
+    private void createAddItem4(User user, PaymentBean bean, BankBean bank,
+                                PaymentVSOutBean item, FinanceBean financeBean, List<FinanceItemBean> itemList)
+            throws MYException {
+        // 申请人
+        StafferBean staffer = stafferDAO.find(bean.getStafferId());
+
+        if (staffer == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        OutBean outBean = outDAO.find(item.getOutId());
+
+        if (outBean == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+        String name = "后台Job通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
+
+        // 银行对应的暂记户科目（没有手续费）/应收账款
+        FinanceItemBean itemIn = new FinanceItemBean();
+
+        String pareId = commonDAO.getSquenceString();
+
+        itemIn.setPareId(pareId);
+
+        itemIn.setName("预收账款:" + name);
+
+        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+
+        if (inTax == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(inTax, itemIn);
+
+        // 当前发生额
+        double inMoney = item.getMoneys();
+
+        itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+
+        itemIn.setOutmoney(0);
+
+        itemIn.setDescription(itemIn.getName());
+
+        // 辅助核算 客户/职员/部门
+        itemIn.setDepartmentId(staffer.getPrincipalshipId());
+        itemIn.setStafferId(bean.getStafferId());
+        itemIn.setUnitId(outBean.getCustomerId());
+        itemIn.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+
+        itemList.add(itemIn);
+
+        // 贷方
+        FinanceItemBean itemOut = new FinanceItemBean();
+
+        itemOut.setPareId(pareId);
+
+        itemOut.setName("应收账款:" + name);
+
+        itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemOut);
+
+        // 应收账款(客户/职员/部门)
+        TaxBean outTax = taxDAO.findByUnique(TaxItemConstanst.REVEIVE_PRODUCT);
+
+        if (outTax == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut);
+
+        double outMoney = item.getMoneys();
+
+        itemOut.setInmoney(0);
+
+        itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+
+        itemOut.setDescription(itemOut.getName());
+
+        // 辅助核算 客户/职员/部门
+        //itemOut.setDepartmentId(staffer.getPrincipalshipId());
+        copyDepartment(outBean, itemOut);
+        itemOut.setStafferId(outBean.getStafferId());
+        itemOut.setUnitId(outBean.getCustomerId());
+        itemOut.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+
+        itemList.add(itemOut);
+    }
+
+    private void copyDepartment(OutBean outBean, FinanceItemBean item)
+    {
+        StafferBean sb = stafferDAO.find(outBean.getStafferId());
+
+        if ( !StringTools.isNullOrNone(sb.getIndustryId3()))
+        {
+            item.setDepartmentId(sb.getIndustryId3());
+
+            return;
+        }
+
+        if ( !StringTools.isNullOrNone(sb.getIndustryId2()))
+        {
+            item.setDepartmentId(sb.getIndustryId2());
+
+            return;
+        }
+
+        if ( !StringTools.isNullOrNone(sb.getIndustryId()))
+        {
+            item.setDepartmentId(sb.getIndustryId());
+
+            return;
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void paymentToPreJob() throws MYException {
+        _logger.info("****paymentToPreJob running****");
         String file = "E:\\hk_list.txt";
-        boolean result = false;
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
@@ -2331,10 +2573,10 @@ public class FinanceManagerImpl implements FinanceManager {
                 _logger.info("***HK***"+line);
                 String paymentId = line.trim();
                 PaymentBean payment = this.paymentDAO.find(paymentId);
-
+                _logger.info("***payment***"+payment);
                 List<InBillBean> inList = inBillDAO.queryEntityBeansByFK(paymentId,
                         AnoConstant.FK_FIRST);
-
+                _logger.info("***inList***"+inList.size());
                 BankBean bank = bankDAO.find(payment.getBankId());
 
                 if (bank == null) {
@@ -2347,7 +2589,7 @@ public class FinanceManagerImpl implements FinanceManager {
                 con.addCondition("PaymentVSOutBean.paymentId", "=", paymentId);
 
                 List<PaymentVSOutBean> vsList = paymentVSOutDAO.queryEntityBeansByCondition(con);
-
+                _logger.info("***vsList***"+vsList.size());
                 // 这里是迭代循环,每一个单独生成凭证
                 for (PaymentVSOutBean item : vsList) {
                     // 回款转预收
@@ -2358,25 +2600,24 @@ public class FinanceManagerImpl implements FinanceManager {
                             if (inBillBean.getStatus() == FinanceConstant.INBILL_STATUS_NOREF) {
                                 // 第一个全凭证
                                 mainFinance(null, item, payment, bank, inBillBean);
-                                return;
+                                break;
                             }
                         }
                     }
                 }
-
-
             }
             br.close();
-            result = true;
         }catch (Exception e){
             e.printStackTrace();
             _logger.error(e);
-        }
-        if (result){
+        }finally {
             try {
                 Path path = Paths.get(file);
                 Files.delete(path);
-            }catch (Exception e){}
+            }catch (Exception e){
+                e.printStackTrace();
+                _logger.error(e);
+            }
         }
     }
 
@@ -2859,5 +3100,13 @@ public class FinanceManagerImpl implements FinanceManager {
 
     public void setPaymentVSOutDAO(PaymentVSOutDAO paymentVSOutDAO) {
         this.paymentVSOutDAO = paymentVSOutDAO;
+    }
+
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
     }
 }

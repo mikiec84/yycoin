@@ -77,18 +77,30 @@
         <property name="cronExpression" value="0 0 23 * * ?" />
     </bean>
 
-    <bean id="fixMissedBillsJob"
+    <bean id="paymentToPreJob"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <property name="targetObject" ref="financeManager" />
-        <property name="targetMethod" value="fixMissedBillsJob" />
+        <property name="targetMethod" value="paymentToPreJob" />
         <property name="concurrent" value="false" />
     </bean>
 
-    <bean id="fixMissedBillsJobTrigger"
+    <bean id="paymentToPreJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
-        <property name="jobDetail" ref="fixMissedBillsJob" />
-        <property name="cronExpression" value="0 0 0/1 * * ?" />
-        <!--<property name="cronExpression" value="0 50 15 * * ?" />-->
+        <property name="jobDetail" ref="paymentToPreJob" />
+        <property name="cronExpression" value="0 0/60 * * * ?" />
+    </bean>
+
+    <bean id="preToPayJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="financeManager" />
+        <property name="targetMethod" value="preToPayJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="preToPayJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="preToPayJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
     
     <bean
@@ -100,7 +112,8 @@
                 <ref bean="fixMonthIndexTrigger" />
                 <ref bean="financeTagTrigger"/>
                 <ref bean="financeOutPayTagTrigger"/>
-                <ref bean="fixMissedBillsJobTrigger"/>
+                <ref bean="paymentToPreJobTrigger"/>
+                <ref bean="preToPayJobTrigger"/>
             </list>
         </property>
     </bean>
