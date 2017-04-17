@@ -2594,6 +2594,7 @@ public class FinanceManagerImpl implements FinanceManager {
                 _logger.info("***vsList***"+vsList.size());
                 // 这里是迭代循环,每一个单独生成凭证
                 for (PaymentVSOutBean item : vsList) {
+                    boolean flag = false;
                     // 回款转预收
                     if (StringTools.isNullOrNone(item.getOutId())) {
                         // 每个预收都生成一个凭证,当然一般只有一个预收
@@ -2602,8 +2603,15 @@ public class FinanceManagerImpl implements FinanceManager {
                             if (inBillBean.getStatus() == FinanceConstant.INBILL_STATUS_NOREF) {
                                 // 第一个全凭证
                                 mainFinance(null, item, payment, bank, inBillBean);
+                                flag = true;
                                 break;
                             }
+                        }
+                        //如果还是没生成凭证，直接取一个收款单
+                        if (!flag){
+                            if (inList.size() == 1)
+                            // 第一个全凭证
+                            mainFinance(null, item, payment, bank, inList.get(0));
                         }
                     }
                 }
@@ -2654,7 +2662,7 @@ public class FinanceManagerImpl implements FinanceManager {
                 //select * from t_center_finance where refBill='SF201703172062862568'
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addWhereStr();
-                conditionParse.addCondition("refBill","=",newBillId);
+                conditionParse.addCondition("refBill","=",inBillBean.getId());
                 List<FinanceBean> financeBeanList = this.financeDAO.queryEntityBeansByCondition(conditionParse);
                 _logger.info(conditionParse+"***"+financeBeanList.size());
                 for (FinanceBean fb: financeBeanList){
@@ -2664,6 +2672,22 @@ public class FinanceManagerImpl implements FinanceManager {
                         financeBean.setFinanceDate(fb.getFinanceDate());
                         break;
                     }
+                }
+            }
+        } else{
+            //只有一个收付款单
+            //TODO 时间也与预收转应收保持一致
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("refBill","=",inBillBean.getId());
+            List<FinanceBean> financeBeanList = this.financeDAO.queryEntityBeansByCondition(conditionParse);
+            _logger.info(conditionParse+"***"+financeBeanList.size());
+            for (FinanceBean fb: financeBeanList){
+                _logger.info(fb.getDescription());
+                if (fb.getDescription()!= null && fb.getDescription().contains("自动审批Job通过预收转应收(销售单关联)")){
+                    financeBean.setLogTime(fb.getLogTime());
+                    financeBean.setFinanceDate(fb.getFinanceDate());
+                    break;
                 }
             }
         }
