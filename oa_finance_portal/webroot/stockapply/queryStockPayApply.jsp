@@ -34,6 +34,7 @@ function load()
              {display: '采购', name : 'stockId', content: '{stockId}/{stockItemId}', width : '20%'},
              {display: '供应商', name : 'provideName', width : '15%'},
              {display: '总金额', name : 'moneys', width : '8%', toFixed: 2},
+             {display: '发票类型', name : 'invoiceName', width : '8%'},
              {display: '纳税实体', name : 'dutyName', width : '10%'},
              {display: '最早付款', name : 'payDate', sortable : true, width : '10%'},
              {display: '时间', name : 'logTime', sortable : true, width : 'auto'}
