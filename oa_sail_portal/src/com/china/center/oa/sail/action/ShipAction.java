@@ -4741,10 +4741,6 @@ public class ShipAction extends DispatchAction
                 item.setProductName(productName);
             }
 
-            ProductBean product = productDAO.find(item.getProductId());
-            if (product!= null) {
-                item.setProductWeight(product.getProductWeight());
-            }
             itemList1.add(item);
         }
 
