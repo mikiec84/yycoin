@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.manager.SailConfigManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -44,10 +46,6 @@ import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.NotifyManager;
-import com.china.center.oa.sail.bean.BaseBalanceBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.OutBalanceBean;
-import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseBalanceDAO;
 import com.china.center.oa.sail.dao.BaseDAO;
@@ -83,7 +81,9 @@ public class BlackManagerImpl implements BlackManager
     
     private StafferDAO stafferDAO = null;
     
-    private OutDAO outDAO = null;       
+    private OutDAO outDAO = null;
+
+    private SailConfigManager sailConfigManager = null;
     
     private BaseDAO baseDAO = null;
     
@@ -1230,10 +1230,24 @@ public class BlackManagerImpl implements BlackManager
 		bod.setPrice(base.getPrice());
 		bod.setAmount(base.getAmount());
 		bod.setOutId(base.getOutId());
+        //TODO
 		bod.setCostPrice(base.getCostPrice());
 		
 		blackOutDetailDAO.saveEntityBean(bod);
 	}
+
+	private double getPprice(String stafferId, String productId){
+        StafferBean stafferBean = this.stafferDAO.find(stafferId);
+        ProductBean product = this.productDAO.find(productId);
+        SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                product);
+
+        double sailPrice = product.getSailPrice();
+        // 总部结算价(产品结算价 * (1 + 总部结算率))
+        double pprice = sailPrice
+                * (1 + sailConf.getPratio() / 1000.0d);
+        return pprice;
+    }
     
     public CommonDAO getCommonDAO() {
         return commonDAO;
