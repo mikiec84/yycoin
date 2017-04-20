@@ -667,6 +667,7 @@ public class ClientAction extends DispatchAction
 
         //就几个字段:客户名，省，市，地址，对应业务员
         //默认都是组织客户
+		//#443 去掉地址
 
         List<CustomerVO> importItemList = new ArrayList<CustomerVO>();
 
@@ -835,26 +836,11 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-                    // 地址
-                    if ( !StringTools.isNullOrNone(obj[4]))
-                    {
-                        String address = obj[4].trim();
-                        bean.setAddress(address);
-                    }
-                    else
-                    {
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("地址不能为空")
-                                .append("<br>");
-
-                        importError = true;
-                    }
 
                     // 业务员
-                    if ( !StringTools.isNullOrNone(obj[5]))
+                    if ( !StringTools.isNullOrNone(obj[4]))
                     {
-                        String stafferName = obj[5].trim();
+                        String stafferName = obj[4].trim();
                         bean.setStafferName(stafferName);
 
                         StafferBean stafferBean = this.stafferDAO.findyStafferByName(stafferName);
@@ -3128,7 +3114,9 @@ public class ClientAction extends DispatchAction
                 {
                     public int getCount(String key, HttpServletRequest request, ConditionParse condition)
                     {
-                        return customerMainDAO.countCustomerLocationByCondition(condition);
+                        int count = customerMainDAO.countCustomerLocationByCondition(condition);
+                        _logger.info(condition+"***getCount***"+count);
+                        return count;
                     }
 
                     public String getOrderPfix(String key, HttpServletRequest request)
