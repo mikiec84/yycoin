@@ -1157,7 +1157,7 @@ public class BlackManagerImpl implements BlackManager
             				bod.setAmount(eachbb.getAmount());
             				bod.setOutId(base.getOutId());
             				bod.setOutBalanceId(eachbb.getParentId());
-            				bod.setCostPrice(base.getCostPrice());
+            				bod.setCostPrice(base.getPprice());
             				
             				blackOutDetailDAO.saveEntityBean(bod);
         				}
@@ -1197,7 +1197,22 @@ public class BlackManagerImpl implements BlackManager
     	        con.addIntCondition("OutBean.outType", "=", OutConstant.OUTTYPE_IN_OTHER);
     	        
     	        refList.addAll(outDAO.queryEntityBeansByCondition(con));
-    	        
+
+                //领样转销售
+                con.clear();
+
+                con.addWhereStr();
+
+                con.addCondition("OutBean.refOutFullId", "=", outId);
+
+                con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+
+                con.addCondition("and OutBean.status in (3, 4)");
+
+                con.addIntCondition("OutBean.outType", "=", OutConstant.OUTTYPE_OUT_BANK_SWATCH);
+
+                refList.addAll(outDAO.queryEntityBeansByCondition(con));
+
     	        for (OutBean eachOut : refList)
     	        {
     	        	refBaseList.addAll(baseDAO.queryEntityBeansByFK(eachOut.getFullId()));
@@ -1231,7 +1246,7 @@ public class BlackManagerImpl implements BlackManager
 		bod.setAmount(base.getAmount());
 		bod.setOutId(base.getOutId());
         //TODO
-		bod.setCostPrice(base.getCostPrice());
+		bod.setCostPrice(base.getPprice());
 		
 		blackOutDetailDAO.saveEntityBean(bod);
 	}
