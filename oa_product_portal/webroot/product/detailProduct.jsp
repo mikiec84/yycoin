@@ -153,9 +153,9 @@ function load()
 					<p:option type="113"/>
 				</p:pro>
 				
-				<p:cell title="增值税类型">
-					${bean.dutyType}
-				</p:cell>
+				<%--<p:cell title="增值税类型">--%>
+					<%--${bean.dutyType}--%>
+				<%--</p:cell>--%>
 				
 				<p:cell title="金(克)">
 					${bean.cost}
