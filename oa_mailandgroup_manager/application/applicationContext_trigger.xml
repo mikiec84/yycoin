@@ -25,13 +25,13 @@
         <property name="cronExpression" value="0 0 2 * * ?" />
     </bean>
     
-    <bean
-        class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-        <property name="triggers">
-            <list>
-                <ref bean="cleanMailTrigger" />
-            </list>
-        </property>
-    </bean>
+    <!--<bean-->
+        <!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+        <!--<property name="triggers">-->
+            <!--<list>-->
+                <!--<ref bean="cleanMailTrigger" />-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
     
 </beans>

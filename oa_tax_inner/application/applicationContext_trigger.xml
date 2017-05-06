@@ -87,7 +87,7 @@
     <bean id="paymentToPreJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="paymentToPreJob" />
-        <property name="cronExpression" value="0 0/60 * * * ?" />
+        <property name="cronExpression" value="0 0/2 * * * ?" />
     </bean>
 
     <bean id="preToPayJob"
@@ -100,18 +100,18 @@
     <bean id="preToPayJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="preToPayJob" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 0/3 * * * ?" />
     </bean>
     
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <ref bean="synTrigger" />
-                <ref bean="synReferTrigger" />
-                <ref bean="fixMonthIndexTrigger" />
-                <ref bean="financeTagTrigger"/>
-                <ref bean="financeOutPayTagTrigger"/>
+                <!--<ref bean="synTrigger" />-->
+                <!--<ref bean="synReferTrigger" />-->
+                <!--<ref bean="fixMonthIndexTrigger" />-->
+                <!--<ref bean="financeTagTrigger"/>-->
+                <!--<ref bean="financeOutPayTagTrigger"/>-->
                 <ref bean="paymentToPreJobTrigger"/>
                 <ref bean="preToPayJobTrigger"/>
             </list>

@@ -84,7 +84,7 @@
                 <!--<ref bean="ibReportJobTrigger" />-->
                 <!--<ref bean="ibReportJobTrigger9" />-->
                 <ref bean="ibReportJobTrigger2" />
-                <ref bean="ibReportJobMonthlyJobTrigger" />
+                <!--<ref bean="ibReportJobMonthlyJobTrigger" />-->
                 <ref bean="exceptionalIbReportJobTrigger" />
             </list>
         </property>

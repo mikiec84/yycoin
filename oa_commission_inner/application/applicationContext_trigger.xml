@@ -192,10 +192,10 @@
 <!--                         <ref bean="statsDropTrigger" />-->
 <!--                         <ref bean="statsFeeAndNetProfitTrigger" />-->
 <!--                         <ref bean="rollbackFeeAndNetProfitTrigger" />-->
-                         <ref bean="backupBlackTrigger" />
+                         <!--<ref bean="backupBlackTrigger" />-->
                          <!--<ref bean="statsBlackTrigger9" />-->
-                         <ref bean="statsBlackTrigger" />
-                         <ref bean="statsBlackDetailTrigger" />
+                         <!--<ref bean="statsBlackTrigger" />-->
+                         <!--<ref bean="statsBlackDetailTrigger" />-->
                          <ref bean="statsBlackTrigger12" />
                          <ref bean="statsBlackDetailTrigger13" />
                          <!--<ref bean="statsBlackOutPayChangedTrigger" />-->

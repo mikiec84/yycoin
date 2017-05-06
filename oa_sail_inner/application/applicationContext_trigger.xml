@@ -275,20 +275,20 @@
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <ref bean="synTrigger" />
-                <ref bean="synNewTrigger" />
-                <ref bean="exportAllStafferCreditTrigger" />
+                <!--<ref bean="synTrigger" />-->
+                <!--<ref bean="synNewTrigger" />-->
+                <!--<ref bean="exportAllStafferCreditTrigger" />-->
                 <!--<ref bean="handleCheckPayTrigger" />-->
-                <ref bean="statsPersonalSwatchTrigger" />
+                <!--<ref bean="statsPersonalSwatchTrigger" />-->
                 <!--<ref bean="createOAOrderFromAppTrigger"/>-->
                 <!--<ref bean="sendMailForShippingTrigger"/>-->
                 <!--<ref bean="sendMailForNbShippingTrigger"/>-->
                 <!--<ref bean="sortPackagesTrigger"/>-->
                 <!--<ref bean="autoApproveOutJobTrigger"/>-->
-                <ref bean="downloadOrderFromMailAttachmentJobTrigger"/>
+                <!--<ref bean="downloadOrderFromMailAttachmentJobTrigger"/>-->
                 <!--<ref bean="sendShippingMailToSailsTrigger"/>-->
-                <ref bean="offlineOrderJobTrigger"/>
-                <ref bean="offlineStorageInJobTrigger"/>
+                <!--<ref bean="offlineOrderJobTrigger"/>-->
+                <!--<ref bean="offlineStorageInJobTrigger"/>-->
                 <!--<ref bean="updateOutbackStatusJobTrigger"/>-->
                 <ref bean="statsExceptionalInBackJobTrigger"/>
                 <ref bean="statsExceptionalPayJobTrigger"/>

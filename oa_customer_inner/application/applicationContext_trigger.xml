@@ -26,14 +26,14 @@
         <property name="cronExpression" value="0 0/60 * * * ?" />
     </bean>
 
-    <bean
-            class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-        <property name="triggers">
-            <list>
-                <ref bean="updateCustomerReserve2JobTrigger"/>
-            </list>
-        </property>
-    </bean>
+    <!--<bean-->
+            <!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+        <!--<property name="triggers">-->
+            <!--<list>-->
+                <!--<ref bean="updateCustomerReserve2JobTrigger"/>-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
 	
    
 </beans>

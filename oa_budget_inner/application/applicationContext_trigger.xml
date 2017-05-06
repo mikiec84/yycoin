@@ -25,13 +25,13 @@
         <property name="cronExpression" value="0 10 0 * * ?" />
     </bean>
 
-    <bean
-        class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-        <property name="triggers">
-            <list>
-                <ref bean="initCarryStatusTrigger" />
-            </list>
-        </property>
-    </bean>
+    <!--<bean-->
+        <!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+        <!--<property name="triggers">-->
+            <!--<list>-->
+                <!--<ref bean="initCarryStatusTrigger" />-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
     
 </beans>
