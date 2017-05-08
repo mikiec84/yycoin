@@ -39,13 +39,13 @@
         <property name="cronExpression" value="0 40 23 * * ?" />
     </bean >
 
-	<bean
-		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<list>
-				<!--<ref bean="checkPriceAskOverTimeTrigger" />-->
-				<ref bean="statsStockWorkTrigger" />
-			</list>
-		</property>
-	</bean>
+	<!--<bean-->
+		<!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+		<!--<property name="triggers">-->
+			<!--<list>-->
+				<!--&lt;!&ndash;<ref bean="checkPriceAskOverTimeTrigger" />&ndash;&gt;-->
+				<!--<ref bean="statsStockWorkTrigger" />-->
+			<!--</list>-->
+		<!--</property>-->
+	<!--</bean>-->
 </beans>

@@ -78,16 +78,16 @@
         <property name="cronExpression" value="0 30 0 * * ?" />
     </bean>
 
-	<bean
-		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<list>
-				<ref bean="monitorImplTrigger" />
-				<ref bean="everyDayCarryWithOutTransactionalTrigger" />
-				<ref bean="everyHourCarryWithOutTransactionalTrigger" />
-				<ref bean="hotLoadingParameterTrigger" />
-				<ref bean="planTrigger" />
-			</list>
-		</property>
-	</bean>
+	<!--<bean-->
+		<!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+		<!--<property name="triggers">-->
+			<!--<list>-->
+				<!--<ref bean="monitorImplTrigger" />-->
+				<!--<ref bean="everyDayCarryWithOutTransactionalTrigger" />-->
+				<!--<ref bean="everyHourCarryWithOutTransactionalTrigger" />-->
+				<!--<ref bean="hotLoadingParameterTrigger" />-->
+				<!--<ref bean="planTrigger" />-->
+			<!--</list>-->
+		<!--</property>-->
+	<!--</bean>-->
 </beans>

@@ -38,14 +38,14 @@
         <property name="cronExpression" value="0 0 4 * * ?" />
     </bean>
 
-	<bean
-		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<list>
-				<ref bean="statOutTrigger" />
-				<ref bean="deleteHisTrigger" />
-			</list>
-		</property>
-	</bean>
+	<!--<bean-->
+		<!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+		<!--<property name="triggers">-->
+			<!--<list>-->
+				<!--<ref bean="statOutTrigger" />-->
+				<!--<ref bean="deleteHisTrigger" />-->
+			<!--</list>-->
+		<!--</property>-->
+	<!--</bean>-->
 	
 </beans>

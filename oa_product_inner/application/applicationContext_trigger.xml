@@ -80,16 +80,16 @@
         <property name="cronExpression" value="0 0/10 * * * ?" />
     </bean>
     
-    <bean
-		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<list>
-				<ref bean="exportAllStorageRelationTrigger" />
-				<ref bean="checkStorageLogTrigger" />
-                <ref bean="composeProductTrigger" />
-                <ref bean="autoCreatePriceConfigJobTrigger" />
-                <ref bean="statExceptionalStorageLogTrigger" />
-			</list>
-		</property>
-	</bean>
+    <!--<bean-->
+		<!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+		<!--<property name="triggers">-->
+			<!--<list>-->
+				<!--<ref bean="exportAllStorageRelationTrigger" />-->
+				<!--<ref bean="checkStorageLogTrigger" />-->
+                <!--<ref bean="composeProductTrigger" />-->
+                <!--<ref bean="autoCreatePriceConfigJobTrigger" />-->
+                <!--<ref bean="statExceptionalStorageLogTrigger" />-->
+			<!--</list>-->
+		<!--</property>-->
+	<!--</bean>-->
 </beans>

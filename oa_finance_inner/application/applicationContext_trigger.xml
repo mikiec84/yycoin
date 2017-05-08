@@ -188,27 +188,27 @@
     <bean id="statsExceptionalPayJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="statsExceptionalPayJob" />
-        <property name="cronExpression" value="0 58 13 * * ?" />
+        <property name="cronExpression" value="0 35 9 * * ?" />
     </bean>
 
-    <bean
-            class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-        <property name="triggers">
-            <list>
-                <ref bean="statBankTrigger" />
-                <ref bean="exportAllCurrentBankStatTrigger" />
-                <ref bean="clearRejectInvoiceinsBeanTrigger" />
-                <ref bean="autoProcessPaymentToPreTrigger" />
-                <ref bean="autoRefInbillToSailTrigger" />
-                <ref bean="createPackageTrigger"/>
-                <ref bean="passPaymentApplyJobTrigger"/>
-                <ref bean="passPaymentApply2JobTrigger"/>
-                <!--<ref bean="insFollowOutJobTrigger"/>-->
-                <ref bean="autoApproveJobTrigger"/>
-                <ref bean="checkOrderWithoutCKJobTrigger"/>
-                <ref bean="statBankBalanceJobTrigger"/>
-                <ref bean="statsExceptionalPayJobTrigger"/>
-            </list>
-        </property>
-    </bean>
+    <!--<bean-->
+            <!--class="org.springframework.scheduling.quartz.SchedulerFactoryBean">-->
+        <!--<property name="triggers">-->
+            <!--<list>-->
+                <!--<ref bean="statBankTrigger" />-->
+                <!--<ref bean="exportAllCurrentBankStatTrigger" />-->
+                <!--<ref bean="clearRejectInvoiceinsBeanTrigger" />-->
+                <!--<ref bean="autoProcessPaymentToPreTrigger" />-->
+                <!--<ref bean="autoRefInbillToSailTrigger" />-->
+                <!--<ref bean="createPackageTrigger"/>-->
+                <!--<ref bean="passPaymentApplyJobTrigger"/>-->
+                <!--<ref bean="passPaymentApply2JobTrigger"/>-->
+                <!--&lt;!&ndash;<ref bean="insFollowOutJobTrigger"/>&ndash;&gt;-->
+                <!--<ref bean="autoApproveJobTrigger"/>-->
+                <!--<ref bean="checkOrderWithoutCKJobTrigger"/>-->
+                <!--<ref bean="statBankBalanceJobTrigger"/>-->
+                <!--<ref bean="statsExceptionalPayJobTrigger"/>-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
 </beans>
